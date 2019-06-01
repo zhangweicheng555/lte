@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.business.analyze.dao.AnalyzeDao">
+
+	<!-- lte单验 -->
+	<!-- 汇总月日统计 -->
+	<select id="analyzeLteAllAndCompleteByDay" resultType="com.boot.kaizen.business.analyze.common.HighchartCommon">
+		 
+		 	select 
+           		 testTime as "name"
+		        ,count(1) as "allNum"
+		        ,sum(if(status =1,1,0)) as "finishNum"
+		    from  lte_plane 
+		    where 1=1 and testTime is not null and projId=#{projId}
+		    
+	           <if test="beginTime != null and endTime==null">
+			    	and testTime &gt;= #{beginTime}
+			    </if>
+			    <if test="endTime != null and beginTime == null">
+			    	and testTime &lt;= #{endTime}
+			    </if>
+			    <if test="endTime != null and beginTime != null">
+			    	and testTime  &gt;= #{beginTime}
+			    	and testTime  &lt;= #{endTime}
+			    </if>
+			    
+           		group by testTime
+			    order by testTime asc
+	</select>
+	
+	<select id="analyzeLteAllAndCompleteByMonth" resultType="com.boot.kaizen.business.analyze.common.HighchartCommon">
+		 	select 
+           		 date_format(testTime,'%Y-%m') as "name"
+		        ,count(1) as "allNum"
+		        ,sum(if(status =1,1,0)) as "finishNum"
+		    from  lte_plane 
+		    where 1=1 and testTime is not null  and projId=#{projId}
+           		
+           		<if test="beginTime != null and endTime==null">
+			    	and testTime &gt;= #{beginTime}
+			    </if>
+			    <if test="endTime != null and beginTime == null">
+			    	and testTime &lt;= #{endTime}
+			    </if>
+			    <if test="endTime != null and beginTime != null">
+			    	and testTime  &gt;= #{beginTime}
+			    	and testTime  &lt;= #{endTime}
+			    </if>
+           		group by date_format(testTime,'%Y-%m')
+			    order by date_format(testTime,'%Y-%m') asc
+	</select>
+	
+	
+
+	<!-- 按人进行 月 日统计 -->
+	<select id="analyzeLteAllAndCompleteByPerson" resultType="com.boot.kaizen.business.analyze.common.HighchartCommon">
+		    select c.name as "name",c.num  as "allNum",c.finish as "finishNum"
+			from (
+				select 
+				   p.dealPersonId
+				   ,case when u.nickname is null then '未知' else u.nickname end as name
+				   ,count(*)  as num 
+				   ,sum(if(p.status =1,1,0)) as  finish
+				from 
+				   lte_plane p left join sys_user u on  p.dealPersonId=u.id
+				where  p.testTime is not null   and projId=#{projId}
+				 <if test="beginTime != null and endTime==null">
+			    	and testTime &gt;= #{beginTime}
+			    </if>
+			    <if test="endTime != null and beginTime == null">
+			    	and testTime &lt;= #{endTime}
+			    </if>
+			    <if test="endTime != null and beginTime != null">
+			    	and testTime  &gt;= #{beginTime}
+			    	and testTime  &lt;= #{endTime}
+			    </if>
+				group by p.dealPersonId
+			) c
+	</select>
+	
+	
+	
+	
+</mapper>

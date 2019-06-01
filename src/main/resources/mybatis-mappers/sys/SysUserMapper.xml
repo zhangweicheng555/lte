@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.dao.SysUserDao">
+
+	
+	
+	<select resultType="SysUser" id="find">
+ 		select distinct 
+ 		su.id
+ 		  ,su.username
+ 		  ,su.nickname
+ 		  ,su.phone
+ 		  ,su.telephone
+ 		  ,su.email
+ 		  ,su.birthday
+ 		  ,su.sex
+ 		  ,su.status
+ 		  ,su.createTime
+ 		from 
+ 		  sys_user su 
+ 		  left join sys_role_user ru on su.id=ru.userId
+		  left join sys_role r on  r.id=ru.roleId
+		  left join proj_role_relation pr on pr.role_id=r.id
+ 		  left join sys_project p on p.id=pr.proj_id
+ 		where 1=1 
+		 
+	<if test="map.projId != null and map.projId != ''">
+		and p.id=#{map.projId}
+	</if>
+	<if test="map.username != null and map.username != ''">
+		and su.username = #{map.username} 
+	</if>
+	<if test="map.nickname != null and map.nickname != ''">
+		and su.nickname = #{map.nickname} 
+	</if>
+	<if test="map.beginTime != null and map.beginTime != '' and (map.endTime == null or map.endTime == '')">
+		and su.createTime >= str_to_date(#{map.beginTime},'%Y-%m-%d %H:%i:%s') 
+	</if>
+	
+	<if test="map.comapny != null">
+		and su.comapny = #{map.comapny} 
+	</if>
+	<if test="map.comapnyBelong != null">
+		and su.comapnyBelong  like  '%${map.comapnyBelong}%'  
+	</if>
+	<if test="map.secondConpany != null">
+		and su.secondConpany    like  '%${map.secondConpany}%'     
+	</if>
+	<if test="map.roleId != null">
+		and r.id = #{map.roleId}
+	</if>
+	<if test="map.userId != null">
+		and su.id = #{map.userId}
+	</if>
+	
+		order by su.createTime desc 
+	</select>
+	
+	<select id="queryUser" resultType="SysUser">
+	
+		 select u.*
+		 from 
+		 sys_project p
+		 ,proj_role_relation pr
+		 ,sys_role r
+		 ,sys_role_user ru
+		 ,sys_user u
+		 where 
+		 p.id=pr.proj_id
+		 and pr.role_id=r.id
+		 and r.id=ru.roleId
+		 and u.id=ru.userId
+		 and u.username=#{username}
+		 and p.id=#{projId}
+		 order by p.createTime desc
+		 limit 1
+		
+	</select>
+	
+	<select id="queryUserByProjId" resultType="java.util.Map">
+	
+		 select distinct u.id as "id",u.username as "username"
+		 from 
+		 sys_project p
+		 ,proj_role_relation pr
+		 ,sys_role r
+		 ,sys_role_user ru
+		 ,sys_user u
+		 where 
+		 p.id=pr.proj_id
+		 and pr.role_id=r.id
+		 and r.id=ru.roleId
+		 and u.id=ru.userId
+		 and p.id=#{projId}
+		
+	</select>
+	<select id="queryUserByRoleId" resultType="java.util.Map">
+	
+		 select distinct u.id as "id",u.username as "username"
+		 from 
+		 sys_role r
+		 ,sys_role_user ru
+		 ,sys_user u
+		 where 1=1
+		 and r.id=ru.roleId
+		 and u.id=ru.userId
+		 and r.id=#{roleId}
+		
+	</select>
+	
+	<select id="findUserNames" resultType="java.lang.String">
+		 select  
+		 group_concat(u.username separator '、') 
+		 from 
+		 sys_role_user r
+		 ,sys_user u
+		 where 
+		 u.id=r.userId
+		 and r.roleId =#{roleId}
+	</select>
+	
+	<select id="findUserIds" resultType="java.lang.Long">
+		 select   u.id
+		 from 
+		 sys_role_user r
+		 ,sys_user u
+		 where 
+		 u.id=r.userId
+		 and r.roleId =#{roleId}
+	</select>
+	
+	<delete id="deleteBatch">
+		delete from sys_user where id in (
+			select m.id from (
+				 select distinct u.id
+				 from 
+				 sys_user u 
+				 left join sys_role_user ru on u.id=ru.userId
+				 left join sys_role r on r.id=ru.roleId
+				 left join proj_role_relation pr on pr.role_id=r.id
+				 left join sys_project p on  p.id=pr.proj_id
+				 
+				 where 
+				 u.id not in (10,8713)
+				 and u.id in
+				 <foreach collection="idsArray" index="index" item="item"
+		            open="(" separator="," close=")">
+		            #{item}
+		        </foreach>
+		        
+		        <if test="projId != null">
+					and p.id=#{projId}
+				</if>
+			) m
+		)
+	</delete>
+	
+	
+	
+	<insert id="insertSelective" parameterType="com.boot.kaizen.model.SysUser">
+    insert into sys_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="nickname != null">
+        nickname,
+      </if>
+      <if test="headImgUrl != null">
+        headImgUrl,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="telephone != null">
+        telephone,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+      <if test="birthday != null">
+        birthday,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="createTime != null">
+        createTime,
+      </if>
+      <if test="updateTime != null">
+        updateTime,
+      </if>
+      
+      <if test="comapny != null">
+        comapny,
+      </if>
+      <if test="comapnyBelong != null">
+        comapnyBelong,
+      </if>
+      <if test="secondConpany != null">
+        secondConpany,
+      </if>
+      
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id},
+      </if>
+      <if test="username != null">
+        #{username},
+      </if>
+      <if test="password != null">
+        #{password},
+      </if>
+      <if test="nickname != null">
+        #{nickname},
+      </if>
+      <if test="headImgUrl != null">
+        #{headImgUrl},
+      </if>
+      <if test="phone != null">
+        #{phone},
+      </if>
+      <if test="telephone != null">
+        #{telephone},
+      </if>
+      <if test="email != null">
+        #{email},
+      </if>
+      <if test="birthday != null">
+        #{birthday},
+      </if>
+      <if test="sex != null">
+        #{sex},
+      </if>
+      <if test="status != null">
+        #{status},
+      </if>
+      <if test="createTime != null">
+        #{createTime},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime},
+      </if>
+      
+      <if test="comapny != null">
+        #{comapny},
+      </if>
+      <if test="comapnyBelong != null">
+        #{comapnyBelong},
+      </if>
+      <if test="secondConpany != null">
+        #{secondConpany},
+      </if>
+    </trim>
+  </insert>
+	
+	<update id="update">
+		update sys_user t 
+		 <set>
+		<if test="user.username != null and user.username != ''">
+			username = #{user.username},
+		</if>
+		<if test="user.nickname != null and user.nickname != ''">
+			nickname = #{user.nickname},
+		</if>
+		<if test="user.phone != null and user.phone != ''">
+			phone = #{user.phone},
+		</if>
+		<if test="user.telephone != null and user.telephone != ''">
+			telephone = #{user.telephone},
+		</if>
+		<if test="user.email != null and user.email != ''">
+			email = #{user.email},
+		</if>
+		<if test="user.birthday != null ">
+			birthday = #{user.birthday},
+		</if>
+		<if test="user.sex != null ">
+			sex = #{user.sex},
+		</if>
+		<if test="user.headImgUrl != null and user.headImgUrl != ''">
+			headImgUrl = #{user.headImgUrl},
+		</if>
+		<if test="user.status != null">
+			status = #{user.status},
+		</if>
+		<if test="user.comapny != null">
+			comapny = #{user.comapny},
+		</if>
+		<if test="user.comapnyBelong != null">
+			comapnyBelong = #{user.comapnyBelong},
+		</if>
+		<if test="user.secondConpany != null">
+			secondConpany = #{user.secondConpany},
+		</if>
+		</set>
+		where t.id = #{user.id}
+	</update>
+	
+</mapper>

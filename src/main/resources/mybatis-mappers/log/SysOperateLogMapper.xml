@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.dao.log.SysOperateLogDao">
+
+
+	
+	
+	
+	<insert id="save" useGeneratedKeys="true" keyProperty="id" >
+		insert into 
+		operate_log(userId,projId,packageName,methodName,methodArgs,createTime,entityName,msg) 
+		values(#{userId},#{projId},#{packageName},#{methodName},#{methodArgs},#{createTime},#{entityName},#{msg})
+	</insert>
+	
+	
+</mapper>

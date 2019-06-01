@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>规划表审核</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../../../layui/css/layui.css">
+</head>
+<body>
+	
+	<blockquote class="layui-elem-quote" style="margin-top: 5px;"><span style="color: red;">规划信息</span></blockquote>
+   	    <form class="layui-form"  id="formDemoPlane">
+		  <div class="layui-form-item">
+		   
+		    <label class="layui-form-label" style="width: 150px;">基站号</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="mENodeBID" id="mENodeBID"      autocomplete="off" class="layui-input">
+		    </div>
+		    
+		    <label class="layui-form-label" style="width: 150px;">基站名称</label>
+		    <div class="layui-input-inline" >
+		      <input type="text" name="mBaseStationName" id="mBaseStationName"      autocomplete="off" class="layui-input">
+		    </div>
+		    
+		    <label class="layui-form-label" style="width: 150px;">基站类型</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="mBaseStationType" id="mBaseStationType"   autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  
+		  
+		  <div class="layui-form-item">
+		    
+		    <label class="layui-form-label" style="width: 150px;">海拔</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="mAltitude" id="mAltitude"   autocomplete="off" class="layui-input">
+		    </div>
+		    
+		    <label class="layui-form-label" style="width: 150px;">经度</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="mLongitude" id="mLongitude"   autocomplete="off" class="layui-input">
+		    </div>
+	
+		    <label class="layui-form-label" style="width: 150px;">纬度</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="mLatitude" id="mLatitude"   autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  
+		  <div class="layui-form-item">
+		   
+		    <label class="layui-form-label" style="width: 150px;">Tac</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="mTac" id="mTac"   autocomplete="off" class="layui-input">
+		    </div>
+	
+		    <label class="layui-form-label" style="width: 150px;">测试工程师</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="testPerson" id="testPerson"   autocomplete="off" class="layui-input">
+		    </div>
+		    
+		    <label class="layui-form-label" style="width: 150px;">测试工程师电话</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="testPersonPhone" id="testPersonPhone"   autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  
+		 
+		  
+		  <div class="layui-form-item">
+		   
+		    <label class="layui-form-label" style="width: 150px;">后台工程师</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="backPerson" id="backPerson"   autocomplete="off" class="layui-input">
+		    </div>
+		    
+		    <label class="layui-form-label" style="width: 150px;">后台工程师电话</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="backPersonPhone" id="backPersonPhone"   autocomplete="off" class="layui-input">
+		    </div>
+	
+		    <label class="layui-form-label" style="width: 150px;">测试时间</label>
+		    <div class="layui-input-inline"> 
+		      <input type="text" name="testTime" id="testTime"       autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  
+		</form>
+		
+	<blockquote class="layui-elem-quote" style="margin-top: 5px;"><span style="color: red;">测试配置</span></blockquote>
+   	    <form class="layui-form"  id="formDemoConfig">
+		  	<div class="layui-form-item">
+			    <label class="layui-form-label" style="width: 155px;">语音测试次数</label>
+			    <div class="layui-input-inline">
+			      <input type="text" name="mVoiceCount" id="mVoiceCount"      autocomplete="off" class="layui-input">
+			    </div>
+			    
+			    <label class="layui-form-label" style="width: 155px;">成功率目标值</label>
+			    <div class="layui-input-inline" >
+			      <input type="text" name="mVoiceTarget" id="mVoiceTarget"      autocomplete="off" class="layui-input">
+			    </div>
+			    <label class="layui-form-label" style="width: 155px;">FTP服务器地址</label>
+			    <div class="layui-input-inline">
+			      <input type="text" name="mFtpService" id="mFtpService"   autocomplete="off"    class="layui-input">
+			    </div>
+			  </div>
+			  
+			  
+			  
+			  <div class="layui-form-item">
+			    <label class="layui-form-label" style="width: 155px;">FTP服务器端口</label>
+			    <div class="layui-input-inline">
+			      <input type="text" name="mFtpPort" id="mFtpPort"   autocomplete="off" class="layui-input">
+			    </div>
+			    <label class="layui-form-label" style="width: 155px;">FTP服务器用户名</label>
+			    <div class="layui-input-inline">
+			      <input type="text" name="mFtpUserName" id="mFtpUserName"   autocomplete="off" class="layui-input">
+			    </div>
+		
+			    <label class="layui-form-label" style="width: 155px;">FTP服务器密码</label>
+			    <div class="layui-input-inline">
+			      <input type="text" name="mFtpPaw" id="mFtpPaw"   autocomplete="off" class="layui-input">
+			    </div>
+			  </div>
+			  
+			  <div class="layui-form-item">
+			    <label class="layui-form-label" style="width: 155px;">FTP下载文件路径</label>
+			    <div class="layui-input-inline">
+			      <input type="text" name="mFtpFileDownPath" id="mFtpFileDownPath"   autocomplete="off" class="layui-input">
+			    </div>
+		
+			    <label class="layui-form-label" style="width: 155px;">FTP上传文件路径</label>
+			    <div class="layui-input-inline">
+			      <input type="text" name="mFtpFileUpPath" id="mFtpFileUpPath"   autocomplete="off" class="layui-input">
+			    </div>
+			    <label class="layui-form-label" style="width: 155px;">FTP上传速率目标值</label>
+			    <div class="layui-input-inline">
+			      <input type="text" name="mFtpUpRateTarget" id="mFtpUpRateTarget"   autocomplete="off" class="layui-input">
+			    </div>
+			  </div>
+			  
+			  <div class="layui-form-item">
+			    <label class="layui-form-label" style="width: 155px;">FTP下载速率目标值</label>
+			    <div class="layui-input-inline">
+			      <input type="text" name="mFtpDownRateTarget" id="mFtpDownRateTarget"   autocomplete="off" class="layui-input">
+			    </div>
+			  </div>
+		</form>
+		
+	<blockquote class="layui-elem-quote" style="margin-top: 5px;"><span style="color: red;">工参信息</span></blockquote>
+   	    <form class="layui-form"  id="formDemoGc" >
+		</form>
+		
+		
+	<blockquote class="layui-elem-quote" style="margin-top: 5px;"><span style="color: red;">基站核查结果</span></blockquote>
+   	    <form class="layui-form"  id="formStation" >
+		</form>
+		
+	
+	<blockquote class="layui-elem-quote" style="margin-top: 5px;"><span style="color: red;">路测信息核查</span></blockquote>
+   	   
+   	    <form class="layui-form"  id="formRoadCheck" >
+		  
+		</form>
+		
+	
+	<blockquote class="layui-elem-quote" style="margin-top: 5px;"><span style="color: red;">小区信息核查</span></blockquote>
+   	    <form class="layui-form"  id="formCellCheck" >
+		  
+		</form>
+		
+		
+	<blockquote class="layui-elem-quote" style="margin-top: 5px;"><span style="color: red;">审核结果</span></blockquote>
+   	    <form class="layui-form"  id="formDemo" >
+   	         <input type="hidden" name="id" id="id"   autocomplete="off" class="layui-input">
+   	         <input type="hidden" name="statusM" id="statusM"   autocomplete="off" class="layui-input">
+   	         
+		 	 <div class="layui-form-item">
+			     <div class="layui-input-block">
+				      <input type="radio" name="status" value="1" title="审核通过" >
+				      <input type="radio" name="status" value="2" title="审核不通过">
+				</div>
+			</div>
+		</form>
+	
+	
+	<script type="text/javascript" src="../../../../js/libs/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../../../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../../../js/jq.js"></script>
+	
+<script>
+
+	
+	function submitForm(){
+		var statusM=$("#statusM").val();
+		var id=$("#id").val();
+		if(statusM && id){
+			return true;
+		}else{
+			parent.layer.msg('审核结果不能为空');
+			return false;
+		}
+	 }
+	
+	
+	
+	
+	
+	//加载信息
+   loadData();
+   function loadData(){
+		var id=getUrlParam("id");
+		if(!id){
+			layer.msg('获取数据ID异常');
+			return;
+		}
+		$.ajax({
+			   type: "POST",url: "/plan/queryLtePlanInfo",data: {"id":id},dataType:"json",async : false,
+			   success: function(msg){
+			     if(msg.success){
+			    	var obj=msg.object;
+			    	console.info(obj);
+			    	if(obj){
+			    		$("#id").val(obj.id);
+			    		$("#mENodeBID").val(obj.mENodeBID);
+			    		$("#mBaseStationName").val(obj.mBaseStationName);
+			    		$("#mBaseStationType").val(obj.mBaseStationType);
+			    		$("#mAltitude").val(obj.mAltitude);
+			    		$("#mLongitude").val(obj.mLongitude);
+			    		$("#mLatitude").val(obj.mLatitude);
+			    		$("#mTac").val(obj.mTac);
+			    		$("#testPerson").val(obj.testPerson);
+			    		$("#testPersonPhone").val(obj.testPersonPhone);
+			    		$("#backPerson").val(obj.backPerson);
+			    		$("#backPersonPhone").val(obj.backPersonPhone);
+			    		$("#testTime").val(obj.testTime);
+			    		var configs=obj.configs;
+			    		if(configs != null && configs.length > 0){
+			    			var config=configs[0];
+			    			$("#mVoiceCount").val(config.mVoiceCount);
+			    			$("#mVoiceTarget").val(config.mVoiceTarget);
+			    			$("#mFtpService").val(config.mFtpService);
+			    			$("#mFtpPort").val(config.mFtpPort);
+			    			$("#mFtpUserName").val(config.mFtpUserName);
+			    			$("#mFtpPaw").val(config.mFtpPaw);
+			    			$("#mFtpFileDownPath").val(config.mFtpFileDownPath);
+			    			$("#mFtpFileUpPath").val(config.mFtpFileUpPath);
+			    			$("#mFtpUpRateTarget").val(config.mFtpUpRateTarget);
+			    			$("#mFtpDownRateTarget").val(config.mFtpDownRateTarget);
+			    		}
+			    		var configs=obj.configs;
+			    		if(configs != null && configs.length > 0){
+			    			var config=configs[0];
+			    			$("#mVoiceCount").val(config.mVoiceCount);
+			    			$("#mVoiceTarget").val(config.mVoiceTarget);
+			    			$("#mFtpService").val(config.mFtpService);
+			    			$("#mFtpPort").val(config.mFtpPort);
+			    			$("#mFtpUserName").val(config.mFtpUserName);
+			    			$("#mFtpPaw").val(config.mFtpPaw);
+			    			$("#mFtpFileDownPath").val(config.mFtpFileDownPath);
+			    			$("#mFtpFileUpPath").val(config.mFtpFileUpPath);
+			    			$("#mFtpUpRateTarget").val(config.mFtpUpRateTarget);
+			    			$("#mFtpDownRateTarget").val(config.mFtpDownRateTarget);
+			    		}
+			    		var gcParameters=obj.gcParameters;
+			    		if(gcParameters != null && gcParameters.length > 0){
+			    			$("#formDemoGc").empty();
+			    			for(var i=0;i<gcParameters.length;i++){
+			    				var model=gcParameters[i];
+					    		var htmlModel1='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">基站号</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.mENodeBID+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">基站名</label><div class="layui-input-inline"><input type="text" value="'+model.mBaseStationName+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">小区号</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.mCellID+'" class="layui-input"></div></div>'
+					    		var htmlModel2='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">小区名称</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.mCellName+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">频点</label><div class="layui-input-inline"><input type="text" value="'+model.mFrequency+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">PCI</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.mPCI+'" class="layui-input"></div></div>'
+					    		var htmlModel3='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">RsPower</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.mRsPower+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">天线挂高</label><div class="layui-input-inline"><input type="text" value="'+model.mAntennaHangUp+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">方位角</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.mAzimuth+'" class="layui-input"></div></div>'
+					    		var htmlModel4='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">机械下倾角</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.mMechanicalLowerInclination+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">预置电下倾</label><div class="layui-input-inline"><input type="text" value="'+model.mPresetElectricDip+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">总下倾角</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.mtotalLowerInclination+'" class="layui-input"></div></div>'
+					    		var htmlModel5='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">配置名</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.configName+'" class="layui-input"></div></div>'
+					    		
+					    		$("#formDemoGc").append(htmlModel1);
+					    		$("#formDemoGc").append(htmlModel2);
+					    		$("#formDemoGc").append(htmlModel3);
+					    		$("#formDemoGc").append(htmlModel4);
+					    		$("#formDemoGc").append(htmlModel5);
+					    		$("#formDemoGc").append("<hr class='layui-bg-orange' />");
+			    			}
+			    		}
+			    		var stationChecks=obj.stationChecks;
+			    		if(stationChecks != null && stationChecks.length > 0){
+			    			$("#formStation").empty();
+			    			for(var i=0;i<stationChecks.length;i++){
+			    				var model=stationChecks[i];
+					    		var htmlModel1='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">基站号</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.eNodeBID+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">用户ID</label><div class="layui-input-inline"><input type="text" value="'+model.userId+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">测试时间</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.testDate+'" class="layui-input"></div></div>'
+					    		var htmlModel2='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">经度</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.latitude+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">纬度</label><div class="layui-input-inline"><input type="text" value="'+model.longitude+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">实测TAC</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.tac+'" class="layui-input"></div></div>'
+					    		
+					    		$("#formStation").append(htmlModel1);
+					    		$("#formStation").append(htmlModel2);
+					    		$("#formStation").append("<hr class='layui-bg-orange' />");
+			    			}
+			    		}
+			    		var cellChecks=obj.cellChecks;
+			    		if(cellChecks != null && cellChecks.length > 0){
+			    			$("#formCellCheck").empty();
+			    			for(var i=0;i<cellChecks.length;i++){
+			    				var model=cellChecks[i];
+					    		var htmlModel1='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">基站号</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.eNodeBID+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">基站名</label><div class="layui-input-inline"><input type="text" value="'+model.communityName+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">测试时间</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.testDate+'" class="layui-input"></div></div>'
+					    		var htmlModel2='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">用户ID</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.userId+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">语音次数</label><div class="layui-input-inline"><input type="text" value="'+model.csfbTestCount+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">语音成功次数</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.csfbFallSuccessCount+'" class="layui-input"></div></div>'
+					    		var htmlModel3='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">语音回落率</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.csfbFallRate+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">好点FTP上传-平均RSRP</label><div class="layui-input-inline"><input type="text" value="'+model.goodFtpUpAverageRsrp+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">好点FTP上传-平均SINR</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.goodFtpUpAverageSinr+'" class="layui-input"></div></div>'
+					    		var htmlModel4='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">好点FTP上传-上传速率</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.goodFtpUpRate+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">中点FTP上传-平均RSRP</label><div class="layui-input-inline"><input type="text" value="'+model.generalFtpUpAverageRsrp+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">中点FTP上传-平均SINR</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.generalFtpUpAverageSinr+'" class="layui-input"></div></div>'
+					    		var htmlModel5='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">中点FTP上传-上传速率</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.generalFtpUpRate+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">差点FTP上传-平均RSRP</label><div class="layui-input-inline"><input type="text" value="'+model.poorFtpUpAverageRsrp+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">差点FTP上传-平均SINR</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.poorFtpUpAverageSinr+'" class="layui-input"></div></div>'
+					    		var htmlModel6='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">差点FTP上传-上传速率</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.poorFtpUpRate+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">好点FTP下载-平均RSRP</label><div class="layui-input-inline"><input type="text" value="'+model.goodFtpDownAverageRsrp+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">好点FTP下载-平均SINR</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.goodFtpDownAverageSinr+'" class="layui-input"></div></div>'
+					    		var htmlModel7='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">好点FTP下载-下载速率</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.goodFtpDownRate+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">中点FTP下载-平均RSRP</label><div class="layui-input-inline"><input type="text" value="'+model.generalFtpDownAverageRsrp+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">中点FTP下载-平均SINR</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.generalFtpDownAverageSinr+'" class="layui-input"></div></div>'
+					    		var htmlModel8='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">中点FTP下载-下载速率</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.generalFtpDownRate+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">差点FTP下载-平均RSRP</label><div class="layui-input-inline"><input type="text" value="'+model.poorFtpDownAverageRsrp+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">差点FTP下载-平均SINR</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.poorFtpDownAverageSinr+'" class="layui-input"></div></div>'
+					    		var htmlModel9='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">差点FTP下载-下载速率</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.poorFtpDownRate+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">PCI</label><div class="layui-input-inline"><input type="text" value="'+model.pci+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">TAC</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.tac+'" class="layui-input"></div></div>'
+					    		var htmlModel10='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">CELL ID</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.cellId+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">频点</label><div class="layui-input-inline"><input type="text" value="'+model.frequency+'"   autocomplete="off" class="layui-input"></div></div>'
+					    		
+					    		$("#formCellCheck").append(htmlModel1);
+					    		$("#formCellCheck").append(htmlModel2);
+					    		$("#formCellCheck").append(htmlModel3);
+					    		$("#formCellCheck").append(htmlModel4);
+					    		$("#formCellCheck").append(htmlModel5);
+					    		$("#formCellCheck").append(htmlModel6);
+					    		$("#formCellCheck").append(htmlModel7);
+					    		$("#formCellCheck").append(htmlModel8);
+					    		$("#formCellCheck").append(htmlModel9);
+					    		$("#formCellCheck").append(htmlModel10);
+					    		$("#formCellCheck").append("<hr class='layui-bg-orange' />");
+			    			}
+			    		}
+			    		var loadTests=obj.loadTests;
+			    		if(loadTests != null && loadTests.length > 0){
+			    			$("#formRoadCheck").empty();
+			    			for(var i=0;i<loadTests.length;i++){
+			    				var model=loadTests[i];
+					    		var htmlModel1='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">用户ID</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.userId+'" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">基站号</label><div class="layui-input-inline"><input type="text" value="'+model.eNodeBID+'"   autocomplete="off" class="layui-input"></div><label class="layui-form-label" style="width: 150px;">小区名</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.communityName+'" class="layui-input"></div></div>'
+					    		var htmlModel2='<div class="layui-form-item"><label class="layui-form-label" style="width: 150px;">测试时间</label><div class="layui-input-inline"><input type="text"   autocomplete="off" value="'+model.testDate+'" class="layui-input"></div></div>'
+					    		$("#formRoadCheck").append(htmlModel1);
+					    		$("#formRoadCheck").append(htmlModel2);
+					    	    $("#formRoadCheck").append("<hr class='layui-bg-orange' />");
+			    			}
+			    		}
+			    	}else{
+			    	 parent.layer.msg('返回修改数据信息异常');
+			    	}
+			     }else{
+			    	 parent.layer.msg('返回修改数据信息异常');
+			     }
+			   }
+		});
+	};
+	
+	layui.use(['layer', 'form','jquery','laydate','element'], function(){
+	  var layer = layui.layer,form = layui.form,$=layui.jquery;
+	  var laydate = layui.laydate;
+	  var element = layui.element;
+	//监听提交
+	  form.on('submit(formDemo)', function(data){
+		flag=true;
+	    return false;
+	  });
+	
+	
+	
+	  form.on('radio', function(data){
+		  $("#statusM").val(data.value);
+	   });  
+	});
+	
+	
+</script> 
+
+</body>
+</html>

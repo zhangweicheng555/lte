@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>tdd 室分数据分析图标</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../layui/css/layui.css">
+<style type="text/css">
+	.layui-input {height: 30px;}
+	.layui-btn-sm {
+    height: 29px;
+    line-height: 29px;
+    padding: 0 10px;
+    font-size: 12px;
+	}
+</style>
+</head>
+<body>
+<div>
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<!-- 搜索功能区域 -->
+		<header style="height: 100%">
+			<div align="left">
+				<table style="width: 100%">
+					<tr>
+						<td>
+						  <form  class="layui-form form-inline"   lay-filter="formDemo"  onsubmit="return false">
+								<div class="form-group" style="margin-left: 10px;">
+									
+									起止时间：
+									<input type="text"  id="beginTime"  autocomplete="off" class="form-control" name="beginTime">
+									-
+									<input type="text"  id="endTime"  autocomplete="off" class="form-control" name="endTime">
+									
+									&nbsp;&nbsp;&nbsp;&nbsp;
+									
+									<input name="type"  title="天" type="radio"  checked="checked" value="0">
+								    <input name="type" title="月" type="radio" value="1" >
+									
+									<input type="hidden" id="typeM" name="typeM" value="0" />
+									
+									<button id="searchBt" class="layui-btn layui-btn-sm">
+										<i class="layui-icon">&#xe615;</i>搜索
+									</button>
+									
+								</div>
+							</form>
+						</td>
+					 <!-- 	<td align="right">
+							 <button id="addProjectBtn" class="layui-btn layui-btn-sm"  permission="lte:ltefdd:edit">
+								<i class="layui-icon">&#xe608;</i> 添加
+							</button>
+							<button id="deleteBtnModel" class="layui-btn layui-btn-sm  layui-btn-danger" style="margin-left: 1px;margin-right: 10px;"  permission="lte:ltefdd:del">
+								  <i class="layui-icon">&#xe640;</i>删除
+							</button> 
+						</td>  -->
+					</tr>
+				</table>
+			</div>
+		</header>
+
+		<div>
+		    <!-- 图表信息区域 -->
+			<div class="widget-body no-padding">
+				 <div id="analyzeTddsfAllAndComplete" style="min-width:400px;height:400px;margin: 10px;"></div>
+				 <div id="analyzeTddsfAllAndCompleteByPerson" style="min-width:400px;height:400px;margin: 10px;"></div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+
+</body>
+</html>
+
+	<script type="text/javascript" src="../../js/libs/jquery-2.1.1.min.js" ></script>
+	<script type="text/javascript" src="../../layui/layui.js" ></script>
+	<script type="text/javascript" src="../../js/jq.js"></script>
+	<script type="text/javascript" src="../../js/hc.js"></script>
+	<script type="text/javascript" src="../../js/common.js" charset="UTF-8"></script>
+	
+	 <!-- 注意highchart引入的顺序 -->
+	 <script src="../../js/Highcharts-7.0.2/code/highcharts.js"></script> 
+	 <script src="../../js/Highcharts-7.0.2/code/modules/exporting.js"></script> 
+	 <script src="../../js/Highcharts-7.0.2/code/modules/export-data.js"></script> 
+	 <script src="../../js/Highcharts-7.0.2/code/modules/no-data-to-display.js"></script>
+
+	<script type="text/javascript">
+	
+		var analyzeTddsfAllAndComplete;
+		var analyzeTddsfAllAndCompleteByPerson;
+		
+		layui.use([ 'layer' ,'laydate','jquery','common','form'], function() {
+		  var layer = layui.layer;
+		  var laydate = layui.laydate;
+		  var $=layui.$;
+		  var common = layui.common;
+		  var form = layui.form;
+			$.ajax({
+				   type: "POST",url: "/analyze/analyzeTddsfAllAndComplete",data: {"type":"0"},dataType:"json",
+				   success: function(msg){
+				     if(msg.success){
+				    	 $("#beginTime").val(msg.object.beginTime);
+				    	 $("#endTime").val(msg.object.endTime);
+				    	 analyzeTddsfAllAndComplete=initChart("analyzeTddsfAllAndComplete",true,false,"汇总计划每月/天单验统计",null,msg.object.categories,msg.object.size,"数量",msg.object.series);
+				     }else{
+				    	 layer.msg('【汇总计划每月/天单验统计】数据信息异常');
+				     }
+				   }
+			});
+			$.ajax({
+				   type: "POST",url: "/analyze/analyzeTddsfAllAndCompleteByPerson",data: {},dataType:"json",
+				   success: function(msg){
+				     if(msg.success){
+				    	 $("#beginTime").val(msg.object.beginTime);
+				    	 $("#endTime").val(msg.object.endTime);
+				    	 analyzeTddsfAllAndCompleteByPerson=initChart("analyzeTddsfAllAndCompleteByPerson",true,false,"每人计划每月/天单验统计",null,msg.object.categories,msg.object.size,"数量",msg.object.series);
+				     }else{
+				    	 layer.msg('【每人计划每月/天单验统计】数据信息异常');
+				     }
+				   }
+			});
+		  
+			$("#searchBt").click(function(){
+				analyzeTddsfAllAndComplete.showLoading();
+				$.ajax({
+					   type: "POST",url: "/analyze/analyzeTddsfAllAndComplete",data: {"type":$("#typeM").val(),"endTime":$("#endTime").val(),"beginTime":$("#beginTime").val()},dataType:"json",
+					   success: function(msg){
+						 analyzeTddsfAllAndComplete.hideLoading();
+					     if(msg.success){
+					    	 analyzeTddsfAllAndComplete.destroy();
+					    	 analyzeTddsfAllAndComplete=initChart("analyzeTddsfAllAndComplete",true,false,"汇总计划每月/天单验统计",null,msg.object.categories,msg.object.size,"数量",msg.object.series);
+					     }else{
+					    	 layer.msg('【汇总计划每月/天单验统计】数据信息异常');
+					     }
+					   }
+				});
+				
+				
+				analyzeTddsfAllAndCompleteByPerson.showLoading();
+				$.ajax({
+					   type: "POST",url: "/analyze/analyzeTddsfAllAndCompleteByPerson",data: {"endTime":$("#endTime").val(),"beginTime":$("#beginTime").val()},dataType:"json",
+					   success: function(msg){
+						   analyzeTddsfAllAndCompleteByPerson.hideLoading();
+					     if(msg.success){
+					    	 analyzeTddsfAllAndCompleteByPerson.destroy();
+					    	 analyzeTddsfAllAndCompleteByPerson=initChart("analyzeTddsfAllAndCompleteByPerson",true,false,"每人计划每月/天单验统计",null,msg.object.categories,msg.object.size,"数量",msg.object.series);
+					     }else{
+					    	 layer.msg('【每人计划每月/天单验统计】数据信息异常');
+					     }
+					   }
+				});
+			});
+			
+			  /**日期框*/
+			  laydate.render({
+			     elem: '#beginTime'
+			    ,theme: 'molv'
+		   	    ,done: function(val, date, endDate){
+		   		 }
+			  });
+			  
+			  laydate.render({
+			     elem: '#endTime'
+			    ,theme: 'molv'
+		   	    ,done: function(val, date, endDate){
+		   		 }
+			  });
+			  
+			  form.on('radio', function(data){
+				  $("#typeM").val(data.value);
+			  }); 
+		});
+	  
+	</script>
+
+

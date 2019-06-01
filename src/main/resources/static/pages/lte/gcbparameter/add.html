@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>添加工参表</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../../../layui/css/layui.css">
+</head>
+<body>
+
+	
+	
+	<form class="layui-form"  id="formDemo" style="margin-top: 20px;">
+	
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">基站号</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="mENodeBID" id="mENodeBID"   required  lay-verify="required"  autocomplete="off" class="layui-input">
+	    </div>
+	    
+	    <label class="layui-form-label" style="width: 150px;">基站名称</label>
+	    <div class="layui-input-inline" >
+	      <input type="text" name="mBaseStationName" id="mBaseStationName"   required  lay-verify="required"  autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	  
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">小区号</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="mCellID" id="mCellID"   autocomplete="off" required  lay-verify="required"  class="layui-input">
+	    </div>
+	   
+	    <label class="layui-form-label" style="width: 150px;">小区名称</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="mCellName" id="mCellName"   autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	  
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">频点</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="mFrequency" id="mFrequency"   autocomplete="off" class="layui-input">
+	    </div>
+
+	    <label class="layui-form-label" style="width: 150px;">PCI</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="mPCI" id="mPCI"   autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	  
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">RsPower</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="mRsPower" id="mRsPower"   autocomplete="off" class="layui-input">
+	    </div>
+
+	    <label class="layui-form-label" style="width: 150px;">天线挂高</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="mAntennaHangUp" id="mAntennaHangUp"   autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	  
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">方位角</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="mAzimuth" id="mAzimuth"   autocomplete="off" class="layui-input">
+	    </div>
+
+	    <label class="layui-form-label" style="width: 150px;">机械下倾角</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="mMechanicalLowerInclination" id="mMechanicalLowerInclination"   autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	  
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">预置电下倾</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="mPresetElectricDip" id="mPresetElectricDip"   autocomplete="off" class="layui-input">
+	    </div>
+
+	    <label class="layui-form-label" style="width: 150px;">总下倾角</label>
+	    <div class="layui-input-inline"> 
+	      <input type="text" name="mtotalLowerInclination" id="mtotalLowerInclination"     autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">测试时间</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="configName" id="configName" required  lay-verify="required"   autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	  
+		<button class="layui-btn" id="formDemoBtn" style="display: none;" lay-submit lay-filter="formDemo">立即提交</button>
+	</form>
+	
+	
+	
+	
+	
+	<script type="text/javascript" src="../../../../js/libs/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../../../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../../../js/jq.js"></script>
+	
+<script>
+
+	var flag=false;
+	
+	
+	function submitForm(){
+		$("#formDemoBtn").click();
+		return flag;
+	 }
+	
+	
+	
+	layui.use(['layer', 'form','jquery','laydate'], function(){
+	  var layer = layui.layer,form = layui.form,$=layui.jquery;
+	  var laydate = layui.laydate;
+	//监听提交
+	  form.on('submit(formDemo)', function(data){
+		  //JSON.stringify(data.field)  将form表格序列化了
+		//layer.msg(JSON.stringify(data.field));
+		flag=true;
+	    return false;
+	  });
+	
+	  /**日期框*/
+	  laydate.render({
+	     elem: '#configName'
+	    ,max: 0
+	    ,min: -60 //7天前
+	    ,max: 60 //7天后
+	    ,theme: 'molv'
+   	    ,done: function(val, date, endDate){
+   	    	
+   		 }
+	  });
+	
+	});
+	
+</script> 
+
+</body>
+</html>

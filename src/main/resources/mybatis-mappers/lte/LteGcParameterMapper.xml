@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.dao.lte.LteGcParameterDao">
+
+	
+	
+	<select id="find" resultType="LteGcParameter">
+		 select lp.* 
+		 from
+		 lte_gc lp 
+		 where 1=1
+		 <if test="map.projId != null and map.projId != ''">
+            and lp.projId = #{map.projId}
+        </if>
+		 <if test="map.mENodeBID != null and map.mENodeBID != ''">
+            and lp.mENodeBID   = #{map.mENodeBID}
+        </if>
+		 <if test="map.mBaseStationName != null and map.mBaseStationName != ''">
+            and lp.mBaseStationName like '%${map.mBaseStationName}%'
+        </if>
+		 <if test="map.mCellID != null and map.mCellID != ''">
+            and lp.mCellID = #{map.mCellID}
+        </if>
+		 <if test="map.testDate != null and map.testDate != ''">
+            and lp.configName = #{map.testDate}
+        </if>
+		
+		 order by lp.createTime desc
+	</select>
+	
+	<select id="queryGcParameterList" resultType="LteGcParameter">
+		 select 
+		   lp.* 
+		 from
+		   lte_gc lp 
+		 where 1=1
+            and lp.mENodeBID =#{mENodeBID}
+             <if test="testDate != null and testDate != ''">
+	            and lp.configName = #{testDate}
+	        </if>
+            
+		 order by lp.mCellID asc
+	</select>
+	
+	<delete id="delete">
+		 delete from lte_gc
+		 where id in
+		 <foreach collection="idsArray" index="index" item="item"
+            open="(" separator="," close=")">
+            #{item}
+        </foreach>
+	</delete>
+	
+	<update id="update">
+		update lte_gc 
+		set mENodeBID=#{mENodeBID}
+		,mBaseStationName=#{mBaseStationName}
+		,mCellID=#{mCellID}
+		,mCellName=#{mCellName}
+		,mFrequency=#{mFrequency} 
+		,mPCI=#{mPCI} 
+		
+		,mRsPower=#{mRsPower} 
+		,mAntennaHangUp=#{mAntennaHangUp} 
+		,mAzimuth=#{mAzimuth} 
+		,mMechanicalLowerInclination=#{mMechanicalLowerInclination} 
+		,mPresetElectricDip=#{mPresetElectricDip} 
+		,mtotalLowerInclination=#{mtotalLowerInclination} 
+		,configName=#{configName} 
+		,updateTime=#{updateTime} 
+			
+		where id=#{id}
+	</update>
+	
+	<insert id="save"  useGeneratedKeys="true" keyProperty="id">
+		insert into  lte_gc
+		(
+			mENodeBID,
+			mBaseStationName,
+			mCellID,
+			mCellName,
+			mFrequency,
+			mPCI,
+			mRsPower,
+			mAntennaHangUp,
+			mAzimuth,
+			mMechanicalLowerInclination,
+			mPresetElectricDip,
+			mtotalLowerInclination,
+			configName,
+			createTime,
+			createAt,
+			projId
+		) 
+		values
+		(
+			
+			#{mENodeBID},
+			#{mBaseStationName},
+			#{mCellID},
+			#{mCellName},
+			#{mFrequency},
+			#{mPCI},
+			#{mRsPower},
+			#{mAntennaHangUp},
+			#{mAzimuth},
+			#{mMechanicalLowerInclination},
+			#{mPresetElectricDip},
+			#{mtotalLowerInclination},
+			#{configName},
+			#{createTime},
+			#{createAt},
+			#{projId}
+		)
+	</insert>
+	
+	
+	 <insert id="insertSelective" parameterType="com.boot.kaizen.model.lte.LteGcParameter">
+    insert into lte_gc
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="mENodeBID != null">
+        mENodeBID,
+      </if>
+      <if test="mBaseStationName != null">
+        mBaseStationName,
+      </if>
+      <if test="mCellID != null">
+        mCellID,
+      </if>
+      <if test="mCellName != null">
+        mCellName,
+      </if>
+      <if test="mFrequency != null">
+        mFrequency,
+      </if>
+      <if test="mPCI != null">
+        mPCI,
+      </if>
+      <if test="mRsPower != null">
+        mRsPower,
+      </if>
+      <if test="mAntennaHangUp != null">
+        mAntennaHangUp,
+      </if>
+      <if test="mAzimuth != null">
+        mAzimuth,
+      </if>
+      <if test="mMechanicalLowerInclination != null">
+        mMechanicalLowerInclination,
+      </if>
+      <if test="mPresetElectricDip != null">
+        mPresetElectricDip,
+      </if>
+      <if test="mtotalLowerInclination != null">
+        mtotalLowerInclination,
+      </if>
+      <if test="configName != null">
+        configName,
+      </if>
+      <if test="projId != null">
+        projId,
+      </if>
+      <if test="createTime != null">
+        createTime,
+      </if>
+      <if test="updateTime != null">
+        updateTime,
+      </if>
+      <if test="createAt != null">
+        createAt,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="mENodeBID != null">
+        #{mENodeBID,jdbcType=VARCHAR},
+      </if>
+      <if test="mBaseStationName != null">
+        #{mBaseStationName,jdbcType=VARCHAR},
+      </if>
+      <if test="mCellID != null">
+        #{mCellID,jdbcType=VARCHAR},
+      </if>
+      <if test="mCellName != null">
+        #{mCellName,jdbcType=VARCHAR},
+      </if>
+      <if test="mFrequency != null">
+        #{mFrequency,jdbcType=VARCHAR},
+      </if>
+      <if test="mPCI != null">
+        #{mPCI,jdbcType=VARCHAR},
+      </if>
+      <if test="mRsPower != null">
+        #{mRsPower,jdbcType=VARCHAR},
+      </if>
+      <if test="mAntennaHangUp != null">
+        #{mAntennaHangUp,jdbcType=VARCHAR},
+      </if>
+      <if test="mAzimuth != null">
+        #{mAzimuth,jdbcType=VARCHAR},
+      </if>
+      <if test="mMechanicalLowerInclination != null">
+        #{mMechanicalLowerInclination,jdbcType=VARCHAR},
+      </if>
+      <if test="mPresetElectricDip != null">
+        #{mPresetElectricDip,jdbcType=VARCHAR},
+      </if>
+      <if test="mtotalLowerInclination != null">
+        #{mtotalLowerInclination,jdbcType=VARCHAR},
+      </if>
+      <if test="configName != null">
+        #{configName,jdbcType=VARCHAR},
+      </if>
+      <if test="projId != null">
+        #{projId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createAt != null">
+        #{createAt,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.boot.kaizen.model.lte.LteGcParameter">
+    update lte_gc
+    <set>
+      <if test="mENodeBID != null">
+        mENodeBID = #{mENodeBID,jdbcType=VARCHAR},
+      </if>
+      <if test="mBaseStationName != null">
+        mBaseStationName = #{mBaseStationName,jdbcType=VARCHAR},
+      </if>
+      <if test="mCellID != null">
+        mCellID = #{mCellID,jdbcType=VARCHAR},
+      </if>
+      <if test="mCellName != null">
+        mCellName = #{mCellName,jdbcType=VARCHAR},
+      </if>
+      <if test="mFrequency != null">
+        mFrequency = #{mFrequency,jdbcType=VARCHAR},
+      </if>
+      <if test="mPCI != null">
+        mPCI = #{mPCI,jdbcType=VARCHAR},
+      </if>
+      <if test="mRsPower != null">
+        mRsPower = #{mRsPower,jdbcType=VARCHAR},
+      </if>
+      <if test="mAntennaHangUp != null">
+        mAntennaHangUp = #{mAntennaHangUp,jdbcType=VARCHAR},
+      </if>
+      <if test="mAzimuth != null">
+        mAzimuth = #{mAzimuth,jdbcType=VARCHAR},
+      </if>
+      <if test="mMechanicalLowerInclination != null">
+        mMechanicalLowerInclination = #{mMechanicalLowerInclination,jdbcType=VARCHAR},
+      </if>
+      <if test="mPresetElectricDip != null">
+        mPresetElectricDip = #{mPresetElectricDip,jdbcType=VARCHAR},
+      </if>
+      <if test="mtotalLowerInclination != null">
+        mtotalLowerInclination = #{mtotalLowerInclination,jdbcType=VARCHAR},
+      </if>
+      <if test="configName != null">
+        configName = #{configName,jdbcType=VARCHAR},
+      </if>
+      <if test="projId != null">
+        projId = #{projId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        createTime = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        updateTime = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createAt != null">
+        createAt = #{createAt,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+	
+</mapper>

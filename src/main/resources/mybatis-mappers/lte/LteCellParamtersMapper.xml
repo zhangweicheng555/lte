@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.dao.lte.LteCellParamtersMapper">
+  <resultMap id="BaseResultMap" type="com.boot.kaizen.model.lte.LteCellParamters">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="testDate" jdbcType="VARCHAR" property="testDate" />
+    <result column="userId" jdbcType="INTEGER" property="userId" />
+    <result column="projId" jdbcType="INTEGER" property="projId" />
+    <result column="mAntennaHangUp" jdbcType="VARCHAR" property="mAntennaHangUp" />
+    <result column="mAzimuth" jdbcType="VARCHAR" property="mAzimuth" />
+    <result column="mtotalLowerInclination" jdbcType="VARCHAR" property="mtotalLowerInclination" />
+    <result column="mPresetElectricDip" jdbcType="VARCHAR" property="mPresetElectricDip" />
+    <result column="mMechanicalLowerInclination" jdbcType="VARCHAR" property="mMechanicalLowerInclination" />
+    <result column="pci" jdbcType="VARCHAR" property="pci" />
+    <result column="cellId" jdbcType="VARCHAR" property="cellId" />
+    <result column="frequency" jdbcType="VARCHAR" property="frequency" />
+    <result column="eNodeBID" jdbcType="VARCHAR" property="eNodeBID" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, testDate, userId, projId, mAntennaHangUp, mAzimuth, mtotalLowerInclination, mPresetElectricDip, 
+    mMechanicalLowerInclination, pci, cellId, frequency,eNodeBID
+  </sql>
+  
+  
+  <select id="query"  resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from lte_cell_paramters 
+    where 1=1
+     <if test="map.projId != null">
+           and projId = #{map.projId}
+       </if>
+
+	 <if test="map.testDate != null and map.testDate != ''">
+           and testDate = #{map.testDate}
+     </if>
+	 <if test="map.cellId != null and map.cellId != ''">
+           and cellId = #{map.cellId}
+     </if>
+	 <if test="map.eNodeBID != null and map.eNodeBID != ''">
+           and eNodeBID = #{map.eNodeBID}
+     </if>
+  </select>
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from lte_cell_paramters
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from lte_cell_paramters
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  
+  
+  <insert id="insert" parameterType="com.boot.kaizen.model.lte.LteCellParamters">
+    insert into lte_cell_paramters (id, testDate, userId, 
+      projId, mAntennaHangUp, mAzimuth, 
+      mtotalLowerInclination, mPresetElectricDip, 
+      mMechanicalLowerInclination, pci, cellId, 
+      frequency)
+    values (#{id,jdbcType=VARCHAR}, #{testDate,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, 
+      #{projId,jdbcType=INTEGER}, #{mAntennaHangUp,jdbcType=VARCHAR}, #{mAzimuth,jdbcType=VARCHAR}, 
+      #{mtotalLowerInclination,jdbcType=VARCHAR}, #{mPresetElectricDip,jdbcType=VARCHAR}, 
+      #{mMechanicalLowerInclination,jdbcType=VARCHAR}, #{pci,jdbcType=VARCHAR}, #{cellId,jdbcType=VARCHAR}, 
+      #{frequency,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.boot.kaizen.model.lte.LteCellParamters">
+    insert into lte_cell_paramters
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="testDate != null">
+        testDate,
+      </if>
+      <if test="userId != null">
+        userId,
+      </if>
+      <if test="projId != null">
+        projId,
+      </if>
+      <if test="mAntennaHangUp != null">
+        mAntennaHangUp,
+      </if>
+      <if test="mAzimuth != null">
+        mAzimuth,
+      </if>
+      <if test="mtotalLowerInclination != null">
+        mtotalLowerInclination,
+      </if>
+      <if test="mPresetElectricDip != null">
+        mPresetElectricDip,
+      </if>
+      <if test="mMechanicalLowerInclination != null">
+        mMechanicalLowerInclination,
+      </if>
+      <if test="pci != null">
+        pci,
+      </if>
+      <if test="cellId != null">
+        cellId,
+      </if>
+      <if test="frequency != null">
+        frequency,
+      </if>
+      <if test="eNodeBID != null">
+        eNodeBID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="testDate != null">
+        #{testDate,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="projId != null">
+        #{projId,jdbcType=INTEGER},
+      </if>
+      <if test="mAntennaHangUp != null">
+        #{mAntennaHangUp,jdbcType=VARCHAR},
+      </if>
+      <if test="mAzimuth != null">
+        #{mAzimuth,jdbcType=VARCHAR},
+      </if>
+      <if test="mtotalLowerInclination != null">
+        #{mtotalLowerInclination,jdbcType=VARCHAR},
+      </if>
+      <if test="mPresetElectricDip != null">
+        #{mPresetElectricDip,jdbcType=VARCHAR},
+      </if>
+      <if test="mMechanicalLowerInclination != null">
+        #{mMechanicalLowerInclination,jdbcType=VARCHAR},
+      </if>
+      <if test="pci != null">
+        #{pci,jdbcType=VARCHAR},
+      </if>
+      <if test="cellId != null">
+        #{cellId,jdbcType=VARCHAR},
+      </if>
+      <if test="frequency != null">
+        #{frequency,jdbcType=VARCHAR},
+      </if>
+      <if test="eNodeBID != null">
+        #{eNodeBID,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.boot.kaizen.model.lte.LteCellParamters">
+    update lte_cell_paramters
+    <set>
+      <if test="testDate != null">
+        testDate = #{testDate,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        userId = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="projId != null">
+        projId = #{projId,jdbcType=INTEGER},
+      </if>
+      <if test="mAntennaHangUp != null">
+        mAntennaHangUp = #{mAntennaHangUp,jdbcType=VARCHAR},
+      </if>
+      <if test="mAzimuth != null">
+        mAzimuth = #{mAzimuth,jdbcType=VARCHAR},
+      </if>
+      <if test="mtotalLowerInclination != null">
+        mtotalLowerInclination = #{mtotalLowerInclination,jdbcType=VARCHAR},
+      </if>
+      <if test="mPresetElectricDip != null">
+        mPresetElectricDip = #{mPresetElectricDip,jdbcType=VARCHAR},
+      </if>
+      <if test="mMechanicalLowerInclination != null">
+        mMechanicalLowerInclination = #{mMechanicalLowerInclination,jdbcType=VARCHAR},
+      </if>
+      <if test="pci != null">
+        pci = #{pci,jdbcType=VARCHAR},
+      </if>
+      <if test="cellId != null">
+        cellId = #{cellId,jdbcType=VARCHAR},
+      </if>
+      <if test="frequency != null">
+        frequency = #{frequency,jdbcType=VARCHAR},
+      </if>
+      <if test="eNodeBID != null">
+        eNodeBID = #{eNodeBID,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.boot.kaizen.model.lte.LteCellParamters">
+    update lte_cell_paramters
+    set testDate = #{testDate,jdbcType=VARCHAR},
+      userId = #{userId,jdbcType=INTEGER},
+      projId = #{projId,jdbcType=INTEGER},
+      mAntennaHangUp = #{mAntennaHangUp,jdbcType=VARCHAR},
+      mAzimuth = #{mAzimuth,jdbcType=VARCHAR},
+      mtotalLowerInclination = #{mtotalLowerInclination,jdbcType=VARCHAR},
+      mPresetElectricDip = #{mPresetElectricDip,jdbcType=VARCHAR},
+      mMechanicalLowerInclination = #{mMechanicalLowerInclination,jdbcType=VARCHAR},
+      pci = #{pci,jdbcType=VARCHAR},
+      cellId = #{cellId,jdbcType=VARCHAR},
+      frequency = #{frequency,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

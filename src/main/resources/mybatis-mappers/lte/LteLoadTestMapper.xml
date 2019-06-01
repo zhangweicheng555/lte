@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.dao.lte.LteLoadTestDao">
+
+	
+	
+		<select id="findListByMenodeBID" resultType="LteLoadTest">
+		 select *
+		 from
+		 lte_load_test  
+		 where 1=1
+		 <if test="map.eNodeBID != null and map.eNodeBID != '' ">
+			 and eNodeBID=#{map.eNodeBID}
+        </if>
+		 <if test="map.testDate != null and map.testDate != '' ">
+			 and testDate=#{map.testDate}
+        </if>
+		 <if test="map.projId != null  ">
+			 and projId=#{map.projId}
+        </if>
+		</select>
+	
+	<insert id="save"  useGeneratedKeys="true" keyProperty="id">
+		insert into  lte_load_test
+		(
+			userId
+			,eNodeBID
+			,communityName
+			,testDate
+			,rsrpFtpUpImage
+			,sinrFtpUpImage
+			,upFtpRateImage
+			,rsrpFtpDownImage
+			,sinrFtpDownImage
+			,downFtpRateImage
+			,sinrThresholdImage
+			,rsrpThresholdImage
+			,upFtpRateThresholdImage
+			,downFtpRateThresholdImage
+			,roadLogFile
+			,projId
+			,createTime
+		) 
+		values
+		(
+			#{userId}
+			,#{eNodeBID}
+			,#{communityName}
+			,#{testDate}
+			,#{rsrpFtpUpImage}
+			,#{sinrFtpUpImage}
+			,#{upFtpRateImage}
+			,#{rsrpFtpDownImage}
+			,#{sinrFtpDownImage}
+			,#{downFtpRateImage}
+			,#{sinrThresholdImage}
+			,#{rsrpThresholdImage}
+			,#{upFtpRateThresholdImage}
+			,#{downFtpRateThresholdImage}
+			,#{roadLogFile}
+			,#{projId}
+			,#{createTime}
+		)
+	</insert>
+	
+	<delete id="deleteByeNodeBID">
+		 delete from lte_load_test
+		 where eNodeBID =#{mENodeBID}
+	</delete>
+
+	
+</mapper>

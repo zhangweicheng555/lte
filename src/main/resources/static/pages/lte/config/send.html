@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>测试配置项表</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../../../css/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../js/zTree/css/bootstrapStyle/bootstrapStyle.css" type="text/css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../../../layui/css/layui.css">
+</head>
+<body>
+
+	
+	  <div class="layui-row">
+	    <div class="layui-col-md9">
+	      		<form class="layui-form" lay-filter="formDemo1"  id="formDemo1" style="margin-top: 20px;">
+					<input type="hidden" id="id" name="id" />
+					<input type="hidden" id="projIdModel" name="projIdModel" />
+				  <div class="layui-form-item">
+				    <label class="layui-form-label" style="width: 155px;">语音测试次数</label>
+				    <div class="layui-input-inline">
+				      <input type="text" name="mVoiceCount" id="mVoiceCount"   required  lay-verify="required"  autocomplete="off" class="layui-input">
+				    </div>
+				    
+				    <label class="layui-form-label" style="width: 155px;">成功率目标值</label>
+				    <div class="layui-input-inline" >
+				      <input type="text" name="mVoiceTarget" id="mVoiceTarget"   required  lay-verify="required"  autocomplete="off" class="layui-input">
+				    </div>
+				  </div>
+				  
+				  <div class="layui-form-item">
+				    <label class="layui-form-label" style="width: 155px;">FTP服务器地址</label>
+				    <div class="layui-input-inline">
+				      <input type="text" name="mFtpService" id="mFtpService"   autocomplete="off" required  lay-verify="required"  class="layui-input">
+				    </div>
+				   
+				    <label class="layui-form-label" style="width: 155px;">FTP服务器端口</label>
+				    <div class="layui-input-inline">
+				      <input type="text" name="mFtpPort" id="mFtpPort"   autocomplete="off" class="layui-input">
+				    </div>
+				  </div>
+				  
+				  <div class="layui-form-item">
+				    <label class="layui-form-label" style="width: 155px;">FTP服务器用户名</label>
+				    <div class="layui-input-inline">
+				      <input type="text" name="mFtpUserName" id="mFtpUserName"   autocomplete="off" class="layui-input">
+				    </div>
+			
+				    <label class="layui-form-label" style="width: 155px;">FTP服务器密码</label>
+				    <div class="layui-input-inline">
+				      <input type="text" name="mFtpPaw" id="mFtpPaw"   autocomplete="off" class="layui-input">
+				    </div>
+				  </div>
+				  
+				  <div class="layui-form-item">
+				    <label class="layui-form-label" style="width: 155px;">FTP下载文件路径</label>
+				    <div class="layui-input-inline">
+				      <input type="text" name="mFtpFileDownPath" id="mFtpFileDownPath"   autocomplete="off" class="layui-input">
+				    </div>
+			
+				    <label class="layui-form-label" style="width: 155px;">FTP上传文件路径</label>
+				    <div class="layui-input-inline">
+				      <input type="text" name="mFtpFileUpPath" id="mFtpFileUpPath"   autocomplete="off" class="layui-input">
+				    </div>
+				  </div>
+				  
+				  <div class="layui-form-item">
+				    <label class="layui-form-label" style="width: 155px;">FTP上传速率目标值</label>
+				    <div class="layui-input-inline">
+				      <input type="text" name="mFtpUpRateTarget" id="mFtpUpRateTarget"   autocomplete="off" class="layui-input">
+				    </div>
+			
+				    <label class="layui-form-label" style="width: 155px;">FTP下载速率目标值</label>
+				    <div class="layui-input-inline">
+				      <input type="text" name="mFtpDownRateTarget" id="mFtpDownRateTarget"   autocomplete="off" class="layui-input">
+				    </div>
+				  </div>
+				</form>
+	    </div>
+	    <div class="layui-col-md3" style="margin-top: 5px;">
+	      		 <ul id="personTree" class="ztree"></ul>
+	    </div>
+	  </div>
+	
+	
+	
+	
+	<script type="text/javascript" src="../../../../js/libs/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../../../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../../../js/jq.js"></script>
+	
+	<script type="text/javascript" src="../../../../js/my/ztree-menu.js"></script>
+	<script type="text/javascript" src="../../../../js/zTree/js/jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="../../../../js/zTree/js/jquery.ztree.excheck.js"></script>
+    <script type="text/javascript" src="../../../../js/zTree/js/jquery.ztree.exedit.js"></script>
+	
+	
+	
+	
+    <form class="layui-form" lay-filter="formDemo"  id="formDemo" style="margin-top: 20px;">
+		<input type="hidden" id="recordId" name="recordId" />
+		<input type="hidden" id="projId" name="projId" />
+		<input type="hidden" id="assignIds" name="assignIds" />
+		<input type="hidden" id="processKey" name="processKey" value="LteConfig" />
+	</form>
+<script>
+	
+	
+	
+	function submitForm(){
+		var treeModel = $.fn.zTree.getZTreeObj("personTree");
+		var nodes = treeModel.getCheckedNodes(true);
+		if(nodes != null && nodes.length >0){
+			var users="";
+			for(var i=0;i<nodes.length;i++){
+				var node=nodes[i];
+				if(!node.isParent){
+					if(users){
+						users =users+","+node.id;
+					}else{
+						users=node.id;
+					}
+				}
+			}
+			if(users){
+				$("#recordId").val($("#id").val());
+				$("#projId").val($("#projIdModel").val());
+				$("#assignIds").val(users);
+				return true;
+			}
+			return  false;
+		}else{
+			parent.layer.msg("未选择要推送的人员");
+			return false;
+		}
+		return false;
+	 }
+	
+	
+	var form;
+	layui.use(['layer', 'form','jquery'], function(){
+	  var layer = layui.layer,form = layui.form,$=layui.jquery;
+	  
+	  //初始化工作
+	  initData();
+	  function initData(){
+			var id=getUrlParam("id");
+			if(!id){
+				layer.msg('获取数据ID异常');
+				return;
+			}
+			$.ajax({
+				   type: "POST",url: "/config/findById",data: {"id":id},dataType:"json",async : false,
+				   success: function(msg){
+				     if(msg.success){
+				    	var obj=msg.object;
+				    	console.info(obj);
+				 		form.val("formDemo1", {
+				 		  "id": obj.id
+				 		  ,"mVoiceCount": obj.mVoiceCount
+				 		  ,"mVoiceTarget": obj.mVoiceTarget
+				 		  ,"mFtpService": obj.mFtpService
+				 		  ,"mFtpPort": obj.mFtpPort
+				 		  ,"mFtpUserName": obj.mFtpUserName
+				 		  ,"mFtpPaw": obj.mFtpPaw
+				 		  ,"mFtpFileDownPath": obj.mFtpFileDownPath
+				 		  ,"mFtpFileUpPath": obj.mFtpFileUpPath
+				 		  ,"mFtpUpRateTarget": obj.mFtpUpRateTarget
+				 		  ,"mFtpDownRateTarget": obj.mFtpDownRateTarget
+				 		  ,"projIdModel": obj.projId
+				 		});
+				 		
+				 		//初始化树
+				 		if(obj.projId){
+					 		initPersonZtree("personTree",obj.projId);
+				 		}
+				 		
+				     }else{
+				    	 layer.msg('返回修改数据信息异常');
+				     }
+				   }
+			});
+		};
+	});
+	
+	
+	 
+</script> 
+
+</body>
+</html>

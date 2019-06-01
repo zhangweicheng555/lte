@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.dao.lte.LteCellStructuralValidationMapper">
+  <resultMap id="BaseResultMap" type="com.boot.kaizen.model.lte.LteCellStructuralValidation">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="userId" jdbcType="INTEGER" property="userId" />
+    <result column="testDate" jdbcType="VARCHAR" property="testDate" />
+    <result column="projId" jdbcType="INTEGER" property="projId" />
+    <result column="eNodeBID" jdbcType="VARCHAR" property="eNodeBID" />
+    <result column="veryClose" jdbcType="VARCHAR" property="veryClose" />
+    <result column="vastDistances" jdbcType="VARCHAR" property="vastDistances" />
+    <result column="ultraHigh" jdbcType="VARCHAR" property="ultraHigh" />
+    <result column="azimuthSuperoverlap" jdbcType="VARCHAR" property="azimuthSuperoverlap" />
+    <result column="declinationOverlap" jdbcType="VARCHAR" property="declinationOverlap" />
+    <result column="skyBlockCondition" jdbcType="VARCHAR" property="skyBlockCondition" />
+    <result column="canBeAdjusted" jdbcType="VARCHAR" property="canBeAdjusted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, userId, testDate, projId, eNodeBID, veryClose, vastDistances, ultraHigh, azimuthSuperoverlap, 
+    declinationOverlap, skyBlockCondition, canBeAdjusted
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from lte_cell_structural_validation
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="query"  resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from lte_cell_structural_validation 
+    where 1=1
+     <if test="map.projId != null">
+           and projId = #{map.projId}
+       </if>
+	 <if test="map.testDate != null and map.testDate != ''">
+           and testDate = #{map.testDate}
+     </if>
+	 <if test="map.eNodeBID != null and map.eNodeBID != ''">
+           and eNodeBID = #{map.eNodeBID}
+     </if>
+  </select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from lte_cell_structural_validation
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.boot.kaizen.model.lte.LteCellStructuralValidation">
+    insert into lte_cell_structural_validation (id, userId, testDate, 
+      projId, eNodeBID, veryClose, 
+      vastDistances, ultraHigh, azimuthSuperoverlap, 
+      declinationOverlap, skyBlockCondition, 
+      canBeAdjusted)
+    values (#{id,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, #{testDate,jdbcType=VARCHAR}, 
+      #{projId,jdbcType=INTEGER}, #{eNodeBID,jdbcType=VARCHAR}, #{veryClose,jdbcType=VARCHAR}, 
+      #{vastDistances,jdbcType=VARCHAR}, #{ultraHigh,jdbcType=VARCHAR}, #{azimuthSuperoverlap,jdbcType=VARCHAR}, 
+      #{declinationOverlap,jdbcType=VARCHAR}, #{skyBlockCondition,jdbcType=VARCHAR}, 
+      #{canBeAdjusted,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.boot.kaizen.model.lte.LteCellStructuralValidation">
+    insert into lte_cell_structural_validation
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userId != null">
+        userId,
+      </if>
+      <if test="testDate != null">
+        testDate,
+      </if>
+      <if test="projId != null">
+        projId,
+      </if>
+      <if test="eNodeBID != null">
+        eNodeBID,
+      </if>
+      <if test="veryClose != null">
+        veryClose,
+      </if>
+      <if test="vastDistances != null">
+        vastDistances,
+      </if>
+      <if test="ultraHigh != null">
+        ultraHigh,
+      </if>
+      <if test="azimuthSuperoverlap != null">
+        azimuthSuperoverlap,
+      </if>
+      <if test="declinationOverlap != null">
+        declinationOverlap,
+      </if>
+      <if test="skyBlockCondition != null">
+        skyBlockCondition,
+      </if>
+      <if test="canBeAdjusted != null">
+        canBeAdjusted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="testDate != null">
+        #{testDate,jdbcType=VARCHAR},
+      </if>
+      <if test="projId != null">
+        #{projId,jdbcType=INTEGER},
+      </if>
+      <if test="eNodeBID != null">
+        #{eNodeBID,jdbcType=VARCHAR},
+      </if>
+      <if test="veryClose != null">
+        #{veryClose,jdbcType=VARCHAR},
+      </if>
+      <if test="vastDistances != null">
+        #{vastDistances,jdbcType=VARCHAR},
+      </if>
+      <if test="ultraHigh != null">
+        #{ultraHigh,jdbcType=VARCHAR},
+      </if>
+      <if test="azimuthSuperoverlap != null">
+        #{azimuthSuperoverlap,jdbcType=VARCHAR},
+      </if>
+      <if test="declinationOverlap != null">
+        #{declinationOverlap,jdbcType=VARCHAR},
+      </if>
+      <if test="skyBlockCondition != null">
+        #{skyBlockCondition,jdbcType=VARCHAR},
+      </if>
+      <if test="canBeAdjusted != null">
+        #{canBeAdjusted,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.boot.kaizen.model.lte.LteCellStructuralValidation">
+    update lte_cell_structural_validation
+    <set>
+      <if test="userId != null">
+        userId = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="testDate != null">
+        testDate = #{testDate,jdbcType=VARCHAR},
+      </if>
+      <if test="projId != null">
+        projId = #{projId,jdbcType=INTEGER},
+      </if>
+      <if test="eNodeBID != null">
+        eNodeBID = #{eNodeBID,jdbcType=VARCHAR},
+      </if>
+      <if test="veryClose != null">
+        veryClose = #{veryClose,jdbcType=VARCHAR},
+      </if>
+      <if test="vastDistances != null">
+        vastDistances = #{vastDistances,jdbcType=VARCHAR},
+      </if>
+      <if test="ultraHigh != null">
+        ultraHigh = #{ultraHigh,jdbcType=VARCHAR},
+      </if>
+      <if test="azimuthSuperoverlap != null">
+        azimuthSuperoverlap = #{azimuthSuperoverlap,jdbcType=VARCHAR},
+      </if>
+      <if test="declinationOverlap != null">
+        declinationOverlap = #{declinationOverlap,jdbcType=VARCHAR},
+      </if>
+      <if test="skyBlockCondition != null">
+        skyBlockCondition = #{skyBlockCondition,jdbcType=VARCHAR},
+      </if>
+      <if test="canBeAdjusted != null">
+        canBeAdjusted = #{canBeAdjusted,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.boot.kaizen.model.lte.LteCellStructuralValidation">
+    update lte_cell_structural_validation
+    set userId = #{userId,jdbcType=INTEGER},
+      testDate = #{testDate,jdbcType=VARCHAR},
+      projId = #{projId,jdbcType=INTEGER},
+      eNodeBID = #{eNodeBID,jdbcType=VARCHAR},
+      veryClose = #{veryClose,jdbcType=VARCHAR},
+      vastDistances = #{vastDistances,jdbcType=VARCHAR},
+      ultraHigh = #{ultraHigh,jdbcType=VARCHAR},
+      azimuthSuperoverlap = #{azimuthSuperoverlap,jdbcType=VARCHAR},
+      declinationOverlap = #{declinationOverlap,jdbcType=VARCHAR},
+      skyBlockCondition = #{skyBlockCondition,jdbcType=VARCHAR},
+      canBeAdjusted = #{canBeAdjusted,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>添加项目管理</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../layui/css/layui.css">
+</head>
+<body>
+
+	
+	
+	<form class="layui-form"  id="formDemo" style="margin-top: 20px;">
+	
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 100px;">项目名称</label>
+	    <div class="layui-input-inline" style="width: 400px;">
+	      <input type="text" name="projName" id="projName"   required  lay-verify="required"  autocomplete="off" class="layui-input">
+	    </div>
+	     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*</span></div>
+	  </div>
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 100px;">项目编码</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="projCode" id="projCode"   autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 100px;">排序码</label>
+	    <div class="layui-input-inline" style="width: 400px;">
+	      <input type="text" name="sort" id="sort"  placeholder="建议数字" required  lay-verify="required"  autocomplete="off" class="layui-input">
+	    </div>
+	     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*</span></div>
+	  </div>
+	  
+	  
+	  <div class="layui-form-item layui-form-text">
+	    <label class="layui-form-label" style="width: 100px;">描述</label>
+	    <div class="layui-input-inline" style="width: 600px;">
+	      <textarea name="projIntro" id="projIntro" style="height: 170px;" placeholder="项目简介" class="layui-textarea"></textarea>
+	    </div>
+	  </div>
+	  
+		<button class="layui-btn" id="formDemoBtn" style="display: none;" lay-submit lay-filter="formDemo">立即提交</button>
+	</form>
+	
+	
+	
+	
+	
+	<script type="text/javascript" src="../../js/libs/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../js/jq.js"></script>
+	
+<script>
+
+	var flag=false;
+	
+	var token = localStorage.getItem("token");
+	$("#zwc").val(token);
+	
+	function submitForm(){
+		$("#formDemoBtn").click();
+		return flag;
+	 }
+	
+	
+	
+	layui.use(['layer', 'form','jquery'], function(){
+	  var layer = layui.layer,form = layui.form,$=layui.jquery;
+	//监听提交
+	  form.on('submit(formDemo)', function(data){
+		  //JSON.stringify(data.field)  将form表格序列化了
+		//layer.msg(JSON.stringify(data.field));
+		flag=true;
+	    return false;
+	  });
+	
+	});
+	
+</script> 
+
+</body>
+</html>

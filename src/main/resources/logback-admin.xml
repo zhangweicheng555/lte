@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<configuration>
+	
+	<!-- 
+	    application.yml 配置    这里面配置的原因就是为了在 springProperty 里面引用
+		logging:
+		  config: classpath:logback-admin.xml   日志的位置
+		log: 
+		  level:
+		    root: info
+		    my: debug                            自定义日志的配置级别
+		  file: logs/admin-server.log            日志文件的位置
+		  maxsize: 30MB                          日志的大小
+	 -->
+
+	
+	<!-- 
+		  name:是自己起的名字
+		  source：yml  里面的东西
+	 -->
+	<springProperty name="logFile" source="log.file" />
+	<springProperty name="dayFile" source="log.dayfile" />
+	<springProperty name="rootlevel" source="log.level.root" />
+	<springProperty name="mylevel" source="log.level.my" />
+	<springProperty name="maxFileSize" source="log.maxsize" />
+
+	<!-- 控制台输出 -->
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d [%thread] %-5level %logger{50} -[%file:%line]- %msg%n
+			</pattern>
+			<charset>UTF-8</charset>
+		</encoder>
+	</appender>
+	
+	<!-- 业务使用日志
+	        每天一个日志 保存30天   推荐这个
+	    %d 日期,%-[%file].%method 类名.方法名字,%p 级别debug之类,%msg 你的消息
+	    2018-10-23 15:54:55,DEBUG,UserController.java.find,访问了用户的列表
+	-->
+	<appender name="dayLog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${dayFile}</file>
+		<encoder>
+			<pattern>%date{yyyy-MM-dd HH:mm:ss.SSS},%p,%file.%method,%msg%n</pattern> 
+			<charset>UTF-8</charset>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${dayFile}.%d{yyyy-MM-dd}</fileNamePattern>
+			<maxHistory>30</maxHistory> 
+		</rollingPolicy>
+	</appender>
+	
+	
+	
+	<!-- 系统使用日志 -->
+	<appender name="adminLog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${logFile}</file>
+		<encoder>
+			<pattern>%date{yyyy-MM-dd HH:mm:ss.SSS},%p,%file.%method,%msg%n</pattern> 
+			<charset>UTF-8</charset>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${logFile}.%d{yyyy-MM-dd}</fileNamePattern>
+			<maxHistory>30</maxHistory> 
+		</rollingPolicy>
+	</appender>
+
+
+
+    <!-- 自动捕获   错误  这个时系统自动获取使用的-->
+	<appender name="errorLog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${logFile}.error</file>
+		<encoder>
+			<pattern>%d [%thread] %-5level %logger{36} -[%file:%line]- %msg%n</pattern> 
+			<charset>UTF-8</charset>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${logFile}.error.%d{yyyy-MM-dd}.%i</fileNamePattern>
+			<maxFileSize>${maxFileSize}</maxFileSize>
+			<maxHistory>30</maxHistory> 
+		</rollingPolicy>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>error</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+
+
+    <!-- 需指定dao的包名   这个废弃 -->
+	<appender name="sqlLog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${logFile}.sql</file>
+		<encoder>
+			<pattern>%d [%thread] %msg%n
+			</pattern>
+			<charset>UTF-8</charset>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${logFile}.sql.%d{yyyy-MM-dd}.%i</fileNamePattern>
+			<maxFileSize>${maxFileSize}</maxFileSize>
+		</rollingPolicy>
+	</appender>
+
+
+    <!-- 
+    	如何使用 adminLog  分两步
+    	  1.private static final Logger log = LoggerFactory.getLogger("adminLogger");
+    	  2.log.debug("{}修改了头像", user.getUsername());
+     -->
+	<logger name="adminLogger" level="${mylevel}" additivity="true">
+		<appender-ref ref="adminLog" />
+	</logger>
+	
+	
+	<logger name="dayLogger" level="${mylevel}" additivity="true">
+		<appender-ref ref="dayLog" />
+	</logger>
+
+
+	<logger name="com.boot.kaizen.dao" level="DEBUG" additivity="true">
+		<appender-ref ref="sqlLog" />
+	</logger>
+
+
+	<root level="${rootlevel}">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="errorLog" />
+	</root>
+
+</configuration>

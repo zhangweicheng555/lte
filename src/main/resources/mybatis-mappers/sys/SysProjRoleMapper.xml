@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.dao.SysProjectRoleRelationDao">
+
+	
+	
+	<delete id="deleteByProIds">
+		 delete from proj_role_relation
+		 where proj_id !=9 and  proj_id in
+		 <foreach collection="arrayIds" index="index" item="item"
+            open="(" separator="," close=")">
+            #{item}
+        </foreach>
+	</delete>
+	
+	
+	<insert id ="batchInsert" parameterType="java.util.List" >
+           insert into proj_role_relation
+           (role_id,proj_id)
+           values
+            <foreach collection ="list" item="item" index= "index" separator =",">
+                (
+                	#{item.roleId}, #{item.projId}
+                )
+            </foreach >
+     </insert>
+     
+	<delete id ="deleteByRoleAndProId">
+			delete from proj_role_relation
+			where role_id=#{roleId}  and role_id not in (1,20)
+     </delete>
+	
+	
+	
+</mapper>

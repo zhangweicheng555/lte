@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.dao.lte.LtePlanDao">
+
+	
+	
+	<select id="find" resultType="LtePlan">
+		 select lp.* 
+		 from
+		 lte_plane lp 
+		 where 1=1
+		 <if test="map.projId != null and map.projId != ''">
+            and lp.projId = #{map.projId}
+        </if>
+		 <if test="map.processState != null and map.processState != ''">
+            and lp.processState = #{map.processState}
+        </if>
+		 <if test="map.mENodeBID != null and map.mENodeBID != ''">
+            and lp.mENodeBID = #{map.mENodeBID}
+        </if>
+		 <if test="map.testTime != null and map.testTime != ''">
+            and lp.testTime = #{map.testTime}
+        </if>
+		<if test="map.beginTime != null and map.beginTime != '' and (map.endTime == null or map.endTime == '')">
+            and lp.testTime &gt;=  #{map.beginTime}
+        </if>
+		<if test="map.endTime != null and map.endTime != '' and (map.beginTime == null or map.beginTime == '')">
+            and lp.testTime &lt;=  #{map.endTime}
+        </if>
+		<if test="map.endTime != null and map.endTime != '' and map.beginTime != null and map.beginTime != ''">
+            and lp.testTime 
+            between #{map.beginTime}
+            and     #{map.endTime}
+        </if>
+		 order by lp.testTime desc
+	</select>
+	
+	
+	<select id="queryPlanList" resultType="java.util.Map">
+		 select 
+		    id as  "planId",
+		    testTime as "testDate"
+		 from
+		 lte_plane lp 
+		 where 1=1
+		    <if test="nowDate != null and nowDate != ''">
+			    and lp.testTime =#{nowDate}
+	        </if>
+		    and dealPersonId =#{userId}
+		    and projId =#{projId}
+	</select>
+	
+	<delete id="delete">
+		 delete from lte_plane
+		 where id in
+		 <foreach collection="idsArray" index="index" item="item"
+            open="(" separator="," close=")">
+            #{item}
+        </foreach>
+	</delete>
+	
+	
+	
+	<update id="update">
+		update lte_plane 
+		set mENodeBID=#{mENodeBID}
+		,mBaseStationName=#{mBaseStationName}
+		,mBaseStationType=#{mBaseStationType}
+		,mAltitude=#{mAltitude}
+		,mLongitude=#{mLongitude} 
+		,mLatitude=#{mLatitude} 
+		
+		,testPerson=#{testPerson} 
+		,testPersonPhone=#{testPersonPhone} 
+		,backPerson=#{backPerson} 
+		,backPersonPhone=#{backPersonPhone} 
+		,testTime=#{testTime} 
+		,mTac=#{mTac} 
+		,updateTime=#{updateTime} 
+		,dealPersonId=#{dealPersonId} 
+			
+		where id=#{id}
+	</update>
+	
+	<insert id="save"  useGeneratedKeys="true" keyProperty="id">
+		insert into  lte_plane
+		(
+			mENodeBID,
+			mBaseStationName,
+			mBaseStationType,
+			mAltitude,
+			mLongitude,
+			mLatitude,
+			mTac,
+			testPerson,
+			testPersonPhone,
+			backPerson,
+			backPersonPhone,
+			testTime,
+			createTime,
+			createAt,
+			dealPersonId,
+			projId,
+			status
+		) 
+		values
+		(
+			
+			#{mENodeBID},
+			#{mBaseStationName},
+			#{mBaseStationType},
+			#{mAltitude},
+			#{mLongitude},
+			#{mLatitude},
+			#{mTac},
+			#{testPerson},
+			#{testPersonPhone},
+			#{backPerson},
+			#{backPersonPhone},
+			#{testTime},
+			#{createTime},
+			#{createAt},
+			#{dealPersonId},
+			#{projId},
+			#{status}
+		)
+	</insert>
+	
+	
+	<select id="queryStationList" resultMap="queryStationListMap">
+		 select 
+		 	mENodeBID as mENodeBID
+		 	,mAltitude as mAltitude
+		 	,mBaseStationName as mBaseStationName
+		    ,mBaseStationType as mBaseStationType
+		    ,mLongitude as mLongitude
+		    ,mLatitude as mLatitude
+		    ,mTac as mTac
+		 from
+		  lte_plane lp 
+		 where 
+		    dealPersonId =#{userId}
+		    and testTime =#{testDate}
+		    and projId =#{projId}
+	</select>
+	
+	<update id="check" >
+		 update 
+		 lte_plane 
+		 set status=#{statusM} 
+		 where id=#{id}
+	</update>
+	
+	
+	<insert id="insertSelective" parameterType="com.boot.kaizen.model.lte.LtePlan">
+    insert into lte_plane
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="mENodeBID != null">
+        mENodeBID,
+      </if>
+      <if test="mBaseStationName != null">
+        mBaseStationName,
+      </if>
+      <if test="projId != null">
+        projId,
+      </if>
+      <if test="mBaseStationType != null">
+        mBaseStationType,
+      </if>
+      <if test="mAltitude != null">
+        mAltitude,
+      </if>
+      <if test="mLongitude != null">
+        mLongitude,
+      </if>
+      <if test="mLatitude != null">
+        mLatitude,
+      </if>
+      <if test="mTac != null">
+        mTac,
+      </if>
+      <if test="testPerson != null">
+        testPerson,
+      </if>
+      <if test="testPersonPhone != null">
+        testPersonPhone,
+      </if>
+      <if test="backPerson != null">
+        backPerson,
+      </if>
+      <if test="backPersonPhone != null">
+        backPersonPhone,
+      </if>
+      <if test="testTime != null">
+        testTime,
+      </if>
+      <if test="createTime != null">
+        createTime,
+      </if>
+      <if test="updateTime != null">
+        updateTime,
+      </if>
+      <if test="createAt != null">
+        createAt,
+      </if>
+      <if test="dealPersonId != null">
+        dealPersonId,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="processState != null">
+        processState,
+      </if>
+      <if test="deviceCompany != null">
+        deviceCompany,
+      </if>
+      <if test="secondCompany != null">
+        secondCompany,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="mENodeBID != null">
+        #{mENodeBID,jdbcType=VARCHAR},
+      </if>
+      <if test="mBaseStationName != null">
+        #{mBaseStationName,jdbcType=VARCHAR},
+      </if>
+      <if test="projId != null">
+        #{projId,jdbcType=VARCHAR},
+      </if>
+      <if test="mBaseStationType != null">
+        #{mBaseStationType,jdbcType=VARCHAR},
+      </if>
+      <if test="mAltitude != null">
+        #{mAltitude,jdbcType=VARCHAR},
+      </if>
+      <if test="mLongitude != null">
+        #{mLongitude,jdbcType=VARCHAR},
+      </if>
+      <if test="mLatitude != null">
+        #{mLatitude,jdbcType=VARCHAR},
+      </if>
+      <if test="mTac != null">
+        #{mTac,jdbcType=VARCHAR},
+      </if>
+      <if test="testPerson != null">
+        #{testPerson,jdbcType=VARCHAR},
+      </if>
+      <if test="testPersonPhone != null">
+        #{testPersonPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="backPerson != null">
+        #{backPerson,jdbcType=VARCHAR},
+      </if>
+      <if test="backPersonPhone != null">
+        #{backPersonPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="testTime != null">
+        #{testTime,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createAt != null">
+        #{createAt,jdbcType=INTEGER},
+      </if>
+      <if test="dealPersonId != null">
+        #{dealPersonId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="processState != null">
+        #{processState,jdbcType=VARCHAR},
+      </if>
+      <if test="deviceCompany != null">
+        #{deviceCompany,jdbcType=VARCHAR},
+      </if>
+      <if test="secondCompany != null">
+        #{secondCompany,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.boot.kaizen.model.lte.LtePlan">
+    update lte_plane
+    <set>
+      <if test="mENodeBID != null">
+        mENodeBID = #{mENodeBID,jdbcType=VARCHAR},
+      </if>
+      <if test="mBaseStationName != null">
+        mBaseStationName = #{mBaseStationName,jdbcType=VARCHAR},
+      </if>
+      <if test="projId != null">
+        projId = #{projId,jdbcType=VARCHAR},
+      </if>
+      <if test="mBaseStationType != null">
+        mBaseStationType = #{mBaseStationType,jdbcType=VARCHAR},
+      </if>
+      <if test="mAltitude != null">
+        mAltitude = #{mAltitude,jdbcType=VARCHAR},
+      </if>
+      <if test="mLongitude != null">
+        mLongitude = #{mLongitude,jdbcType=VARCHAR},
+      </if>
+      <if test="mLatitude != null">
+        mLatitude = #{mLatitude,jdbcType=VARCHAR},
+      </if>
+      <if test="mTac != null">
+        mTac = #{mTac,jdbcType=VARCHAR},
+      </if>
+      <if test="testPerson != null">
+        testPerson = #{testPerson,jdbcType=VARCHAR},
+      </if>
+      <if test="testPersonPhone != null">
+        testPersonPhone = #{testPersonPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="backPerson != null">
+        backPerson = #{backPerson,jdbcType=VARCHAR},
+      </if>
+      <if test="backPersonPhone != null">
+        backPersonPhone = #{backPersonPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="testTime != null">
+        testTime = #{testTime,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        createTime = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        updateTime = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createAt != null">
+        createAt = #{createAt,jdbcType=INTEGER},
+      </if>
+      <if test="dealPersonId != null">
+        dealPersonId = #{dealPersonId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="processState != null">
+        processState = #{processState,jdbcType=VARCHAR},
+      </if>
+      <if test="deviceCompany != null">
+        deviceCompany = #{deviceCompany,jdbcType=VARCHAR},
+      </if>
+      <if test="secondCompany != null">
+        secondCompany = #{secondCompany,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+	
+	<select id="queryLtePlanInfo" resultMap="queryLtePlanInfoMap">
+		select * from lte_plane where id=#{id}
+	</select>
+	
+	<resultMap type="com.boot.kaizen.model.lte.LtePlanInfo" id="queryLtePlanInfoMap">
+		<id property="id" column="id" />
+		<result property="mENodeBID" column="mENodeBID" />
+		<result property="mBaseStationName" column="mBaseStationName" />
+		<result property="mBaseStationType" column="mBaseStationType" />
+		<result property="mAltitude" column="mAltitude" />
+		<result property="mLongitude" column="mLongitude" />
+		<result property="mLatitude" column="mLatitude" />
+		<result property="mTac" column="mTac" />
+		<result property="testPerson" column="testPerson" />
+		<result property="testPersonPhone" column="testPersonPhone" />
+		<result property="backPerson" column="backPerson" />
+		<result property="backPersonPhone" column="backPersonPhone" />
+		<result property="testTime" column="testTime" />
+		<result property="dealPersonId" column="dealPersonId" />
+		<result property="status" column="status" />
+	</resultMap>
+	
+	<resultMap type="com.boot.kaizen.controller.lte.model.BaseStationBean" id="queryStationListMap">
+		<id property="mENodeBID" column="mENodeBID" />
+		<result property="mAltitude" column="mAltitude" />
+		<result property="mBaseStationName" column="mBaseStationName" />
+		<result property="mBaseStationType" column="mBaseStationType" />
+		<result property="mLatitude" column="mLatitude" />
+		<result property="mLongitude" column="mLongitude" />
+		<result property="mTac" column="mTac" />
+	</resultMap>
+	
+</mapper>
