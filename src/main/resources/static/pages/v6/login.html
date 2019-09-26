@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>用户登陆</title>
+
+	<script type="text/javascript" src="../../../../js/libs/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../../../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../../../js/jq.js"></script>
+	
+	<script type="text/javascript" src="../../../../js/socketjs/sockjs.min.js"></script>
+	<script type="text/javascript" src="../../../../js/socketjs/stomp.min.js"></script>
+	
+
+</head>
+<body>
+	
+	<form class="layui-form"  id="formDemo" method="post" action="/zwc/userLogin" style="margin-top: 20px;">
+	
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">用户名</label>
+	    <div class="layui-input-inline">
+	    	 <input type="text" name="username" id="username"     autocomplete="off" class="layui-input">
+	    </div>
+	    
+	    
+	    <label class="layui-form-label" style="width: 150px;">密码</label>
+	    <div class="layui-input-inline" >
+	     	<input type="text" name="pwd" id="pwd"    autocomplete="off" class="layui-input">
+	    </div>
+	    
+	    <label class="layui-form-label" style="width: 150px;">登陆</label>
+	    <div class="layui-input-inline" >
+	    	<input type="submit" value="登陆" />
+	    </div>
+	   
+	  </div>
+	  
+	</form>
+	
+	
+	
+	
+	
+
+	
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>websocket测试链接</title>
+
+	<script type="text/javascript" src="../../../../js/libs/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../../../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../../../js/jq.js"></script>
+	
+	<script type="text/javascript" src="../../../../js/socketjs/sockjs.min.js"></script>
+	<script type="text/javascript" src="../../../../js/socketjs/stomp.min.js"></script>
+	
+
+</head>
+<body>
+	
+	<form class="layui-form"  id="formDemo" style="margin-top: 20px;">
+	
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">链接</label>
+	    <div class="layui-input-inline">
+	    	<input type="button" id="connectName" name="connectName" value="开始链接" />
+	    </div>
+	    
+	    <label class="layui-form-label" style="width: 150px;">发送</label>
+	    <div class="layui-input-inline" >
+	    	<input type="button" id="sendName" name="sendName" value="发送" />
+	    </div>
+	    <label class="layui-form-label" style="width: 150px;">关闭</label>
+	    <div class="layui-input-inline" >
+	    	<input type="button" id="closeName" name="closeName" value="发送" />
+	    </div>
+	  </div>
+	  
+	</form>
+	
+	
+	
+	
+	
+
+	
+<script>
+
+	var flag=false;
+	var token = localStorage.getItem("token");
+
+	var stompClient;
+	
+	
+	layui.use(['layer', 'form','jquery','laydate'], function(){
+	  var layer = layui.layer,form = layui.form,$=layui.jquery;
+	  var laydate = layui.laydate;
+	
+	  //链接上去
+	  
+	  $("#connectName").click(function(){
+		  //这个地方会立马出现一个websocket的协议   ws://localhost:8081/endpoint-websocket/840/t0o3acxr/websocket
+		  var socket=new SockJS("/endpoint-websocket");//连接上断点  用stom进行包装、规范协议
+		  stompClient=Stomp.over(socket);
+		  //"token":"eyJhbGciOiJIUzI1NiJ9.eyJMT0dJTl9VU0VSX0tFWSI6ImFmODI0MzM0LTRhMjItNDI1NC1iNTQ2LTc0ZTdhYjlkMDMyMiJ9.t885ikf_1D1lHdq5geRtgH46GG0nboXjL7Gb5xXtYfw"
+		  stompClient.connect({},function(frame){//{} 注意这里面可以传输一些header信息  '':''  这种格式 多个以逗号分隔
+			  console.info("开始链接");
+			  stompClient.subscribe("/topic/game_chat",function(result){
+				  console.info("----------------------------------");
+				  console.info(result.body);
+			  });
+		  });
+	  });
+	  $("#sendName").click(function(){
+		  stompClient.send("/app1/v1/chat",{},JSON.stringify({'content':'测试测试'}));
+	  });
+	  $("#closeName").click(function(){//找一个这个链接的关闭方法
+		  stompClient.end();;
+	  });
+	  
+	});
+	
+</script> 
+
+</body>
+</html>

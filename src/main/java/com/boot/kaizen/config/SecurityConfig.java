@@ -55,7 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 		/** 静态资源不拦截 */
-		http.authorizeRequests().antMatchers("/", "/app/**", 
+		http.authorizeRequests().antMatchers("/", "/app/**","/zwc/**", 
 				"/*.html", //
 				"/css/**", //
 				"/js/**", //
@@ -63,6 +63,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				"/layui/**", //
 				"/img/**", //
 				"/pages/**", //
+				"/endpoint-websocket/**", //
 				"/druid/**", //
 				"/favicon.ico", //
 				"/statics/**",
@@ -86,7 +87,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.headers().cacheControl();
 
 		http.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
-
 	}
 
 	@Override
