@@ -115,6 +115,8 @@ server:
   port: 8081
 
   
- 
+gis: 
+  ak: vEgRtpbR6hgHTNtN0HiHhTPLDxaCl3YE
+  projectname: ihandle_log
 
 

@@ -43,39 +43,24 @@
 	
 <script>
 
-	var flag=false;
-	var token = localStorage.getItem("token");
-
-	var stompClient;
-	
-	
-	layui.use(['layer', 'form','jquery','laydate'], function(){
-	  var layer = layui.layer,form = layui.form,$=layui.jquery;
-	  var laydate = layui.laydate;
-	
-	  //链接上去
-	  
-	  $("#connectName").click(function(){
-		  //这个地方会立马出现一个websocket的协议   ws://localhost:8081/endpoint-websocket/840/t0o3acxr/websocket
-		  var socket=new SockJS("/endpoint-websocket");//连接上断点  用stom进行包装、规范协议
-		  stompClient=Stomp.over(socket);
-		  //"token":"eyJhbGciOiJIUzI1NiJ9.eyJMT0dJTl9VU0VSX0tFWSI6ImFmODI0MzM0LTRhMjItNDI1NC1iNTQ2LTc0ZTdhYjlkMDMyMiJ9.t885ikf_1D1lHdq5geRtgH46GG0nboXjL7Gb5xXtYfw"
-		  stompClient.connect({},function(frame){//{} 注意这里面可以传输一些header信息  '':''  这种格式 多个以逗号分隔
-			  console.info("开始链接");
-			  stompClient.subscribe("/topic/game_chat",function(result){
-				  console.info("----------------------------------");
-				  console.info(result.body);
-			  });
-		  });
-	  });
-	  $("#sendName").click(function(){
-		  stompClient.send("/app1/v1/chat",{},JSON.stringify({'content':'测试测试'}));
-	  });
-	  $("#closeName").click(function(){//找一个这个链接的关闭方法
-		  stompClient.end();;
-	  });
-	  
-	});
+//验证
+$(function(){
+	  $.ajax({
+		   type: "GET",
+		   url: "http://localhost:9200/weicheng/zwc/_search",
+		   dataType:"jsonp",
+		   data: {
+			   "query": {
+				    "match": {
+				      "name": "zhangba"
+				    }
+				  }
+				},
+		   success: function(msg){
+			   console.info(msg);
+		   }
+		});
+});
 	
 </script> 
 

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<!-- 下面我们添加一个meta标签，以便使您的页面更好的在移动平台上展示。 -->
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<title>gis测试</title>
+
+<link rel="stylesheet" type="text/css" media="screen" href="../../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../../layui/css/layui.css">
+    
+    <!-- 设置容器的样式 是地图充满整个浏览器 -->
+	<style type="text/css">  
+	    html{height:100%}    
+	    body{height:100%;margin:0px;padding:0px;font-family:"微软雅黑";}    
+	    #container{height:100%}    
+	</style> 
+	
+
+	<!-- 自定义windows提示信息 -->
+	<style type="text/css">
+		p{margin-left:5px; font-size:14px;}
+	</style>
+
+</head>
+<body>
+
+   <div style="margin-bottom: 2px;">
+	<input type="button" id="addCover" name="addCover" value="添加标注" /> 	
+	<input type="button" id="delCover" name="delCover" value="移除标注/清楚覆盖物" /> 	
+	<input type="button" id="delMapType" name="delMapType" value="添加地图控件类型" /> 	
+	<input type="button" id="addMorePoint" name="addMorePoint" value="添加海量点" /> 	
+	<input type="button" id="addShiLiangPoint" name="addShiLiangPoint" value="添加矢量标注" /> 	
+   </div>
+
+	<script type="text/javascript" src="../../../js/libs/jquery-2.1.1.min.js" ></script>
+	<script type="text/javascript" src="../../../layui/layui.js" ></script>
+	<script type="text/javascript" src="../../../js/jq.js"></script>
+	<script type="text/javascript" src="../../../js/common.js" charset="UTF-8"></script>
+	
+	<!-- 百度地图api -->
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=vEgRtpbR6hgHTNtN0HiHhTPLDxaCl3YE"></script>
+	
+	
+	
+	
+	
+
+	<!-- 创建地图的容器 -->
+	<div id="container"></div> 
+	
+	
+	<script type="text/javascript">
+		
+		$(function(){
+			//创建地图实例
+			var map = new BMap.Map("container",{enableMapClick: false});  //屏蔽地图的点击 出现框的问题
+			//地图的初始化，必须具备这个初始化操作之后 才能进行后续的操作   中心点和展示级别
+			//var point = new BMap.Point(116.404, 39.915);  // 创建点坐标
+			 //map.centerAndZoom("上海",15);      // 初始化地图,用城市名设置地图中心点
+			 map.centerAndZoom(new BMap.Point(121.493, 31.250), 11);
+			 //开启鼠标缩放
+			 map.enableScrollWheelZoom(true);
+			 //设置地图默认的鼠标指针样式
+			 map.setDefaultCursor("url('bird.cur')");  
+			 
+			 //地图加载完毕 需要做的事情
+			 map.addEventListener("tilesloaded",function(){console.info("地图加载完毕");});
+			 
+			 //地图点击的时候 移动中心
+			 function showInfo(e){
+					map.panTo(new BMap.Point(e.point.lng,e.point.lat));   //两秒后移动到广州
+				}
+			map.addEventListener("click", showInfo);
+			 
+			 
+			 //添加覆盖物
+			 //map.addOverlay方法向地图添加覆盖物，使用map.removeOverlay方法移除覆盖物
+			 $("#addCover").click(function(){
+				
+				 //  这个是自定义标注图标
+				 var myIcon = new BMap.Icon("markers.png", new BMap.Size(23, 25), {    
+			        // 指定定位位置。   
+			        // 当标注显示在地图上时，其所指向的地理位置距离图标左上    
+			        // 角各偏移10像素和25像素。您可以看到在本例中该位置即是   
+			        // 图标中央下端的尖角位置。    
+			        anchor: new BMap.Size(10, 25),    
+			        // 设置图片偏移。   
+			        // 当您需要从一幅较大的图片中截取某部分作为标注图标时，您   
+			        // 需要指定大图的偏移位置，此做法与css sprites技术类似。    
+			        imageOffset: new BMap.Size(0, 0 - 1 * 25)   // 设置图片偏移    
+			    });  
+				// var marker = new BMap.Marker(point, {icon: myIcon});
+				 
+				//创建标注
+				 var marker = new BMap.Marker(new BMap.Point(121.493, 31.250));        // 创建标注      默认是个红色的水滴
+				 //监听标准
+				 marker.addEventListener("click", function(e){    
+					 console.info("你点击了标注：" + e.point.lng + ", " + e.point.lat);       
+					 //创建窗口的提示信息
+					 var opts = {
+							  width : 2000,     // 信息窗口宽度
+							  height: 1000,     // 信息窗口高度
+							  title : "海底捞王府井店" , // 信息窗口标题
+							  enableMessage:true,//设置允许信息窗发送短息
+							  message:"亲耐滴，晚上一起吃个饭吧？戳下面的链接看下地址喔~"
+							}
+					var infoWindow = new BMap.InfoWindow("地址：北京市东城区王府井大街88号乐天银泰百货八层", opts);  // 创建信息窗口对象 
+					map.openInfoWindow(infoWindow,new BMap.Point(121.493, 31.250)); //开启信息窗口
+				 });  
+				 //拖拽标注
+				 marker.enableDragging();    
+				 marker.addEventListener("dragend", function(e){    
+				     alert("当前位置：" + e.point.lng + ", " + e.point.lat);    
+				 })  
+				 //添加标注
+				 map.addOverlay(marker);                     
+				 
+				 
+				                    
+				 var marker2 = new BMap.Marker(new BMap.Point(121.413, 31.250)); 
+				 map.addOverlay(marker2);                     
+				 var marker3 = new BMap.Marker(new BMap.Point(121.443, 31.250)); 
+				 map.addOverlay(marker3);                     
+				 var marker4 = new BMap.Marker(new BMap.Point(121.543, 31.250)); 
+				 marker4.disableMassClear();//保留不被清除
+				 map.addOverlay(marker4);  
+				//跳动的动画  将标注设置未跳动
+				 marker4.setAnimation(BMAP_ANIMATION_BOUNCE); 
+				
+				
+				 marker4.addEventListener("click", function(e){    
+					 console.info("你点击了标注：" + e.point.lng + ", " + e.point.lat);       
+					 //创建窗口的提示信息
+					 var opts = {
+							  width : 200,     // 信息窗口宽度
+							  height: 100,     // 信息窗口高度
+							  title : "海底捞王府井店" , // 信息窗口标题
+							//  enableMessage:true,//设置允许信息窗发送短息
+							  message:"亲耐滴，晚上一起吃个饭吧？戳下面的链接看下地址喔~"
+							}
+					//var infoWindow = new BMap.InfoWindow("<span style='color:red;'>地址：北京市东城区王府井大街88号乐天银泰百货八层</span>");  // 创建信息窗口对象 
+					var infoWindow = new BMap.InfoWindow("<a id='zwc'  style='color:red;'>地址：北京市东城区王府井大街88号乐天银泰百货八层</a>", opts);  // 创建信息窗口对象 
+					map.openInfoWindow(infoWindow,new BMap.Point(121.543, 31.250)); //开启信息窗口
+				 });
+				
+				//设置标注的标签
+				// var label = new BMap.Label("北京",{offset:new BMap.Size(20,-10)});
+			    // marker4.setLabel(label);
+				 
+			    
+			 });
+			 
+			 //这个点击的事件  是识别不了的
+			 $("#zwc").click(function(){
+				console.info( $(this).html());
+			 });
+			 
+				 //清楚覆盖物
+			 $("#delCover").click(function(){
+				 map.clearOverlays(); 
+				 //对覆盖物单独进行 显示  隐藏方法
+				 //marker.show(); polyline.show(); circle.show();
+				 //marker.hide(); polyline.hide(); circle.hide();
+			 });
+			 
+				//添加地图类型控件  出现地图/混图
+			 $("#delMapType").click(function(){
+					map.addControl(new BMap.MapTypeControl({
+						mapTypes:[
+				            BMAP_NORMAL_MAP,
+				            BMAP_HYBRID_MAP
+				    ]}));	  
+			 });
+				
+				//添加矢量标注
+			 $("#addShiLiangPoint").click(function(){
+				 var vectorFCArrow = new BMap.Marker(new BMap.Point(121.443, 31.250), {
+					  icon: new BMap.Symbol(BMap_Symbol_SHAPE_FORWARD_CLOSED_ARROW, {
+					    scale: 2,
+					    strokeWeight: 1,
+					    rotation: 0,//由左到又旋转  注意箭头向上的方向 为0
+					    fillColor: 'red',
+					    fillOpacity: 0.8
+					  })
+					});
+				 map.addOverlay(vectorFCArrow);
+				 
+				//设置marker图标为水滴
+				 var vectorMarker = new BMap.Marker(new BMap.Point(121.443, 31.250), {
+				   // 指定Marker的icon属性为Symbol
+				   icon: new BMap.Symbol(BMap_Symbol_SHAPE_POINT, {
+				     scale: 2,//图标缩放大小
+				     fillColor: "orange",//填充颜色
+				     fillOpacity: 0.8//填充透明度
+				   })
+				 });
+				 map.addOverlay(vectorMarker);
+			 });
+			 
+			 
+			 //添加海量的点
+			 $("#addMorePoint").click(function(){
+				 if (document.createElement('canvas').getContext) {  // 判断当前浏览器是否支持绘制海量点
+				        var points = [];  // 添加海量点数据
+				       
+				        //这里模拟一下
+				        points.push(new BMap.Point(121.443, 31.250));
+				        points.push(new BMap.Point(121.442, 31.250));
+				        points.push(new BMap.Point(121.441, 31.250));
+				        points.push(new BMap.Point(121.440, 31.250));
+				        points.push(new BMap.Point(121.423, 31.250));
+				        
+				        //设置点的颜色  形状 大小
+				        var options = {
+				            //size: BMAP_POINT_SIZE_SMALL,
+				           // shape: BMAP_POINT_SHAPE_STAR,
+//				            color: '#d340c3'
+				            color: 'red'
+				        }
+				        
+				        var pointCollection = new BMap.PointCollection(points, options);  // 初始化PointCollection
+				        pointCollection.addEventListener('click', function (e) {
+				          alert('单击点的坐标为：' + e.point.lng + ',' + e.point.lat);  // 监听点击事件
+				        });
+				        map.addOverlay(pointCollection);  // 添加Overlay
+				        
+				        
+				        var points1 = []; 
+				        points1.push(new BMap.Point(121.343, 31.250));
+				        points1.push(new BMap.Point(121.342, 31.250));
+				        points1.push(new BMap.Point(121.341, 31.250));
+				        points1.push(new BMap.Point(121.340, 31.250));
+				        points1.push(new BMap.Point(121.323, 31.250));
+				        var options1 = {
+					            //size: BMAP_POINT_SIZE_SMALL,
+					           // shape: BMAP_POINT_SHAPE_STAR,
+//					            color: '#d340c3'
+					            color: 'blue'
+					        }
+					        var pointCollection1 = new BMap.PointCollection(points1, options1);  // 初始化PointCollection
+				        map.addOverlay(pointCollection1);  // 添加Overlay
+				    } else {
+				        alert('请在chrome、safari、IE8+以上浏览器查看本示例');
+				    }					  
+			 });
+		});
+	
+	</script>
+	
+	
+	
+
+</body>
+</html>

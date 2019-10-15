@@ -39,7 +39,7 @@ function initMenu(){
 	     }
 	 });
 	 
-	 //显示当前在线人数
+	/* //显示当前在线人数
 	 $.ajax({  
 		 url:"/redis/queryLoginPersonNum",  
 		 type:"POST",  
@@ -51,7 +51,7 @@ function initMenu(){
 				 $('#nowLoginPersonDiv').show();
 			 }
 		 }
-	 });
+	 });*/
 }
 
 function setChild(parentElement, child){

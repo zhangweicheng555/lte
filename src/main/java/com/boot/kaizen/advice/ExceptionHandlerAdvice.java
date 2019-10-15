@@ -28,30 +28,26 @@ public class ExceptionHandlerAdvice {
 	@ExceptionHandler({ IllegalArgumentException.class })
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public JsonMsgUtil badRequestException(IllegalArgumentException exception) {
-		return new JsonMsgUtil(HttpStatus.BAD_REQUEST.value(), exception.getMessage(), HttpStatus.BAD_REQUEST.value(),
-				exception.getMessage());
+		return new JsonMsgUtil(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
 	}
 
 	@ExceptionHandler({ AccessDeniedException.class })
 	@ResponseStatus(HttpStatus.FORBIDDEN)
 	public JsonMsgUtil badRequestException(AccessDeniedException exception) {
-		return new JsonMsgUtil(HttpStatus.FORBIDDEN.value(), exception.getMessage(), HttpStatus.FORBIDDEN.value(),
-				exception.getMessage());
+		return new JsonMsgUtil(HttpStatus.FORBIDDEN.value(), exception.getMessage());
 	}
 
 	@ExceptionHandler({ MissingServletRequestParameterException.class, HttpMessageNotReadableException.class,
 			UnsatisfiedServletRequestParameterException.class, MethodArgumentTypeMismatchException.class })
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public JsonMsgUtil badRequestException(Exception exception) {
-		return new JsonMsgUtil(HttpStatus.BAD_REQUEST.value(), exception.getMessage(), HttpStatus.BAD_REQUEST.value(),
-				exception.getMessage());
+		return new JsonMsgUtil(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
 	}
 
 	@ExceptionHandler(Throwable.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public JsonMsgUtil exception(Throwable throwable) {
-		return new JsonMsgUtil(HttpStatus.INTERNAL_SERVER_ERROR.value(), throwable.getMessage(),
-				HttpStatus.INTERNAL_SERVER_ERROR.value(), throwable.getMessage());
+		return new JsonMsgUtil(HttpStatus.INTERNAL_SERVER_ERROR.value(), throwable.getMessage());
 	}
 
 }
