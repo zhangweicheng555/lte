@@ -13,7 +13,7 @@ import com.boot.kaizen.util.JsonMsgUtil;
  * @date 2019年2月1日 上午10:13:24
  */
 @Controller
-@RequestMapping("/gis")
+@RequestMapping("/gis1")
 public class GisController {
 
 	//@Autowired

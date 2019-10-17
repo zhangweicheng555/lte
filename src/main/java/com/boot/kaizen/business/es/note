@@ -1,0 +1,108 @@
+
+
+GET /_cat/indices?v
+
+GET /weicheng/_mapping 
+
+
+
+{
+  "test" : {
+    "mappings" : {
+      "test" : {
+        "properties" : {
+          "createdate" : {
+            "type" : "long"
+          },
+          "deleted" : {
+            "type" : "long"
+          },
+          "id" : {
+            "type" : "long"
+          },
+          "name" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "priority" : {
+            "type" : "long"
+          },
+          "projid" : {
+            "type" : "long"
+          },
+          "range" : {
+            "type" : "long"
+          },
+          "sourcerange" : {
+            "type" : "long"
+          },
+          "state" : {
+            "type" : "long"
+          },
+          "type" : {
+            "type" : "long"
+          },
+          "updatedate" : {
+            "type" : "long"
+          },
+          "updateuser" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "user" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+、
+
+
+
+数据类型
+1.2 数字类型 - 8种
+数字类型有如下分类:
+类型
+说明
+
+byte
+有符号的8位整数, 范围: [-128 ~ 127]
+
+short
+有符号的16位整数, 范围: [-32768 ~ 32767]
+
+integer
+有符号的32位整数, 范围: [$-2^{31}$ ~ $2^{31}$-1]
+
+long
+有符号的32位整数, 范围: [$-2^{63}$ ~ $2^{63}$-1]
+
+float
+32位单精度浮点数
+
+double
+64位双精度浮点数
+
+half_float
+16位半精度IEEE 754浮点类型
+
+scaled_float
+缩放类型的的浮点数, 比如price字段只需精确到分, 57.34缩放因子为100, 存储结果为5734
