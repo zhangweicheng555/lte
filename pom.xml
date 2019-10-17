@@ -24,7 +24,6 @@
 		<activiti.version>5.22.0</activiti.version>
 
 		<java-jwt.version>3.3.0</java-jwt.version>
-		<mybaitsplus.version>2.0.8</mybaitsplus.version>
 		<commons-fileupload.version>1.4</commons-fileupload.version>
 		<activiti.version>5.22.0</activiti.version>
 		<commons-io.version>2.5</commons-io.version>

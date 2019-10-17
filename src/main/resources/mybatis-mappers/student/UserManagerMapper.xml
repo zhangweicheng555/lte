@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.business.student.dao.UserManagerMapper">
+  <resultMap id="BaseResultMap" type="com.boot.kaizen.business.student.model.UserManager">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="userLogin" jdbcType="VARCHAR" property="userLogin" />
+    <result column="userName" jdbcType="VARCHAR" property="userName" />
+    <result column="userPassword" jdbcType="VARCHAR" property="userPassword" />
+    <result column="userStatus" jdbcType="INTEGER" property="userStatus" />
+    <result column="userLogin2" jdbcType="VARCHAR" property="userLogin2" />
+    <result column="userMail" jdbcType="VARCHAR" property="userMail" />
+    <result column="userMail1" jdbcType="VARCHAR" property="userMail1" />
+    <result column="userPhone" jdbcType="VARCHAR" property="userPhone" />
+    <result column="userCompany" jdbcType="VARCHAR" property="userCompany" />
+    <result column="userSuper" jdbcType="VARCHAR" property="userSuper" />
+    <result column="userExpire" jdbcType="TIMESTAMP" property="userExpire" />
+    <result column="sessionId" jdbcType="VARCHAR" property="sessionId" />
+    <result column="province" jdbcType="VARCHAR" property="province" />
+    <result column="city" jdbcType="VARCHAR" property="city" />
+    <result column="selectc" jdbcType="VARCHAR" property="selectc" />
+    <result column="selectp" jdbcType="VARCHAR" property="selectp" />
+    <result column="userType" jdbcType="VARCHAR" property="userType" />
+    <result column="projectId" jdbcType="LONGVARCHAR" property="projectId" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, userLogin, userName, userPassword, userStatus, userLogin2, userMail, userMail1, 
+    userPhone, userCompany, userSuper, userExpire, sessionId, province, city, selectc, 
+    selectp, userType,projectId
+  </sql>
+ 
+ 
+	
+  <select id="findByTest" resultMap="BaseResultMap">
+		select 
+	    <include refid="Base_Column_List" />
+	    from us_users
+		where 1=1 
+		<if test="map.userName != null and map.userName != ''">
+            and userName = #{map.userName}
+        </if>
+	</select>
+  
+  
+  
+  
+  
+</mapper>

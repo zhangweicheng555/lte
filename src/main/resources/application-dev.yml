@@ -60,8 +60,8 @@ mybatis-plus:
   mapper-locations: classpath:/mybatis-mappers/**/*.xml
   global-config:
     #驼峰
-    db-column-underline: true
-    field-strategy: 2
+    db-column-underline: false
+    field-strategy: 1
     id-type: 3
     #逻辑删除
     logic-delete-value: 0
