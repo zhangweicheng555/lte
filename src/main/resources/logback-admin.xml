@@ -121,7 +121,7 @@
 	</logger>
 
 
-	<logger name="com.boot.kaizen.dao" level="DEBUG" additivity="true">
+	<logger name="com.boot.kaizen" level="DEBUG" additivity="true">
 		<appender-ref ref="sqlLog" />
 	</logger>
 

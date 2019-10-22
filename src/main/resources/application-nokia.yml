@@ -5,7 +5,7 @@ spring:
       config: classpath:ehcache.xml
   datasource: 
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://10.255.255.133:3306/kaizen?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8
+    url: jdbc:mysql://172.16.207.85:3306/kaizen?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8
     username: root
     password: 123456
     druid:
@@ -101,10 +101,9 @@ log:
   level:
     root: info
     my: debug
-  file: c:/kaizensoft/kaizen/doc/logs/admin-server.log
-  dayfile: c:/kaizensoft/kaizen/doc/logs/day.log
+  file: /kaizen/doc/logs/system.log
+  dayfile: /kaizen/doc/logs/day.log
   maxsize: 1024MB
-  
   
   
 token: 
@@ -114,5 +113,5 @@ token:
   
   
 server: 
-  port: 1234 
+  port: 8080 
   

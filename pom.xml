@@ -257,26 +257,12 @@
 		    <artifactId>log4j-core</artifactId>
 		</dependency>
 		
-		<!-- geoshape query 依赖 
-		<dependency>
-		    <groupId>org.locationtech.spatial4j</groupId>
-		    <artifactId>spatial4j</artifactId>
-		    <version>0.7</version>                        
-		</dependency>
-		
-		<dependency>
-		    <groupId>org.locationtech.jts</groupId>
-		    <artifactId>jts-core</artifactId>
-		    <version>1.15.0</version>                         
-		    <exclusions>
-		        <exclusion>
-		            <groupId>xerces</groupId>
-		            <artifactId>xercesImpl</artifactId>
-		        </exclusion>
-		    </exclusions>
-		</dependency>
-	-->
-		<!-- boot整合 es结束 -->
+		<!--微信工具类-->
+        <dependency>
+            <groupId>com.github.wxpay</groupId>
+            <artifactId>wxpay-sdk</artifactId>
+            <version>0.0.3</version>
+        </dependency>
 
 	</dependencies>
 

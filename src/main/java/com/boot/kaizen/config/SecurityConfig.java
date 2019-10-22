@@ -55,7 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 		/** 静态资源不拦截 */
-		http.authorizeRequests().antMatchers("/", "/app/**","/zwc/**","/gis/**", 
+		http.authorizeRequests().antMatchers("/", "/app/**","/zwc/**","/gis/**","/charge/**", 
 				"/*.html", //
 				"/css/**", //
 				"/js/**", //

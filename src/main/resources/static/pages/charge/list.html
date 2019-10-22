@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>微信支付测试代码</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../../layui/css/layui.css">
+</head>
+<body>
+<div>
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<!-- 搜索功能区域 -->
+		<header style="height: 100%">
+			<div align="left">
+				<table style="width: 100%">
+					<tr>
+						<td>
+							<form class="form-inline" onsubmit="return false">
+								<div class="form-group">
+									基站号：
+									<input id="mENodeBID" name="mENodeBID" type="text" class="form-control" autocomplete="off"   > 
+									
+									测试时间：
+									<input type="text"  id="beginTime" class="form-control" name="beginTime" >
+									-
+									<input type="text"  id="endTime" class="form-control" name="endTime" >
+									
+									<button id="searchBt" class="layui-btn layui-btn-sm">
+										<i class="layui-icon">&#xe615;</i>搜索
+									</button>
+									<button id="clearBt" class="layui-btn layui-btn-sm  layui-btn-danger" style="margin-left: 1px;">
+										<i class="layui-icon layui-icon-delete" style="font-size: 30px; color: white-space;"></i>清空
+									</button>
+								</div>
+							</form>
+						</td>
+						<td align="right">
+						</td>
+					</tr>
+				</table>
+			</div>
+		</header>
+
+		<div>
+			<div class="widget-body no-padding">
+				<img  id="testDic" />
+			</div>
+		</div>
+		
+		
+	</div>
+</div>
+
+
+<!-- 
+
+appid: "wx0609f8351dca9750"
+code_url: "weixin://wxpay/bizpayurl?pr=glbeHOH"
+mch_id: "1536725911"
+nonce_str: "kt6G0aWtn9hm6dzP"
+out_trade_no: "1186201684455997440"
+prepay_id: "wx21164456830675e785f194041147823700"
+result_code: "SUCCESS"
+return_code: "SUCCESS"
+return_msg: "OK"
+sign: "C0ABDF03F93EEB4430D6FBE57A7F5135"
+total_fee: "1"
+trade_type: "NATIVE"
+
+ -->
+</body>
+</html>
+
+	<script type="text/javascript" src="../../../js/libs/jquery-2.1.1.min.js" ></script>
+	<script type="text/javascript" src="../../../layui/layui.js" ></script>
+	<script type="text/javascript" src="../../../js/jq.js"></script>
+	<script type="text/javascript" src="../../../js/common.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="../../../js/qrious.min.js"></script>
+
+	<script type="text/javascript">
+	var currData;
+	var checkArray=new Array();
+	layui.use([ 'layer' ,'table','laydate','jquery','common'], function() {
+	  var layer = layui.layer;
+	  var laydate = layui.laydate;
+	  var $=layui.$;
+	  var common = layui.common;
+	  var table = layui.table;
+	  
+	  
+		$.ajax({
+			   type: "POST",url: "/charge/charge",data: {},dataType:"json",
+			   success: function(msg){
+			     if(msg.success){
+			    	var obj=msg.object;
+			    	  // 生成二维码 js
+		            new QRious({
+		                element: document.getElementById('testDic'),
+		                size: 250,
+		                value: obj.code_url
+		            });
+			    	console.info(obj);
+			     }else{
+			    	 layer.msg('返回修改数据信息异常'+msg.object);
+			     }
+			   }
+		});
+	  
+	  
+		
+});
+
+</script>
+
+
