@@ -271,14 +271,15 @@ public class Esutil {
 	}
 
 	/**
-	 * 查询
+	 * 查询  分页注意控制每页的数量  这个size注意控制在1万以下
 	 * 
 	 * @Description: 根据索引/类型 分页查询所有的记录 数据+总数量
 	 * @author weichengz
 	 * @date 2019年4月3日 上午9:16:03
 	 */
-	public static QueryParamData queryPage(String index, String type, QueryParamData queryParamData) {
-		SearchResponse searchResponse = queryDataResponseByCondition(index, type, queryParamData);
+	public static QueryParamData queryPage( QueryParamData queryParamData) {
+		queryParamData.verificationIndexType();
+		SearchResponse searchResponse = queryDataResponseByCondition(queryParamData.getIndex(), queryParamData.getType(), queryParamData);
 		SearchHits hits = searchResponse.getHits();
 		queryParamData.setTotalNums(hits.getTotalHits());
 		List<Map<String, Object>> maps = new ArrayList<>();

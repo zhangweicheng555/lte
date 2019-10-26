@@ -16,8 +16,8 @@ public class QueryParamData implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String index;// 索引
-	private String type;// 类型
+	private String index="test";// 索引
+	private String type="test";// 类型
 
 	private Map<String, Object> matchMap;// 模糊匹配的map 全文检索的那种
 	private Map<String, Object> termMap; // 精确查询的map
@@ -29,7 +29,7 @@ public class QueryParamData implements Serializable {
 	private List<String> revelFields;// 指定要显示的字段
 
 	private Integer page = 1;// 默认页码
-	private Integer size = 10;// 默认数量 这个是分页显示的数量 或者是滚动查询的数量
+	private Integer size = 1000;// 默认数量 这个是分页显示的数量 或者是滚动查询的数量
 
 	private List<Map<String, Object>> rows = new ArrayList<>();// 条件查询返回的数据
 	private Long totalNums = 0L;// 满足查询条件的总数量

@@ -17,6 +17,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -84,7 +85,7 @@ public class EsTestController {
 	}
 	
 	@ResponseBody
-	@PostMapping(value = "/scrollQuery")
+	@GetMapping(value = "/scrollQuery")
 	public List<Map<String, Object>> scrollQuery(@RequestBody QueryParamData queryParamData) {
 		return Esutil.scrollQuery(queryParamData);
 	}
@@ -97,9 +98,8 @@ public class EsTestController {
 	
 	@ResponseBody
 	@PostMapping(value = "/queryPage")
-	public QueryParamData queryPage(@RequestParam("index") String index,
-			@RequestParam("type") String type,@RequestBody QueryParamData queryParamData) {
-		return Esutil.queryPage(index, type, queryParamData);
+	public QueryParamData queryPage(@RequestBody QueryParamData queryParamData) {
+		return Esutil.queryPage(queryParamData);
 	}
 	
 	@ResponseBody
