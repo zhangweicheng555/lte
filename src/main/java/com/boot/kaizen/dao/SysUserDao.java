@@ -60,6 +60,6 @@ public interface SysUserDao {
 
 	int update(@Param("user") SysUser user);
 
-	@Select("SELECT u.id,u.username,u.nickname FROM sys_user u LEFT JOIN sys_role_user ru ON u.id = ru.userId LEFT JOIN proj_role_relation pr ON ru.roleId = pr.role_id WHERE ru.roleId IN (SELECT r.id FROM sys_role r WHERE r.`name` = '审批人员') AND pr.proj_id = #{projId}")
+	@Select("SELECT u.id,u.username,u.nickname FROM sys_user u LEFT JOIN sys_role_user ru ON u.id = ru.userId LEFT JOIN proj_role_relation pr ON ru.roleId = pr.role_id WHERE ru.roleId IN (SELECT r.id FROM sys_role r WHERE r.`name` = '系统管理员' OR r.`name` = '审批人员') AND pr.proj_id = #{projId}")
 	List<SysUser> queryAcceptUserByProj(@Param("projId") Long projectId);
 }

@@ -12,9 +12,8 @@
 	<select id="findWithRoleRealtion" resultMap="SysProjectQMap">
 		 select distinct p.* 
 		 from 
-		 sys_project p
-		 ,proj_role_relation r
-		 where p.id=r.proj_id 
+		 sys_project p left join  proj_role_relation r on  p.id=r.proj_id 
+		 where 1=1 
 		 <if test="projId != null and projId != ''">
             and p.id=#{projId}
         </if>

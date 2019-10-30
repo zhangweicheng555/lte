@@ -5,10 +5,10 @@ spring:
       config: classpath:ehcache.xml
   datasource: 
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/lte?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8
+    url: jdbc:mysql://10.255.255.133:3306/kaizen?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8
     username: root
     password: 123456
-    druid: 
+    druid:
       initialSize: 5
       minIdle: 5
       maxActive: 20
@@ -21,8 +21,8 @@ spring:
       testOnReturn: false
       poolPreparedStatements: true
       maxPoolPreparedStatementPerConnectionSize: 20
-#      filters: stat,wall
       filters: stat
+#      filters: stat,wall
       connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
       stat-view-servlet:
         allow: 127.0.0.1
@@ -37,6 +37,7 @@ spring:
   mvc:
     servlet:
       load-on-startup: 1 
+  
   flyway:
     baseline-on-migrate: true
     validate-on-migrate: true
@@ -45,12 +46,13 @@ spring:
     sql-migration-prefix: v
     sql-migration-suffixes: .sql
 
-
+ 
  
   application:
     name: ihandle_log
-   
 
+   
+   
 
 
 
@@ -76,21 +78,28 @@ pagehelper:
     reasonable: false
     supportMethodsArguments: true
     params: true
-    
+      
 files:
-  path: ${file-path:d:/kaizen/doc}     #所有文件存储的根路径
+  path: ${file-path:c:/kaizensoft/kaizen/doc}     #所有文件存储的根路径
+  pathKzDoc: ${file-path:c:/kaizensoft/kaizen/doc/kzDoc}     #勘站报告的生成文件目录   这个目前存储的是  5G勘站的报告、广西电信的word
   staticsPath: http://ihandle.huanuo-nsb.com/statics    #所有请求静态文件的前缀
   
-  lteExcel: d:/kaizen/doc/excelModel/lteExcelModel.xls
-  lteFddExcel: d:/kaizen/doc/excelModel/lteFddModel.xls
-  lteFddHzExcel: d:/kaizen/doc/excelModel/lteFddHzMode.xls
-  checkTestDocExcel: d:/kaizen/doc/excelModel/checkTestDocModel.xls
-  nobitDocExcel: d:/kaizen/doc/excelModel/shanghaiAppEcportModel.xls
-  defaultApk: d:/kaizen/doc/apk/apk.txt
+  lteExcel: c:/kaizensoft/kaizen/doc/excelModel/lteExcelModel.xls
+  lteFddExcel: c:/kaizensoft/kaizen/doc/excelModel/lteFddModel.xls
   
-#  importExcel: d:/kaizen/doc/importExcel   导入的excel模板
+  fivecheckHong: c:/kaizensoft/kaizen/doc/excelModel/fivegdanyanhongstation.xls  #5g宏站单验
+  
+#  guangxiExcel: d:/kaizen/doc/excelModel/globalTelecomTemplate.xls
+  guangxiExcel: c:/kaizensoft/kaizen/doc/excelModel/globalTelecomTemplate.xls
+  lteFddHzExcel: c:/kaizensoft/kaizen/doc/excelModel/lteFddHzMode.xls
+  checkTestDocExcel: c:/kaizensoft/kaizen/doc/excelModel/checkTestDocModel.xls
+  checkTestDocGxExcel: c:/kaizensoft/kaizen/doc/excelModel/checkTestDocModelGc.xls
+  shangHaiLianTongFivecheck: c:/kaizensoft/kaizen/doc/excelModel/shanghailiantong5gdanyancheckdoc.xls
+  nobitDocExcel: c:/kaizensoft/kaizen/doc/excelModel/shanghaiAppEcportModel.xls
+  defaultApk: c:/kaizensoft/kaizen/doc/apk/apk.txt
+#  importExcel: /kaizen/doc/excelModel  导入的excel模板
+  
 
-    
 logging:
   config: classpath:logback-admin.xml
   
@@ -99,8 +108,8 @@ log:
   level:
     root: info
     my: debug
-  file: d:/kaizen/doc/logs/system.log    #admin使用     系统使用
-  dayfile: d:/kaizen/doc/logs/business.log   #其他使用          记录日志使用
+  file: c:/kaizensoft/kaizen/logs_log/admin-server.log
+  dayfile: c:/kaizensoft/kaizen/logs_log/day.log
   maxsize: 1024MB
   
   
@@ -111,8 +120,9 @@ token:
   jwtSecret: (XIAO:)_$^11244^%$_(WEI:)_@@++--(LAO:)_++++_.sds_(SHI:)
   
   
-server:
-  port: 8080
+server: 
+  port: 8081 
+
 
   
 gis: 
@@ -123,4 +133,4 @@ gis:
 
 #日志分析系统额外配置
 logsystem: 
-  projid: 526
+  projid: 526  

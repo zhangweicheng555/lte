@@ -1,15 +1,23 @@
 package com.boot.kaizen.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.boot.kaizen.dao.SysRoleDao;
 import com.boot.kaizen.dao.SysUserDao;
 import com.boot.kaizen.enump.Constant;
+import com.boot.kaizen.model.SysRole;
+import com.boot.kaizen.model.SysRoleUser;
 import com.boot.kaizen.model.SysUser;
 import com.boot.kaizen.model.SysUser.Status;
 import com.boot.kaizen.service.SysRoleUserService;
@@ -24,8 +32,12 @@ import com.boot.kaizen.util.JsonMsgUtil;
 @Service
 public class UserServiceImpl implements UserService {
 
+	private static final Logger log = LoggerFactory.getLogger("adminLogger");
+
 	@Autowired
 	private SysUserDao userDao;
+	@Autowired
+	private SysRoleDao sysRoleDao;
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
 	@Autowired
@@ -61,15 +73,34 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public JsonMsgUtil updateUser(SysUser sysUser) {
+	public JsonMsgUtil updateUser(SysUser sysUser, Long projId) {
 		JsonMsgUtil j = new JsonMsgUtil(false);
 		try {
+			// 修改信息
 			sysUser.setUpdateTime(new Date());
 			userDao.update(sysUser);
+			// 查询用户 角色信息 没有就添加
+			String roleIdsStr = sysUser.getRoleIdsStr();
+			if (StringUtils.isBlank(roleIdsStr)) {
+				throw new IllegalArgumentException("用户角色不能为空");
+			}
+			// 删除该项目下该用户的所有角色
+			List<SysRole> roles = sysRoleDao.queryByProIdAndUserId(projId, sysUser.getId());
+			if (roles != null && roles.size() > 0) {
+				Long[] userIds = new Long[] { sysUser.getId() };
+				roleUserService.deleteBatch(userIds);
+			}
+			List<SysRoleUser> list = new ArrayList<SysRoleUser>();
+			String[] split = roleIdsStr.split(",");
+			for (String roleId : split) {
+				list.add(new SysRoleUser(sysUser.getId(), Long.valueOf(roleId)));
+			}
+			if (list != null && list.size() > 0) {
+				roleUserService.batchInsert(list);
+			}
 			j = new JsonMsgUtil(true, "操作成功", "");
 		} catch (Exception e) {
-			j.setMsg("修改失败");
-			e.printStackTrace();
+			throw new IllegalArgumentException(e.getMessage());
 		}
 		return j;
 	}
@@ -79,6 +110,7 @@ public class UserServiceImpl implements UserService {
 		return userDao.find(map);
 	}
 
+	@Transactional
 	@Override
 	public JsonMsgUtil delete(String ids, Long projId, Long userId) {
 		JsonMsgUtil j = new JsonMsgUtil(false);
@@ -91,14 +123,15 @@ public class UserServiceImpl implements UserService {
 				// 排除wuzhihua mocun用户
 				if (!id.equals(Constant.USER_ID.toString()) && !id.equals(Constant.USER_ID_MASTER.toString())) {
 					Long userid = Long.valueOf(id.trim());
-					if (userid.equals(userId)) {
+					if (!userid.equals(userId)) {
 						array[i] = userid;
 					}
 				}
 			}
 			// 删除用户角色关系
 			roleUserService.deleteBatch(array);
-			userDao.deleteBatch(array, projId);
+	//		userDao.deleteBatch(array, projId);
+			userDao.deleteBatch(array, null);
 			j = new JsonMsgUtil(true, "删除操作成功", "");
 		}
 
@@ -112,7 +145,7 @@ public class UserServiceImpl implements UserService {
 			j = new JsonMsgUtil(true, "操作成功", userDao.getById(id));
 		} catch (Exception e) {
 			j.setMsg("操作失败");
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return j;
 	}
@@ -150,6 +183,25 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public SysUser selectById(Long id) {
 		return userDao.getById(id);
+	}
+
+	@Transactional
+	@Override
+	public JsonMsgUtil saveUserRole(SysUser sysUser) {
+		SysUser model = saveUser(sysUser);
+		String roleIdsStr = sysUser.getRoleIdsStr();
+		if (StringUtils.isBlank(roleIdsStr)) {
+			throw new IllegalArgumentException("用户角色不能为空");
+		}
+		List<SysRoleUser> list = new ArrayList<SysRoleUser>();
+		String[] roleIdsArray = roleIdsStr.trim().split(",");
+		for (String idRole : roleIdsArray) {
+			list.add(new SysRoleUser(model.getId(), Long.valueOf(idRole)));
+		}
+		if (list != null && list.size() > 0) {
+			roleUserService.batchInsert(list);
+		}
+		return new JsonMsgUtil(true, "添加成功", "");
 	}
 
 }

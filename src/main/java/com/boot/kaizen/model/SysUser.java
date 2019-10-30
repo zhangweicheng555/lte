@@ -5,6 +5,7 @@ import java.util.Date;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 /**
  * 
  * @author weichengz
@@ -26,19 +27,29 @@ public class SysUser extends BaseEntity<Long> {
 	private Integer sex;
 	private String headImgUrl;
 	private Integer status;
-	
-	/**流程角色相关*/
-	/**厂商*/
-	private String comapny;
-	/**分区归属*/
-	private String comapnyBelong;
-	/**分公司名称*/
-	private String secondConpany;
-	
 
-	
+	/** 流程角色相关 */
+	/** 厂商 */
+	private String comapny;
+	/** 分区归属 */
+	private String comapnyBelong;
+	/** 分公司名称 */
+	private String secondConpany;
+
+	private String roleIdsStr;
+
+	/** 添加用户的角色使用 */
+
 	public String getComapny() {
 		return comapny;
+	}
+
+	public String getRoleIdsStr() {
+		return roleIdsStr;
+	}
+
+	public void setRoleIdsStr(String roleIdsStr) {
+		this.roleIdsStr = roleIdsStr;
 	}
 
 	public void setComapny(String comapny) {
@@ -142,11 +153,11 @@ public class SysUser extends BaseEntity<Long> {
 	}
 
 	public interface Status {
-		/** 禁用*/
+		/** 禁用 */
 		int DISABLED = 0;
-		/**有效的*/
+		/** 有效的 */
 		int VALID = 1;
-		 /** 锁定*/
+		/** 锁定 */
 		int LOCKED = 2;
 	}
 

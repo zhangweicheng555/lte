@@ -23,4 +23,6 @@ public interface SysRoleUserDao {
 
 	void deleteByProjIds(@Param("projIds") Long[] projIds);
 
+	List<SysRoleUser> queryRoleUserByRoleUserId(@Param("userId") Long userId, @Param("roleId") Long roleId);
+
 }

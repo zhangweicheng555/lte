@@ -44,4 +44,20 @@
                 )
             </foreach >
      </insert >
+     
+     
+	<select id="queryRoleUserByRoleUserId" resultMap="SysRoleUserMap">
+		 select distinct sr.* from 
+		 sys_role_user sr
+		 where 1=1
+		 and sr.userId=#{userId}
+		 and sr.roleId=#{roleId}
+	</select>
+	
+		<resultMap type="com.boot.kaizen.model.SysRoleUser" id="SysRoleUserMap">
+		<id property="id" column="id" />
+		<result property="userId" column="userId" />
+		<result property="roleId" column="roleId" />
+	</resultMap>
+     
 </mapper>

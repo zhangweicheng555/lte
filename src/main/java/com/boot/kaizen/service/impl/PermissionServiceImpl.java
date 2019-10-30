@@ -3,14 +3,18 @@ package com.boot.kaizen.service.impl;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.boot.kaizen.dao.PermissionDao;
+import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.entity.ZtreeModel;
+import com.boot.kaizen.enump.Constant;
 import com.boot.kaizen.model.Permission;
 import com.boot.kaizen.service.PermissionService;
 import com.boot.kaizen.service.SysRolePermissionService;
@@ -57,6 +61,7 @@ public class PermissionServiceImpl implements PermissionService {
 			}
 			j = new JsonMsgUtil(true, "操作成功", "");
 		} catch (Exception e) {
+			log.info("异常："+e);
 			j.setMsg("删除操作失败");
 		}
 		return j;
@@ -91,27 +96,52 @@ public class PermissionServiceImpl implements PermissionService {
 				j = new JsonMsgUtil(true, "添加成功", "");
 			}
 		} catch (Exception e) {
+			log.info("异常："+e);
 			j.setMsg("添加操作失败");
-			e.printStackTrace();
 		}
 		return j;
 	}
 
+	
+	/**
+	 * 已经存在的资源就勾选状态
+	 * 不存在的除了系统项目其余的都只能显示自己已经分配的资源
+	 */
 	@Override
-	public List<ZtreeModel> find(List<Long> ids) {
+	public List<ZtreeModel> find(List<Long> ids,LoginUser user) {
 
 		List<ZtreeModel> ztreeModels = new ArrayList<ZtreeModel>();
 		List<Permission> permissions = permissionDao.listAll();
 		if (permissions != null && permissions.size() > 0) {
-			for (Permission permission : permissions) {
-				ZtreeModel ztreeModel = null;
-				if (ids.contains(permission.getId())) {
-					ztreeModel = new ZtreeModel(permission.getId(), permission.getParentId(), permission.getName(),
-							true);
-				} else {
-					ztreeModel = new ZtreeModel(permission.getId(), permission.getParentId(), permission.getName());
+			if (Constant.SYSTEM_ID_PROJECT.equals(user.getProjId())) {
+				for (Permission permission : permissions) {
+					ZtreeModel ztreeModel = null;
+					if (ids.contains(permission.getId())) {
+						ztreeModel = new ZtreeModel(permission.getId(), permission.getParentId(), permission.getName(),
+								true);
+					} else {
+						ztreeModel = new ZtreeModel(permission.getId(), permission.getParentId(), permission.getName());
+					}
+					ztreeModels.add(ztreeModel);
 				}
-				ztreeModels.add(ztreeModel);
+			}else {/**非系统项目 显示这个人的所有资源*/
+				List<Permission> permissionsDatas = queryByUserIdAndProjId(user.getUsername(),user.getProjId());
+				List<Long> pids=new ArrayList<Long>();
+				for (Permission permission : permissionsDatas) {
+					pids.add(permission.getId());
+				}
+				for (Permission permission : permissions) {
+					ZtreeModel ztreeModel = null;
+					if (pids.contains(permission.getId())) {
+						if (ids.contains(permission.getId())) {
+							ztreeModel = new ZtreeModel(permission.getId(), permission.getParentId(), permission.getName(),
+									true);
+						} else {
+							ztreeModel = new ZtreeModel(permission.getId(), permission.getParentId(), permission.getName());
+						}
+						ztreeModels.add(ztreeModel);
+					}
+				}
 			}
 		}
 		return ztreeModels;

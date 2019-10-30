@@ -1,86 +1,36 @@
 initMenu();
 function initMenu(){
+	
 	 $.ajax({  
 	     url:"/permissions/current",  
 	     type:"get",  
 	     async:false,
 	     success:function(data){
+	    	 console.info(data);
 	    	 if(!$.isArray(data)){
 	    		 location.href='/login.html';
 	    		 return;
 	    	 }
 	    	 var menu = $("#menu");
+	    	 var html="";
 	    	 $.each(data, function(i,item){
-	             var a = $("<a href='javascript:;'></a>");
-	             
-	             var css = item.css;
-	             if(css!=null && css!=""){
-	            	 a.append("<i aria-hidden='true' class='fa " + css +"'></i>");
-	             }
-	             a.append("<cite>"+item.name+"</cite>");
-	             a.attr("lay-id", item.id);
-	             
-	             var href = item.href;
-	             if(href != null && href != ""){
-	                a.attr("data-url", href);
-	             }
-	             
-	             var li = $("<li class='layui-nav-item'></li>");
-	             if (i == 0) {
-	            	 li.addClass("layui-nav-itemed");
-	             }
-	             li.append(a);
-                 menu.append(li);
-	             
-	             //多级菜单
-	             setChild(li, item.child)
-
+	    			 html=html+'<li class="layui-nav-item"><a href="javascript:;" lay-id="'+item.id+'"><i style="padding-right: 2px;" aria-hidden="true" title="'+item.name+'" unreadNotice></i>'+item.name+'</a><dl class="layui-nav-child">';
+	    			 //item  每一项
+	    			 var arrayItem=item.child;
+	    			 if(arrayItem && arrayItem.length>0){//有子项
+	    				 for(var j=0;j<arrayItem.length;j++){
+	    					 html = html +'<dd><a href="javascript:;"  lay-id="'+arrayItem[j].id+'"  data-url="'+arrayItem[j].href+'"><i style="padding-right: 2px;"  aria-hidden="true" title="'+arrayItem[j].name+'" unreadNotice></i>'+arrayItem[j].name+'</a></dd>';
+	    				 }
+	    			 }
+	    			 html = html+'</dl></li>';
+	          
 	        });
+	    	 html =html+'<li class="layui-nav-item" pc><a href="javascript:;" class="admin-header-user"><img /><span></span></a><dl class="layui-nav-child"><dd><a href="javascript:;" onclick="logout()"><i class="fa fa-sign-out" aria-hidden="true"></i>退出</a></dd></dl></li>';
+	    	 $("#topDaoHangUl").append(html);
 	     }
 	 });
-	 
-	/* //显示当前在线人数
-	 $.ajax({  
-		 url:"/redis/queryLoginPersonNum",  
-		 type:"POST",  
-		 async:false,
-		 success:function(data){
-			 console.info(data);
-			 if(data.success){
-				 $("#nowLoginPerson").html("系统在线人数: "+data.object);
-				 $('#nowLoginPersonDiv').show();
-			 }
-		 }
-	 });*/
 }
 
-function setChild(parentElement, child){
-    if(child != null && child.length > 0){
-        $.each(child, function(j,item2){
-            var ca = $("<a href='javascript:;'></a>");
-            ca.attr("data-url", item2.href);
-            ca.attr("lay-id", item2.id);
-
-            var css2 = item2.css;
-            if(css2!=null && css2!=""){
-                ca.append("<i aria-hidden='true' class='fa " + css2 +"'></i>");
-            }
-
-            ca.append("<cite>"+item2.name+"</cite>");
-
-            var dd = $("<dd></dd>");
-            dd.append(ca);
-
-            var dl = $("<dl class='layui-nav-child'></dl>");
-            dl.append(dd);
-
-            parentElement.append(dl);
-
-            // 递归
-            setChild(dd, item2.child);
-        });
-    }
-}
 
 var username;
 // 登陆用户头像昵称
@@ -137,7 +87,8 @@ layui.use(['layer', 'element'], function() {
     element.on('nav(demo)', function(elem){
       //layer.msg(elem.text());
     });
-	
+    
+    
 	  //触发事件  
 	   active = {  
 	       tabAdd: function(obj){
@@ -195,7 +146,7 @@ layui.use(['layer', 'element'], function() {
 	   //toggle左侧菜单  
 	   $('.admin-side-toggle').on('click', function() {
 	       var sideWidth = $('#admin-side').width();  
-	       if(sideWidth === 200) {  
+	       if(sideWidth === 200) {    //将这三个css设置为0之后  就会出现没有左侧导航的情况
 	           $('#admin-body').animate({  
 	               left: '0'  
 	           });

@@ -20,7 +20,7 @@ public interface UserService {
 	 */
 	SysUser saveUser(SysUser userDto);
 
-	JsonMsgUtil updateUser(SysUser sysUser);
+	JsonMsgUtil updateUser(SysUser sysUser,Long projId);
 
 	SysUser getUser(String username);
 
@@ -85,4 +85,6 @@ public interface UserService {
     * @date 2019年3月8日 上午9:19:53
      */
     void insertSelective(SysUser sysUser);
+
+	JsonMsgUtil saveUserRole(SysUser sysUser);
 }

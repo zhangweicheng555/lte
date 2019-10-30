@@ -25,9 +25,18 @@ public interface SysRoleUserService {
 
 	/**
 	 * 
-	* @Description: 通过项目的id删除用户角色的对应关系表
-	* @author weichengz
-	* @date 2018年10月21日 下午8:09:10
+	 * @Description: 通过项目的id删除用户角色的对应关系表
+	 * @author weichengz
+	 * @date 2018年10月21日 下午8:09:10
 	 */
 	void deleteByProjIds(Long[] projIds);
+
+	/**
+	 * 通过角色Id 用户id查询
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年7月18日 下午3:01:28
+	 */
+	List<SysRoleUser> queryRoleUserByRoleUserId(Long userId, Long roleId);
 }

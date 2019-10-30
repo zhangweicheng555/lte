@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,7 @@ import com.boot.kaizen.util.JsonMsgUtil;
 @Service
 public class RoleServiceImpl implements RoleService {
 
+	private static final Logger log = LoggerFactory.getLogger("adminLogger");
 	@Autowired
 	private SysRoleDao sysRoleDao;
 	@Autowired
@@ -112,7 +115,7 @@ public class RoleServiceImpl implements RoleService {
 
 			j = new JsonMsgUtil(true, "操作成功", null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			j.setMsg("操作失败");
 		}
 
@@ -141,7 +144,7 @@ public class RoleServiceImpl implements RoleService {
 			j = new JsonMsgUtil(true, "删除操作成功", "");
 		} catch (Exception e) {
 			j.setMsg("删除操作失败");
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return j;
 	}

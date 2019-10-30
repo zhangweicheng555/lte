@@ -1,4 +1,5 @@
 package com.boot.kaizen.service.impl;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.boot.kaizen.dao.SysRoleUserDao;
 import com.boot.kaizen.model.SysRoleUser;
 import com.boot.kaizen.service.SysRoleUserService;
+
 /**
  * 
  * @author weichengz
@@ -35,6 +37,11 @@ public class SysRoleUserServiceImpl implements SysRoleUserService {
 	@Override
 	public void deleteByProjIds(Long[] projIds) {
 		roleUserDao.deleteByProjIds(projIds);
+	}
+
+	@Override
+	public List<SysRoleUser> queryRoleUserByRoleUserId(Long userId, Long roleId) {
+		return roleUserDao.queryRoleUserByRoleUserId(userId, roleId);
 	}
 
 }

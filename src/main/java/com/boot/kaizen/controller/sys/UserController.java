@@ -1,18 +1,11 @@
 package com.boot.kaizen.controller.sys;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.boot.kaizen.annotation.LogAnnotation;
 import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.entity.RequestParamEntity;
@@ -91,13 +83,7 @@ public class UserController {
 		if (u != null) {
 			throw new IllegalArgumentException(sysUser.getUsername() + "已存在");
 		}
-		LoginUser user = UserUtil.getLoginUser();
-		if (Constant.SYSTEM_ID_PROJECT != user.getProjId()) {
-			throw new IllegalArgumentException("无操作权限");
-		}
-		userService.saveUser(sysUser);
-		JsonMsgUtil j = new JsonMsgUtil(true, "操作成功", "");
-		return j;
+		return userService.saveUserRole(sysUser);
 	}
 
 	/**
@@ -108,7 +94,8 @@ public class UserController {
 	 */
 	@RequestMapping(value = "/updateUser")
 	public JsonMsgUtil updateUser(SysUser sysUser) {
-		return userService.updateUser(sysUser);
+		LoginUser user = UserUtil.getLoginUser();
+		return userService.updateUser(sysUser, user.getProjId());
 	}
 
 	@PutMapping(params = "headImgUrl")
@@ -118,8 +105,7 @@ public class UserController {
 		UserDto userDto = new UserDto();
 		BeanUtils.copyProperties(user, userDto);
 		userDto.setHeadImgUrl(headImgUrl);
-
-		userService.updateUser(userDto);
+		// userService.updateUser(userDto);
 		log.debug("{}修改了头像", user.getUsername());
 	}
 
@@ -157,64 +143,6 @@ public class UserController {
 			projId = user.getProjId();
 		}
 		return userService.delete(ids, projId, user.getId());
-	}
-
-	/**
-	 * 
-	 * @Description: 导入 ihandle用户
-	 * @author weichengz
-	 * @date 2019年4月10日 下午4:37:31
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/importIhandleUser")
-	public JsonMsgUtil importIhandleUser() throws FileNotFoundException {
-		// File csv =
-		// ResourceUtils.getFile("classpath:importIhandleUser/importIhandleUser.csv");
-		File csv = ResourceUtils.getFile("/kaizen/importIhandleUser.csv");
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader(csv));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		String line = null;
-		try {
-			 // 读取到的内容给line变量
-			while ((line = br.readLine()) != null)
-			{
-				try {
-					String[] userInfos = line.split(",");
-					if (userInfos.length == 3) {
-						String nickname = userInfos[0];
-						String username = userInfos[1];
-						String password = userInfos[2];
-						SysUser u = userService.getUser(username);
-						if (u != null) {
-							throw new IllegalArgumentException(username + "已存在");
-						}
-						LoginUser user = UserUtil.getLoginUser();
-						if (Constant.SYSTEM_ID_PROJECT != user.getProjId()) {
-							throw new IllegalArgumentException("无操作权限");
-						}
-						SysUser modelM = new SysUser();
-						modelM.setCreateTime(new Date());
-						modelM.setUsername(username);
-						modelM.setProjId(user.getProjId());
-						modelM.setPassword(password);
-						modelM.setPhone(username);
-						modelM.setSex(1);
-						modelM.setNickname(nickname);
-						modelM.setTelephone(username);
-						userService.saveUser(modelM);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return new JsonMsgUtil(true, "操作成功", "");
 	}
 
 }

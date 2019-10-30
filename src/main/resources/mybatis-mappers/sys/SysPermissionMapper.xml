@@ -28,6 +28,7 @@
 	
 	
 	<select id="queryByUserIdAndProjId" resultType="Permission">
+	    select * from (
 		 select  distinct sp.* 
 		 from 
 		 sys_project p
@@ -49,6 +50,8 @@
 		 
 		 and u.username=#{username}
 		 and p.id=#{projId}
+		) m
+		order by m.sort
 		
 	</select>
 	

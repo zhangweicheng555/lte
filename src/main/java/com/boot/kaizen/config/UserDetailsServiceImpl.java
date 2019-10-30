@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
@@ -39,6 +40,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Autowired
 	private PermissionService permissionService;
 
+	@Value("${logsystem.projid}")
+	private Long longSystemProjId;
+	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		SysUser sysUser = userService.getUser(username);
@@ -53,7 +57,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		LoginUser loginUser = new LoginUser();
 		BeanUtils.copyProperties(sysUser, loginUser);
 		
-		Long projId=sysLoginServiceService.findProjByUserName(username);
+//		Long projId=sysLoginServiceService.findProjByUserName(username);
+		Long projId=longSystemProjId;
+		
 		if (projId == null) {
 			projId=projectService.findRandomProj(username);
 			if (projId == null) {
