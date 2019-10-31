@@ -48,7 +48,7 @@ spring:
 
  
   application:
-    name: ihandle_log
+    name: kaizenLog
    
 
 
