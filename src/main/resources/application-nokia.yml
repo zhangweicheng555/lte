@@ -5,7 +5,7 @@ spring:
       config: classpath:ehcache.xml
   datasource: 
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://10.255.255.133:3306/kaizen?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8
+    url: jdbc:mysql://172.16.207.85:3306/kaizen?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8
     username: root
     password: 123456
     druid:
@@ -49,7 +49,7 @@ spring:
  
  
   application:
-    name: ihandle_log
+    name: kaizenLog
 
    
    
@@ -122,6 +122,25 @@ token:
   
 server: 
   port: 8081 
+
+
+   
+ribbon: 
+  eureka: 
+    enabled: true
+ 
+
+eureka:
+  instance:
+    prefer-ip-address: true  
+    instanceId: ${spring.application.name}:${server.port}    #这个地方可以改为任何其他的变量   只是为了显示
+    lease-renewal-interval-in-seconds: 10                     #没5秒想注册中心发送心跳  证明自己活着
+    lease-expiration-duration-in-seconds: 30                  #8秒内 没有发送  说明我已经死掉
+    status-page-url-path: http://172.16.207.83:${server.port}/login.html   #statue的链接配置
+  client: 
+    service-url: 
+      defaultZone: http://zhangweicheng:zhangweicheng@140.206.187.251:50020/eureka/
+  
 
 
   

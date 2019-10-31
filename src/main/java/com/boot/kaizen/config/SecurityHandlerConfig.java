@@ -67,7 +67,6 @@ public class SecurityHandlerConfig {
 				} catch (Exception e) {//记录登陆错误日志
 					
 				}
-				//JSONObject.toJSONString(j);
 				ResponseUtil.responseJson(response, HttpStatus.OK.value(), j);
 			}
 		};
