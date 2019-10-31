@@ -109,5 +109,94 @@
 	</div>
 	<input type="hidden" id="username" name="username" />
 </body>
-
+	
+	<script type="text/javascript">
+		$(function(){
+			
+			 
+			 //获取用户信息
+			 $.ajax({
+					type : 'get',
+					url : 'http://140.206.187.251:50123/users/current',
+					async : false,
+					success : function(data) {
+						
+						var html='<li class="layui-nav-item" pc><a href="javascript:;" class="admin-header-user"><img /><span></span></a><dl class="layui-nav-child"><dd><a href="javascript:;" onclick="logout()"><i class="fa fa-sign-out" aria-hidden="true"></i>退出</a></dd></dl></li>';
+				    	 $("#topDaoHangUl").append(html);
+						
+						$(".admin-header-user span").text(data.nickname);
+						username=data.username;
+						var pro = window.location.protocol;
+						var host = window.location.host;
+						var domain = pro + "//" + host;
+						
+						var sex = data.sex;
+						var url = data.headImgUrl;
+						if(url == null || url == ""){
+							if(sex == 1){
+								url = "/img/avatars/sunny.png";
+							} else {
+								url = "/img/avatars/1.png";
+							}
+							
+							url = domain + url;
+						} else {
+							url = domain + "/statics" + url;
+						}
+						var img = $(".admin-header-user img");
+						img.attr("src", url);
+					}
+				});
+			 
+			 
+			//获取资源
+			 $.ajax({  
+			     url:"http://140.206.187.251:50123/permissions/getPermissionsFouUserProj",  
+			     type:"post", 
+			     dataType:"json",
+			     data:{
+			    	 "username":username,
+			    	 "projId":526
+			     },
+			     async:false,
+			     success:function(data){
+			    	 if(!$.isArray(data)){
+			    		 location.href='/login.html';
+			    		 return;
+			    	 }
+			    	 var menu = $("#menu");
+			    	 var htmlOri=$("#topDaoHangUl").html();
+			    	 var html="";
+			    	 $.each(data, function(i,item){
+		    			 html=html+'<li class="layui-nav-item"><a href="javascript:;" lay-id="'+item.id+'"><i style="padding-right: 2px;" aria-hidden="true" title="'+item.name+'" unreadNotice></i>'+item.name+'</a><dl class="layui-nav-child">';
+		    			 //item  每一项
+		    			 var arrayItem=item.child;
+		    			 if(arrayItem && arrayItem.length>0){//有子项
+		    				 for(var j=0;j<arrayItem.length;j++){
+		    					 html = html +'<dd><a href="javascript:;"  lay-id="'+arrayItem[j].id+'"  data-url="'+arrayItem[j].href+'"><i style="padding-right: 2px;"  aria-hidden="true" title="'+arrayItem[j].name+'" unreadNotice></i>'+arrayItem[j].name+'</a></dd>';
+		    				 }
+		    			 }
+		    			 html = html+'</dl></li>';
+			          
+			        });
+			    	 $("#topDaoHangUl").empty();
+			    	 html=html+htmlOri;
+			    	 $("#topDaoHangUl").append(html);
+			     }
+			 });
+		});
+		
+		
+		function logout(){
+			$.ajax({
+				type : 'get',
+				url : 'http://140.206.187.251:50123/logout',
+				success : function(data) {
+					localStorage.removeItem("token");
+					location.href='/login.html';
+				}
+			});
+		}
+	</script>
+	
 </html>

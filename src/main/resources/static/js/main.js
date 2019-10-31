@@ -1,82 +1,8 @@
-initMenu();
-function initMenu(){
-	
-	 $.ajax({  
-	     url:"/permissions/current",  
-	     type:"get",  
-	     async:false,
-	     success:function(data){
-	    	 console.info(data);
-	    	 if(!$.isArray(data)){
-	    		 location.href='/login.html';
-	    		 return;
-	    	 }
-	    	 var menu = $("#menu");
-	    	 var html="";
-	    	 $.each(data, function(i,item){
-	    			 html=html+'<li class="layui-nav-item"><a href="javascript:;" lay-id="'+item.id+'"><i style="padding-right: 2px;" aria-hidden="true" title="'+item.name+'" unreadNotice></i>'+item.name+'</a><dl class="layui-nav-child">';
-	    			 //item  每一项
-	    			 var arrayItem=item.child;
-	    			 if(arrayItem && arrayItem.length>0){//有子项
-	    				 for(var j=0;j<arrayItem.length;j++){
-	    					 html = html +'<dd><a href="javascript:;"  lay-id="'+arrayItem[j].id+'"  data-url="'+arrayItem[j].href+'"><i style="padding-right: 2px;"  aria-hidden="true" title="'+arrayItem[j].name+'" unreadNotice></i>'+arrayItem[j].name+'</a></dd>';
-	    				 }
-	    			 }
-	    			 html = html+'</dl></li>';
-	          
-	        });
-	    	 html =html+'<li class="layui-nav-item" pc><a href="javascript:;" class="admin-header-user"><img /><span></span></a><dl class="layui-nav-child"><dd><a href="javascript:;" onclick="logout()"><i class="fa fa-sign-out" aria-hidden="true"></i>退出</a></dd></dl></li>';
-	    	 $("#topDaoHangUl").append(html);
-	     }
-	 });
-}
+
 
 
 var username;
 // 登陆用户头像昵称
-showLoginInfo();
-function showLoginInfo(){
-	$.ajax({
-		type : 'get',
-		url : '/users/current',
-		async : false,
-		success : function(data) {
-			$(".admin-header-user span").text(data.nickname);
-			username=data.username;
-			var pro = window.location.protocol;
-			var host = window.location.host;
-			var domain = pro + "//" + host;
-			
-			var sex = data.sex;
-			var url = data.headImgUrl;
-			if(url == null || url == ""){
-				if(sex == 1){
-					url = "/img/avatars/sunny.png";
-				} else {
-					url = "/img/avatars/1.png";
-				}
-				
-				url = domain + url;
-			} else {
-				url = domain + "/statics" + url;
-			}
-			var img = $(".admin-header-user img");
-			img.attr("src", url);
-		}
-	});
-}
-
-
-function logout(){
-	$.ajax({
-		type : 'get',
-		url : '/logout',
-		success : function(data) {
-			localStorage.removeItem("token");
-			location.href='/login.html';
-		}
-	});
-}
 
 var active;
 
@@ -143,31 +69,6 @@ layui.use(['layer', 'element'], function() {
 	       });  
 	   }).resize();  
 	   
-	   //toggle左侧菜单  
-	   $('.admin-side-toggle').on('click', function() {
-	       var sideWidth = $('#admin-side').width();  
-	       if(sideWidth === 200) {    //将这三个css设置为0之后  就会出现没有左侧导航的情况
-	           $('#admin-body').animate({  
-	               left: '0'  
-	           });
-	           $('#admin-footer').animate({  
-	               left: '0'  
-	           });  
-	           $('#admin-side').animate({  
-	               width: '0'  
-	           });  
-	       } else {  
-	           $('#admin-body').animate({  
-	               left: '200px'  
-	           });  
-	           $('#admin-footer').animate({  
-	               left: '200px'  
-	           });  
-	           $('#admin-side').animate({  
-	               width: '200px'  
-	               });  
-	           }  
-	       });
 	   
 	    //手机设备的简单适配
 	    var treeMobile = $('.site-tree-mobile'),
@@ -178,51 +79,4 @@ layui.use(['layer', 'element'], function() {
 	    shadeMobile.on('click', function () {
 	        $('body').removeClass('site-mobile');
 	    });
-	    
-	    
-	    //开始登陆处理项目
-	    $.ajax({
-			type : 'post',
-			url : '/project/dealIndexProject',
-			async : false,
-			dataType: "json",
-			success : function(data) {
-				if(data.success){
-					$("#nowProject").attr("lang",data.object.nowProject.id);
-					$("#nowProject").text(data.object.nowProject.projName);
-					var listProjects=data.object.listProject;
-					if(listProjects != null && listProjects.length >0){
-						$("#childDl").empty();
-						for(var i=0;i<listProjects.length;i++){
-							var project=listProjects[i];
-							$("#childDl").append("<dd><a href='javascript:;' class='clsProj'  id='"+project.id+"'>"+project.projName+"</a></dd>");
-						}
-					}
-				}else{
-					layer.msg("系统异常！");
-				}
-			}
-		});
-	  //监听下拉菜单
-	  $(".clsProj").click(function(){
-		  var proj=$(this).attr("id");
-		  $.ajax({
-				type : 'post',
-				url : '/project/changeProject',
-				async : false,
-				dataType: "json",
-				data:{
-					"proj":proj,
-					"username":username
-				},
-				success : function(data) {
-					if(data.success){
-						 location.href = "/index.html";
-					}else{
-						layer.msg("系统异常！");
-					}
-				}
-			});
-		 
-	  });
 });

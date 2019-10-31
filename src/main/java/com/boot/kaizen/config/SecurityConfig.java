@@ -26,7 +26,7 @@ import com.boot.kaizen.filter.TokenFilter;
  * @date 2018年9月2日 上午2:01:45
  */
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@EnableWebSecurity
+//@EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
