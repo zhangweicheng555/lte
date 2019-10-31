@@ -120,15 +120,10 @@ log:
   maxsize: 1024MB
   
   
-  
-token: 
-  expire:
-    seconds: 7200
-  jwtSecret: (XIAO:)_$^11244^%$_(WEI:)_@@++--(LAO:)_++++_.sds_(SHI:)
-  
+
   
 server:
-  port: 8088
+  port: 8081
 
   
 gis: 

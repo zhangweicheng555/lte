@@ -23,17 +23,14 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import com.boot.kaizen.controller.lte.model.BaseStationBean;
 import com.boot.kaizen.dao.lte.LtePlanDao;
-import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.model.SysUser;
 import com.boot.kaizen.model.lte.LtePlan;
 import com.boot.kaizen.model.lte.LtePlanInfo;
-import com.boot.kaizen.service.UserService;
 import com.boot.kaizen.util.ExcelUtil;
 import com.boot.kaizen.util.JsonMsgUtil;
 import com.boot.kaizen.util.MyDateUtil;
@@ -59,8 +56,6 @@ class LtePlanServiceImpl implements ILtePlanService {
 	@Autowired
 	private ILteCellCheckService lteCellCheckService;
 
-	@Autowired
-	private UserService userService;
 	@Value("${files.path}")
 	private String lteImage;
 	@Value("${files.importExcel}")
@@ -71,27 +66,7 @@ class LtePlanServiceImpl implements ILtePlanService {
 		return planDao.find(map);
 	}
 
-	@Transactional(rollbackFor=Exception.class)
-	@Override
-	public JsonMsgUtil edit(LtePlan ltePlan, LoginUser loginUser) {
-		if (loginUser == null) {
-			throw new DisabledException("用户已过期，重新登陆");
-		}
-		if (ltePlan.getId() != null) {// edit
-			ltePlan.setUpdateTime(new Date());
-			planDao.updateByPrimaryKeySelective(ltePlan);
-		} else {// add
-			if (checkInfo(loginUser.getProjId(), ltePlan)) {
-				ltePlan.setProjId(loginUser.getProjId());
-				ltePlan.setCreateAt(loginUser.getId());
-				ltePlan.setCreateTime(new Date());
-				planDao.insertSelective(ltePlan);
-			} else {
-				throw new IllegalArgumentException("该项目下已经存在与【站号、测试时间】相同的的信息");
-			}
-		}
-		return new JsonMsgUtil(true, "添加成功", ltePlan);
-	}
+	
 
 	private Boolean checkInfo(Long projId, LtePlan ltePlan) {
 		Boolean flag = true;
@@ -157,34 +132,7 @@ class LtePlanServiceImpl implements ILtePlanService {
 		return planDao.queryStationList(userId, projId, testDate);
 	}
 
-	@Override
-	public JsonMsgUtil queryLtePlanInfo(Long id, LoginUser user) {
-		JsonMsgUtil j = new JsonMsgUtil(false);
-		LtePlanInfo planInfo = planDao.queryLtePlanInfo(id);
-		if (planInfo != null) {
-			/** 查询测试配置 */
-			if (user == null) {
-				throw new IllegalArgumentException("登陆超时");
-			}
-			planInfo.setConfigs(lteConfigService.queryListByProjId(user.getProjId()));
-
-			Map<String, Object> map = new HashMap<>();
-			map.put("mENodeBID", planInfo.getmENodeBID());
-			map.put("eNodeBID", planInfo.getmENodeBID());
-			map.put("projId", planInfo.getProjId());
-			map.put("testDate", planInfo.getTestTime());
-
-			planInfo.setGcParameters(lteGcParameterService.find(map));
-			planInfo.setStationChecks(lteStationCheckService.find(map));
-			planInfo.setLoadTests(lteLoadTestService.findListByMenodeBID(map));
-			planInfo.setCellChecks(lteCellCheckService.find(map));
-
-			j = new JsonMsgUtil(true, "查询规划信息成功", planInfo);
-		} else {
-			j.setMessage("查询的规划信息不存在");
-		}
-		return j;
-	}
+	
 
 	@Override
 	public LtePlanInfo queryLtePlanInfoByEnobId(Long id) {
@@ -661,134 +609,8 @@ class LtePlanServiceImpl implements ILtePlanService {
 		return proType;
 	}
 
-	@Override
-	public JsonMsgUtil queryUserByProjId(Long projId) {
-		JsonMsgUtil j = new JsonMsgUtil(false);
-		List<Map<String, Object>> listMaps = userService.queryUserByProjId(projId);
-		if (listMaps != null && listMaps.size() > 0) {
-			j = new JsonMsgUtil(true, "查询成功", listMaps);
-		}
-		return j;
-	}
+	
 
-	@Transactional
-	@Override
-	public JsonMsgUtil upload(MultipartFile file, LoginUser loginUser) {
-		JsonMsgUtil msg = new JsonMsgUtil(false);
-		try {
-			// 导入
-			HSSFWorkbook wbs = new HSSFWorkbook(file.getInputStream());
-			HSSFSheet sheet1 = wbs.getSheetAt(0);
-			HSSFRow row = null;
-			if (sheet1.getRow(0).getLastCellNum() != 15) {
-				msg = new JsonMsgUtil(false, "导入excel的列数要求为15列", null);
-				return msg;
-			}
-			List<LtePlan> list = new ArrayList<LtePlan>();
-			LtePlan ltePlan = null;
-			for (int j = 1; j <= sheet1.getLastRowNum(); j++) {
-				row = sheet1.getRow(j);
-				if (row == null) {
-					continue;
-				}
-				// 导入excel总行数记录
-				int cellIndex = 0;
-				ltePlan = new LtePlan();
-				// 基站号
-				String mENodeBID = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				if (StringUtils.isNoneBlank(mENodeBID)) {
-					ltePlan.setmENodeBID(mENodeBID);
-				} else {
-					msg = new JsonMsgUtil(false, "站号不能为空", null);
-					return msg;
-				}
-				// 基站名称
-				String mBaseStationName = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				if (StringUtils.isNoneBlank(mBaseStationName)) {
-					ltePlan.setmBaseStationName(mBaseStationName);
-				} else {
-					msg = new JsonMsgUtil(false, "站号不能为空", null);
-					return msg;
-				}
-				// 基站类型
-				String mBaseStationType = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				ltePlan.setmBaseStationType(mBaseStationType);
-				// 海拔
-				String mAltitude = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				ltePlan.setmAltitude(mAltitude);
-				// 经度
-				String mLongitude = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				ltePlan.setmLongitude(mLongitude);
-				// 纬度
-				String mLatitude = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				ltePlan.setmLatitude(mLatitude);
-				// TAC
-				String mTac = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				ltePlan.setmTac(mTac);
-				// 测试工程师
-				String testPerson = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				ltePlan.setTestPerson(testPerson);
-				// 测试工程师电话
-				String testPersonPhone = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				ltePlan.setTestPersonPhone(testPersonPhone);
-				// 后台工程师
-				String backPerson = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				ltePlan.setBackPerson(backPerson);
-				// 后台工程师电话
-				String backPersonPhone = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				ltePlan.setBackPersonPhone(backPersonPhone);
-
-				// 测试时间
-				// 日期
-				try {
-					// 43352 42006
-					String testDate = ExcelUtil.cell_string(row.getCell(cellIndex++));
-					if (StringUtils.isNoneBlank(testDate)) {
-						try {
-							Integer.valueOf(testDate);// 验证日期是不是正确
-							ltePlan.setTestTime(ExcelUtil.dealDateToString(testDate));
-						} catch (Exception e) {
-							msg = new JsonMsgUtil(false, "测试日期格式不正确", null);
-							return msg;
-						}
-					} else {
-						msg = new JsonMsgUtil(false, "测试日期不能为空", null);
-						return msg;
-					}
-				} catch (Exception e) {
-					msg = new JsonMsgUtil(false, "测试日期格式不正确", null);
-					return msg;
-				}
-				// 处理人
-				String loginName = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				SysUser user = userService.queryUser(loginUser.getProjId(), loginName);
-				if (user != null) {
-					ltePlan.setDealPersonId(String.valueOf(user.getId()));
-				} else {
-					msg = new JsonMsgUtil(false, "该项目下不存在此处理人【" + loginName + "】", null);
-					return msg;
-				}
-
-				// 设备厂家
-				String deviceCompany = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				ltePlan.setDeviceCompany(deviceCompany);
-				// 分公司
-				String secondCompany = ExcelUtil.cell_string(row.getCell(cellIndex++));
-				ltePlan.setSecondCompany(secondCompany);
-
-				// 添加进list里面
-				list.add(ltePlan);
-			}
-
-			for (LtePlan nobPlan2 : list) {
-				edit(nobPlan2, loginUser);
-			}
-			msg = new JsonMsgUtil(true, "上传成功", null);
-		} catch (Exception e) {
-			msg = new JsonMsgUtil(false, e.getMessage(), null);
-		}
-		return msg;
-	}
 
 	@Override
 	public int insertSelective(LtePlan record) {
@@ -798,6 +620,14 @@ class LtePlanServiceImpl implements ILtePlanService {
 	@Override
 	public int updateByPrimaryKeySelective(LtePlan record) {
 		return planDao.updateByPrimaryKeySelective(record);
+	}
+
+
+
+	@Override
+	public JsonMsgUtil queryUserByProjId(Long projId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -7,14 +7,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.entity.RequestParamEntity;
 import com.boot.kaizen.model.lte.LteGcParameter;
 import com.boot.kaizen.service.lte.ILteGcParameterService;
 import com.boot.kaizen.util.JsonMsgUtil;
 import com.boot.kaizen.util.TableResultUtil;
-import com.boot.kaizen.util.UserUtil;
 import com.github.pagehelper.ISelect;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -35,8 +32,7 @@ public class LteGcParameterController {
 	@RequestMapping(value = "/find", method = RequestMethod.POST)
 	public TableResultUtil find(RequestParamEntity param) {
 
-		LoginUser loginUser = UserUtil.getLoginUser();
-		param.getMap().put("projId", loginUser.getProjId());
+		param.getMap().put("projId", 9);
 
 		PageInfo<LteGcParameter> pageInfo = PageHelper.startPage(param.getPage(), param.getLimit())
 				.doSelectPageInfo(new ISelect() {
@@ -48,18 +44,7 @@ public class LteGcParameterController {
 		return new TableResultUtil(0L, "操作成功", pageInfo.getTotal(), pageInfo.getList());
 	}
 
-	/**
-	 * 
-	 * @Description: 编辑
-	 * @author weichengz
-	 * @date 2018年10月28日 下午4:36:46
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/edit", method = RequestMethod.POST)
-	public JsonMsgUtil edit(LteGcParameter lteGcParameter) {
-		LoginUser loginUser = UserUtil.getLoginUser();
-		return lteGcParameterService.edit(lteGcParameter, loginUser);
-	}
+	
 
 	/**
 	 * 
@@ -85,13 +70,5 @@ public class LteGcParameterController {
 		return lteGcParameterService.delete(ids);
 	}
 	
-	/**
-	 * 文件的批量上传
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public JsonMsgUtil uploadRoadTest(@RequestParam(value = "files") MultipartFile file) {
-		LoginUser loginUser = UserUtil.getLoginUser();
-		return lteGcParameterService.upload(file,loginUser);
-	}
+	
 }

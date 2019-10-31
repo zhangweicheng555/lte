@@ -7,9 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.boot.kaizen.business.analyze.service.IAnalyzeService;
-import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.util.JsonMsgUtil;
-import com.boot.kaizen.util.UserUtil;
 
 /**
  * 数据分析
@@ -35,8 +33,7 @@ public class AnalyzeController {
 	public JsonMsgUtil analyzeLteAllAndComplete(@RequestParam(required = false, value = "beginTime") String beginTime,
 			@RequestParam(required = false, value = "endTime") String endTime,
 			@RequestParam(required = false, value = "type") String type) {
-		LoginUser loginUser = UserUtil.getLoginUser();
-		return analyzeService.analyzeLteAllAndComplete(beginTime, endTime, type, loginUser.getProjId());
+		return analyzeService.analyzeLteAllAndComplete(beginTime, endTime, type, 9L);
 	}
 
 	/**
@@ -50,8 +47,7 @@ public class AnalyzeController {
 	public JsonMsgUtil analyzeLteAllAndCompleteByPerson(
 			@RequestParam(required = false, value = "beginTime") String beginTime,
 			@RequestParam(required = false, value = "endTime") String endTime) {
-		LoginUser loginUser = UserUtil.getLoginUser();
-		return analyzeService.analyzeLteAllAndCompleteByPerson(beginTime, endTime, loginUser.getProjId());
+		return analyzeService.analyzeLteAllAndCompleteByPerson(beginTime, endTime, 9L);
 	}
 
 	

@@ -8,11 +8,9 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.boot.kaizen.dao.lte.LteConfigDao;
-import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.model.lte.LteConfig;
 import com.boot.kaizen.util.JsonMsgUtil;
 
@@ -27,26 +25,7 @@ class LteConfigServiceImpl implements ILteConfigService {
 		return configDao.find(map);
 	}
 
-	@Override
-	public JsonMsgUtil edit(LteConfig lteConfig, LoginUser loginUser) {
-		if (loginUser == null) {
-			throw new DisabledException("用户已过期，重新登陆");
-		}
-		if (lteConfig.getId() != null) {// edit
-			lteConfig.setUpdateTime(new Date());
-			configDao.update(lteConfig);
-		} else {// add
-			if (checkInfo(loginUser.getProjId())) {
-				lteConfig.setProjId(loginUser.getProjId());
-				lteConfig.setCreateAt(loginUser.getId());
-				lteConfig.setCreateTime(new Date());
-				configDao.save(lteConfig);
-			} else {
-				throw new IllegalArgumentException("该项目下已经存在测试配置项");
-			}
-		}
-		return new JsonMsgUtil(true, "添加成功", lteConfig);
-	}
+	
 
 	/**
 	 * 

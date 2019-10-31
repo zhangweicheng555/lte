@@ -16,7 +16,7 @@ public class StartDealCls implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		System.out.println("---------------------------------------------");
-		System.out.println("-------------Kaizen Start Finish-------------");
+		System.out.println("-------------Kaizen Log Start Finish-------------");
 		System.out.println("---------------------------------------------");
 	}
 

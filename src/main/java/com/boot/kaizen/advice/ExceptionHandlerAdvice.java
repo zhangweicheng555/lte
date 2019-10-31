@@ -2,7 +2,6 @@ package com.boot.kaizen.advice;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.UnsatisfiedServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -31,11 +30,6 @@ public class ExceptionHandlerAdvice {
 		return new JsonMsgUtil(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
 	}
 
-	@ExceptionHandler({ AccessDeniedException.class })
-	@ResponseStatus(HttpStatus.FORBIDDEN)
-	public JsonMsgUtil badRequestException(AccessDeniedException exception) {
-		return new JsonMsgUtil(HttpStatus.FORBIDDEN.value(), exception.getMessage());
-	}
 
 	@ExceptionHandler({ MissingServletRequestParameterException.class, HttpMessageNotReadableException.class,
 			UnsatisfiedServletRequestParameterException.class, MethodArgumentTypeMismatchException.class })

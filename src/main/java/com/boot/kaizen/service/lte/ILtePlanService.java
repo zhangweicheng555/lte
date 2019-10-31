@@ -9,7 +9,6 @@ import javax.servlet.http.HttpSession;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.boot.kaizen.controller.lte.model.BaseStationBean;
-import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.model.lte.LtePlan;
 import com.boot.kaizen.model.lte.LtePlanInfo;
 import com.boot.kaizen.util.JsonMsgUtil;
@@ -29,14 +28,7 @@ public interface ILtePlanService {
 	 */
 	public List<LtePlan> find(Map<String, Object> map);
 
-	/**
-	 * 
-	 * @Description: 编辑
-	 * @author weichengz
-	 * @date 2018年10月28日 下午4:37:23
-	 */
-	public JsonMsgUtil edit(LtePlan ltePlan, LoginUser loginUser);
-
+	
 	/**
 	 * 
 	 * @Description: 查询
@@ -70,14 +62,7 @@ public interface ILtePlanService {
 	 */
 	public List<BaseStationBean> queryStationList(Long userId, Long projId, String testDate);
 
-	/**
-	 * 
-	 * @Description: 查询规划表相关的所有表的信息
-	 * @author weichengz
-	 * @date 2018年11月11日 上午8:41:06
-	 */
-	JsonMsgUtil queryLtePlanInfo(Long id, LoginUser user);
-
+	
 	/**
 	 * 审核
 	 * 
@@ -115,15 +100,7 @@ public interface ILtePlanService {
 	 */
 	public JsonMsgUtil queryUserByProjId(Long projId);
 
-	/**
-	 * 上传
-	 * 
-	 * @Description: TODO
-	 * @author weichengz
-	 * @date 2019年1月9日 上午12:57:32
-	 */
-	public JsonMsgUtil upload(MultipartFile file, LoginUser loginUser);
-
+	
 	int insertSelective(LtePlan record);
 
 	int updateByPrimaryKeySelective(LtePlan record);

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.entity.RequestParamEntity;
 import com.boot.kaizen.enump.Constant;
 import com.boot.kaizen.model.lte.LteCellCheck;
@@ -30,7 +29,6 @@ import com.boot.kaizen.model.lte.LteStationCheck;
 import com.boot.kaizen.service.lte.ILtePlanService;
 import com.boot.kaizen.util.JsonMsgUtil;
 import com.boot.kaizen.util.TableResultUtil;
-import com.boot.kaizen.util.UserUtil;
 import com.github.pagehelper.ISelect;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -55,8 +53,7 @@ public class LtePlanController {
 	@RequestMapping(value = "/find", method = RequestMethod.POST)
 	public TableResultUtil find(RequestParamEntity param) {
 
-		LoginUser loginUser = UserUtil.getLoginUser();
-		param.getMap().put("projId", loginUser.getProjId());
+		param.getMap().put("projId",9);
 
 		PageInfo<LtePlan> pageInfo = PageHelper.startPage(param.getPage(), param.getLimit())
 				.doSelectPageInfo(new ISelect() {
@@ -68,18 +65,7 @@ public class LtePlanController {
 		return new TableResultUtil(0L, "操作成功", pageInfo.getTotal(), pageInfo.getList());
 	}
 
-	/**
-	 * 
-	 * @Description: 编辑
-	 * @author weichengz
-	 * @date 2018年10月28日 下午4:36:46
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/edit", method = RequestMethod.POST)
-	public JsonMsgUtil edit(LtePlan ltePlan) {
-		LoginUser loginUser = UserUtil.getLoginUser();
-		return ltePlanService.edit(ltePlan, loginUser);
-	}
+	
 
 	/**
 	 * 
@@ -93,22 +79,7 @@ public class LtePlanController {
 		return ltePlanService.findById(id);
 	}
 
-	/**
-	 * 
-	 * @Description: 根据当前的登陆用户查询该项目下的所有用户
-	 * @author weichengz
-	 * @date 2018年11月18日 上午8:16:45
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/queryUserByProjId", method = RequestMethod.POST)
-	public JsonMsgUtil queryUserByProjId() {
-		LoginUser user = UserUtil.getLoginUser();
-		Long projId = null;
-		if (Constant.SYSTEM_ID_PROJECT != projId) {
-			projId = user.getProjId();
-		}
-		return ltePlanService.queryUserByProjId(projId);
-	}
+	
 
 	/**
 	 * 
@@ -122,18 +93,7 @@ public class LtePlanController {
 		return ltePlanService.check(id, statusM);
 	}
 
-	/**
-	 * 
-	 * @Description: 根据id查询
-	 * @author weichengz
-	 * @date 2018年10月28日 下午5:00:01
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/queryLtePlanInfo", method = RequestMethod.POST)
-	public JsonMsgUtil queryLtePlanInfo(@RequestParam("id") Long id) {
-		LoginUser loginUser = UserUtil.getLoginUser();
-		return ltePlanService.queryLtePlanInfo(id, loginUser);
-	}
+
 
 	/**
 	 * 
@@ -523,13 +483,5 @@ public class LtePlanController {
 		return model;
 	}
 
-	/**
-	 * 文件的批量上传
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public JsonMsgUtil uploadRoadTest(@RequestParam(value = "files") MultipartFile file) {
-		LoginUser loginUser = UserUtil.getLoginUser();
-		return ltePlanService.upload(file, loginUser);
-	}
+	
 }

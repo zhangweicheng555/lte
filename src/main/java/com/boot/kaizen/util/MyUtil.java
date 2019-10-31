@@ -13,9 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-
-import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.enump.Constant;
+
 /**
  * 
  * @author weichengz
@@ -24,39 +23,32 @@ import com.boot.kaizen.enump.Constant;
 public class MyUtil {
 
 	private static double EARTH_RADIUS = 6378.137;// 单位千米
-	
+
 	public static String getUuid() {
 		return UUID.randomUUID().toString().replace("-", "");
 	}
 
-	public static Long getDealProjId(LoginUser user) {
-		if (Constant.SYSTEM_ID_PROJECT != user.getProjId()) {
-			return user.getProjId();
-		}
-		return null;
-	};
-	
 	/**
 	 * 经纬度计算两点之间的距离
 	 * 
 	 * 单位为米
 	 * 
-	 * 纬度lat1  经度lng1
+	 * 纬度lat1 经度lng1
 	 */
 	public static double getDistance(double lat1, double lng1, double lat2, double lng2) {
 		double radLat1 = getRadian(lat1);
 		double radLat2 = getRadian(lat2);
 		double a = radLat1 - radLat2;// 两点纬度差
 		double b = getRadian(lng1) - getRadian(lng2);// 两点的经度差
-		double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) + Math.cos(radLat1)
-				* Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
+		double s = 2 * Math.asin(Math.sqrt(
+				Math.pow(Math.sin(a / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
 		s = s * EARTH_RADIUS;
 		return s * 1000;
 	}
+
 	private static double getRadian(double degree) {
 		return degree * Math.PI / 180.0;
 	}
-	
 
 	/**
 	 * 
@@ -159,7 +151,6 @@ public class MyUtil {
 		return paramMap;
 	}
 
-	
 	/**
 	 * 处理空字符串未指定的字符串
 	 * 
@@ -170,10 +161,5 @@ public class MyUtil {
 	public static String dealEmptyStr(String str, String replaceStrIfEmpty) {
 		return StringUtils.isBlank(str) ? replaceStrIfEmpty : str;
 	}
-	
-	
-	
-	
-	
-	
+
 }

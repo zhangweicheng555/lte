@@ -2,7 +2,6 @@ package com.boot.kaizen.service.lte;
 
 import java.util.List;
 import java.util.Map;
-import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.model.lte.LteConfig;
 import com.boot.kaizen.util.JsonMsgUtil;
 
@@ -21,14 +20,7 @@ public interface ILteConfigService {
 	 */
 	public List<LteConfig> find(Map<String, Object> map);
 
-	/**
-	 * 
-	 * @Description: 编辑
-	 * @author weichengz
-	 * @date 2018年10月28日 下午4:37:23
-	 */
-	public JsonMsgUtil edit(LteConfig lteConfig, LoginUser loginUser);
-
+	
 	/**
 	 * 
 	 * @Description: 查询
