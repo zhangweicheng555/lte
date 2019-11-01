@@ -182,8 +182,8 @@ public class Esutil {
 		sourceBuilder.postFilter(boolFilterBuilder);// 过滤集合
 
 		// 分页
-		sourceBuilder.from((queryParamData.getPage() - 1) * queryParamData.getSize());
-		sourceBuilder.size(queryParamData.getSize());
+		sourceBuilder.from((queryParamData.getPage() - 1) * queryParamData.getLimit());
+		sourceBuilder.size(queryParamData.getLimit());
 		// 排序
 		Map<String, Object> sortMap = queryParamData.getSortMap();
 		if (sortMap != null && !sortMap.isEmpty()) {

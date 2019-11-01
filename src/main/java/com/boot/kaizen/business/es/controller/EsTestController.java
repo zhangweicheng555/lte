@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import com.boot.kaizen.business.es.model.QueryParamData;
 import com.boot.kaizen.business.es.model.TaskModel2;
 import com.boot.kaizen.business.es.service.Esutil;
 import com.boot.kaizen.util.JsonMsgUtil;
+import com.boot.kaizen.util.TableResultUtil;
 
 /**
  * ES测试控制层
@@ -100,6 +102,17 @@ public class EsTestController {
 	@PostMapping(value = "/queryPage")
 	public QueryParamData queryPage(@RequestBody QueryParamData queryParamData) {
 		return Esutil.queryPage(queryParamData);
+	}
+	
+	@ResponseBody
+	@PostMapping(value = "/queryPageMsg")
+	public TableResultUtil queryPageMsg(@RequestBody QueryParamData queryParamData) {
+		
+		QueryParamData queryPage = Esutil.queryPage(queryParamData);
+		if (queryPage !=null) {
+			return new TableResultUtil(0L, "操作成功", queryPage.getTotalNums(), queryPage.getRows());
+		}
+		return new TableResultUtil(1L, "查询失败", 0L, new ArrayList<>());
 	}
 	
 	@ResponseBody

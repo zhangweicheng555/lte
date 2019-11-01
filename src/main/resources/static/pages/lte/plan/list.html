@@ -94,28 +94,24 @@
 	  var tableIns=table.render({
 	    elem: '#infolist'    
 	    ,id:'infolist'
-	    ,url:'/plan/find'  
+	    ,url:'/gis/queryPageMsg'  
 	    ,method:'post' 
+	    ,contentType:"application/json"
 	    ,where:{
-			   "map[mENodeBID]":$("#mENodeBID").val()
-			   ,"map[beginTime]":$("#beginTime").val()
-			   ,"map[endTime]":$("#endTime").val() 
+			  "index":"test",
+			  "type":"test",
+			  "revelFields":["pk","user","updateuser"]
 			   }
 	    ,cols: [[        
 	      {field:'id', width:'2%', title: 'ID', sort: true,type:'checkbox'}
 	      ,{title: '序号',width:'5%',templet: '#indexTpl',align:'center'}
-	      ,{field:'mENodeBID',   width:'8.2%', title: '基站号',align:'center'}
-	      ,{field:'mBaseStationName',   width:'12.2%', title: '基站名称',align:'center'}
-	      ,{field:'mBaseStationType',  width:'12.2%', title: '基站类型',align:'center'}
-	      ,{field:'mAltitude',   width:'8.2%', title: '海拔',align:'center'}
-	      ,{field:'mLongitude', width:'6.2%', title: '经度',align:'center'}
-	      ,{field:'mLatitude', width:'7.2%', title: '纬度',align:'center'}
-	      ,{field:'mTac', width:'6.1%', title: 'Tac',align:'center'}
-	      ,{field:'testPerson', width:'10.1%', title: '测试工程师',align:'center'}
-	  /*     ,{field:'testPersonPhone', width:220, title: '测试工程师电话',align:'center'}
-	      ,{field:'backPerson', width:150, title: '后台工程师',align:'center'}
-	      ,{field:'backPersonPhone', width:220, title: '后台工程师电话',align:'center'} */
-	      ,{field:'testTime', width:'9.2%', title: '测试时间',align:'center'}
+	      ,{field:'pk',   width:'8.2%', title: '主键',align:'center'}
+	      ,{field:'user',   width:'12.2%', title: '操作人',align:'center'}
+	      ,{field:'updateuser',  width:'12.2%', title: '更新人',align:'center'}
+	      ,{field:'state',   width:'8.2%', title: '状态',align:'center'}
+	      ,{field:'name', width:'6.2%', title: '名称',align:'center'}
+	      ,{field:'range', width:'7.2%', title: '范围',align:'center'}
+	      ,{field:'是否删除', width:'6.1%', title: 'deleted',align:'center'}
 	      ,{title:'操作', toolbar: '#editBtnBar', width:'12.2%',align:'center', fixed: 'right'}
 	    ]]
 	    ,page: true
@@ -248,9 +244,7 @@
 	  function fresh(){
 		  table.reload('infolist'
 				   ,{where:{
-					   "map[mENodeBID]":$("#mENodeBID").val()
-					   ,"map[beginTime]":$("#beginTime").val()
-					   ,"map[endTime]":$("#endTime").val()
+					  
 					   }
 				   ,page: {curr: 1}
 		  		   }
@@ -263,23 +257,6 @@
 		  obj.del();
 		  fresh();
 	  }
-	  
-	  /**日期框*/
-	  laydate.render({
-	     elem: '#beginTime'
-	    ,theme: 'molv'
-   	    ,done: function(val, date, endDate){
-   	    	$("#beginTime").val(val);//给搜索赋值
-   		 }
-	  });
-	  
-	  laydate.render({
-	     elem: '#endTime'
-	    ,theme: 'molv'
-   	    ,done: function(val, date, endDate){
-   	    	$("#endTime").val(val);
-   		 }
-	  });
 	
 	  var pers = checkPermission();
 });

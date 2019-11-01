@@ -116,7 +116,7 @@ log:
   
 
 server: 
-  port: 8081 
+  port: 8080 
 
 
    
@@ -131,7 +131,7 @@ eureka:
     instanceId: ${spring.application.name}:${server.port}    #这个地方可以改为任何其他的变量   只是为了显示
     lease-renewal-interval-in-seconds: 10                     #没5秒想注册中心发送心跳  证明自己活着
     lease-expiration-duration-in-seconds: 30                  #8秒内 没有发送  说明我已经死掉
-    status-page-url-path: http://172.16.207.83:${server.port}/login.html   #statue的链接配置
+    status-page-url-path: http://ihandle.huanuo-nsb.com/login.html   #statue的链接配置
   client: 
     service-url: 
       defaultZone: http://zhangweicheng:zhangweicheng@140.206.187.251:50020/eureka/
