@@ -48,15 +48,12 @@ spring:
 
  
   application:
-    name: kaizenLog
-   
-
+    name: kaizenLog1
+ 
    
 ribbon: 
   eureka: 
     enabled: true
-
- 
 
 eureka:
   instance:
@@ -67,7 +64,7 @@ eureka:
     status-page-url-path: http://localhost:${server.port}/index.html   #statue的链接配置
   client: 
     service-url: 
-      defaultZone: http://zhangweicheng:zhangweicheng@140.206.187.251:50020/eureka/
+      defaultZone: http://140.206.187.251:50020/eureka/
   
 
 
@@ -123,7 +120,7 @@ log:
 
   
 server:
-  port: 8081
+  port: 8088
 
   
 gis: 

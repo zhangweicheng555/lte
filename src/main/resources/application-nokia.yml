@@ -123,18 +123,18 @@ server:
 ribbon: 
   eureka: 
     enabled: true
- 
+
 
 eureka:
   instance:
     prefer-ip-address: true  
     instanceId: ${spring.application.name}:${server.port}    #这个地方可以改为任何其他的变量   只是为了显示
-    lease-renewal-interval-in-seconds: 10                     #没5秒想注册中心发送心跳  证明自己活着
-    lease-expiration-duration-in-seconds: 30                  #8秒内 没有发送  说明我已经死掉
+    lease-renewal-interval-in-seconds: 5                     #没5秒想注册中心发送心跳  证明自己活着
+    lease-expiration-duration-in-seconds: 15                  #8秒内 没有发送  说明我已经死掉
     status-page-url-path: http://ihandle.huanuo-nsb.com/login.html   #statue的链接配置
   client: 
     service-url: 
-      defaultZone: http://zhangweicheng:zhangweicheng@140.206.187.251:50020/eureka/
+      defaultZone: http://140.206.187.251:50020/eureka/
   
 
 
