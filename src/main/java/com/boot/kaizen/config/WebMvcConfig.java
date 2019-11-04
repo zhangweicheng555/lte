@@ -1,6 +1,8 @@
 package com.boot.kaizen.config;
 
 import java.io.File;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +10,7 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 /**
  * 
@@ -45,4 +48,25 @@ public class WebMvcConfig implements WebMvcConfigurer {
 				.addResourceLocations(ResourceUtils.FILE_URL_PREFIX + filesPath + File.separator);
 	}
 
+	/**
+	 * 自定义拦截器
+	 * 
+	 * @author weichengz
+	 * @date 2019年11月4日 上午9:56:34
+	 */
+	public class MyRequiredInterceptor extends HandlerInterceptorAdapter {
+		@Override
+		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+				throws Exception {
+			System.out.println("---------进来自定义的拦截器了------------");
+			return super.preHandle(request, response, handler);
+		}
+
+		@Override
+		public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
+				Exception ex) throws Exception {
+			System.out.println("---------进来自定义的拦截器了后------------");
+			super.afterCompletion(request, response, handler, ex);
+		}
+	}
 }

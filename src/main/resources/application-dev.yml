@@ -55,6 +55,7 @@ ribbon:
   eureka: 
     enabled: true
 
+
 eureka:
   instance:
     prefer-ip-address: true  
@@ -65,7 +66,6 @@ eureka:
   client: 
     service-url: 
       defaultZone: http://140.206.187.251:50020/eureka/
-  
 
 
 mybatis-plus:

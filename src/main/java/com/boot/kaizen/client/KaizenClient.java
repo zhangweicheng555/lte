@@ -26,10 +26,9 @@ public interface KaizenClient {
 
 	@RequestMapping(value = "/5g/check/gc/delete", method = RequestMethod.POST)
 	public Object delete(@RequestParam("ids") String ids);
-	
-	/**更新和刷新token*/
+
+	/** 更新和刷新token */
 	@RequestMapping(value = "/token/checkAndRefreshToken", method = RequestMethod.POST)
 	public JsonMsgUtil checkAndRefreshToken(@RequestParam("token") String token);
-	
-	
+
 }

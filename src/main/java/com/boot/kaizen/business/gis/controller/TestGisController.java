@@ -14,7 +14,7 @@ import com.boot.kaizen.client.LogClient;
 
 /**
  * 测试
- * 
+ * 云后管理系统
  * @author weichengz
  * @date 2019年2月1日 上午10:13:24
  */
@@ -37,7 +37,6 @@ public class TestGisController {
 	@ResponseBody
 	@PostMapping(value = "/findById")
 	public Object analyzeLteAllAndComplete(@RequestParam("index") String index, @RequestParam("type") String type) {
-		System.out.println("-------------------------------------");
 		return logClient.indexIf(index, type);
 
 	}

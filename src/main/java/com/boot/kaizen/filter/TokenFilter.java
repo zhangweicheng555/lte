@@ -26,30 +26,35 @@ import com.boot.kaizen.util.JsonMsgUtil;
 public class TokenFilter extends OncePerRequestFilter {
 	private static final String TOKEN_KEY = "token";
 
-	//屏蔽的资源
-	private static final List<String> EXCLUDE_URI=Arrays.asList("png","jpg","html","css","js","txt");
+	// 屏蔽的静态资源
+	private static final List<String> EXCLUDE_URI = Arrays.asList("png", "jpg", "html", "css", "js", "txt", "ttf",
+			"woff", "woff2", "ico");
+	// 开放动态的资源（以什么开头的不拦截）
+	private static final List<String> EXCLUDE_CONTROLLER_PREFIX = Arrays.asList("open", "/");
+
 	@Autowired
 	private KaizenClient kaizenClient;
-	
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		String requestURI = request.getRequestURI();
-		String UtiType = requestURI.substring(requestURI.lastIndexOf(".")+1);
-		if (!EXCLUDE_URI.contains(UtiType)) {
+		String utiType = requestURI.substring(requestURI.lastIndexOf(".") + 1);
+		String prefix = findUriPrefix(requestURI);
+		if (!EXCLUDE_URI.contains(utiType) && !EXCLUDE_CONTROLLER_PREFIX.contains(prefix)) {
 			String token = getToken(request);
 			if (StringUtils.isNotBlank(token)) {
-				//查询token对应的用户是不是存在  存在用户 在校验更新时间
+				// 查询token对应的用户是不是存在 存在用户 在校验更新时间
 				try {
+					/**存在疑问：微服务之间的调用不同的处理机制 在catch处理*/
 					JsonMsgUtil jsonMsgUtil = kaizenClient.checkAndRefreshToken(token);
-					 if (jsonMsgUtil !=null && jsonMsgUtil.isSuccess()) {
+					if (jsonMsgUtil != null && jsonMsgUtil.isSuccess()) {
 						System.out.println("更新成功");
-					}else {
+					} else {
 						response.sendRedirect("/login.html");
 					}
 				} catch (Exception e) {
-					System.out.println("-----------异常了--------------------");
-					throw new IllegalArgumentException("访问异常："+e.getMessage());
+					throw new IllegalArgumentException("访问异常：" + e.getMessage());
 				}
 			} else {
 				response.sendRedirect("/login.html");
@@ -58,8 +63,26 @@ public class TokenFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 	}
 
-	
-	
+	/**
+	 * 
+	 * @Description: 获取前缀
+	 * @author weichengz
+	 * @date 2019年11月4日 上午10:31:10
+	 */
+	public String findUriPrefix(String requestURI) {
+		if (StringUtils.isNotBlank(requestURI)) {
+			if (("/").equals(requestURI)) {
+				return "/";
+			} else {
+				String[] split = requestURI.split("/");
+				if (split != null && split.length != 1) {
+					return split[1];
+				}
+			}
+		}
+		return "";
+	}
+
 	/**
 	 * 
 	 * @Description: 根据参数或者header获取token
