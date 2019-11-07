@@ -48,7 +48,7 @@ spring:
 
  
   application:
-    name: kaizenLog1
+    name: kaizenLog_TEST
  
    
 ribbon: 

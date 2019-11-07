@@ -24,6 +24,8 @@ public class QueryParamData implements Serializable {
 	private Map<String, Object> phraseMap; // 短语匹配
 
 	private Map<String, Object> filterMap; // 过滤条件
+	private boolean revelPk=true; // 是否显示记录得主键key  这个主键是es自带得
+	
 	private Map<String, Object> sortMap; // 排序字段
 
 	private List<String> revelFields;// 指定要显示的字段
@@ -35,6 +37,37 @@ public class QueryParamData implements Serializable {
 	private Long totalNums = 0L;// 满足查询条件的总数量
 
 	private Map<String, Map<String, Long>> rangeMap; // 范围查询 目前支持 lte le gt gte组合
+
+	private Long targetTime;//时间戳字段  自己使用得
+	
+	
+	
+	public QueryParamData(String index, String type, Map<String, Object> termMap, boolean revelPk,
+			List<String> revelFields, Integer limit) {
+		super();
+		this.index = index;
+		this.type = type;
+		this.termMap = termMap;
+		this.revelPk = revelPk;
+		this.revelFields = revelFields;
+		this.limit = limit;
+	}
+
+	public Long getTargetTime() {
+		return targetTime;
+	}
+
+	public void setTargetTime(Long targetTime) {
+		this.targetTime = targetTime;
+	}
+
+	public boolean isRevelPk() {
+		return revelPk;
+	}
+
+	public void setRevelPk(boolean revelPk) {
+		this.revelPk = revelPk;
+	}
 
 	public List<String> getRevelFields() {
 		return revelFields;

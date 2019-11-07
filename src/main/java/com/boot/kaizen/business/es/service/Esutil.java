@@ -22,7 +22,6 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -113,7 +112,9 @@ public class Esutil {
 			SearchHit[] hits2 = hits.getHits();
 			if (hits2 != null && hits2.length != 0) {
 				for (SearchHit searchHit : scrollResp.getHits().getHits()) {
-					searchHit.getSourceAsMap().put("pk", searchHit.getId());
+					if (queryParamData.isRevelPk()) {
+						searchHit.getSourceAsMap().put("pk", searchHit.getId());
+					}
 					sourceList.add(searchHit.getSourceAsMap());
 				}
 			}
@@ -124,7 +125,9 @@ public class Esutil {
 			scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(TimeValue.timeValueMinutes(1))
 					.execute().actionGet();
 			for (SearchHit searchHit : scrollResp.getHits().getHits()) {
-				searchHit.getSourceAsMap().put("pk", searchHit.getId());
+				if (queryParamData.isRevelPk()) {
+					searchHit.getSourceAsMap().put("pk", searchHit.getId());
+				}
 				sourceList.add(searchHit.getSourceAsMap());
 			}
 			// 当searchHits的数组为空的时候结束循环，至此数据全部读取完毕
@@ -264,7 +267,9 @@ public class Esutil {
 		List<Map<String, Object>> maps = new ArrayList<>();
 		for (SearchHit searchHit : hits) {
 			Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
-			sourceAsMap.put("pk", searchHit.getId());
+			if (queryParamData.isRevelPk()) {
+				sourceAsMap.put("pk", searchHit.getId());
+			}
 			maps.add(sourceAsMap);
 		}
 		return maps;

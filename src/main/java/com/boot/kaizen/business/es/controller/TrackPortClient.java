@@ -80,6 +80,7 @@ public class TrackPortClient {
 	@ResponseBody
 	@RequestMapping(value = "/zwc")
 	public Object testMode() throws Exception {
+		
 		return analyzeByDate1();
 	}
 

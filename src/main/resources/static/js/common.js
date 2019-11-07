@@ -143,23 +143,7 @@ layui.define(['layer','laydate','jquery'], function(exports) {
 		/**
 		 * 清除缓存   有success  成功的时候返回msg  
 		 */
-		clearCacheOperate:function(submitUrl,fun){
-			 parent.layer.confirm('您确定要清除缓存吗?', {icon: 3, title:'再次确认'}, function(index){
-				  /**发送ajax*/
-				  $.ajax({
-					   type: "POST",url: submitUrl,data:{} ,dataType: "json",
-					   success: function(msg){
-						   if(msg.success){
-							   parent.layer.close(index);
-							   common.getMsgBlackDialog(msg.message,2000);
-							   fun();
-					       }else{
-					    	   common.getMsgDialog("操作失败...",5,2000);
-					       }
-					   }
-				  });
-		   });
-		},
+		
 		
 		/**
 		 * 关闭所有的层

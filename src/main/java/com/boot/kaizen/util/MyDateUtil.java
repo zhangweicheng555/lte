@@ -44,7 +44,8 @@ public class MyDateUtil {
 	public static Date stringToDate(String date, String formatType) {
 		SimpleDateFormat format = new SimpleDateFormat(formatType);
 		try {
-			return format.parse(date);
+			Date date2 = format.parse(date);
+			return date2;
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

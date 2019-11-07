@@ -53,7 +53,6 @@ public class TestGisController {
 	public Object queryById(@RequestParam("index") String index, @RequestParam("type") String type,
 			@RequestParam("id") String id) {
 		return logClient.queryById(index, type, id);
-
 	}
 
 	@ResponseBody
@@ -66,14 +65,13 @@ public class TestGisController {
 	@ResponseBody
 	@PostMapping(value = "/findByIdFiveCheck")
 	public Object login(@RequestParam("id") String id) {
-		System.out.println("------------------------------"+id);
 		return kaizenClient.findById(id);
 
 	}
+	
 	@ResponseBody
 	@PostMapping(value = "/delete")
 	public Object delete(@RequestParam("ids") String ids) {
-		System.out.println("------------------------------"+ids);
 		return kaizenClient.delete(ids);
 		
 	}

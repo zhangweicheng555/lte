@@ -10,105 +10,37 @@
 
 	
 	
-	<form class="layui-form"  id="formDemo" style="margin-top: 20px;">
 	
-	  <div class="layui-form-item">
-	    <label class="layui-form-label" style="width: 150px;">基站号</label>
-	    <div class="layui-input-inline">
-	      <input type="text" name="mENodeBID" id="mENodeBID"   required  lay-verify="required"  autocomplete="off" class="layui-input">
-	    </div>
-	    
-	    <label class="layui-form-label" style="width: 150px;">基站名称</label>
-	    <div class="layui-input-inline" >
-	      <input type="text" name="mBaseStationName" id="mBaseStationName"   required  lay-verify="required"  autocomplete="off" class="layui-input">
-	    </div>
-	  </div>
-	  
-	  
-	  <div class="layui-form-item">
-	    <label class="layui-form-label" style="width: 150px;">设备厂家</label>
-	    <div class="layui-input-inline">
-	      <input type="text" name="deviceCompany" id="deviceCompany"    autocomplete="off" class="layui-input">
-	    </div>
-	    
-	    <label class="layui-form-label" style="width: 150px;">分公司</label>
-	    <div class="layui-input-inline" >
-	      <input type="text" name="secondCompany" id="secondCompany"    autocomplete="off" class="layui-input">
-	    </div>
-	  </div>
-	  
-	  <div class="layui-form-item">
-	    <label class="layui-form-label" style="width: 150px;">基站类型</label>
-	    <div class="layui-input-inline">
-	      <input type="text" name="mBaseStationType" id="mBaseStationType"   autocomplete="off" class="layui-input">
-	    </div>
-	   
-	    <label class="layui-form-label" style="width: 150px;">海拔</label>
-	    <div class="layui-input-inline">
-	      <input type="text" name="mAltitude" id="mAltitude"   autocomplete="off" class="layui-input">
-	    </div>
-	  </div>
-	  
-	  <div class="layui-form-item">
-	    <label class="layui-form-label" style="width: 150px;">经度</label>
-	    <div class="layui-input-inline">
-	      <input type="text" name="mLongitude" id="mLongitude"   autocomplete="off" class="layui-input">
-	    </div>
-
-	    <label class="layui-form-label" style="width: 150px;">纬度</label>
-	    <div class="layui-input-inline">
-	      <input type="text" name="mLatitude" id="mLatitude"   autocomplete="off" class="layui-input">
-	    </div>
-	  </div>
-	  
-	  <div class="layui-form-item">
-	    <label class="layui-form-label" style="width: 150px;">Tac</label>
-	    <div class="layui-input-inline">
-	      <input type="text" name="mTac" id="mTac"   autocomplete="off" class="layui-input">
-	    </div>
-
-	    <label class="layui-form-label" style="width: 150px;">测试工程师</label>
-	    <div class="layui-input-inline">
-	      <input type="text" name="testPerson" id="testPerson"   autocomplete="off" class="layui-input">
-	    </div>
-	  </div>
-	  
-	  <div class="layui-form-item">
-	    <label class="layui-form-label" style="width: 150px;">测试工程师电话</label>
-	    <div class="layui-input-inline">
-	      <input type="text" name="testPersonPhone" id="testPersonPhone"   autocomplete="off" class="layui-input">
-	    </div>
-
-	    <label class="layui-form-label" style="width: 150px;">后台工程师</label>
-	    <div class="layui-input-inline">
-	      <input type="text" name="backPerson" id="backPerson"   autocomplete="off" class="layui-input">
-	    </div>
-	  </div>
-	  
-	  <div class="layui-form-item">
-	    <label class="layui-form-label" style="width: 150px;">后台工程师电话</label>
-	    <div class="layui-input-inline">
-	      <input type="text" name="backPersonPhone" id="backPersonPhone"   autocomplete="off" class="layui-input">
-	    </div>
-
-	    <label class="layui-form-label" style="width: 150px;">测试时间</label>
-	    <div class="layui-input-inline"> 
-	      <input type="text" name="testTime" id="testTime"   required  lay-verify="required"   autocomplete="off" class="layui-input">
-	    </div>
-	  </div>
-	  
-	  <div class="layui-form-item">
-	    <label class="layui-form-label" style="width: 150px;">处理人</label>
-	    <div class="layui-input-inline" id="dealPersonIdDiv">
-		      <select name="dealPersonId" id="dealPersonId" lay-verify="required">
-		      </select>
-	    </div>
-	  </div>
-	  
-		<button class="layui-btn" id="formDemoBtn" style="display: none;" lay-submit lay-filter="formDemo">立即提交</button>
-	</form>
-	
-	
+	<div class="layui-container">  
+  常规布局（以中型屏幕桌面为例）：
+  <div class="layui-row">
+    <div class="layui-col-md9">
+      你的内容 9/12
+    </div>
+    <div class="layui-col-md3">
+      你的内容 3/12
+    </div>
+  </div>
+   
+  移动设备、平板、桌面端的不同表现：
+  <div class="layui-row">
+    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4">
+      移动：6/12 | 平板：6/12 | 桌面：4/12
+    </div>
+    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4">
+      移动：6/12 | 平板：6/12 | 桌面：4/12
+    </div>
+    <div class="layui-col-xs4 layui-col-sm12 layui-col-md4">
+      移动：4/12 | 平板：12/12 | 桌面：4/12
+    </div>
+    <div class="layui-col-xs4 layui-col-sm7 layui-col-md8">
+      移动：4/12 | 平板：7/12 | 桌面：8/12
+    </div>
+    <div class="layui-col-xs4 layui-col-sm5 layui-col-md4">
+      移动：4/12 | 平板：5/12 | 桌面：4/12
+    </div>
+  </div>
+</div>
 	
 	
 	
@@ -140,20 +72,6 @@
 	  });
 	
 	
-	  /**日期框*/
-	  laydate.render({
-	     elem: '#testTime'
-	    ,max: 0
-	    ,min: -60 //7天前
-	    ,max: 60 //7天后
-	    ,theme: 'molv'
-   	    ,done: function(val, date, endDate){
-   	    	$("#testTime").val(val);//给搜索赋值
-   		 }
-	  });
-	    //加载项目下的所有的用户
-	    queryUserByProjId("dealPersonId",null);
-	    form.render('select'); 
 	});
 	
 </script> 

@@ -39,6 +39,7 @@ public class TokenFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		String requestURI = request.getRequestURI();
+		System.out.println("我拦截的信息----------"+requestURI);
 		String utiType = requestURI.substring(requestURI.lastIndexOf(".") + 1);
 		String prefix = findUriPrefix(requestURI);
 		if (!EXCLUDE_URI.contains(utiType) && !EXCLUDE_CONTROLLER_PREFIX.contains(prefix)) {
@@ -62,6 +63,8 @@ public class TokenFilter extends OncePerRequestFilter {
 		}
 		filterChain.doFilter(request, response);
 	}
+	
+	
 
 	/**
 	 * 

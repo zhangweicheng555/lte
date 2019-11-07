@@ -25,13 +25,13 @@
 </head>
 <body>
 
- <!--   <div style="margin-bottom: 2px;">
+    <div style="margin-bottom: 2px;">
 	<input type="button" id="addCover" name="addCover" value="添加标注" /> 	
 	<input type="button" id="delCover" name="delCover" value="移除标注/清楚覆盖物" /> 	
 	<input type="button" id="delMapType" name="delMapType" value="添加地图控件类型" /> 	
 	<input type="button" id="addMorePoint" name="addMorePoint" value="添加海量点" /> 	
 	<input type="button" id="addShiLiangPoint" name="addShiLiangPoint" value="添加矢量标注" /> 	
-   </div> -->
+   </div> 
 
 	<script type="text/javascript" src="../../../js/libs/jquery-2.1.1.min.js" ></script>
 	<script type="text/javascript" src="../../../layui/layui.js" ></script>
@@ -126,11 +126,11 @@
 				 marker4.disableMassClear();//保留不被清除
 				 map.addOverlay(marker4);  
 				//跳动的动画  将标注设置未跳动
-				 marker4.setAnimation(BMAP_ANIMATION_BOUNCE); 
-				
+				 //marker4.setAnimation(BMAP_ANIMATION_BOUNCE); 
+				 marker.dataCont = "11111111111111111111"; 
 				
 				 marker4.addEventListener("click", function(e){    
-					 console.info("你点击了标注：" + e.point.lng + ", " + e.point.lat);       
+					 console.info(e);
 					 //创建窗口的提示信息
 					 var opts = {
 							  width : 200,     // 信息窗口宽度
@@ -221,6 +221,7 @@
 				        
 				        var pointCollection = new BMap.PointCollection(points, options);  // 初始化PointCollection
 				        pointCollection.addEventListener('click', function (e) {
+				        	console.info(e);
 				          alert('单击点的坐标为：' + e.point.lng + ',' + e.point.lat);  // 监听点击事件
 				        });
 				        map.addOverlay(pointCollection);  // 添加Overlay

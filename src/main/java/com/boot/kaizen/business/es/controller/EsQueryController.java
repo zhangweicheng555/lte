@@ -1,5 +1,9 @@
 package com.boot.kaizen.business.es.controller;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -10,9 +14,13 @@ import java.util.concurrent.ExecutionException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -22,15 +30,23 @@ import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.alibaba.fastjson.JSONObject;
 import com.boot.kaizen.business.es.model.QueryParamData;
+import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
 import com.boot.kaizen.business.es.service.Esutil;
 import com.boot.kaizen.util.SpringUtil;
 
+@Controller
 @RestController
-@RequestMapping(value = "/es")
+@RequestMapping(value = "/es/query")
 public class EsQueryController {
 
 	@Autowired
@@ -47,11 +63,6 @@ public class EsQueryController {
 		Esutil.insert("zwc", "zwc", source);
 		return "success";
 	}
-
-/*	@RequestMapping(value = "/queryById")
-	public Object queryById(@RequestBody QueryParamData queryParamData) throws InterruptedException, ExecutionException {
-		return Esutil.queryList("dbtest2index", "dbtest2index", queryParamData);
-	}*/
 
 	@RequestMapping(value = "/queryList")
 	public Object queryList(@RequestBody QueryParamData queryParamData)
@@ -76,51 +87,16 @@ public class EsQueryController {
 	}
 
 	@RequestMapping(value = "/deleteIndex")
-	public Object deleteIndex() throws InterruptedException, ExecutionException {
-		IndicesExistsRequest request = new IndicesExistsRequest("zwc");
+	public Object deleteIndex(@RequestParam("index") String index) throws InterruptedException, ExecutionException {
+		IndicesExistsRequest request = new IndicesExistsRequest(index);
 		IndicesExistsResponse existsResponse = transportClient.admin().indices().exists(request).actionGet();
 		if (existsResponse.isExists()) {
-			transportClient.admin().indices().delete(new DeleteIndexRequest("zwc")).actionGet();
+			transportClient.admin().indices().delete(new DeleteIndexRequest(index)).actionGet();
 		}
 		return existsResponse;
 	}
-/*
-	@RequestMapping(value = "importModel")
-	public Object importCsvDateTime() throws Exception {
-		InputStream inputStream = null;
-		BufferedReader bufferedReader = null;
-		File file = ResourceUtils.getFile("classpath:taskModel.csv");
-		bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 
-		BulkRequest request = new BulkRequest();
-		String str = null;
-		while ((str = bufferedReader.readLine()) != null) {
-			String[] strArray = str.split(",");
-			TaskModel2 taskModel = new TaskModel2(Integer.valueOf(strArray[0]), Integer.valueOf(strArray[1]),
-					strArray[2], Integer.valueOf(strArray[3]), strArray[4], Long.valueOf(strArray[5].toString()),
-					strArray[6], Long.valueOf(strArray[7].toString()), Integer.valueOf(strArray[8]),
-					Integer.valueOf(strArray[9]), Integer.valueOf(strArray[10]), Integer.valueOf(strArray[11]),
-					Integer.valueOf(strArray[12]));
-			IndexRequest indexRequest = new IndexRequest("zwp", "zwp");
-
-			int x = (int) (Math.random() * 10);
-			int y = (int) (Math.random() * 10);
-			taskModel.setTags(Arrays.asList(x + "", y + ""));
-			System.out.println(JSONObject.toJSONString(taskModel));
-			indexRequest.source(JSONObject.toJSONString(taskModel), XContentType.JSON);
-			request.add(indexRequest);
-		}
-
-		BulkResponse bulkResponse = transportClient.bulk(request).get();
-
-		if (inputStream != null) {
-			inputStream.close();
-		}
-		if (bufferedReader != null) {
-			bufferedReader.close();
-		}
-		return "success";
-	}*/
+	
 
 	/**
 	 * 
@@ -162,4 +138,34 @@ public class EsQueryController {
 		return "success";
 	}
 
+	/**
+	 * 日志文件的内部导入
+	* @Description: TODO
+	* @author weichengz
+	* @date 2019年11月5日 上午11:42:36
+	 */
+	@RequestMapping(value = "importModel")
+	public @ResponseBody Object importCsvDateTime() throws Exception {
+		BufferedReader bufferedReader = null;
+		File file = ResourceUtils.getFile("classpath:123.txt");
+		bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+
+		BulkRequest request = new BulkRequest();
+		String str = null;
+		while ((str = bufferedReader.readLine()) != null) {
+			String id = UUID.randomUUID().toString().replace("-", "") + "_zwc";
+			IndexRequest indexRequest = new IndexRequest("es", "es", id);
+			SignalDataBean signalDataBean = JSONObject.parseObject(str, SignalDataBean.class);
+			signalDataBean.setId(id);
+			indexRequest.source(JSONObject.toJSONString(signalDataBean), XContentType.JSON);
+			request.add(indexRequest);
+		}
+
+		BulkResponse bulkResponse = transportClient.bulk(request).get();
+		if (bufferedReader != null) {
+			bufferedReader.close();
+		}
+		return "success";
+	}
+	
 }
