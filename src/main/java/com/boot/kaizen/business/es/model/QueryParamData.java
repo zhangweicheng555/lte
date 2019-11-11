@@ -7,10 +7,14 @@ package com.boot.kaizen.business.es.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+
+import com.boot.kaizen.util.MyDateUtil;
 
 public class QueryParamData implements Serializable {
 
@@ -24,8 +28,8 @@ public class QueryParamData implements Serializable {
 	private Map<String, Object> phraseMap; // 短语匹配
 
 	private Map<String, Object> filterMap; // 过滤条件
-	private boolean revelPk=true; // 是否显示记录得主键key  这个主键是es自带得
-	
+	private boolean revelPk = true; // 是否显示记录得主键key 这个主键是es自带得
+
 	private Map<String, Object> sortMap; // 排序字段
 
 	private List<String> revelFields;// 指定要显示的字段
@@ -36,12 +40,54 @@ public class QueryParamData implements Serializable {
 	private List<Map<String, Object>> rows = new ArrayList<>();// 条件查询返回的数据
 	private Long totalNums = 0L;// 满足查询条件的总数量
 
-	private Map<String, Map<String, Long>> rangeMap; // 范围查询 目前支持 lte le gt gte组合
+	private Map<String, Map<String, Long>> rangeMap=new HashMap<>(); // 范围查询 目前支持 lte le gt gte组合
 
-	private Long targetTime;//时间戳字段  自己使用得
-	
-	
-	
+	private Long targetTime;// 时间戳字段 自己使用得
+
+	private String beginTime;// 开始时间 一般用于范围搜索的时候 使用
+	private String endTime;// 结束时间
+
+	/**
+	 * 
+	 * @Description: 处理某个字段关于范围的问题
+	 * @author weichengz
+	 * @date 2019年11月11日 下午4:32:23
+	 */
+	public void handleFieldRange(String field, String beginTime, String endTime) {
+		Map<String, Long> paramMap = new HashMap<String, Long>();
+		if (StringUtils.isNoneBlank(beginTime)) {
+			Date date = MyDateUtil.stringToDate(beginTime, "yyyy-MM-dd HH:mm:ss");
+			if (date != null) {
+				paramMap.put("GTE", date.getTime());
+			}
+		}
+		if (StringUtils.isNoneBlank(endTime)) {
+			Date date = MyDateUtil.stringToDate(endTime, "yyyy-MM-dd HH:mm:ss");
+			if (date != null) {
+				paramMap.put("LTE", date.getTime());
+			}
+		}
+		if (!paramMap.isEmpty()) {
+			this.rangeMap.put(field, paramMap);
+		}
+	}
+
+	public String getBeginTime() {
+		return beginTime;
+	}
+
+	public void setBeginTime(String beginTime) {
+		this.beginTime = beginTime;
+	}
+
+	public String getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
+	}
+
 	public QueryParamData(String index, String type, Map<String, Object> termMap, boolean revelPk,
 			List<String> revelFields, Integer limit) {
 		super();

@@ -75,8 +75,8 @@ public class LtePlanController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/findById", method = RequestMethod.POST)
-	public JsonMsgUtil findById(@RequestParam("id") Long id) {
-		return ltePlanService.findById(id);
+	public List<Map<String, Object>> findById(@RequestParam("id") Long id) {
+		return ltePlanService.findByIdMap(id);
 	}
 
 	

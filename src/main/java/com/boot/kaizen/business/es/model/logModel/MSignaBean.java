@@ -1,4 +1,3 @@
-
 package com.boot.kaizen.business.es.model.logModel;
 
 import java.io.Serializable;

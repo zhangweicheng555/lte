@@ -17,6 +17,7 @@ import com.boot.kaizen.util.MyDateUtil;
  */
 public class MainLogModel {
 
+	private String pid;// 室外测试的id
 	private String id;// 自定义编号ID 注意这个非log上传信息 注意这个id一定要在log值转换之前的时候 付给原来的log日志的信息
 
 	private String latitude;// 纬度
@@ -49,6 +50,15 @@ public class MainLogModel {
 	private ArrayList<MSignaEventBean> mSignaEventBean;// 一秒钟事件
 	private ArrayList<MSignaBean> mSignaBean;// 一秒钟信令
 
+	
+	public String getPid() {
+		return pid;
+	}
+
+	public void setPid(String pid) {
+		this.pid = pid;
+	}
+
 	public ArrayList<MSignaBean> getmSignaBean() {
 		return mSignaBean;
 	}
@@ -67,16 +77,12 @@ public class MainLogModel {
 
 	public MainLogModel(SignalDataBean signalDataBean) {
 		this.mSignaBean = signalDataBean.getmSignaBean();
-		
-		for (MSignaBean model : mSignaBean) {//设置为空观察速度
-			model.setmMeaasge("");
-		}
-		
 		Long timeFormat = null;
 		Date date = MyDateUtil.stringToDate(signalDataBean.getTestTime(), "yyyy-MM-dd HH:mm:ss");
 		if (date != null) {
 			timeFormat = date.getTime();
 		}
+		this.pid = signalDataBean.getPid();
 		this.id = signalDataBean.getId();
 		this.latitude = signalDataBean.getLatitude();
 		this.longitude = signalDataBean.getLongitude();

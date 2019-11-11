@@ -23,6 +23,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -86,6 +87,7 @@ class LtePlanServiceImpl implements ILtePlanService {
 		return flag;
 	}
 
+	@Cacheable(value="queryPeopleNumByTimeRange")
 	@Override
 	public JsonMsgUtil findById(Long id) {
 		if (id == null) {
@@ -628,6 +630,27 @@ class LtePlanServiceImpl implements ILtePlanService {
 	public JsonMsgUtil queryUserByProjId(Long projId) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+
+	@Cacheable(value="queryPeopleNumByTimeRange")
+	@Override
+	public List<Map<String, Object>> findByIdMap(Long id) {
+		System.out.println("---------------------");
+		List<Map<String, Object>> list=new ArrayList<>();
+		Map<String, Object> map1=new HashMap<>();
+		map1.put("name", "zhangsan");
+		Map<String, Object> map12=new HashMap<>();
+		map12.put("name", "zhangsan1");
+		Map<String, Object> map123=new HashMap<>();
+		map123.put("name", "zhangsan13");
+		
+		list.add(map1);
+		list.add(map12);
+		list.add(map123);
+		
+		return list;
 	}
 
 }

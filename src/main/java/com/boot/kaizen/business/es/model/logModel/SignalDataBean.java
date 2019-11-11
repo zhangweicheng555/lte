@@ -10,8 +10,8 @@ import java.util.ArrayList;
  */
 public class SignalDataBean {
 
-	private String id;// 自定义编号ID 注意这个非log上传信息   logmain
-
+	private String pid;// 室外测试列表的id 根据这个找主log信息
+	private String id;// 自定义编号ID 注意这个非log上传信息 logmain
 	private String latitude;// 纬度
 	private String longitude;// 经度
 	private String sinr;
@@ -36,17 +36,12 @@ public class SignalDataBean {
 	private String testTime;
 	/* 0:上传和下载 1:上传 2:下载 */
 	private int ftpType = -1;
-	private OurDoorDataInfoBean doorDataInfoBeans;   
-	
-	private ArrayList<MSignaEventBean> mSignaEventBean;// 一秒钟事件   logevent
-	private ArrayList<MSignaBean> mSignaBean;// 一秒钟信令     logmsg
-	
-	
-	
-	
-	
-	
-	private PingzbBean pingzbBean;   //logother
+	private OurDoorDataInfoBean doorDataInfoBeans;
+
+	private ArrayList<MSignaEventBean> mSignaEventBean;// 一秒钟事件 logevent
+	private ArrayList<MSignaBean> mSignaBean;// 一秒钟信令 logmsg
+
+	private PingzbBean pingzbBean; // logother
 	private HttpzbBean httpzbBean;
 	private FtpzbBean ftpzbBean;
 	private YyzbBean Yyzbbean;
@@ -55,7 +50,13 @@ public class SignalDataBean {
 	private ZbBean zbBean;// 指标参数
 	private ProIndicators proIndicators;// 专业指标
 
-	
+	public String getPid() {
+		return pid;
+	}
+
+	public void setPid(String pid) {
+		this.pid = pid;
+	}
 
 	public String getId() {
 		return id;
@@ -336,4 +337,51 @@ public class SignalDataBean {
 	public void setSiteLng(String siteLng) {
 		this.siteLng = siteLng;
 	}
+
+	public SignalDataBean(String pid, String id, String latitude, String longitude, String sinr, String rsrp,
+			String cellName, String cI, String cELLID, String netWorkType, String tAC, String eNB, String sPEED,
+			String downLoadSpeed, String upLoadSpeed, String normalEventType, String abNormalEventType, int eventType,
+			String siteLat, String siteLng, int angle, String pci, String earfcn, String testTime, int ftpType,
+			OurDoorDataInfoBean doorDataInfoBeans, ArrayList<MSignaEventBean> mSignaEventBean,
+			ArrayList<MSignaBean> mSignaBean, PingzbBean pingzbBean, HttpzbBean httpzbBean, FtpzbBean ftpzbBean,
+			YyzbBean yyzbbean, WxzbBean wxzbBean, PowerBean powerBean, ZbBean zbBean, ProIndicators proIndicators) {
+		super();
+		this.pid = pid;
+		this.id = id;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.sinr = sinr;
+		this.rsrp = rsrp;
+		CellName = cellName;
+		CI = cI;
+		CELLID = cELLID;
+		NetWorkType = netWorkType;
+		TAC = tAC;
+		ENB = eNB;
+		SPEED = sPEED;
+		this.downLoadSpeed = downLoadSpeed;
+		this.upLoadSpeed = upLoadSpeed;
+		this.normalEventType = normalEventType;
+		this.abNormalEventType = abNormalEventType;
+		this.eventType = eventType;
+		this.siteLat = siteLat;
+		this.siteLng = siteLng;
+		this.angle = angle;
+		this.pci = pci;
+		this.earfcn = earfcn;
+		this.testTime = testTime;
+		this.ftpType = ftpType;
+		this.doorDataInfoBeans = doorDataInfoBeans;
+		this.mSignaEventBean = mSignaEventBean;
+		this.mSignaBean = mSignaBean;
+		this.pingzbBean = pingzbBean;
+		this.httpzbBean = httpzbBean;
+		this.ftpzbBean = ftpzbBean;
+		Yyzbbean = yyzbbean;
+		this.wxzbBean = wxzbBean;
+		this.powerBean = powerBean;
+		this.zbBean = zbBean;
+		this.proIndicators = proIndicators;
+	}
+
 }

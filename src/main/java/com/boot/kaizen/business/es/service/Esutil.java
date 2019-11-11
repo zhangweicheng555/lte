@@ -38,6 +38,8 @@ import org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.springframework.cache.annotation.Cacheable;
+
 import com.boot.kaizen.business.es.model.QueryParamData;
 import com.boot.kaizen.util.SpringUtil;
 
@@ -85,6 +87,12 @@ public class Esutil {
 		}
 	}
 
+	@Cacheable(value="queryPeopleNumByTimeRange")
+	public String  testCache(String pid) {
+		System.out.println("--------------------------");
+		return "success";
+	}
+	
 	/**
 	 * 滚动查询 注意在一次性查询很多数据的时候 采用这种方式
 	 * 
@@ -93,6 +101,7 @@ public class Esutil {
 	 * @date 2019年10月17日 下午2:34:27
 	 */
 	public static List<Map<String, Object>> scrollQuery(QueryParamData queryParamData) {
+		System.out.println("---------------------------");
 		TransportClient client = SpringUtil.getBean(TransportClient.class);
 		// 校验
 		queryParamData.verificationIndexType();
@@ -331,17 +340,20 @@ public class Esutil {
 				if (glteParam != null && !glteParam.isEmpty()) {
 					if (glteParam.size() == 1) {
 						for (Entry<String, Long> kv : glteParam.entrySet()) {
-							if (("LTE").equals(kv.getKey().toUpperCase())) {
-								boolFilterBuilder.must(QueryBuilders.rangeQuery(key).lte(kv.getValue()));
-							}
-							if (("LT").equals(kv.getKey().toUpperCase())) {
-								boolFilterBuilder.must(QueryBuilders.rangeQuery(key).lt(kv.getValue()));
-							}
-							if (("GT").equals(kv.getKey().toUpperCase())) {
-								boolFilterBuilder.must(QueryBuilders.rangeQuery(key).gt(kv.getValue()));
-							}
-							if (("GTE").equals(kv.getKey().toUpperCase())) {
-								boolFilterBuilder.must(QueryBuilders.rangeQuery(key).gte(kv.getValue()));
+							Long value = kv.getValue();
+							if (value !=null) {
+								if (("LTE").equals(kv.getKey().toUpperCase())) {
+									boolFilterBuilder.must(QueryBuilders.rangeQuery(key).lte(kv.getValue()));
+								}
+								if (("LT").equals(kv.getKey().toUpperCase())) {
+									boolFilterBuilder.must(QueryBuilders.rangeQuery(key).lt(kv.getValue()));
+								}
+								if (("GT").equals(kv.getKey().toUpperCase())) {
+									boolFilterBuilder.must(QueryBuilders.rangeQuery(key).gt(kv.getValue()));
+								}
+								if (("GTE").equals(kv.getKey().toUpperCase())) {
+									boolFilterBuilder.must(QueryBuilders.rangeQuery(key).gte(kv.getValue()));
+								}
 							}
 						}
 					}
@@ -516,4 +528,6 @@ public class Esutil {
 		}
 		return "success";
 	}
+
+	
 }

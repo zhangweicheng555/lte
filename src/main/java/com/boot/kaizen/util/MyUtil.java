@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
+
 import javax.imageio.ImageIO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
@@ -28,6 +31,26 @@ public class MyUtil {
 		return UUID.randomUUID().toString().replace("-", "");
 	}
 
+	public static Map<String, Object> clearMapEmptyVal(Map<String, Object> map) {
+		Map<String, Object> resultMap = new HashMap<>();
+		if (map != null && !map.isEmpty()) {
+			Set<Entry<String, Object>> entrySet = map.entrySet();
+			for (Entry<String, Object> entry : entrySet) {
+				String key = entry.getKey();
+				Object value = entry.getValue();
+				if (StringUtils.isNoneBlank(key)) {
+					if (value != null) {
+						String val = value.toString();
+						if (StringUtils.isNoneBlank(val)) {
+							resultMap.put(key, value);
+						}
+					}
+				}
+			}
+		}
+		return resultMap;
+	}
+	
 	/**
 	 * 经纬度计算两点之间的距离
 	 * 

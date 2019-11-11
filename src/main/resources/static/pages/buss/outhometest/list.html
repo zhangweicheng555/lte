@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>规划表列表</title>
+<title>室外测试</title>
 <link rel="stylesheet" type="text/css" media="screen" href="../../../css/bootstrap.min.css">
 <link rel="stylesheet" type="text/css" media="screen" href="../../../layui/css/layui.css">
 </head>
@@ -20,13 +20,17 @@
 						<td>
 							<form class="form-inline" onsubmit="return false">
 								<div class="form-group">
-									基站号：
-									<input id="mENodeBID" name="mENodeBID" type="text" autocomplete="off"  class="form-control" > 
+									运营商：
+									<input id="operatorService" name="operatorService" type="text"  style="width: 120px;" autocomplete="off"  class="form-control" >&nbsp;&nbsp;&nbsp;&nbsp; 
+									城市：
+									<input id="city" name="city" type="text" autocomplete="off"  style="width: 120px;"   class="form-control" > &nbsp;&nbsp;&nbsp;&nbsp;
+									测试人员：
+									<input id="testPerson" name="testPerson" type="text"  style="width: 120px;"  autocomplete="off"  class="form-control" > &nbsp;&nbsp;&nbsp;&nbsp;
 									
-									测试时间：
-									<input type="text"  id="beginTime" class="form-control" name="beginTime">
+									时间：
+									<input type="text"  id="beginTime" class="form-control" autocomplete="off"   style="width: 180px;"  name="beginTime">
 									-
-									<input type="text"  id="endTime" class="form-control" name="endTime">
+									<input type="text"  id="endTime" class="form-control"  autocomplete="off"  style="width: 180px;"  name="endTime">
 									
 									<button id="searchBt" class="layui-btn layui-btn-sm">
 										<i class="layui-icon">&#xe615;</i>搜索
@@ -38,9 +42,6 @@
 							</form>
 						</td>
 						<td align="right">
-						   <!-- <button id="addProjectBtnTest" class="layui-btn layui-btn-sm"  permission="lte:plan:edit">
-								<i class="layui-icon">&#xe608;</i> 测试
-							</button>  -->
 							<button id="addProjectBtn" class="layui-btn layui-btn-sm"  permission="lte:plan:edit">
 								<i class="layui-icon">&#xe608;</i> 添加
 							</button>
@@ -97,25 +98,33 @@
 	  var tableIns=table.render({
 	    elem: '#infolist'    
 	    ,id:'infolist'
-	    ,url:'/gis/queryPageMsg'  
+	    ,url:'/es/buss/queryOutHome'  
 	    ,method:'post' 
 	    ,contentType:"application/json"
 	    ,where:{
-			  "index":"test",
-			  "type":"test",
-			  "revelFields":["pk","user","updateuser"]
+	    	"endTime":$("#endTime").val(),"beginTime":$("#beginTime").val(),"index":"logouthome","type":"logouthome","termMap":{"operatorService.keyword":$("#operatorService").val(),"city.keyword":$("#city").val(),"testPerson.keyword":$("#testPerson").val()}
 			   }
 	    ,cols: [[        
 	      {field:'id', width:'2%', title: 'ID', sort: true,type:'checkbox'}
+	      ,{title:'操作', toolbar: '#editBtnBar', width:150,align:'center'}
 	      ,{title: '序号',width:'5%',templet: '#indexTpl',align:'center'}
-	      ,{field:'pk',   width:'8.2%', title: '主键',align:'center'}
-	      ,{field:'user',   width:'12.2%', title: '操作人',align:'center'}
-	      ,{field:'updateuser',  width:'12.2%', title: '更新人',align:'center'}
-	      ,{field:'state',   width:'8.2%', title: '状态',align:'center'}
-	      ,{field:'name', width:'6.2%', title: '名称',align:'center'}
-	      ,{field:'range', width:'7.2%', title: '范围',align:'center'}
-	      ,{field:'是否删除', width:'6.1%', title: 'deleted',align:'center'}
-	      ,{title:'操作', toolbar: '#editBtnBar', width:'12.2%',align:'center', fixed: 'right'}
+	      ,{field:'fileName',   width:250, title: '文件名字',align:'center'}
+	      ,{field:'operatorService',   width:200, title: '运营商',align:'center'}
+	      ,{field:'netWorkType',  width:200, title: '网络类型',align:'center'}
+	      ,{field:'city',   width:200, title: '城市',align:'center'}
+	      ,{field:'county', width:200, title: '地市',align:'center'}
+	      ,{field:'testPerson', width:200, title: '测试人员',align:'center'}
+	      ,{field:'phoneType', width:200, title: '手机型号',align:'center'}
+	      ,{field:'imsi', width:200, title: 'IMSI',align:'center'}
+	      ,{field:'testTime', width:200, title: '测试时长',align:'center'}
+	      ,{field:'beginTime', width:200, title: '开始时间',align:'center', templet: '#statusTpl'}
+	      ,{field:'endTime', width:200, title: '结束时间',align:'center', templet: '#statusTpl1'}
+	      ,{field:'totalMileage', width:200, title: '总里程',align:'center'}
+	      ,{field:'coverPersent', width:200, title: '覆盖率',align:'center'}
+	      ,{field:'avgRsrp', width:200, title: '平均RSRP',align:'center'}
+	      ,{field:'avgSinr', width:200, title: '平均SINR',align:'center'}
+	      ,{field:'avgDownRate', width:200, title: '下载平均速率',align:'center'}
+	      ,{field:'avgUpRate', width:200, title: '上传平均速率',align:'center'}
 	    ]]
 	    ,page: true
 	    ,limit:10
@@ -162,10 +171,7 @@
 	  $("#addProjectBtn").click(function(){//添加
 		  common.openEditDialog(fresh,"添加","pages/lte/plan/add.html","1000px","550px",false,"确定","取消","/plan/edit");
 	  });
-	  /**测试*/
-	  $("#addProjectBtnTest").click(function(){//添加
-		  common.openEditDialog(fresh,"添加","diagram-viewer/index.html?processDefinitionId=TestParent:1:13&processInstanceId=2501&childrenDF=TestChildrenOne:1:12&childrenIs=7504","1300px","650px",true,"确定","取消","/plan/edit");
-	  });
+	
 	  
 	  /**搜索*/
 	  $("#searchBt").click(function(){
@@ -237,36 +243,105 @@
 	  
 	  /**清空*/
 	  $("#clearBt").click(function(){
-		  $("#beginTime").val("");
 		  $("#endTime").val("");
-		  $("#mENodeBID").val("");
+		  $("#beginTime").val("");
+		  $("#operatorService").val("");
+		  $("#city").val("");
+		  $("#testPerson").val("");
 		  fresh();
 	  });
 	  
 	  
 	  function fresh(){
 		  table.reload('infolist'
-				   ,{where:{
-					  
-					   }
+				  ,{where:{"endTime":$("#endTime").val(),"beginTime":$("#beginTime").val(),"index":"logouthome","type":"logouthome","termMap":{"operatorService.keyword":$("#operatorService").val(),"city.keyword":$("#city").val(),"testPerson.keyword":$("#testPerson").val()}
+					}
 				   ,page: {curr: 1}
-		  		   }
+		           }
 		  );
 	  }
+	  
+	  laydate.render({
+		     elem: '#beginTime'
+		    ,theme: 'molv'
+		    ,type:'datetime'
+	   	    ,done: function(val, date, endDate){
+	   	    	
+	   		 }
+		  });
+	  
+	  laydate.render({
+		     elem: '#endTime'
+		    ,theme: 'molv'
+		    ,type:'datetime'
+	   	    ,done: function(val, date, endDate){
+	   	    	
+	   		 }
+		  });
+	  
 	  
 	  /**只删除行 无刷新*/
 	  function deleteRow(obj){
 		  obj.del();
 		  fresh();
 	  }
-	
-	  var pers = checkPermission();
 });
 
-	function freshWin(){
-		location.href = "/pages/lte/plan/list.html";
-	}
+
 </script>
+
+
+
+<script type="text/html" id="statusTpl">
+	
+ 
+{{#  
+  var checkStatusFn = function(timestamp){
+    var date = new Date(timestamp);
+    var Y = date.getFullYear() + '-';
+    var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+    var D = date.getDate()<10?'0'+date.getDate():date.getDate();
+    var h = date.getHours() + ':';
+    var m = date.getMinutes() + ':';
+    var s = date.getSeconds();
+    return Y+M+D+" "+h+m+s;
+  }; 
+}}
+      
+	{{#  if(d.beginTime){ }}
+  		{{ checkStatusFn(d.beginTime) }}
+	{{#  } else { }}
+  		
+	{{#  } }}           	
+  
+
+</script>
+
+<script type="text/html" id="statusTpl1">
+	
+ 
+{{#  
+  var checkStatusFn = function(timestamp){
+    var date = new Date(timestamp);
+    var Y = date.getFullYear() + '-';
+    var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+    var D = date.getDate()<10?'0'+date.getDate():date.getDate();
+    var h = date.getHours() + ':';
+    var m = date.getMinutes() + ':';
+    var s = date.getSeconds();
+    return Y+M+D+" "+h+m+s;
+  }; 
+}}
+      
+	{{#  if(d.beginTime){ }}
+  		{{ checkStatusFn(d.endTime) }}
+	{{#  } else { }}
+  		
+	{{#  } }}           	
+  
+
+</script>
+
 
 
 <script type="text/html" id="indexTpl">

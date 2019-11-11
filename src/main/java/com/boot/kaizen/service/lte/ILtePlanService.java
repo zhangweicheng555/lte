@@ -104,4 +104,7 @@ public interface ILtePlanService {
 	int insertSelective(LtePlan record);
 
 	int updateByPrimaryKeySelective(LtePlan record);
+
+
+	public List<Map<String, Object>> findByIdMap(Long id);
 }

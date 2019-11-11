@@ -25,16 +25,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.boot.kaizen.business.es.model.EventLogModel;
 import com.boot.kaizen.business.es.model.MainLogModel;
-import com.boot.kaizen.business.es.model.MsgLogModel;
 import com.boot.kaizen.business.es.model.OtherLogModel;
+import com.boot.kaizen.business.es.model.OutHomeLogModel;
 import com.boot.kaizen.business.es.model.QueryParamData;
 import com.boot.kaizen.business.es.model.logModel.MSignaBean;
-import com.boot.kaizen.business.es.model.logModel.MSignaEventBean;
 import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
 import com.boot.kaizen.business.es.service.Esutil;
 import com.boot.kaizen.util.JsonMsgUtil;
+import com.boot.kaizen.util.MyUtil;
 import com.boot.kaizen.util.TableResultUtil;
 
 /**
@@ -102,6 +101,14 @@ public class EsController {
 	public List<Map<String, Object>> queryList(@RequestBody QueryParamData queryParamData) {
 		return Esutil.queryList(queryParamData);
 	}
+	
+	
+	@ResponseBody
+	@PostMapping(value = "/testCache")
+	public String testCache(@RequestParam(value="id") String id) {
+		Esutil esutil=new Esutil();
+		return esutil.testCache(id);
+	}
 
 	@ResponseBody
 	@PostMapping(value = "/queryPage")
@@ -159,37 +166,51 @@ public class EsController {
 	@ResponseBody
 	@RequestMapping(value = "importModel")
 	public Object importCsvDateTime() throws Exception {
+		String outHomeTestId = MyUtil.getUuid();// 室外测试列表的id 后续所有的操作 都会以这个为索引主键
+
 		BufferedReader bufferedReader = null;
 		File file = ResourceUtils.getFile("classpath:123.txt");
 		bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 		BulkRequest request = new BulkRequest();
 		String str = null;
-		while ((str = bufferedReader.readLine()) != null) {
+		
+		String beginTime = null;//日志测试的开始事件
+		int num=0;
+		SignalDataBean signalDataBeanFinal = null;// 记录最后一跳记录 室外测试
 
-			String id = UUID.randomUUID().toString().replace("-", "");
-			IndexRequest indexRequestMain = new IndexRequest("logmain", "logmain", id);
+		while ((str = bufferedReader.readLine()) != null) {
+			
+			String id = MyUtil.getUuid();
 			SignalDataBean signalDataBean = JSONObject.parseObject(str, SignalDataBean.class);
+			if (num==0) {//用于记录第一条记录
+				beginTime=signalDataBean.getTestTime();
+				num++;
+			}
+			
+			IndexRequest indexRequestMain = new IndexRequest("logmain", "logmain", id);
+			signalDataBean.setPid(outHomeTestId);// 室外测试的主键id
 			signalDataBean.setId(id);/** 赋值 注意这个很重要 一定要先赋值 */
+
+			// 信令 大字段信息表得 存储
+			handleMsgInfoField(signalDataBean, request);
 
 			// 主表信息转移
 			MainLogModel mainLogModel = new MainLogModel(signalDataBean);
 			indexRequestMain.source(JSONObject.toJSONString(mainLogModel), XContentType.JSON);
 			request.add(indexRequestMain);
 
-			/*// 事件表表转移
-			EventLogModel eventLogModel = new EventLogModel(signalDataBean);
-			handleEventTOrequest(eventLogModel, request);
-
-			// 信令表转移
-			MsgLogModel msgLogModel = new MsgLogModel(signalDataBean);
-			handleMsgTOrequest(msgLogModel, request);*/
-
 			// 其他信息直接存入 不做处理
 			IndexRequest indexRequestOther = new IndexRequest("logother", "logother");
 			OtherLogModel otherLogModel = new OtherLogModel(signalDataBean);
+			
 			indexRequestOther.source(JSONObject.toJSONString(otherLogModel), XContentType.JSON);
 			request.add(indexRequestOther);
+			
+			signalDataBeanFinal=signalDataBean;// 记录最后一条记录
 		}
+
+		// 处理最后一条记录的 就是 室外测试 列表
+		handleOutHomeTest(signalDataBeanFinal, request,beginTime,file);
 
 		/** 分批的添加进去 */
 		BulkResponse bulkResponse = transportClient.bulk(request).get();
@@ -200,42 +221,44 @@ public class EsController {
 	}
 
 	/**
-	 * 
-	 * @Description: 处理 信令表的请求
+	 *
+	 * @Description: 室外测试的列表添加记录 处理最后一条记录的
 	 * @author weichengz
-	 * @date 2019年11月5日 下午2:33:18
+	 * @date 2019年11月11日 上午10:25:31
 	 */
-	private void handleMsgTOrequest(MsgLogModel msgLogModel, BulkRequest request) {
-		if (msgLogModel != null) {
-			ArrayList<MSignaBean> mSignaEventBeans = msgLogModel.getmSignaBean();
-			if (mSignaEventBeans != null && mSignaEventBeans.size() > 0) {
-				for (MSignaBean mSignaEventBean : mSignaEventBeans) {
-					IndexRequest indexRequestMsg = new IndexRequest("logmsg", "logmsg");
-					mSignaEventBean.setPid(msgLogModel.getPid());
-					indexRequestMsg.source(JSONObject.toJSONString(mSignaEventBean), XContentType.JSON);
-					request.add(indexRequestMsg);
-				}
-			}
-		}
+	private void handleOutHomeTest(SignalDataBean signalDataBeanFinal, BulkRequest request,String beginTime,File file) {
+		IndexRequest indexRequestOutHome = new IndexRequest("logouthome", "logouthome");
+		OutHomeLogModel outHomeLogModel=new OutHomeLogModel(signalDataBeanFinal,beginTime);
+		outHomeLogModel.setFileName(file.getName());
+		outHomeLogModel.setFilePath(file.getAbsolutePath());
+		indexRequestOutHome.source(JSONObject.toJSONString(outHomeLogModel), XContentType.JSON);
+		request.add(indexRequestOutHome);
 	}
 
 	/**
+	 * 处理信令里面得大字段信息存储
 	 * 
-	 * @Description: 处理事件的表请求
+	 * @Description: TODO
 	 * @author weichengz
-	 * @date 2019年11月5日 下午2:20:48
+	 * @date 2019年11月7日 下午4:23:50
 	 */
-	private void handleEventTOrequest(EventLogModel eventLogModel, BulkRequest request) {
-		if (eventLogModel != null) {
-			ArrayList<MSignaEventBean> mSignaEventBeans = eventLogModel.getmSignaEventBean();
-			if (mSignaEventBeans != null && mSignaEventBeans.size() > 0) {
-				for (MSignaEventBean mSignaEventBean : mSignaEventBeans) {
-					IndexRequest indexRequestEvent = new IndexRequest("logevent", "logevent");
-					mSignaEventBean.setPid(eventLogModel.getPid());
-					indexRequestEvent.source(JSONObject.toJSONString(mSignaEventBean), XContentType.JSON);
-					request.add(indexRequestEvent);
-				}
-			}
+	private void handleMsgInfoField(SignalDataBean signalDataBean, BulkRequest request) {
+		ArrayList<MSignaBean> signaBeans = signalDataBean.getmSignaBean();
+		for (MSignaBean mSignaBean : signaBeans) {
+			String id = UUID.randomUUID().toString().replace("-", "");
+			String msg = mSignaBean.getmMeaasge();
+			IndexRequest indexRequestEvent = new IndexRequest("logmessage", "logmessage");
+			Map<String, Object> paramMap = new HashMap<>();
+			paramMap.put("id", id); // 单条信令得id
+			paramMap.put("ppid", signalDataBean.getPid()); // 室外测试列表的id
+			paramMap.put("pid", signalDataBean.getId()); // 主log得id
+			paramMap.put("message", msg);// 信令得信息 大字段信息
+			paramMap.put("latitude", signalDataBean.getLatitude()); // 主 经度
+			paramMap.put("longitude", signalDataBean.getLongitude()); // 主纬度
+			mSignaBean.setmMeaasge(id);
+			indexRequestEvent.source(JSONObject.toJSONString(paramMap), XContentType.JSON);
+			request.add(indexRequestEvent);
 		}
 	}
+
 }

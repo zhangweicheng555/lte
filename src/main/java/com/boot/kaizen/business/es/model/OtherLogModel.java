@@ -11,13 +11,14 @@ import com.boot.kaizen.business.es.model.logModel.YyzbBean;
 import com.boot.kaizen.business.es.model.logModel.ZbBean;
 
 /**
- * 日志模块的其余字段信息 这些信息是暂时存储下来 但是目前没使用到这些数据  logother
+ * 日志模块的其余字段信息 这些信息是暂时存储下来 但是目前没使用到这些数据 logother
  * 
  * @author weichengz
  * @date 2019年11月5日 下午1:45:49
  */
 public class OtherLogModel {
 
+	private String ppid;// 室外测试信息的id
 	private String pid;// 主日志信息的id
 
 	private PingzbBean pingzbBean;
@@ -31,6 +32,7 @@ public class OtherLogModel {
 
 	/** 自定义构造函数 */
 	public OtherLogModel(SignalDataBean signalDataBean) {
+		this.ppid = signalDataBean.getPid();
 		this.pid = signalDataBean.getId();
 		this.pingzbBean = signalDataBean.getPingzbBean();
 		this.httpzbBean = signalDataBean.getHttpzbBean();
@@ -40,6 +42,14 @@ public class OtherLogModel {
 		this.powerBean = signalDataBean.getPowerBean();
 		this.zbBean = signalDataBean.getZbBean();
 		this.proIndicators = signalDataBean.getProIndicators();
+	}
+
+	public String getPpid() {
+		return ppid;
+	}
+
+	public void setPpid(String ppid) {
+		this.ppid = ppid;
 	}
 
 	public String getPid() {
