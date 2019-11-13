@@ -19,6 +19,7 @@ public class OutHomeLogModel {
 
 	private String id;// 主键
 	private String fileName;// 文件名
+	private Long fileUpTime;// 文件上传日期
 	private String filePath;// 文件路径
 	private String operatorService;// 运营商 无
 	private String netWorkType;// 网络类型 netWorkType
@@ -36,6 +37,15 @@ public class OutHomeLogModel {
 	private String avgSinr;// 平均SINR sinrp
 	private String avgDownRate;// 下载平均速率 downloadAvg
 	private String avgUpRate;// 上传平均速率 uploadAvg
+
+	
+	public Long getFileUpTime() {
+		return fileUpTime;
+	}
+
+	public void setFileUpTime(Long fileUpTime) {
+		this.fileUpTime = fileUpTime;
+	}
 
 	public OutHomeLogModel(SignalDataBean signalDataBeanFinal, String beginTime) {
 		if (signalDataBeanFinal != null) {

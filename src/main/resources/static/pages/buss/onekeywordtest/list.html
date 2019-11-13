@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>室外测试</title>
+<title>一键测试</title>
 <link rel="stylesheet" type="text/css" media="screen" href="../../../css/bootstrap.min.css">
 <link rel="stylesheet" type="text/css" media="screen" href="../../../layui/css/layui.css">
 <link rel="stylesheet" href="../../../css/font-awesome/css/font-awesome.css" media="all" />
@@ -37,14 +37,18 @@
 									<button id="searchBt" class="layui-btn layui-btn-sm">
 										<i class="layui-icon">&#xe615;</i>搜索
 									</button>
+									
 									<button id="clearBt" class="layui-btn layui-btn-sm  layui-btn-danger" style="margin-left: 1px;">
 										<i class="layui-icon layui-icon-delete" style="font-size: 30px; color: white-space;"></i>清空
+									</button>
+									
+									<button id="mapBt" title="数据轨迹呈现" class="layui-btn layui-btn-sm" style="margin-left: -1px;">
+										<i   class="layui-icon">&#xe715;</i>
 									</button>
 								</div>
 							</form>
 						</td>
 						<td align="right">
-							
 							<button id="deleteBtnModel" class="layui-btn layui-btn-sm  layui-btn-danger" style="margin-left: 1px;"  permission="lte:plan:del">
 								  <i class="layui-icon">&#xe640;</i>删除
 							</button>
@@ -52,7 +56,6 @@
 							<button id="exportBtnModel"   class="layui-btn layui-btn-sm  layui-btn-normal" style="margin-left: 1px;"  >
 								  <i class="layui-icon layui-icon-next"></i>导出
 							</button>
-							
 						</td>
 					</tr>
 				</table>
@@ -99,34 +102,44 @@
 	  var tableIns=table.render({
 	    elem: '#infolist'    
 	    ,id:'infolist'
-	    ,url:'/es/buss/queryOutHome'  
+	    ,url:'/es/buss/queryOneButtonTest'  
 	    ,method:'post' 
 	    ,contentType:"application/json"
 	    ,where:{
-	    	"endTime":$("#endTime").val(),"beginTime":$("#beginTime").val(),"index":"logouthome","type":"logouthome","termMap":{"operatorService.keyword":$("#operatorService").val(),"city.keyword":$("#city").val(),"testPerson.keyword":$("#testPerson").val()}
+	    	"endTime":$("#endTime").val(),"beginTime":$("#beginTime").val(),"index":"onebuttontest","type":"onebuttontest","termMap":{"operatorService.keyword":$("#operatorService").val(),"city.keyword":$("#city").val(),"testPerson.keyword":$("#testPerson").val()}
 			   }
 	    ,cols: [[        
-	      {field:'id', width:'2%', title: 'ID', sort: true,type:'checkbox'}
-	      ,{title:'操作', toolbar: '#editBtnBar', width:120,align:'center'}
+	      {field:'pk', width:'2%', title: 'ID', sort: true,type:'checkbox'}
 	      ,{title: '序号',width:100,templet: '#indexTpl',align:'center'}
-	      ,{field:'fileName',   width:250, title: '文件名字',align:'center'}
-	      ,{field:'fileUpTime',   width:250, title: '文件上传日期',align:'center', templet: '#statusTpl2'}
 	      ,{field:'operatorService',   width:200, title: '运营商',align:'center'}
 	      ,{field:'netWorkType',  width:200, title: '网络类型',align:'center'}
 	      ,{field:'city',   width:200, title: '城市',align:'center'}
-	      ,{field:'county', width:200, title: '地市',align:'center'}
+	      ,{field:'county', width:200, title: '区县',align:'center'}
 	      ,{field:'testPerson', width:200, title: '测试人员',align:'center'}
 	      ,{field:'phoneType', width:200, title: '手机型号',align:'center'}
+	      ,{field:'phoneNo', width:200, title: '手机号码',align:'center'}
 	      ,{field:'imsi', width:200, title: 'IMSI',align:'center'}
-	      ,{field:'testTime', width:200, title: '测试时长',align:'center'}
-	      ,{field:'beginTime', width:200, title: '开始时间',align:'center', templet: '#statusTpl'}
-	      ,{field:'endTime', width:200, title: '结束时间',align:'center', templet: '#statusTpl1'}
-	      ,{field:'totalMileage', width:200, title: '总里程',align:'center'}
-	      ,{field:'coverPersent', width:200, title: '覆盖率',align:'center'}
+	      ,{field:'testTime', width:200, title: '测试时间',align:'center'}
+	      ,{field:'latitude', width:200, title: '纬度',align:'center'}
+	      ,{field:'longitude', width:200, title: '经度',align:'center'}
+	      
+	      
+	      ,{field:'testLocation', width:200, title: '测试位置',align:'center'}
+	      ,{field:'downRate', width:200, title: '下载速度',align:'center'}
+	      ,{field:'upRate', width:200, title: '上传速度',align:'center'}
+	      ,{field:'pingFlag', width:200, title: 'PING',align:'center'}
+	      ,{field:'httpFlag', width:200, title: 'HTTP',align:'center'}
+	      
 	      ,{field:'avgRsrp', width:200, title: '平均RSRP',align:'center'}
 	      ,{field:'avgSinr', width:200, title: '平均SINR',align:'center'}
-	      ,{field:'avgDownRate', width:200, title: '下载平均速率',align:'center'}
-	      ,{field:'avgUpRate', width:200, title: '上传平均速率',align:'center'}
+	      ,{field:'cellName', width:200, title: '小区名字',align:'center'}
+	      ,{field:'enodebid', width:200, title: '站号',align:'center'}
+	      ,{field:'ci', width:200, title: 'CI',align:'center'}
+	      ,{field:'frequencyBand', width:200, title: '频段',align:'center'}
+	      ,{field:'pci', width:200, title: 'PCI',align:'center'}
+	      ,{field:'tac', width:200, title: 'TAC',align:'center'}
+	      
+	      
 	    ]]
 	    ,page: true
 	    ,limit:10
@@ -142,7 +155,7 @@
 	    	//记忆选中的checkbox
 	    	for(var i=0;i<res.data.length;i++){
                 for(var j=0;j<checkArray.length;j++){
-                    if(res.data[i].id==checkArray[j]){
+                    if(res.data[i].pk==checkArray[j]){
                         res.data[i]["LAY_CHECKED"]='true';
                         var index= res.data[i]['LAY_TABLE_INDEX'];
                         $('.layui-table tr[data-index=' + index + '] input[type="checkbox"]').prop('checked', true);
@@ -156,26 +169,42 @@
 		/* ,size: 'sm'  */
 	  });
 	  
-	  //监听行工具事件  操作对应
-	  table.on('tool(infolist)', function(obj){
-	    var row = obj.data;
-	    if(obj.event === 'del'){//统计分析
-	    	parent.layer.msg("您点击了统计分析的模块");
-	        console.info(row);
-	    } else if(obj.event === 'edit'){//地图
-	    	var indexModel=parent.layer.open({
+	  
+	  
+	  /**搜索*/
+	  $("#searchBt").click(function(){
+		  fresh();
+	  });
+	  
+	  //导出
+	  $("#exportBtnModel").click(function(){
+		  layer.msg('点击了导出按钮');
+	  });
+	  
+	  
+	  //地图页面
+	  $("#mapBt").click(function(){
+		  
+		  var endTime=$("#endTime").val();
+		  var beginTime=$("#beginTime").val();
+		  var operatorService=$("#operatorService").val();
+		  var city=$("#city").val();
+		  var testPerson=$("#testPerson").val();
+		  
+		  var indexModel =parent.layer.open({
 				type: 2, 
 				title:false,
-				content: "pages/buss/gis/main.html?id="+row.id,
+				content: "pages/buss/onekeywordtest/main.html?",
 				skin:"layui-layer-molv",
 				closeBtn :0,
-				area:["100%","100%"],
+				area:['1200px',"600px"],
 				shade: [0.5, '#393D49'],
 				id:'checkCar',
 				maxmin :false,
 				fixed :true,
 				success: function(layero, index){
-					//parent.layer.full(index);
+					  var iframeWin = parent.window[layero.find('iframe')[0]['name']]; /**获得子的ifram对象*/
+					  iframeWin.setValMethod(beginTime,endTime,operatorService,city,testPerson);
 				},
 				btn: ['关闭'],
 				yes: function(index, layero){
@@ -183,26 +212,18 @@
 					return false;
 				}
 			});
-	    }
 	  });
 	  
-	
-	
-	  
-	  /**搜索*/
-	  $("#searchBt").click(function(){
-		  fresh();
-	  });
 	  
 	  /**多项删除*/
 	  $("#deleteBtnModel").click(function(){
-		  if(checkArray && checkArray.length ==1){
-		  	  common.getConfirmDelDialog("确定要删除吗？",'共删除【'+checkArray.length+'】条记录',2,"/es/buss/deleteOutHome",{"ids":checkArray.join(",")},fresh);
+		  if(checkArray && checkArray.length>0){
+		  	  common.getConfirmDelDialog("确定要删除吗？",'共删除【'+checkArray.length+'】条记录',2,"/es/buss/delete",{"ids":checkArray.join(","),"type":"onebuttontest","index":"onebuttontest"},fresh);
 		  	if(checkArray){
 	   			checkArray.length=0
 	   		}
 		  }else{
-			  layer.msg('请选中要删除的一条记录');
+			  layer.msg('未选中要删除的记录');
 		  }
 	  });
 	 
@@ -215,16 +236,16 @@
 		  if(obj.checked==true){//选中事件
 			  var nowCheckArray=new Array();
 			  for(var i=0;i<rows.length;i++){//处理选中
-	 				 if($.inArray(rows[i].id,checkArray)<0){
-	 					checkArray.push(rows[i].id);
+	 				 if($.inArray(rows[i].pk,checkArray)<0){
+	 					checkArray.push(rows[i].pk);
 	 				 }
-	 				nowCheckArray.push(rows[i].id);
+	 				nowCheckArray.push(rows[i].pk);
 				  }
 	 			 if(currData.length>0){//处理当前页的所有数据
 	 				for(var i=0;i<currData.length;i++){
-	 					if($.inArray(currData[i].id,nowCheckArray)<0){
-	 						if($.inArray(currData[i].id,checkArray)>=0){
-	 							checkArray.splice($.inArray(currData[i].id,checkArray), 1);
+	 					if($.inArray(currData[i].pk,nowCheckArray)<0){
+	 						if($.inArray(currData[i].pk,checkArray)>=0){
+	 							checkArray.splice($.inArray(currData[i].pk,checkArray), 1);
 	 	 	 				 }
 	 	 				 }
 	 				}
@@ -232,23 +253,23 @@
 		  }else{//删除事件
 			  if(rows.length==0){
 				  for(var i=0;i<currData.length;i++){
- 						if($.inArray(currData[i].id,checkArray)>=0){
- 							checkArray.splice($.inArray(currData[i].id,checkArray), 1);
+ 						if($.inArray(currData[i].pk,checkArray)>=0){
+ 							checkArray.splice($.inArray(currData[i].pk,checkArray), 1);
  	 	 				 }
 	 				}
 			  }else{
 				  var nowCheckArray=new Array();
 				  for(var i=0;i<rows.length;i++){//处理选中
-		 				 if($.inArray(rows[i].id,checkArray)<0){
-		 					checkArray.push(rows[i].id);
+		 				 if($.inArray(rows[i].pk,checkArray)<0){
+		 					checkArray.push(rows[i].pk);
 		 				 }
-		 				nowCheckArray.push(rows[i].id);
+		 				nowCheckArray.push(rows[i].pk);
 					  }
 		 			 if(currData.length>0){//处理当前页的所有数据
 		 				for(var i=0;i<currData.length;i++){
-		 					if($.inArray(currData[i].id,nowCheckArray)<0){
-		 						if($.inArray(currData[i].id,checkArray)>=0){
-		 							checkArray.splice($.inArray(currData[i].id,checkArray), 1);
+		 					if($.inArray(currData[i].pk,nowCheckArray)<0){
+		 						if($.inArray(currData[i].pk,checkArray)>=0){
+		 							checkArray.splice($.inArray(currData[i].pk,checkArray), 1);
 		 	 	 				 }
 		 	 				 }
 		 				}
@@ -270,8 +291,9 @@
 	  
 	  function fresh(){
 		  table.reload('infolist'
-				  ,{where:{"endTime":$("#endTime").val(),"beginTime":$("#beginTime").val(),"index":"logouthome","type":"logouthome","termMap":{"operatorService.keyword":$("#operatorService").val(),"city.keyword":$("#city").val(),"testPerson.keyword":$("#testPerson").val()}
-					}
+				  ,{where:{
+				    	"endTime":$("#endTime").val(),"beginTime":$("#beginTime").val(),"index":"onebuttontest","type":"onebuttontest","termMap":{"operatorService.keyword":$("#operatorService").val(),"city.keyword":$("#city").val(),"testPerson.keyword":$("#testPerson").val()}
+						   }
 				   ,page: {curr: 1}
 		           }
 		  );
@@ -308,88 +330,8 @@
 
 
 
-<script type="text/html" id="statusTpl">
-	
- 
-{{#  
-  var checkStatusFn = function(timestamp){
-    var date = new Date(timestamp);
-    var Y = date.getFullYear() + '-';
-    var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
-    var D = date.getDate()<10?'0'+date.getDate():date.getDate();
-    var h = date.getHours() + ':';
-    var m = date.getMinutes() + ':';
-    var s = date.getSeconds();
-    return Y+M+D+" "+h+m+s;
-  }; 
-}}
-      
-	{{#  if(d.beginTime){ }}
-  		{{ checkStatusFn(d.beginTime) }}
-	{{#  } else { }}
-  		
-	{{#  } }}           	
-  
-
-</script>
-
-<script type="text/html" id="statusTpl1">
-	
- 
-{{#  
-  var checkStatusFn = function(timestamp){
-    var date = new Date(timestamp);
-    var Y = date.getFullYear() + '-';
-    var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
-    var D = date.getDate()<10?'0'+date.getDate():date.getDate();
-    var h = date.getHours() + ':';
-    var m = date.getMinutes() + ':';
-    var s = date.getSeconds();
-    return Y+M+D+" "+h+m+s;
-  }; 
-}}
-      
-	{{#  if(d.beginTime){ }}
-  		{{ checkStatusFn(d.endTime) }}
-	{{#  } else { }}
-  		
-	{{#  } }}           	
-  
-
-</script>
-
-<script type="text/html" id="statusTpl2">
-	
- 
-{{#  
-  var checkStatusFn = function(timestamp){
-    var date = new Date(timestamp);
-    var Y = date.getFullYear() + '-';
-    var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
-    var D = date.getDate()<10?'0'+date.getDate():date.getDate();
-    var h = date.getHours() + ':';
-    var m = date.getMinutes() + ':';
-    var s = date.getSeconds();
-    return Y+M+D+" "+h+m+s;
-  }; 
-}}
-      
-	{{#  if(d.beginTime){ }}
-  		{{ checkStatusFn(d.fileUpTime) }}
-	{{#  } else { }}
-  		
-	{{#  } }}           	
-  
-
-</script>
-
 
 
 <script type="text/html" id="indexTpl">
     {{d.LAY_TABLE_INDEX+1}}
-</script>
-
-<script type="text/html" id="editBtnBar">
-  <a class="layui-btn layui-btn-xs" lay-event="edit" title="查看" ><i class="fa fa-map-marker" aria-hidden="true"></i></a>
-  <a class="layui-btn layui-btn-danger layui-btn-xs" title="统计" lay-event="del" style="margin-left: 1px;" ><i class="fa fa-line-chart" aria-hidden="true"></i></a>
 </script>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- 下面我们添加一个meta标签，以便使您的页面更好的在移动平台上展示。 -->
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<title>一键测试的地图</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../../layui/css/layui.css">
+	<link rel="stylesheet" href="../../../css/font-awesome/css/font-awesome.css" media="all" />
+	<!-- 处理easyui -->
+    <link rel="stylesheet" type="text/css" href="../../../js/easyui/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../../../js/easyui/themes/icon.css">
+
+</head>
+<body  class="easyui-layout">
+	
+	
+	
+	  <div data-options="region:'center',border:false" id="center" style="margin-top: -1px;">
+	    	<!--  创建地图的容器 -->
+			<div id="container" style="width: 100%;height: 100%;"></div> 
+	    </div>
+	
+	<input type="hidden" id="endTime" name="endTime" />
+	<input type="hidden" id="beginTime" name="beginTime" />
+	<input type="hidden" id="operatorService" name="operatorService" />
+	<input type="hidden" id="city" name="city" />
+	<input type="hidden" id="testPerson" name="testPerson" />
+</body>
+</html>
+
+	<script type="text/javascript" src="../../../js/libs/jquery-2.1.1.min.js" ></script>
+	<script type="text/javascript" src="../../../js/easyui/jquery.easyui.min.js"></script>
+	
+	<script type="text/javascript" src="../../../layui/layui.js" ></script>
+	<script type="text/javascript" src="../../../js/jq.js"></script>
+	<script type="text/javascript" src="../../../js/common.js" charset="UTF-8"></script>
+
+    <!-- 百度地图api -->
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=vEgRtpbR6hgHTNtN0HiHhTPLDxaCl3YE"></script>
+
+	<script type="text/javascript">
+	
+	  var paramOk=false;
+	 //父页面调用子页面的方法并传递值
+	  function setValMethod(beginTime,endTime,operatorService,city,testPerson){
+		 $("#beginTime").val(beginTime);
+		 $("#endTime").val(endTime);
+		 $("#operatorService").val(operatorService);
+		 $("#city").val(city);
+		 $("#testPerson").val(testPerson);
+		  paramOk=true;
+	  }
+	 
+	
+	var currData;
+	var checkArray=new Array();
+	var map;
+	
+	var loadData=true;
+	
+	 var diatinctArray = new Array();//起到去重 和寻找此经纬度对应的时间的作用
+	
+	 
+	 var common;
+	 var layer;
+	 var points = [];  // 添加海量点数据  里面是一下 new map point对象
+	layui.use([ 'layer' ,'table','jquery','common'], function() {
+	   layer = layui.layer;
+	  var $=layui.$;
+	  common = layui.common;
+	  var table = layui.table;
+	  
+	  //展示加载层
+	  common.showLoadingDialog();
+	   /***地图部分开始*/
+	  
+		//创建地图实例
+		map = new BMap.Map("container",{enableMapClick: false});  //屏蔽地图的点击 出现框的问题
+		//地图的初始化，必须具备这个初始化操作之后 才能进行后续的操作   中心点和展示级别
+		 map.centerAndZoom("上海",50);      // 初始化地图,用城市名设置地图中心点
+		 //开启鼠标缩放
+		 map.enableScrollWheelZoom(true);
+		 map.enableAutoResize();
+		 //设置地图默认的鼠标指针样式
+		 map.setDefaultCursor("url('bird.cur')");  
+		 map.addControl(new BMap.MapTypeControl({
+				mapTypes:[
+		            BMAP_NORMAL_MAP,
+		            BMAP_HYBRID_MAP
+		 ]}));
+		 //地图加载完毕 需要做的事情
+		 map.addEventListener("tilesloaded",function(){//注意 是地图 第一次加载完成得时候 做的操作 
+			 if(loadData){
+				 setInterval(function working(){
+					 if(paramOk){
+						 paramOk=false;
+						 queryMainLog($("#testPerson").val(),$("#beginTime").val(),$("#endTime").val(),$("#operatorService").val(),$("#city").val());
+					 }
+				 },1000);
+				 
+			 }
+		 });
+		 /***地图部分结束  */
+		
+});
+
+	
+	
+	
+
+	 /***平台操作部分*/
+	function queryMainLog(testPerson,beginTime,endTime,operatorService,city){
+		       parent.layer.msg('正在加载数据。。。');
+	           //判断是不是支持还两点得绘制
+				if (document.createElement('canvas').getContext) {  // 判断当前浏览器是否支持绘制海量点
+			        //加载日志得数据
+			        console.info();
+					$.ajax({
+						   type: "POST"
+						   ,url:'/es/buss/queryOneButtonTestNoPage'
+						   ,dataType: "json"
+						   ,contentType:"application/json;charset=utf-8"
+						    ,data:'{"endTime":"'+endTime+'","beginTime":"'+beginTime+'","index":"onebuttontest","type":"onebuttontest","revelFields":["longitude","latitude"],"termMap":{"operatorService.keyword":"'+operatorService+'","city.keyword":"'+city+'","testPerson.keyword":"'+testPerson+'"}}'
+						   ,success: function(msg){
+							  console.info(msg);
+							  loadData=false;//禁止数据得变化
+							  common.closeLoadingDialog();
+							  if(msg && msg.length>0){
+								  for(var i=0;i<msg.length;i++){
+									  var obj=msg[i];
+									  if(i==0){//移动地图到第一个点得位置
+										  map.panTo(new BMap.Point(obj.longitude, obj.latitude)); //地图移动到该点位置
+									  }
+									  var index=contains(obj.longitude,obj.latitude,obj.testTime,diatinctArray);
+									  if(index == -1){//不在数组中
+										  points.push(new BMap.Point(obj.longitude, obj.latitude));
+										  if(obj.testTime){
+											  diatinctArray.push(obj.longitude+"_"+obj.latitude+"-"+obj.testTime);
+										  }
+									  }
+								   }
+								      //绘制海量点
+								      addPointsOverlay("blue",points);
+							  }else{
+								  parent.layer.msg("查询得数据不存在");
+							  } 
+						   }
+						});	
+			    } else {
+			        parent.layer.msg('请在chrome、safari、IE8+以上浏览器查看本示例');
+			    };	
+	 }
+	 
+ //添加海量点
+ function addPointsOverlay(color,points){
+	        var options = {
+	            color: 'blue'
+	        }
+	        var pointCollection = new BMap.PointCollection(points, options);  // 初始化PointCollection
+	        pointCollection.addEventListener('click', function (e) {
+	        	//加载此点对应的的前后十分钟的数据
+	        	//queryMsgEventData(e.point.lng,e.point.lat);
+	        });
+	        map.addOverlay(pointCollection);  // 添加Overlay
+ }
+
+ 
+
+ 
+//扩展经纬度的循环判断的原则
+function contains(longitude,latitude,testTime,arr) {//数组里面存储的是  lon_lat-testTime
+  var i = arr.length;
+  while(i--) {
+  	var obj=arr[i];
+  	if(obj){
+  		var array=obj.split("-");
+	    	if(array !=null && array.length==2){
+	    		var latlng=array[0].split("_");
+	    		if(latlng !=null && latlng.length==2){
+			        if(latlng[0] == longitude && latlng[1] == latitude ) {
+			           if(testTime){
+			        	   arr[i]=longitude+"_"+latitude+"-"+testTime;
+			        	} 
+			            return i;
+			        }
+	    		}
+	    	}
+  	}
+  }
+  return -1;
+}
+
+	
+</script>
+
+
+

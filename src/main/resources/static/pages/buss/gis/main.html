@@ -88,7 +88,7 @@
 	
 	<!-- 工具条 -->
 	<div id="tt">
-		<a  class="icon-add" style="margin-right: 8px;" onclick="javascript:alert('add')"></a>
+		<a  class="icon-add" style="margin-right: 8px;" onclick="add();"></a>
 		<a  class="icon-edit"  style="margin-right: 8px;" onclick="javascript:alert('edit')"></a>
 		<a  class="icon-cut"  style="margin-right: 8px;" onclick="javascript:alert('cut')"></a>
 		<a  class="icon-help"  style="margin-right: 8px;" onclick="javascript:alert('help')"></a>
@@ -113,6 +113,97 @@
 
 	<script type="text/javascript">
 	
+	var pointEntity;//轨迹回放的时候的记录上一个点
+	var myP1 ;    //起点
+	var myP2 ;    //终点
+	
+	var map;   //百度地图对象
+	var car;   //汽车图标
+	var centerPoint;
+	var timer;     //定时器
+	var index = 0; //记录播放到第几个point
+
+	//添加按钮测试使用
+	function  add(){
+		map.addOverlay(car);
+		if(index==0){
+			 $("#msgLayout").empty();
+			 $("#eventLayout").empty();
+		}
+		var point = points[index];
+		console.info('+++++++++++++++++++++++++++++++++++++++');
+		console.info(index);
+		if(index > 0) {
+			map.addOverlay(new BMap.Polyline([points[index - 1], point], {strokeColor: "red", strokeWeight: 1, strokeOpacity: 1}));
+		}
+		car.setPosition(point);
+		index++;
+		map.panTo(point);
+		if(index < points.length) {
+			timer = window.setTimeout("add(" + index + ")", 500);
+		} else {//  便利结束之后  立马 移除所有的覆盖物  然后重新绘制海量的数据点
+			parent.layer.msg("回放结束");
+			map.clearOverlays();  //移除所有的覆盖物    
+			//绘制海量点
+		    addPointsOverlay("blue",points);
+		    $("#msgLayout").empty();
+			$("#eventLayout").empty();
+			//处理信令
+			for(var t=0;t<msgArrayData.length;t++){
+				var msgData=msgArrayData[t];
+				var msgDataArray=msgData.split('~');
+				var msgHtml=msgDataArray[1];
+				$("#msgLayout").prepend(msgHtml);
+			}
+			//处理事件
+			for(var w=0;w<eventArrayData.length;w++){
+				var msgData=eventArrayData[w];
+				var msgDataArray=msgData.split('~');
+				var msgHtml=msgDataArray[1];
+				$("#eventLayout").prepend(msgHtml);
+			}
+		}
+		
+		var lat=point.lat;
+		var lng=point.lng;
+		
+		//处理信令
+		for(var t=0;t<msgArrayData.length;t++){
+			var msgData=msgArrayData[t];
+			var msgDataArray=msgData.split('~');
+			var one=msgDataArray[0];
+			var msgHtml=msgDataArray[1];
+			var latlng=one.split("_");
+			if(lng==latlng[0] && lat==latlng[1]){
+				 $("#msgLayout").prepend(msgHtml);
+			}
+		}
+		//处理事件
+		for(var w=0;w<eventArrayData.length;w++){
+			var msgData=eventArrayData[w];
+			var msgDataArray=msgData.split('~');
+			var one=msgDataArray[0];
+			var msgHtml=msgDataArray[1];
+			var latlng=one.split("_");
+			if(lng==latlng[0] && lat==latlng[1]){
+				 $("#eventLayout").prepend(msgHtml);
+			}
+		} 
+		//左下角模块
+		 queryButtonDta(lng,lat);
+		
+	}
+	
+	
+	
+	//画折线
+	function addPolyline(pointOne,pointTwo){
+		var polyline = new BMap.Polyline([pointOne,pointTwo], {strokeColor:"blue", strokeWeight:2, strokeOpacity:0.5});   //创建折线
+		map.addOverlay(polyline);          //增加折线
+	}
+	
+
+
 	
 	//信令搜索功能
 	function msgSearch(){
@@ -152,7 +243,7 @@
 			   ,contentType:"application/json;charset=utf-8"
 			   ,data: '{"type":"logmessage","index":"logmessage","limit":1,"termMap":{"id.keyword":"'+obj+'"},"revelFields":["message","longitude","latitude"],"revelPk":"false"}'
 			   ,success: function(msg){
-				   common.closeAllDialog();
+				   common.closeLoadingDialog();
 				  if(msg !=null && msg.length>0){
 					  for(var i=0;i<msg.length;i++){
 						  var model=msg[i];
@@ -178,7 +269,6 @@
 	//单击轨迹问题
 	 function selectCustomerSingle(obj){//单挑信令得id  selectCustomerSingle
 		    common.showLoadingDialog();
-	        common.getMsgBlackDialog("正在加载数据。。。。",50000);
 	        $.ajax({
 				   type: "POST"
 				   ,url: "/es/queryList"
@@ -186,20 +276,20 @@
 				   ,contentType:"application/json;charset=utf-8"
 				   ,data: '{"type":"logmessage","index":"logmessage","limit":1,"termMap":{"id.keyword":"'+obj+'"},"revelFields":["longitude","latitude"],"revelPk":"false"}'
 				   ,success: function(msg){
-					   common.closeAllDialog();
+					   common.closeLoadingDialog();
 					  if(msg !=null && msg.length>0){
 						  for(var i=0;i<msg.length;i++){
 							  var model=msg[i];
 							  //地图渲染点 并且移动--这个地图后期是拉线得问题
-							  var points = [];
+							  var points1 = [];
 							  var point=new BMap.Point(model.longitude, model.latitude);
 							   map.panTo(point); //地图移动到该点位置
 							   
 							       var options = {
 							            color: 'red'
 							        }
-							       points.push(point);
-							        var pointCollection = new BMap.PointCollection(points, options);  // 初始化PointCollection
+							       points1.push(point);
+							        var pointCollection = new BMap.PointCollection(points1, options);  // 初始化PointCollection
 							        pointCollection.addEventListener('click', function (e) {
 							        	//加载此点对应的的前后十分钟的数据
 							        	//queryMsgEventData(e.point.lng,e.point.lat);
@@ -211,8 +301,23 @@
 					  }
 				   }
 				});
-	 	
 	 }
+	
+	
+	//将点添加到地图上
+	function addPointMap(color,point){
+		var pointsArrayModel=[];
+		var options = {
+	            color: color
+	        }
+		pointsArrayModel.push(point);
+	        var pointCollection = new BMap.PointCollection(pointsArrayModel, options);  // 初始化PointCollection
+	        pointCollection.addEventListener('click', function (e) {
+	        	//加载此点对应的的前后十分钟的数据
+	        	//queryMsgEventData(e.point.lng,e.point.lat);
+	        });
+	        map.addOverlay(pointCollection);  // 添加Overlay
+	}
 	
 	
 	var currData;
@@ -223,27 +328,32 @@
 	 var diatinctArray = new Array();//起到去重 和寻找此经纬度对应的时间的作用
 	 
 	 
+	 var msgArrayData=[];  //全部信令的信息
+	 var eventArrayData=[];  //全部事件的信息
+	 var latlonArrayData=[];  //全部经纬度的信息  diatinctArray.push(obj.longitude+"_"+obj.latitude+"-"+obj.testTime);
 	
 	 
 	 var common;
 	 var layer;
+	 var mainLogId;
+	 var points = [];  // 添加海量点数据  里面是一下 new map point对象
 	layui.use([ 'layer' ,'table','jquery','common'], function() {
 	   layer = layui.layer;
 	  var $=layui.$;
 	  common = layui.common;
 	  var table = layui.table;
 	  
-	
+	  //室外测试id
+	  mainLogId=getUrlParam("id");
 	
 	  //展示加载层
 	  common.showLoadingDialog();
-	  parent.layer.msg("正在加载数据。。。。");
 	   /***地图部分开始*/
 	  
 		//创建地图实例
 		map = new BMap.Map("container",{enableMapClick: false});  //屏蔽地图的点击 出现框的问题
 		//地图的初始化，必须具备这个初始化操作之后 才能进行后续的操作   中心点和展示级别
-		 map.centerAndZoom("上海",15);      // 初始化地图,用城市名设置地图中心点
+		 map.centerAndZoom("上海",50);      // 初始化地图,用城市名设置地图中心点
 		 //map.centerAndZoom(new BMap.Point(121.493, 31.250), 11);
 		 //开启鼠标缩放
 		 map.enableScrollWheelZoom(true);
@@ -263,7 +373,7 @@
 		 });
 		
 		 /***地图部分结束  */
-	
+		
 });
 
 	
@@ -292,52 +402,55 @@
 
 	 /***平台操作部分*/
 	function queryMainLog(){
+		 parent.layer.msg('正在加载数据。。。');
 	           //判断是不是支持还两点得绘制
 				if (document.createElement('canvas').getContext) {  // 判断当前浏览器是否支持绘制海量点
 			        //加载日志得数据
 					$.ajax({
 						   type: "POST"
-						   ,url: "/es/scrollQuery"
+						   ,url: "/es/buss/queryMainLog"
 						   ,dataType: "json"
 						   ,contentType:"application/json;charset=utf-8"
-						   ,data: '{"type":"logmain","index":"logmain","limit":1000,"sortMap":{"testTime":"ASC"},"revelFields":["longitude","latitude","testTime","id","cellName","sinr","rsrp","cI","tAC","pci","earfcn","mSignaBean","mSignaEventBean","doorDataInfoBeans"],"revelPk":"false"}'
+						   ,data: '{"type":"logmain","index":"logmain","pid":"'+mainLogId+'","termMap":{"pid.keyword":"'+mainLogId+'"},"limit":1000,"sortMap":{"testTime":"ASC"},"revelFields":["longitude","latitude","testTime","id","cellName","sinr","rsrp","cI","tAC","pci","earfcn","mSignaBean","mSignaEventBean","doorDataInfoBeans"],"revelPk":"false"}'
 						   ,success: function(msg){
-							   console.info(msg);
 							   loadData=false;//禁止数据得变化
-							   common.closeAllDialog();
+							   common.closeLoadingDialog();
 							  if(msg && msg.length>0){
-								  var points = [];  // 添加海量点数据
 								  for(var i=0;i<msg.length;i++){
 									  var obj=msg[i];
 									  if(i==0){//移动地图到第一个点得位置
 										  map.panTo(new BMap.Point(obj.longitude, obj.latitude)); //地图移动到该点位置
 									  }
 									  var index=contains(obj.longitude,obj.latitude,obj.testTime,diatinctArray);
-									  if(index == -1){//在数组中
+									  if(index == -1){//不在数组中
 										  points.push(new BMap.Point(obj.longitude, obj.latitude));
 										  if(obj.testTime){
 											  diatinctArray.push(obj.longitude+"_"+obj.latitude+"-"+obj.testTime);
 										  }
 									  }
 									  if(i==(msg.length-1)){
-										 //最后一个点  加载主左下角信息
-										 loadLteHtml(obj);
+										  //最后一个点  加载主左下角信息
+										  $("#lteLayout").empty();
+ 				 						  var lteLayoutLhtml=loadLteHtml(obj);
+										  $("#lteLayout").append(lteLayoutLhtml);
 									  }
 									  //加载信令
-									  loadMsgHtml(obj);
+									  loadMsgHtml(obj,msgArrayData);
 									  //加载事件
-									  loadEventHtml(obj);
+									  loadEventHtml(obj,eventArrayData);
 								   }
 								      //绘制海量点
-								       var options = {
-								            color: 'blue'
-								        }
-								        var pointCollection = new BMap.PointCollection(points, options);  // 初始化PointCollection
-								        pointCollection.addEventListener('click', function (e) {
-								        	//加载此点对应的的前后十分钟的数据
-								        	//queryMsgEventData(e.point.lng,e.point.lat);
-								        });
-								        map.addOverlay(pointCollection);  // 添加Overlay
+								      addPointsOverlay("blue",points);
+								       //数据存储
+										var latlonArrayData=diatinctArray;  //全部经纬度的信息   diatinctArray.push(obj.longitude+"_"+obj.latitude+"-"+obj.testTime);
+										
+										//绘制回放路线
+										//通过DrivingRoute获取一条路线的point
+										var driving = new BMap.DrivingRoute(map);
+										driving.search(points[0], points[points.length-1]);
+										driving.setSearchCompleteCallback(function() {
+										car = new BMap.Marker(points[0]);
+										});
 							  }else{
 								  parent.layer.msg("查询得数据不存在");
 							  } 
@@ -348,7 +461,18 @@
 			    };	
 	 }
 	 
- 
+ //添加海量点
+ function addPointsOverlay(color,points){
+	        var options = {
+	            color: 'blue'
+	        }
+	        var pointCollection = new BMap.PointCollection(points, options);  // 初始化PointCollection
+	        pointCollection.addEventListener('click', function (e) {
+	        	//加载此点对应的的前后十分钟的数据
+	        	//queryMsgEventData(e.point.lng,e.point.lat);
+	        });
+	        map.addOverlay(pointCollection);  // 添加Overlay
+ }
 
 //根据经纬度加载 左下角最后得数据
 function queryButtonDta(longitudeModel,latitudeModel){
@@ -398,8 +522,11 @@ function loadLteHtml(obj){
 }
 
 
+
+
+
 //传入主log信息 处理信令模块的数据
-function loadMsgHtml(obj){
+function loadMsgHtml(obj,msgArrayData){
 	if(obj){
 	   var mSignaBean=obj.mSignaBean;
 	   if(mSignaBean && mSignaBean.length>0){
@@ -414,7 +541,9 @@ function loadMsgHtml(obj){
 			   }else{
 				   upFlag='<i class="fa fa-arrows" aria-hidden="true"></i>';
 			   }
-			   $("#msgLayout").append('<tr   ><td onclick="selectCustomerDb(\''+objEvent.mMeaasge+'\');"  title="点我查看信令明细"  style="text-align: center;">'+upFlag+'</td><td onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mMessageType+'</td><td  onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mTimestamp+'</td><td  onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mChannelType+'</td></tr> ')
+			   var htmlModel='<tr   ><td onclick="selectCustomerDb(\''+objEvent.mMeaasge+'\');"  title="点我查看信令明细"  style="text-align: center;">'+upFlag+'</td><td onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mMessageType+'</td><td  onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mTimestamp+'</td><td  onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mChannelType+'</td></tr> ';
+			   msgArrayData.push(obj.longitude+"_"+obj.latitude+"~"+htmlModel);
+			   $("#msgLayout").append(htmlModel);
 		   }
 	   }
 	}
@@ -422,14 +551,18 @@ function loadMsgHtml(obj){
 
 
 
+
+
 //传入主log信息 处理事件模块的数据
-function loadEventHtml(obj){
+function loadEventHtml(obj,eventArrayData){
 	if(obj){
 		 var mSignaEventBean=obj.mSignaEventBean;
 		   if(mSignaEventBean && mSignaEventBean.length>0){
 			   for(var w=0;w<mSignaEventBean.length;w++){
 				   var objEvent=mSignaEventBean[w];
-				   $("#eventLayout").append('<tr  ondblclick="selectCustomerDb(\''+obj.id+'\');" lang='+obj.id+'><td style="text-align: center;">'+objEvent.mEventType+'</td><td style="text-align: center;">'+objEvent.mEvent+'</td><td style="text-align: center;">'+objEvent.mTimestamp+'</td></tr> ')
+				   var htmlModel='<tr  ondblclick="selectCustomerDb(\''+obj.id+'\');" lang='+obj.id+'><td style="text-align: center;">'+objEvent.mEventType+'</td><td style="text-align: center;">'+objEvent.mEvent+'</td><td style="text-align: center;">'+objEvent.mTimestamp+'</td></tr> ';
+				   eventArrayData.push(obj.longitude+"_"+obj.latitude+"~"+htmlModel);
+				   $("#eventLayout").append(htmlModel);
 			   }
 		   }
 	}

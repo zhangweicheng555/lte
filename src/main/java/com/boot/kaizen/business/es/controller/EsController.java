@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.boot.kaizen.business.es.model.MainLogModel;
+import com.boot.kaizen.business.es.model.OneButtonTest;
 import com.boot.kaizen.business.es.model.OtherLogModel;
 import com.boot.kaizen.business.es.model.OutHomeLogModel;
 import com.boot.kaizen.business.es.model.QueryParamData;
@@ -165,11 +167,11 @@ public class EsController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "importModel")
-	public Object importCsvDateTime() throws Exception {
+	public Object importCsvDateTime(@RequestParam("fileName") String fileName) throws Exception {
 		String outHomeTestId = MyUtil.getUuid();// 室外测试列表的id 后续所有的操作 都会以这个为索引主键
 
 		BufferedReader bufferedReader = null;
-		File file = ResourceUtils.getFile("classpath:123.txt");
+		File file = ResourceUtils.getFile("classpath:"+fileName+"");
 		bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 		BulkRequest request = new BulkRequest();
 		String str = null;
@@ -219,6 +221,33 @@ public class EsController {
 		}
 		return "success";
 	}
+	/**
+	 * 一键测试数据的导入
+	* @Description: TODO
+	* @author weichengz
+	* @date 2019年11月13日 下午3:02:19
+	 */
+	@ResponseBody
+	@RequestMapping(value = "importOneBtnTestModel")
+	public Object importOneBtnTestModel() throws Exception {
+		File file = ResourceUtils.getFile("classpath:OneKeyTestRecord.txt");
+		BufferedReader  bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		BulkRequest request = new BulkRequest();
+		String str = null;
+		
+		while ((str = bufferedReader.readLine()) != null) {
+			String id = MyUtil.getUuid();
+			
+			JSONObject jsonObject = JSONObject.parseObject(str);
+			OneButtonTest  oneButtonTest=new OneButtonTest(id, jsonObject.getString("operatorName"), jsonObject.getString("netType"), jsonObject.getString("city"), jsonObject.getString("addr"), "",  jsonObject.getString("phoneType"), "", "", jsonObject.getString("timeStamp"), jsonObject.getString("lat"), jsonObject.getString("lng"), jsonObject.getString("addr"), "", "", "", "", "", "", "", "", "", "", "", "");
+			IndexRequest indexRequestMain = new IndexRequest("onebuttontest", "onebuttontest", id);
+			indexRequestMain.source(JSONObject.toJSONString(oneButtonTest), XContentType.JSON);
+			request.add(indexRequestMain);
+		}
+		/** 分批的添加进去 */
+		 transportClient.bulk(request).get();
+		return "success";
+	}
 
 	/**
 	 *
@@ -230,6 +259,7 @@ public class EsController {
 		IndexRequest indexRequestOutHome = new IndexRequest("logouthome", "logouthome");
 		OutHomeLogModel outHomeLogModel=new OutHomeLogModel(signalDataBeanFinal,beginTime);
 		outHomeLogModel.setFileName(file.getName());
+		outHomeLogModel.setFileUpTime(new Date().getTime());//文件上传日期
 		outHomeLogModel.setFilePath(file.getAbsolutePath());
 		indexRequestOutHome.source(JSONObject.toJSONString(outHomeLogModel), XContentType.JSON);
 		request.add(indexRequestOutHome);

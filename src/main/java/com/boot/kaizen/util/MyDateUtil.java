@@ -42,12 +42,14 @@ public class MyDateUtil {
 	 * String to Date
 	 */
 	public static Date stringToDate(String date, String formatType) {
-		SimpleDateFormat format = new SimpleDateFormat(formatType);
-		try {
-			Date date2 = format.parse(date);
-			return date2;
-		} catch (ParseException e) {
-			e.printStackTrace();
+		if (StringUtils.isNoneBlank(date)) {
+			SimpleDateFormat format = new SimpleDateFormat(formatType);
+			try {
+				Date date2 = format.parse(date);
+				return date2;
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
 		}
 		return null;
 	}

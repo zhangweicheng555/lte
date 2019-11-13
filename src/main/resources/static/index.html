@@ -159,6 +159,7 @@
 			     },
 			     async:false,
 			     success:function(data){
+			    	 console.info(data);
 			    	 if(!$.isArray(data)){
 			    		 location.href='/login.html';
 			    		 return;
@@ -167,7 +168,7 @@
 			    	 var htmlOri=$("#topDaoHangUl").html();
 			    	 var html="";
 			    	 $.each(data, function(i,item){
-		    			 html=html+'<li class="layui-nav-item"><a href="javascript:;" lay-id="'+item.id+'"><i style="padding-right: 2px;" aria-hidden="true" title="'+item.name+'" unreadNotice></i>'+item.name+'</a><dl class="layui-nav-child">';
+		    			 html=html+'<li class="layui-nav-item"><a href="javascript:;" lay-id="'+item.id+'" data-url="'+item.href+'"><i style="padding-right: 2px;" aria-hidden="true" title="'+item.name+'" unreadNotice></i>'+item.name+'</a><dl class="layui-nav-child">';
 		    			 //item  每一项
 		    			 var arrayItem=item.child;
 		    			 if(arrayItem && arrayItem.length>0){//有子项

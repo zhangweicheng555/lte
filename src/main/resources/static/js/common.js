@@ -171,10 +171,12 @@ layui.define(['layer','laydate','jquery'], function(exports) {
 		getConfirmDelDialog:function(title,content,icon,submitUrl,data,funModel){
 			parent.layer.confirm(content,{title:title,icon :icon},
 				function(index){
+				common.showLoadingDialog();
 					parent.layer.close(index);
 					$.ajax({
 						   type: "POST",url: submitUrl,data:data,dataType: "json",
 						   success: function(msg){
+							   common.closeLoadingDialog();
 							   if(msg.success){
 								   common.getMsgBlackDialog(msg.message,2000);
 								   if(typeof funModel == 'function'){

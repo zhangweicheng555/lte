@@ -46,6 +46,32 @@ public class QueryParamData implements Serializable {
 
 	private String beginTime;// 开始时间 一般用于范围搜索的时候 使用
 	private String endTime;// 结束时间
+	private String pid;// 室外测试的列表id
+
+	
+	/**
+	 * 自定义数据结构
+	 * @author weichengz
+	 * @date 2019年11月13日 上午11:41:44
+	 */
+	public QueryParamData(String index, String type, Map<String, Object> termMap, List<String> revelFields,
+			Integer page, Integer limit) {
+		super();
+		this.index = index;
+		this.type = type;
+		this.termMap = termMap;
+		this.revelFields = revelFields;
+		this.page = page;
+		this.limit = limit;
+	}
+	public QueryParamData(String index, String type, Map<String, Object> termMap, List<String> revelFields,Integer limit) {
+		super();
+		this.index = index;
+		this.type = type;
+		this.termMap = termMap;
+		this.revelFields = revelFields;
+		this.limit = limit;
+	}
 
 	/**
 	 * 
@@ -55,13 +81,13 @@ public class QueryParamData implements Serializable {
 	 */
 	public void handleFieldRange(String field, String beginTime, String endTime) {
 		Map<String, Long> paramMap = new HashMap<String, Long>();
-		if (StringUtils.isNoneBlank(beginTime)) {
+		if (StringUtils.isNotBlank(beginTime)) {
 			Date date = MyDateUtil.stringToDate(beginTime, "yyyy-MM-dd HH:mm:ss");
 			if (date != null) {
 				paramMap.put("GTE", date.getTime());
 			}
 		}
-		if (StringUtils.isNoneBlank(endTime)) {
+		if (StringUtils.isNotBlank(endTime)) {
 			Date date = MyDateUtil.stringToDate(endTime, "yyyy-MM-dd HH:mm:ss");
 			if (date != null) {
 				paramMap.put("LTE", date.getTime());
@@ -74,6 +100,15 @@ public class QueryParamData implements Serializable {
 
 	public String getBeginTime() {
 		return beginTime;
+	}
+
+	
+	public String getPid() {
+		return pid;
+	}
+
+	public void setPid(String pid) {
+		this.pid = pid;
 	}
 
 	public void setBeginTime(String beginTime) {
