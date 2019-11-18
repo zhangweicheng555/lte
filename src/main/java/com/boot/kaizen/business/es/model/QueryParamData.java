@@ -49,6 +49,14 @@ public class QueryParamData implements Serializable {
 	private String pid;// 室外测试的列表id
 
 	
+	
+	public QueryParamData(String index, String type, boolean revelPk, Integer limit) {
+		super();
+		this.index = index;
+		this.type = type;
+		this.revelPk = revelPk;
+		this.limit = limit;
+	}
 	/**
 	 * 自定义数据结构
 	 * @author weichengz

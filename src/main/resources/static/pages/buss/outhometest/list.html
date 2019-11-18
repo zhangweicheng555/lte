@@ -73,8 +73,8 @@
 	
 	
 	<iframe src="about:blank" name="blankFrame" id="blankFrame" style="display: none;"></iframe>
-	<form id="myform" target="blankFrame" action="/plan/exportPlanDoc" method="post">
-		<input id="id"  name="id" type="hidden"/>
+	<form id="myform" target="blankFrame" action="/es/buss/exportOutHomeTest" method="post">
+		<input id="ids"  name="ids" type="hidden"/>
 		<input id="token"  name="token" type="hidden"/>
 	</form> 
 
@@ -154,6 +154,21 @@
         ,height:'full'
         ,cellMinWidth: 80
 		/* ,size: 'sm'  */
+	  });
+	  
+	  
+	  //导出
+	  $("#exportBtnModel").click(function(){
+		  common.showLoadingTimeDialog(4000);
+		  var token = localStorage.getItem("token");
+		  if(checkArray.length==0){
+		    common.getMsgBlackDialog("正在导出全部的数据",3000);
+		  }else{
+		     common.getMsgBlackDialog("正在导出勾选的数据",3000);
+		  }
+		  $("#token").val(token);
+		  $("#ids").val(checkArray.join(","));
+		  $("#myform").submit();
 	  });
 	  
 	  //监听行工具事件  操作对应

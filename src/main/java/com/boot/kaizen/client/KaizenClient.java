@@ -15,7 +15,8 @@ import com.boot.kaizen.util.JsonMsgUtil;
  * @date 2019年10月31日 上午11:14:14
  */
 @Component
-@FeignClient(value = "kaizen", configuration = ClientConf.class, url = "http://140.206.187.251:50123")
+//@FeignClient(value = "kaizen", configuration = ClientConf.class, url = "http://140.206.187.251:50123")
+@FeignClient(value = "kaizen", configuration = ClientConf.class, url = "http://10.255.255.133:1234")
 public interface KaizenClient {
 
 	@RequestMapping(value = "/app/appUser/login", method = RequestMethod.GET)

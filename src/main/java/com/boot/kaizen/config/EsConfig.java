@@ -30,7 +30,7 @@ public class EsConfig {
 		Settings settings = Settings.builder().put("cluster.name", "ihandle-logs").put("client.transport.sniff", true)
 				.build();
 		TransportClient transportClient = new PreBuiltTransportClient(settings);
-		TransportAddress transportAddress = new TransportAddress(InetAddress.getByName("172.16.207.83"), 9300);
+		TransportAddress transportAddress = new TransportAddress(InetAddress.getByName("10.255.255.133"), 9300);
 		transportClient.addTransportAddress(transportAddress);
 		return transportClient;
 	}

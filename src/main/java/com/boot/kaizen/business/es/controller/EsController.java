@@ -256,7 +256,7 @@ public class EsController {
 	 * @date 2019年11月11日 上午10:25:31
 	 */
 	private void handleOutHomeTest(SignalDataBean signalDataBeanFinal, BulkRequest request,String beginTime,File file) {
-		IndexRequest indexRequestOutHome = new IndexRequest("logouthome", "logouthome");
+		IndexRequest indexRequestOutHome = new IndexRequest("logouthome", "logouthome",signalDataBeanFinal.getPid());
 		OutHomeLogModel outHomeLogModel=new OutHomeLogModel(signalDataBeanFinal,beginTime);
 		outHomeLogModel.setFileName(file.getName());
 		outHomeLogModel.setFileUpTime(new Date().getTime());//文件上传日期

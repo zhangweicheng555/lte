@@ -13,6 +13,9 @@
 	<link rel="stylesheet" type="text/css" href="../../../js/easyui/themes/icon.css">
 	<link rel="stylesheet" href="../../../css/font-awesome/css/font-awesome.css" media="all" />
 
+<style type="text/css">
+ .anchorBL{display: none;}
+</style>
 
 </head>
 <body  class="easyui-layout">
@@ -52,7 +55,7 @@
 			    	<div class="easyui-panel" title="L3 MESSAGE1" style="height: 100%;" data-options="tools:'#tt1'">
 								<!-- 信令 -->
 							   <table class="layui-table" lay-size="sm" style="margin-top: 0px;">
-								  <colgroup><col width="150"><col><col><col></colgroup>
+								  <colgroup><col width="50"><col><col><col></colgroup>
 								  <thead>
 								  	<tr><th style="text-align: center;">singaType</th><th style="text-align: center;">messageType</th><th style="text-align: center;">timestamp</th><th style="text-align: center;">channelType</th></tr>
 								  </thead>
@@ -131,7 +134,6 @@
 			 $("#eventLayout").empty();
 		}
 		var point = points[index];
-		console.info('+++++++++++++++++++++++++++++++++++++++');
 		console.info(index);
 		if(index > 0) {
 			map.addOverlay(new BMap.Polyline([points[index - 1], point], {strokeColor: "red", strokeWeight: 1, strokeOpacity: 1}));
@@ -191,7 +193,6 @@
 		} 
 		//左下角模块
 		 queryButtonDta(lng,lat);
-		
 	}
 	
 	
@@ -281,22 +282,12 @@
 						  for(var i=0;i<msg.length;i++){
 							  var model=msg[i];
 							  //地图渲染点 并且移动--这个地图后期是拉线得问题
-							  var points1 = [];
-							  var point=new BMap.Point(model.longitude, model.latitude);
-							   map.panTo(point); //地图移动到该点位置
-							   
-							       var options = {
-							            color: 'red'
-							        }
-							       points1.push(point);
-							        var pointCollection = new BMap.PointCollection(points1, options);  // 初始化PointCollection
-							        pointCollection.addEventListener('click', function (e) {
-							        	//加载此点对应的的前后十分钟的数据
-							        	//queryMsgEventData(e.point.lng,e.point.lat);
-							        });
-							        map.addOverlay(pointCollection);  // 添加Overlay
+							   lnglatSetMapPoint(model.longitude, model.latitude);
 							        //加载左下角得数据
 							        queryButtonDta(model.longitude, model.latitude);
+							        //将事件的数据   属于该点的放在最上面
+							        upEventInfo(model.longitude, model.latitude);
+							        
 						  }
 					  }
 				   }
@@ -304,21 +295,86 @@
 	 }
 	
 	
-	//将点添加到地图上
-	function addPointMap(color,point){
-		var pointsArrayModel=[];
-		var options = {
-	            color: color
+	
+	
+	
+	
+	//根据经纬度  将该点对应的事件放在最上面  其他的放在下面  联动
+	function upEventInfo(longitude,latitude){
+		   $("#eventLayout").empty();
+		   
+		   var htmlUpEvent="";
+		   if(eventArrayData && eventArrayData.length>0){
+			   for(var f=0;f<eventArrayData.length;f++){
+				   var obj=eventArrayData[f];
+				   var upArray=obj.split("~");
+				   var upArrayOne=upArray[0];
+				   var upArrayOneHtml=upArray[1];
+				   var latlongArray=upArrayOne.split("_");
+				   if(latlongArray[0]==longitude && latlongArray[1]==latitude){
+					   var zwcArray=upArrayOneHtml.split("<tr");
+					   var htmlFinalZ='<tr  style="color:red;"  '+zwcArray[1];
+					   htmlUpEvent += htmlFinalZ;
+				   }else{
+					   $("#eventLayout").append(upArrayOneHtml);
+				   }
+			   }
+				     $("#eventLayout").prepend(htmlUpEvent);
+		   }
+	}
+	//根据经纬度  将该点对应的信令放在最上面  其他的放在下面  联动
+	function upMsgInfo(longitude,latitude){
+		   $("#msgLayout").empty();
+		   
+		   var htmlUpMsg="";
+		   if(msgArrayData && msgArrayData.length>0){
+			    for(var f=0;f<msgArrayData.length;f++){
+				   var obj=msgArrayData[f];
+					   var upArray=obj.split("~");
+					   var upArrayOne=upArray[0];
+					   var upArrayOneHtml=upArray[1];
+					   var latlongArray=upArrayOne.split("_");
+					   if(latlongArray[0]==longitude && latlongArray[1]==latitude){
+						   var zwcArray=upArrayOneHtml.split("<tr");
+						   var htmlFinalZ='<tr  style="color:red;"  '+zwcArray[1];
+						   htmlUpMsg += htmlFinalZ;
+					   }else{
+						   $("#msgLayout").append(upArrayOneHtml);
+					   }
+			   }
+				     $("#msgLayout").prepend(htmlUpMsg); 
+		   }
+	}
+	
+	//根据经度纬度 在地图上打点  这个后期作为  拉线
+	function lnglatSetMapPoint(longitude,latitude){
+		var points1 = [];
+		  var point=new BMap.Point(longitude, latitude);
+	      map.panTo(point); //地图移动到该点位置
+	   
+	       var options = {
+	            color: 'red'
 	        }
-		pointsArrayModel.push(point);
-	        var pointCollection = new BMap.PointCollection(pointsArrayModel, options);  // 初始化PointCollection
+	       points1.push(point);
+	        var pointCollection = new BMap.PointCollection(points1, options);  // 初始化PointCollection
 	        pointCollection.addEventListener('click', function (e) {
 	        	//加载此点对应的的前后十分钟的数据
 	        	//queryMsgEventData(e.point.lng,e.point.lat);
 	        });
 	        map.addOverlay(pointCollection);  // 添加Overlay
 	}
-	
+	//单机事件处理逻辑
+	function selectCustomerDbEvent(lonLan){
+		common.showLoadingDialog();
+		var lngLatArray=lonLan.split("_");
+		var lng=lngLatArray[0];
+		var lat=lngLatArray[1];
+		//加载左下角得数据
+		queryButtonDta(lng, lat);
+		setTimeout(function(){upMsgInfo(lng,lat);common.closeLoadingDialog();},200);
+		//地图打点
+		lnglatSetMapPoint(lng,lat);
+	}
 	
 	var currData;
 	var checkArray=new Array();
@@ -461,6 +517,22 @@
 			    };	
 	 }
 	 
+function queryMsgEventData(lng,lat){
+	common.showLoadingDialog();
+	//加载信令
+	//加载事件
+	//加载左下角
+	setTimeout(function(){
+		upMsgInfo(lng,lat);
+		upEventInfo(lng,lat);
+		queryButtonDta(lng, lat);
+		common.closeLoadingDialog();
+		//地图打点
+		lnglatSetMapPoint(lng,lat);
+		}
+	,200);
+	//加载左下角得数据
+} 
  //添加海量点
  function addPointsOverlay(color,points){
 	        var options = {
@@ -469,7 +541,7 @@
 	        var pointCollection = new BMap.PointCollection(points, options);  // 初始化PointCollection
 	        pointCollection.addEventListener('click', function (e) {
 	        	//加载此点对应的的前后十分钟的数据
-	        	//queryMsgEventData(e.point.lng,e.point.lat);
+	        	queryMsgEventData(e.point.lng,e.point.lat);
 	        });
 	        map.addOverlay(pointCollection);  // 添加Overlay
  }
@@ -480,6 +552,7 @@ function queryButtonDta(longitudeModel,latitudeModel){
 		   type: "POST"
 		   ,url: "/es/queryList"
 		   ,dataType: "json"
+		   , async: false
 		   ,contentType:"application/json;charset=utf-8"
 		   ,data: '{"type":"logmain","index":"logmain","limit":1,"termMap":{"longitude":"'+longitudeModel+'","latitude":"'+latitudeModel+'"},"sortMap":{"testTime":"ASC"},"revelFields":["id","latitude","cellName","sinr","rsrp","cI","tAC","pci","earfcn","doorDataInfoBeans","testTime","mSignaEventBean","mSignaBean"]}'
 		   ,success: function(msg){
@@ -521,11 +594,25 @@ function loadLteHtml(obj){
 	return lteLayoutLhtml;
 }
 
+//格式化 时间戳
+function formatMyTime(timestamp){
+	if(timestamp){
+	    var date = new Date(timestamp);
+	    var Y = date.getFullYear() + '-';
+	    var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+	    var D = date.getDate()<10?'0'+date.getDate():date.getDate();
+	    var h = date.getHours() + ':';
+	    var m = date.getMinutes() + ':';
+	    var s = date.getSeconds();
+	    return Y+M+D+" "+h+m+s;
+	}else{
+		return "";
+	}
+}
 
 
 
-
-//传入主log信息 处理信令模块的数据
+//传入主log信息 处理信令模块的数据  
 function loadMsgHtml(obj,msgArrayData){
 	if(obj){
 	   var mSignaBean=obj.mSignaBean;
@@ -541,7 +628,7 @@ function loadMsgHtml(obj,msgArrayData){
 			   }else{
 				   upFlag='<i class="fa fa-arrows" aria-hidden="true"></i>';
 			   }
-			   var htmlModel='<tr   ><td onclick="selectCustomerDb(\''+objEvent.mMeaasge+'\');"  title="点我查看信令明细"  style="text-align: center;">'+upFlag+'</td><td onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mMessageType+'</td><td  onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mTimestamp+'</td><td  onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mChannelType+'</td></tr> ';
+			   var htmlModel='<tr><td onclick="selectCustomerDb(\''+objEvent.mMeaasge+'\');"  title="点我查看信令明细"  style="text-align: center;">'+upFlag+'</td><td onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mMessageType+'</td><td  onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+formatMyTime(objEvent.mTimestamp)+'</td><td  onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mChannelType+'</td></tr> ';
 			   msgArrayData.push(obj.longitude+"_"+obj.latitude+"~"+htmlModel);
 			   $("#msgLayout").append(htmlModel);
 		   }
@@ -560,7 +647,8 @@ function loadEventHtml(obj,eventArrayData){
 		   if(mSignaEventBean && mSignaEventBean.length>0){
 			   for(var w=0;w<mSignaEventBean.length;w++){
 				   var objEvent=mSignaEventBean[w];
-				   var htmlModel='<tr  ondblclick="selectCustomerDb(\''+obj.id+'\');" lang='+obj.id+'><td style="text-align: center;">'+objEvent.mEventType+'</td><td style="text-align: center;">'+objEvent.mEvent+'</td><td style="text-align: center;">'+objEvent.mTimestamp+'</td></tr> ';
+				   var tempStr=obj.longitude+"_"+obj.latitude;
+				   var htmlModel='<tr   lang='+obj.id+'><td onclick="selectCustomerDbEvent(\''+tempStr+'\');" style="text-align: center;">'+objEvent.mEventType+'</td><td onclick="selectCustomerDbEvent(\''+tempStr+'\');" style="text-align: center;">'+objEvent.mEvent+'</td><td onclick="selectCustomerDbEvent(\''+tempStr+'\');" style="text-align: center;">'+formatMyTime(objEvent.mTimestamp)+'</td></tr> ';
 				   eventArrayData.push(obj.longitude+"_"+obj.latitude+"~"+htmlModel);
 				   $("#eventLayout").append(htmlModel);
 			   }

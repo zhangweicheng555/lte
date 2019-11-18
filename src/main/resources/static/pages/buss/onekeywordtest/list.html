@@ -76,8 +76,8 @@
 	
 	
 	<iframe src="about:blank" name="blankFrame" id="blankFrame" style="display: none;"></iframe>
-	<form id="myform" target="blankFrame" action="/plan/exportPlanDoc" method="post">
-		<input id="id"  name="id" type="hidden"/>
+	<form id="myform" target="blankFrame" action="/es/buss/exportOneButtonTest" method="post">
+		<input id="ids"  name="ids" type="hidden"/>
 		<input id="token"  name="token" type="hidden"/>
 	</form> 
 
@@ -166,7 +166,7 @@
 	    }
         ,height:'full'
         ,cellMinWidth: 80
-		/* ,size: 'sm'  */
+		/* ,size: 'sm'   */
 	  });
 	  
 	  
@@ -178,7 +178,16 @@
 	  
 	  //导出
 	  $("#exportBtnModel").click(function(){
-		  layer.msg('点击了导出按钮');
+		  common.showLoadingTimeDialog(4000);
+		  var token = localStorage.getItem("token");
+		  if(checkArray.length==0){
+		    common.getMsgBlackDialog("正在导出全部的数据",3000);
+		  }else{
+		     common.getMsgBlackDialog("正在导出勾选的数据",3000);
+		  }
+		  $("#token").val(token);
+		  $("#ids").val(checkArray.join(","));
+		  $("#myform").submit();
 	  });
 	  
 	  
@@ -194,7 +203,7 @@
 		  var indexModel =parent.layer.open({
 				type: 2, 
 				title:false,
-				content: "pages/buss/onekeywordtest/main.html?",
+				content: "pages/buss/onekeywordtest/main.html",
 				skin:"layui-layer-molv",
 				closeBtn :0,
 				area:['1200px',"600px"],
@@ -227,6 +236,9 @@
 		  }
 	  });
 	 
+	 
+	  
+	
 	 
 	  
 	  //currData  checkArray  监听checkbox  选中取消事件
@@ -288,11 +300,15 @@
 		  fresh();
 	  });
 	  
-	  
+	
 	  function fresh(){
 		  table.reload('infolist'
 				  ,{where:{
-				    	"endTime":$("#endTime").val(),"beginTime":$("#beginTime").val(),"index":"onebuttontest","type":"onebuttontest","termMap":{"operatorService.keyword":$("#operatorService").val(),"city.keyword":$("#city").val(),"testPerson.keyword":$("#testPerson").val()}
+				    	    "endTime":$("#endTime").val(),
+				    	    "beginTime":$("#beginTime").val(),
+				    	    "index":"onebuttontest",
+				    	    "type":"onebuttontest",
+				    	    "termMap":{"operatorService.keyword":$("#operatorService").val(),"city.keyword":$("#city").val(),"testPerson.keyword":$("#testPerson").val()}
 						   }
 				   ,page: {curr: 1}
 		           }

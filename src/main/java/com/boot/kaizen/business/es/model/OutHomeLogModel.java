@@ -17,10 +17,13 @@ import com.boot.kaizen.util.MyDateUtil;
  */
 public class OutHomeLogModel {
 
+	
+	//注意室外测试的id  pk  是一样的
+	
 	private String id;// 主键
 	private String fileName;// 文件名
 	private Long fileUpTime;// 文件上传日期
-	private String filePath;// 文件路径
+	private String filePath;// 文件路径  这个不导出
 	private String operatorService;// 运营商 无
 	private String netWorkType;// 网络类型 netWorkType
 	private String city;// 城市 无

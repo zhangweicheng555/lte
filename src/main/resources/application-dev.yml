@@ -66,7 +66,8 @@ eureka:
     status-page-url-path: http://localhost:${server.port}/index.html   #statue的链接配置
   client: 
     service-url: 
-      defaultZone: http://140.206.187.251:50020/eureka/
+#      defaultZone: http://140.206.187.251:50020/eureka/
+      defaultZone: http://ihandle.huanuo-nsb.com/eureka/
 
 
 mybatis-plus:

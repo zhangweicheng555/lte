@@ -14,8 +14,12 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRespon
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.get.MultiGetRequestBuilder;
+import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
@@ -28,6 +32,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -87,12 +92,42 @@ public class Esutil {
 		}
 	}
 
-	@Cacheable(value="queryPeopleNumByTimeRange")
-	public String  testCache(String pid) {
+	/**
+	 * 
+	 * @Description: 根据文档的id 批量查询数据
+	 * @author weichengz
+	 * @date 2019年11月14日 上午11:40:58
+	 */
+	public static List<String> queryBatchByIds(String index, String type, String[] ids) {
+		List<String> jsonResult = new ArrayList<>();
+		try {
+			TransportClient transportClient = SpringUtil.getBean(TransportClient.class);
+			MultiGetRequestBuilder multiGetRequestBuilder = transportClient.prepareMultiGet();
+			multiGetRequestBuilder.add(index, type, ids);
+			/*
+			 * for (String id : jsonResult) { multiGetRequestBuilder =
+			 * multiGetRequestBuilder.add(index, type, id); }
+			 */
+			MultiGetResponse multiGetItemResponses = multiGetRequestBuilder.get();
+			for (MultiGetItemResponse itemResponse : multiGetItemResponses) {
+				GetResponse response = itemResponse.getResponse();
+				if (response.isExists()) {
+					String json = response.getSourceAsString();
+					jsonResult.add(json);
+				}
+			}
+		} catch (Exception e) {
+			throw new IllegalArgumentException("根据id批量查询异常：" + e.getMessage());
+		}
+		return jsonResult;
+	}
+
+	@Cacheable(value = "queryPeopleNumByTimeRange")
+	public String testCache(String pid) {
 		System.out.println("--------------------------");
 		return "success";
 	}
-	
+
 	/**
 	 * 滚动查询 注意在一次性查询很多数据的时候 采用这种方式
 	 * 
@@ -285,15 +320,16 @@ public class Esutil {
 	}
 
 	/**
-	 * 查询  分页注意控制每页的数量  这个size注意控制在1万以下
+	 * 查询 分页注意控制每页的数量 这个size注意控制在1万以下
 	 * 
 	 * @Description: 根据索引/类型 分页查询所有的记录 数据+总数量
 	 * @author weichengz
 	 * @date 2019年4月3日 上午9:16:03
 	 */
-	public static QueryParamData queryPage( QueryParamData queryParamData) {
+	public static QueryParamData queryPage(QueryParamData queryParamData) {
 		queryParamData.verificationIndexType();
-		SearchResponse searchResponse = queryDataResponseByCondition(queryParamData.getIndex(), queryParamData.getType(), queryParamData);
+		SearchResponse searchResponse = queryDataResponseByCondition(queryParamData.getIndex(),
+				queryParamData.getType(), queryParamData);
 		SearchHits hits = searchResponse.getHits();
 		queryParamData.setTotalNums(hits.getTotalHits());
 		List<Map<String, Object>> maps = new ArrayList<>();
@@ -341,7 +377,7 @@ public class Esutil {
 					if (glteParam.size() == 1) {
 						for (Entry<String, Long> kv : glteParam.entrySet()) {
 							Long value = kv.getValue();
-							if (value !=null) {
+							if (value != null) {
 								if (("LTE").equals(kv.getKey().toUpperCase())) {
 									boolFilterBuilder.must(QueryBuilders.rangeQuery(key).lte(kv.getValue()));
 								}
@@ -424,7 +460,6 @@ public class Esutil {
 		}
 	}
 
-
 	/**
 	 * 
 	 * @Description: 通过文档id删除
@@ -434,7 +469,13 @@ public class Esutil {
 	public static void deleteByDocId(String index, String type, String docId) {
 		TransportClient transportClient = SpringUtil.getBean(TransportClient.class);
 		DeleteRequest request = new DeleteRequest(index, type, docId);
-		transportClient.delete(request).actionGet();
+		try {
+			transportClient.delete(request).get();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -529,5 +570,4 @@ public class Esutil {
 		return "success";
 	}
 
-	
 }
