@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -296,6 +297,53 @@ public class EsBusssController {
 				"总里程", "覆盖率", "平均RSRP", "平均SINR", "下载平均速率", "上传平均速率" };
 		esBussService.exportLogoutHomeTest(headers, collection, "室外测试信息", response);
 
+	}
+
+	/**
+	 * 主服务小区查询
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年11月20日 下午2:39:20
+	 */
+	@ResponseBody
+	@PostMapping(value = "/queryMainService")
+	public List<Map<String, Object>> queryMainService(@RequestParam(value = "longitude") String longitude,
+			@RequestParam(value = "latitude") String latitude) {
+		
+		//查询主log的 cELLID cI eNB
+		Map<String, Object> termMainMap=new HashMap<>();
+		termMainMap.put("longitude", longitude);
+		termMainMap.put("latitude", latitude);
+		
+		QueryParamData queryMainParamData = new QueryParamData("logmain", "logmain", termMainMap,
+				Arrays.asList("cI","cELLID","eNB"), 1);
+		List<Map<String,Object>> queryList = Esutil.queryList(queryMainParamData);
+		if (queryList !=null && queryList.size()>0) {
+			Map<String,Object> map=queryList.get(0);
+			String ci=map.get("cI").toString();
+			String cellId=map.get("cELLID").toString();
+			String enb=map.get("eNB").toString();
+			
+			
+			Map<String, Object> termMap = new HashMap<String, Object>();
+			termMap.put("lte_ecgi.keyword", cellId);
+			QueryParamData queryParamData = new QueryParamData("simgc", "simgc", termMap,
+					Arrays.asList("lte_longitude2", "lte_latitude2"), 1);
+			List<Map<String, Object>> datas = Esutil.queryList(queryParamData);
+			if (datas != null && datas.size() > 0) {
+				return datas;
+			} else {
+				termMap.remove("lte_ecgi.keyword");
+				termMap.put("lte_ci.keyword", enb + ci);
+				QueryParamData queryParamDataOne = new QueryParamData("simgc", "simgc", termMap,
+						Arrays.asList("lte_longitude2", "lte_latitude2"), 1);
+				List<Map<String, Object>> dataSecond = Esutil.queryList(queryParamDataOne);
+				return dataSecond;
+			}
+		}else {
+			return new ArrayList<>();
+		}
 	}
 
 }

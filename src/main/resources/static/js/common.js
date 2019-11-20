@@ -80,6 +80,8 @@ layui.define(['layer','laydate','jquery'], function(exports) {
 				  btn: [btn1,btn2],
 				  yes: function(index, layero){
 					  var iframeWin = parent.window[layero.find('iframe')[0]['name']]; /**获得子的ifram对象*/
+					  //var typecouponVal = layero.find('iframe').contents().find("#typecoupon").val();父页面获取子页面typecoupon的值
+					  //iframeWin.find('input').val('Hi，我是从父页来的')
 					  if(iframeWin.submitForm()){
 						  parent.layer.confirm('您确定要提交吗?', {icon: 3, title:'再次确认'}, function(index){
 							  parent.layer.close(index);

@@ -54,7 +54,7 @@
 			    
 			    	<div class="easyui-panel" title="L3 MESSAGE1" style="height: 100%;" data-options="tools:'#tt1'">
 								<!-- 信令 -->
-							   <table class="layui-table" lay-size="sm" style="margin-top: 0px;">
+							   <table class="layui-table" id="msgTableModel" lay-size="sm" style="margin-top: 0px;">
 								  <colgroup><col width="50"><col><col><col></colgroup>
 								  <thead>
 								  	<tr><th style="text-align: center;">singaType</th><th style="text-align: center;">messageType</th><th style="text-align: center;">timestamp</th><th style="text-align: center;">channelType</th></tr>
@@ -73,7 +73,7 @@
 			    
 			    <div data-options="region:'south',title:'Event',collapsible:true,border:false" style="height:50%;">
 			    	<!-- 事件 -->
-			    	<table class="layui-table" lay-size="sm" style="margin-top: 0px;">
+			    	<table class="layui-table" lay-size="sm" id="eventTableModel"   style="margin-top: 0px;">
 						  <colgroup><col width="150"><col><col><col><col><col><col><col></colgroup>
 						  <thead>
 						  	<tr><th style="text-align: center;">mEventType</th><th style="text-align: center;">mEvent</th><th style="text-align: center;">mTimestamp</th></tr>
@@ -91,7 +91,8 @@
 	
 	<!-- 工具条 -->
 	<div id="tt">
-		<a  class="icon-add" style="margin-right: 8px;" onclick="add();"></a>
+		<a  class="icon-add" style="margin-right: 8px;" title="开始回放" onclick="addTest();"></a>
+		<a  class="icon-add" style="margin-right: 8px;" title="结束回放" onclick="addClose();"></a>
 		<a  class="icon-edit"  style="margin-right: 8px;" onclick="javascript:alert('edit')"></a>
 		<a  class="icon-cut"  style="margin-right: 8px;" onclick="javascript:alert('cut')"></a>
 		<a  class="icon-help"  style="margin-right: 8px;" onclick="javascript:alert('help')"></a>
@@ -114,6 +115,10 @@
     <!-- 百度地图api -->
 	<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=vEgRtpbR6hgHTNtN0HiHhTPLDxaCl3YE"></script>
 
+	<script type="text/javascript" src="http://api.map.baidu.com/library/TextIconOverlay/1.2/src/TextIconOverlay_min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/MarkerClusterer/1.2/src/MarkerClusterer_min.js"></script>
+	
+
 	<script type="text/javascript">
 	
 	var pointEntity;//轨迹回放的时候的记录上一个点
@@ -125,32 +130,22 @@
 	var centerPoint;
 	var timer;     //定时器
 	var index = 0; //记录播放到第几个point
-
-	//添加按钮测试使用
-	function  add(){
-		map.addOverlay(car);
-		if(index==0){
-			 $("#msgLayout").empty();
-			 $("#eventLayout").empty();
-		}
-		var point = points[index];
-		console.info(index);
-		if(index > 0) {
-			map.addOverlay(new BMap.Polyline([points[index - 1], point], {strokeColor: "red", strokeWeight: 1, strokeOpacity: 1}));
-		}
-		car.setPosition(point);
-		index++;
-		map.panTo(point);
-		if(index < points.length) {
-			timer = window.setTimeout("add(" + index + ")", 500);
-		} else {//  便利结束之后  立马 移除所有的覆盖物  然后重新绘制海量的数据点
-			parent.layer.msg("回放结束");
+	
+	var playEnd=true;//回放是不是结束了  true是结束,false未结束
+	
+	
+	//手动结束回放
+	function addClose(){
+		index=0;//充值播放的起点
+		playEnd=true;
+		parent.layer.msg("回放结束");
+		setTimeout(function(){
 			map.clearOverlays();  //移除所有的覆盖物    
 			//绘制海量点
 		    addPointsOverlay("blue",points);
 		    $("#msgLayout").empty();
 			$("#eventLayout").empty();
-			//处理信令
+		    //处理信令
 			for(var t=0;t<msgArrayData.length;t++){
 				var msgData=msgArrayData[t];
 				var msgDataArray=msgData.split('~');
@@ -163,38 +158,108 @@
 				var msgDataArray=msgData.split('~');
 				var msgHtml=msgDataArray[1];
 				$("#eventLayout").prepend(msgHtml);
-			}
-		}
-		
-		var lat=point.lat;
-		var lng=point.lng;
-		
-		//处理信令
-		for(var t=0;t<msgArrayData.length;t++){
-			var msgData=msgArrayData[t];
-			var msgDataArray=msgData.split('~');
-			var one=msgDataArray[0];
-			var msgHtml=msgDataArray[1];
-			var latlng=one.split("_");
-			if(lng==latlng[0] && lat==latlng[1]){
-				 $("#msgLayout").prepend(msgHtml);
-			}
-		}
-		//处理事件
-		for(var w=0;w<eventArrayData.length;w++){
-			var msgData=eventArrayData[w];
-			var msgDataArray=msgData.split('~');
-			var one=msgDataArray[0];
-			var msgHtml=msgDataArray[1];
-			var latlng=one.split("_");
-			if(lng==latlng[0] && lat==latlng[1]){
-				 $("#eventLayout").prepend(msgHtml);
-			}
-		} 
-		//左下角模块
-		 queryButtonDta(lng,lat);
+			} 
+		},200);
 	}
 	
+	function addTest(){
+		 playEnd=false;  //开始回放
+		 add();
+	}
+	
+	//添加按钮测试使用   第一次点击如果没有回放就会放 回放就停止
+	function  add(){
+		if(!playEnd){
+			map.addOverlay(car);
+			if(index==0){
+				 $("#msgLayout").empty();
+				 $("#eventLayout").empty();
+			}
+			var point = points[index];
+			if(index > 0) {
+				map.addOverlay(new BMap.Polyline([points[index - 1], point], {strokeColor: "red", strokeWeight: 1, strokeOpacity: 1}));
+			}
+			
+			car.setPosition(point);
+			index++;
+			map.panTo(point);
+			if(index < points.length) {
+				timer = window.setTimeout("add(" + index + ")", 500);
+			} else {//  便利结束之后  立马 移除所有的覆盖物  然后重新绘制海量的数据点
+				index=0;
+				parent.layer.msg("回放结束");
+				map.clearOverlays();  //移除所有的覆盖物    
+				//绘制海量点
+			    addPointsOverlay("blue",points);
+			    $("#msgLayout").empty();
+				$("#eventLayout").empty();
+			    //处理信令
+				for(var t=0;t<msgArrayData.length;t++){
+					var msgData=msgArrayData[t];
+					var msgDataArray=msgData.split('~');
+					var msgHtml=msgDataArray[1];
+					$("#msgLayout").prepend(msgHtml);
+				}
+				//处理事件
+				for(var w=0;w<eventArrayData.length;w++){
+					var msgData=eventArrayData[w];
+					var msgDataArray=msgData.split('~');
+					var msgHtml=msgDataArray[1];
+					$("#eventLayout").prepend(msgHtml);
+				} 
+				playEnd=true;//标记为播放结束
+				return ;
+			}
+			
+			var lat=point.lat;
+			var lng=point.lng;
+			
+			//处理信令
+			for(var t=0;t<msgArrayData.length;t++){
+				var msgData=msgArrayData[t];
+				var msgDataArray=msgData.split('~');
+				var one=msgDataArray[0];
+				var msgHtml=msgDataArray[1];
+				var latlng=one.split("_");
+				if(lng==latlng[0] && lat==latlng[1]){
+					 $("#msgLayout").prepend(msgHtml);
+				}
+			}
+			//处理事件
+			for(var w=0;w<eventArrayData.length;w++){
+				var msgData=eventArrayData[w];
+				var msgDataArray=msgData.split('~');
+				var one=msgDataArray[0];
+				var msgHtml=msgDataArray[1];
+				var latlng=one.split("_");
+				if(lng==latlng[0] && lat==latlng[1]){
+					 $("#eventLayout").prepend(msgHtml);
+				}
+			} 
+			//左下角模块     true 处理主服务小区  和拉线的问题
+			 queryButtonDta(lng,lat);
+			//加载主服务小区的信息
+			 dealMainCellInfo(lng,lat);
+		}
+	}
+	
+	//处理主服务小区
+	function dealMainCellInfo(lng,lat){
+		//移除所有的线覆盖物
+		//处理主服务小区
+	  $.ajax({
+		   type:"POST",url:"/es/buss/queryMainService",dataType: "json",data:{"longitude":lng,"latitude":lat}
+		   ,success: function(msg){
+			   if(msg && msg.length>0){
+				   var obj=msg[0];
+				   var polyline = new BMap.Polyline([new BMap.Point(lng, lat),new BMap.Point(obj.lte_longitude2, obj.lte_latitude2)], {strokeColor:"blue", strokeWeight:2, strokeOpacity:0.5});  
+				   map.addOverlay(polyline);  
+			   }
+			}
+	     });
+	}
+	
+	//添加两点的连线
 	
 	
 	//画折线
@@ -210,13 +275,18 @@
 	function msgSearch(){
 		//parent.layer.msg("你点击了信令的搜索");
 		parent.layer.open({
-			  content: 'test'
-			  ,offset: 't'
-			  ,anim: 3
+			  type:'2'
 			  ,title:'信令搜索'
-			  ,shade:0
+		      ,content: 'http://sentsin.com' 
+		      ,skin:"layui-layer-molv"
 			  ,area: ['400px', '180px']
-			  ,btn: ['搜索', '按钮二', '按钮三']
+			  ,offset: 't'
+			  ,btnAlign: 'c'
+			  ,btn: ['搜索', '关闭']
+			  ,closeBtn:0
+			  ,shade:0
+			  ,id:'mainHtmlModel'
+			  ,anim: 3
 			  ,yes: function(index, layero){
 			    //按钮【按钮一】的回调
 			  }
@@ -224,51 +294,74 @@
 			    //按钮【按钮二】的回调
 			    //return false 开启该代码可禁止点击该按钮关闭
 			  }
-			  ,btn3: function(index, layero){
-			    //按钮【按钮三】的回调
-			    //return false 开启该代码可禁止点击该按钮关闭
-			  }
-			  ,cancel: function(){ 
-			    //右上角关闭回调
-			    //return false 开启该代码可禁止点击该按钮关闭
-			  }
+			
+			  
 			});
 	};
 	
-	//点击查看信令信息
-	 function selectCustomerDb(obj){//这个obj 是每条信令得id  selectCustomerDb
-		 $.ajax({
-			   type: "POST"
-			   ,url: "/es/queryList"
-			   ,dataType: "json"
-			   ,contentType:"application/json;charset=utf-8"
-			   ,data: '{"type":"logmessage","index":"logmessage","limit":1,"termMap":{"id.keyword":"'+obj+'"},"revelFields":["message","longitude","latitude"],"revelPk":"false"}'
-			   ,success: function(msg){
-				   common.closeLoadingDialog();
-				  if(msg !=null && msg.length>0){
-					  for(var i=0;i<msg.length;i++){
-						  var model=msg[i];
-						   parent.layer.open({
-						        type: 1
-						        ,title: false //不显示标题栏
-						        ,shadeClose:true
-						        ,time:50000
-						        ,closeBtn: 0
-						        ,area: ['800px', '300px']
-						        ,shade: 0.8
-						        ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
-						        ,moveType: 1 //拖拽模式，0或者1
-						        ,content: '<html><div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;"><pre>'+model.message+'</pre></div></html>' //这里content是一个普通的String
-						      }); 
-						  
-					  }
-				  }
-			   }
-			});
+	//检验回放是不是结束了
+	function checkPlayEnd(){
+		  if(!playEnd){
+				parent.layer.msg('停止轨迹回放或者待轨迹回访结束即可操作');
+				return playEnd;
+			}
+		  return playEnd;
 	}
 	
+	//点击查看信令信息
+	 function selectCustomerDb(obj){//这个obj 是每条信令得id  selectCustomerDb
+		if(checkPlayEnd()){
+			 $.ajax({
+				   type: "POST"
+				   ,url: "/es/queryList"
+				   ,dataType: "json"
+				   ,contentType:"application/json;charset=utf-8"
+				   ,data: '{"type":"logmessage","index":"logmessage","limit":1,"termMap":{"id.keyword":"'+obj+'"},"revelFields":["message","longitude","latitude"],"revelPk":"false"}'
+				   ,success: function(msg){
+					   common.closeLoadingDialog();
+					  if(msg !=null && msg.length>0){
+						  for(var i=0;i<msg.length;i++){
+							  var model=msg[i];
+							   parent.layer.open({
+							        type: 1
+							        ,title: false //不显示标题栏
+							        ,shadeClose:true
+							        ,time:50000
+							        ,closeBtn: 0
+							        ,area: ['800px', '300px']
+							        ,shade: 0.8
+							        ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
+							        ,moveType: 1 //拖拽模式，0或者1
+							        ,content: '<html><div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;"><pre>'+model.message+'</pre></div></html>' //这里content是一个普通的String
+							      }); 
+							  
+						  }
+					  }
+				   }
+				});
+		}
+	}
+	
+	
+	//点击行改变颜色
+	function changeColorMsg(obj){
+		 $('#msgTableModel tr').each(function(){
+             $(this).css("background-color","transparent");//还原所有td的颜色
+         });
+		 
+         $(obj).css("background-color","#FFFF00");//设置点击td的颜色
+	}
+	//点击行改变颜色
+	function changeColorEvent(obj){
+		 $('#eventTableModel  tr').each(function(){
+             $(this).css("background-color","transparent");//还原所有td的颜色
+         });
+		 
+         $(obj).css("background-color","#FFFF00");//设置点击td的颜色
+	}
 	//单击轨迹问题
 	 function selectCustomerSingle(obj){//单挑信令得id  selectCustomerSingle
+		 if(checkPlayEnd()){
 		    common.showLoadingDialog();
 	        $.ajax({
 				   type: "POST"
@@ -292,6 +385,8 @@
 					  }
 				   }
 				});
+		 }
+	 
 	 }
 	
 	
@@ -301,6 +396,7 @@
 	
 	//根据经纬度  将该点对应的事件放在最上面  其他的放在下面  联动
 	function upEventInfo(longitude,latitude){
+		 checkPlayEnd();
 		   $("#eventLayout").empty();
 		   
 		   var htmlUpEvent="";
@@ -324,6 +420,7 @@
 	}
 	//根据经纬度  将该点对应的信令放在最上面  其他的放在下面  联动
 	function upMsgInfo(longitude,latitude){
+		 checkPlayEnd();
 		   $("#msgLayout").empty();
 		   
 		   var htmlUpMsg="";
@@ -346,34 +443,41 @@
 		   }
 	}
 	
-	//根据经度纬度 在地图上打点  这个后期作为  拉线
+	//根据经度纬度 在地图上打点  先重新去掉所有的点  在绘制该点并变大
 	function lnglatSetMapPoint(longitude,latitude){
+		 checkPlayEnd();
+		map.clearOverlays();  //移除所有的覆盖物  
+		//绘制海量点
+	    addPointsOverlay("blue",points);
+		
 		var points1 = [];
 		  var point=new BMap.Point(longitude, latitude);
 	      map.panTo(point); //地图移动到该点位置
 	   
 	       var options = {
+	    		size: BMAP_POINT_SIZE_BIGGER,
 	            color: 'red'
 	        }
 	       points1.push(point);
 	        var pointCollection = new BMap.PointCollection(points1, options);  // 初始化PointCollection
 	        pointCollection.addEventListener('click', function (e) {
-	        	//加载此点对应的的前后十分钟的数据
 	        	//queryMsgEventData(e.point.lng,e.point.lat);
 	        });
 	        map.addOverlay(pointCollection);  // 添加Overlay
 	}
 	//单机事件处理逻辑
 	function selectCustomerDbEvent(lonLan){
-		common.showLoadingDialog();
-		var lngLatArray=lonLan.split("_");
-		var lng=lngLatArray[0];
-		var lat=lngLatArray[1];
-		//加载左下角得数据
-		queryButtonDta(lng, lat);
-		setTimeout(function(){upMsgInfo(lng,lat);common.closeLoadingDialog();},200);
-		//地图打点
-		lnglatSetMapPoint(lng,lat);
+		 if(checkPlayEnd()){
+			common.showLoadingDialog();
+			var lngLatArray=lonLan.split("_");
+			var lng=lngLatArray[0];
+			var lat=lngLatArray[1];
+			//加载左下角得数据
+			queryButtonDta(lng, lat);
+			setTimeout(function(){upMsgInfo(lng,lat);common.closeLoadingDialog();},200);
+			//地图打点
+			lnglatSetMapPoint(lng,lat);
+		 }
 	}
 	
 	var currData;
@@ -399,6 +503,7 @@
 	  common = layui.common;
 	  var table = layui.table;
 	  
+	  
 	  //室外测试id
 	  mainLogId=getUrlParam("id");
 	
@@ -407,7 +512,7 @@
 	   /***地图部分开始*/
 	  
 		//创建地图实例
-		map = new BMap.Map("container",{enableMapClick: false});  //屏蔽地图的点击 出现框的问题
+		map = new BMap.Map("container",{enableMapClick: false,minZoom:17,maxZoom:22});  //屏蔽地图的点击 出现框的问题
 		//地图的初始化，必须具备这个初始化操作之后 才能进行后续的操作   中心点和展示级别
 		 map.centerAndZoom("上海",50);      // 初始化地图,用城市名设置地图中心点
 		 //map.centerAndZoom(new BMap.Point(121.493, 31.250), 11);
@@ -421,11 +526,18 @@
 		            BMAP_NORMAL_MAP,
 		            BMAP_HYBRID_MAP
 		 ]}));
+		
 		 //地图加载完毕 需要做的事情
 		 map.addEventListener("tilesloaded",function(){//注意 是地图 第一次加载完成得时候 做的操作 
 			 if(loadData){
 				 queryMainLog();
 			 }
+		 
+		     // 获取可视范围的经纬度
+			 //  var bs = map.getBounds();   //获取可视区域
+			 //	var bssw = bs.getSouthWest();   //可视区域左下角
+			 //	var bsne = bs.getNorthEast();   //可视区域右上角
+			 //	parent.layer.msg("当前地图可视范围是：" + bssw.lng + "," + bssw.lat + "到" + bsne.lng + "," + bsne.lat);
 		 });
 		
 		 /***地图部分结束  */
@@ -454,7 +566,24 @@
 	    return -1;
 	}
     
-	
+	//ajax查询数据返回msg
+	function queryAjax(url,data){
+		$.ajax({
+			   type: "POST"
+			   ,url: url
+			   ,dataType: "json"
+			   ,contentType:"application/json;charset=utf-8"
+			   ,data: data
+			   ,success: function(msg){
+				  if(msg){
+					   return msg;
+				  }else{
+					  parent.layer.msg("查询得数据不存在");
+					  return null;
+				  } 
+			   }
+			});
+	}
 
 	 /***平台操作部分*/
 	function queryMainLog(){
@@ -487,7 +616,7 @@
 									  if(i==(msg.length-1)){
 										  //最后一个点  加载主左下角信息
 										  $("#lteLayout").empty();
- 				 						  var lteLayoutLhtml=loadLteHtml(obj);
+ 				 						  var lteLayoutLhtml=loadLteHtml(obj,false);
 										  $("#lteLayout").append(lteLayoutLhtml);
 									  }
 									  //加载信令
@@ -507,17 +636,71 @@
 										driving.setSearchCompleteCallback(function() {
 										car = new BMap.Marker(points[0]);
 										});
+										
+										
+								    //加载sim工参里面的东西  这里是测试使用 后期根据时机情况 呈现
+									//loadSiGcInfo();
 							  }else{
 								  parent.layer.msg("查询得数据不存在");
 							  } 
 						   }
 						});	
+				
 			    } else {
 			        parent.layer.msg('请在chrome、safari、IE8+以上浏览器查看本示例');
 			    };	
 	 }
 	 
+var simGcModel;
+//加载sim里面的工参信息
+function loadSiGcInfo(){
+	$.ajax({
+		   type: "POST"
+		   ,url: "/es/scrollQuery"
+		   ,dataType: "json"
+		   ,contentType:"application/json;charset=utf-8"
+		   ,data: '{"type":"simgc","index":"simgc","limit":1000,"termMap":{"lte_city_name.keyword":"南宁"},"revelFields":["lte_azimuth","lte_ci","lte_longitude2","lte_latitude2"],"revelPk":"false"}'
+		   ,success: function(msg){
+			  if(msg && msg.length>0){
+				  simGcModel=msg;
+				  cycleSimGc();
+			  }else{
+				  parent.layer.msg("查询得数据不存在");
+			  } 
+		   }
+		});	
+}
+
+//循环处理sim工参
+function cycleSimGc(){
+	var markersArray = [];
+	if(simGcModel && simGcModel.length>0){
+		parent.layer.msg('sim信息加载完成');
+		for(var i=0;i<simGcModel.length;i++){
+			var obj=simGcModel[i];
+			addRotationMarker(obj.lte_longitude2,obj.lte_latitude2,obj.lte_azimuth,markersArray);
+		}
+		var markerClusterer = new BMapLib.MarkerClusterer(map, {markers:markersArray});
+	}
+}
+
+//注意 从左到右  0度时  箭头方向向上
+function addRotationMarker(lng,lat,angle,markersArray){
+	var vectorFCArrow = new BMap.Marker(new BMap.Point(lng, lat), {
+		  icon: new BMap.Symbol(BMap_Symbol_SHAPE_FORWARD_CLOSED_ARROW, {
+		    scale: 2,
+		    strokeWeight: 1,
+		    rotation: angle,//由左到又旋转  注意箭头向上的方向 为0
+		    fillColor: 'red',
+		    fillOpacity: 0.8
+		  })
+		});
+	markersArray.push(vectorFCArrow);
+}
+
+
 function queryMsgEventData(lng,lat){
+	 checkPlayEnd();
 	common.showLoadingDialog();
 	//加载信令
 	//加载事件
@@ -540,32 +723,31 @@ function queryMsgEventData(lng,lat){
 	        }
 	        var pointCollection = new BMap.PointCollection(points, options);  // 初始化PointCollection
 	        pointCollection.addEventListener('click', function (e) {
-	        	//加载此点对应的的前后十分钟的数据
+	        	//将该点对应的信令事件 、前置、并拉线
 	        	queryMsgEventData(e.point.lng,e.point.lat);
 	        });
 	        map.addOverlay(pointCollection);  // 添加Overlay
  }
 
 //根据经纬度加载 左下角最后得数据
-function queryButtonDta(longitudeModel,latitudeModel){
+function queryButtonDta(longitudeModel,latitudeModel){//dealLine  是否处理  主服务小区的拉希那
 	 $.ajax({
 		   type: "POST"
 		   ,url: "/es/queryList"
 		   ,dataType: "json"
 		   , async: false
 		   ,contentType:"application/json;charset=utf-8"
-		   ,data: '{"type":"logmain","index":"logmain","limit":1,"termMap":{"longitude":"'+longitudeModel+'","latitude":"'+latitudeModel+'"},"sortMap":{"testTime":"ASC"},"revelFields":["id","latitude","cellName","sinr","rsrp","cI","tAC","pci","earfcn","doorDataInfoBeans","testTime","mSignaEventBean","mSignaBean"]}'
+		   ,data: '{"type":"logmain","index":"logmain","limit":1,"termMap":{"longitude":"'+longitudeModel+'","latitude":"'+latitudeModel+'"},"sortMap":{"testTime":"ASC"},"revelFields":["id","latitude","cellName","sinr","rsrp","cI","tAC","pci","cELLID","eNB","earfcn","doorDataInfoBeans","testTime"]}'
 		   ,success: function(msg){
 			  if(msg && msg.length>0){
 				  var lteLayoutLhtml="";
 				  for(var i=0;i<msg.length;i++){
 					  var obj=msg[i];
 					  //根据obj加载左下角的日志信息
-					  lteLayoutLhtml= loadLteHtml(obj);
+					  lteLayoutLhtml= loadLteHtml(obj,true);
 				   }
 				  $("#lteLayout").empty();
 				  $("#lteLayout").append(lteLayoutLhtml);
-
 			  }else{
 				  parent.layer.msg("查询得数据不存在");
 			  } 
@@ -574,8 +756,9 @@ function queryButtonDta(longitudeModel,latitudeModel){
 }
 
 
+
 //传入主log信息 返回左下角的表格tr，以及邻区信息
-function loadLteHtml(obj){
+function loadLteHtml(obj,dealLine){
 	var lteLayoutLhtml="";
 	if(obj){
    	  lteLayoutLhtml= '<tr><td style="text-align: center;font-weight: bold;">PCell</td><td style="text-align: center;font-weight: bold;">'+obj.cellName+'</td><td style="text-align: center;font-weight: bold;">'+obj.sinr+'</td><td style="text-align: center;font-weight: bold;">'+obj.rsrp+'</td><td style="text-align: center;font-weight: bold;">'+obj.cI+'</td><td style="text-align: center;font-weight: bold;">'+obj.tAC+'</td><td style="text-align: center;font-weight: bold;">'+obj.pci+'</td><td style="text-align: center;font-weight: bold;">'+obj.earfcn+'</td></tr>'
@@ -628,7 +811,7 @@ function loadMsgHtml(obj,msgArrayData){
 			   }else{
 				   upFlag='<i class="fa fa-arrows" aria-hidden="true"></i>';
 			   }
-			   var htmlModel='<tr><td onclick="selectCustomerDb(\''+objEvent.mMeaasge+'\');"  title="点我查看信令明细"  style="text-align: center;">'+upFlag+'</td><td onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mMessageType+'</td><td  onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+formatMyTime(objEvent.mTimestamp)+'</td><td  onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mChannelType+'</td></tr> ';
+			   var htmlModel='<tr onclick="changeColorMsg(this)"><td onclick="selectCustomerDb(\''+objEvent.mMeaasge+'\');"  title="点我查看信令明细"  style="text-align: center;">'+upFlag+'</td><td onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mMessageType+'</td><td  onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+formatMyTime(objEvent.mTimestamp)+'</td><td  onclick="selectCustomerSingle(\''+objEvent.mMeaasge+'\');"  style="text-align: center;">'+objEvent.mChannelType+'</td></tr> ';
 			   msgArrayData.push(obj.longitude+"_"+obj.latitude+"~"+htmlModel);
 			   $("#msgLayout").append(htmlModel);
 		   }
@@ -648,7 +831,7 @@ function loadEventHtml(obj,eventArrayData){
 			   for(var w=0;w<mSignaEventBean.length;w++){
 				   var objEvent=mSignaEventBean[w];
 				   var tempStr=obj.longitude+"_"+obj.latitude;
-				   var htmlModel='<tr   lang='+obj.id+'><td onclick="selectCustomerDbEvent(\''+tempStr+'\');" style="text-align: center;">'+objEvent.mEventType+'</td><td onclick="selectCustomerDbEvent(\''+tempStr+'\');" style="text-align: center;">'+objEvent.mEvent+'</td><td onclick="selectCustomerDbEvent(\''+tempStr+'\');" style="text-align: center;">'+formatMyTime(objEvent.mTimestamp)+'</td></tr> ';
+				   var htmlModel='<tr  onclick="changeColorEvent(this)"><td onclick="selectCustomerDbEvent(\''+tempStr+'\');" style="text-align: center;">'+objEvent.mEventType+'</td><td onclick="selectCustomerDbEvent(\''+tempStr+'\');" style="text-align: center;">'+objEvent.mEvent+'</td><td onclick="selectCustomerDbEvent(\''+tempStr+'\');" style="text-align: center;">'+formatMyTime(objEvent.mTimestamp)+'</td></tr> ';
 				   eventArrayData.push(obj.longitude+"_"+obj.latitude+"~"+htmlModel);
 				   $("#eventLayout").append(htmlModel);
 			   }

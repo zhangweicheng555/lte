@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -33,7 +35,10 @@ import com.boot.kaizen.business.es.model.OutHomeLogModel;
 import com.boot.kaizen.business.es.model.QueryParamData;
 import com.boot.kaizen.business.es.model.logModel.MSignaBean;
 import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
+import com.boot.kaizen.business.es.model.sim.GcModel;
+import com.boot.kaizen.business.es.model.sim.GcModelList;
 import com.boot.kaizen.business.es.service.Esutil;
+import com.boot.kaizen.business.es.service.GcModelService;
 import com.boot.kaizen.util.JsonMsgUtil;
 import com.boot.kaizen.util.MyUtil;
 import com.boot.kaizen.util.TableResultUtil;
@@ -103,12 +108,11 @@ public class EsController {
 	public List<Map<String, Object>> queryList(@RequestBody QueryParamData queryParamData) {
 		return Esutil.queryList(queryParamData);
 	}
-	
-	
+
 	@ResponseBody
 	@PostMapping(value = "/testCache")
-	public String testCache(@RequestParam(value="id") String id) {
-		Esutil esutil=new Esutil();
+	public String testCache(@RequestParam(value = "id") String id) {
+		Esutil esutil = new Esutil();
 		return esutil.testCache(id);
 	}
 
@@ -171,24 +175,24 @@ public class EsController {
 		String outHomeTestId = MyUtil.getUuid();// 室外测试列表的id 后续所有的操作 都会以这个为索引主键
 
 		BufferedReader bufferedReader = null;
-		File file = ResourceUtils.getFile("classpath:"+fileName+"");
+		File file = ResourceUtils.getFile("classpath:" + fileName + "");
 		bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 		BulkRequest request = new BulkRequest();
 		String str = null;
-		
-		String beginTime = null;//日志测试的开始事件
-		int num=0;
+
+		String beginTime = null;// 日志测试的开始事件
+		int num = 0;
 		SignalDataBean signalDataBeanFinal = null;// 记录最后一跳记录 室外测试
 
 		while ((str = bufferedReader.readLine()) != null) {
-			
+
 			String id = MyUtil.getUuid();
 			SignalDataBean signalDataBean = JSONObject.parseObject(str, SignalDataBean.class);
-			if (num==0) {//用于记录第一条记录
-				beginTime=signalDataBean.getTestTime();
+			if (num == 0) {// 用于记录第一条记录
+				beginTime = signalDataBean.getTestTime();
 				num++;
 			}
-			
+
 			IndexRequest indexRequestMain = new IndexRequest("logmain", "logmain", id);
 			signalDataBean.setPid(outHomeTestId);// 室外测试的主键id
 			signalDataBean.setId(id);/** 赋值 注意这个很重要 一定要先赋值 */
@@ -204,15 +208,15 @@ public class EsController {
 			// 其他信息直接存入 不做处理
 			IndexRequest indexRequestOther = new IndexRequest("logother", "logother");
 			OtherLogModel otherLogModel = new OtherLogModel(signalDataBean);
-			
+
 			indexRequestOther.source(JSONObject.toJSONString(otherLogModel), XContentType.JSON);
 			request.add(indexRequestOther);
-			
-			signalDataBeanFinal=signalDataBean;// 记录最后一条记录
+
+			signalDataBeanFinal = signalDataBean;// 记录最后一条记录
 		}
 
 		// 处理最后一条记录的 就是 室外测试 列表
-		handleOutHomeTest(signalDataBeanFinal, request,beginTime,file);
+		handleOutHomeTest(signalDataBeanFinal, request, beginTime, file);
 
 		/** 分批的添加进去 */
 		BulkResponse bulkResponse = transportClient.bulk(request).get();
@@ -221,31 +225,65 @@ public class EsController {
 		}
 		return "success";
 	}
+
+	@Autowired
+	private GcModelService gcModelService;
+	
+	/**
+	 * 
+	 * @Description: 日志文件的内部导入
+	 * @author weichengz
+	 * @date 2019年11月5日 上午11:45:35
+	 */
+	@ResponseBody
+	@RequestMapping(value = "importLqModel")
+	public Object importLqModel() throws Exception {
+		BulkRequest request = new BulkRequest();
+		List<GcModel> find = gcModelService.find();
+		for (GcModel gcModel : find) {
+			IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc");
+			indexRequestOther.source(JSONObject.toJSONString(gcModel), XContentType.JSON);
+			request.add(indexRequestOther);
+		}
+
+		/** 分批的添加进去 */
+		BulkResponse bulkResponse = transportClient.bulk(request).get();
+		System.out.println("---------------------------");
+		System.out.println(find.size());
+		return "success";
+	}
+
+
 	/**
 	 * 一键测试数据的导入
-	* @Description: TODO
-	* @author weichengz
-	* @date 2019年11月13日 下午3:02:19
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年11月13日 下午3:02:19
 	 */
 	@ResponseBody
 	@RequestMapping(value = "importOneBtnTestModel")
 	public Object importOneBtnTestModel() throws Exception {
 		File file = ResourceUtils.getFile("classpath:OneKeyTestRecord.txt");
-		BufferedReader  bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 		BulkRequest request = new BulkRequest();
 		String str = null;
-		
+
 		while ((str = bufferedReader.readLine()) != null) {
 			String id = MyUtil.getUuid();
-			
+
 			JSONObject jsonObject = JSONObject.parseObject(str);
-			OneButtonTest  oneButtonTest=new OneButtonTest(id, jsonObject.getString("operatorName"), jsonObject.getString("netType"), jsonObject.getString("city"), jsonObject.getString("addr"), "",  jsonObject.getString("phoneType"), "", "", jsonObject.getString("timeStamp"), jsonObject.getString("lat"), jsonObject.getString("lng"), jsonObject.getString("addr"), "", "", "", "", "", "", "", "", "", "", "", "");
+			OneButtonTest oneButtonTest = new OneButtonTest(id, jsonObject.getString("operatorName"),
+					jsonObject.getString("netType"), jsonObject.getString("city"), jsonObject.getString("addr"), "",
+					jsonObject.getString("phoneType"), "", "", jsonObject.getString("timeStamp"),
+					jsonObject.getString("lat"), jsonObject.getString("lng"), jsonObject.getString("addr"), "", "", "",
+					"", "", "", "", "", "", "", "", "");
 			IndexRequest indexRequestMain = new IndexRequest("onebuttontest", "onebuttontest", id);
 			indexRequestMain.source(JSONObject.toJSONString(oneButtonTest), XContentType.JSON);
 			request.add(indexRequestMain);
 		}
 		/** 分批的添加进去 */
-		 transportClient.bulk(request).get();
+		transportClient.bulk(request).get();
 		return "success";
 	}
 
@@ -255,11 +293,12 @@ public class EsController {
 	 * @author weichengz
 	 * @date 2019年11月11日 上午10:25:31
 	 */
-	private void handleOutHomeTest(SignalDataBean signalDataBeanFinal, BulkRequest request,String beginTime,File file) {
-		IndexRequest indexRequestOutHome = new IndexRequest("logouthome", "logouthome",signalDataBeanFinal.getPid());
-		OutHomeLogModel outHomeLogModel=new OutHomeLogModel(signalDataBeanFinal,beginTime);
+	private void handleOutHomeTest(SignalDataBean signalDataBeanFinal, BulkRequest request, String beginTime,
+			File file) {
+		IndexRequest indexRequestOutHome = new IndexRequest("logouthome", "logouthome", signalDataBeanFinal.getPid());
+		OutHomeLogModel outHomeLogModel = new OutHomeLogModel(signalDataBeanFinal, beginTime);
 		outHomeLogModel.setFileName(file.getName());
-		outHomeLogModel.setFileUpTime(new Date().getTime());//文件上传日期
+		outHomeLogModel.setFileUpTime(new Date().getTime());// 文件上传日期
 		outHomeLogModel.setFilePath(file.getAbsolutePath());
 		indexRequestOutHome.source(JSONObject.toJSONString(outHomeLogModel), XContentType.JSON);
 		request.add(indexRequestOutHome);

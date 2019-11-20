@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.business.es.dao.GcModelMapper">
+  <resultMap id="BaseResultMap" type="com.boot.kaizen.business.es.model.sim.GcModel">
+    <id column="lte_ci" jdbcType="VARCHAR" property="lte_ci" />
+    <result column="lte_city_name" jdbcType="VARCHAR" property="lte_city_name" />
+    <result column="lte_ecgi" jdbcType="VARCHAR" property="lte_ecgi" />
+    <result column="lte_net" jdbcType="VARCHAR" property="lte_net" />
+    <result column="lte_enodebid" jdbcType="VARCHAR" property="lte_enodebid" />
+    <result column="lte_sector_id" jdbcType="VARCHAR" property="lte_sector_id" />
+    <result column="lte_cell" jdbcType="VARCHAR" property="lte_cell" />
+    <result column="lte_phycellid" jdbcType="VARCHAR" property="lte_phycellid" />
+    <result column="lte_longitude2" jdbcType="VARCHAR" property="lte_longitude2" />
+    <result column="lte_longitude" jdbcType="VARCHAR" property="lte_longitude" />
+    <result column="lte_latitude2" jdbcType="VARCHAR" property="lte_latitude2" />
+    <result column="lte_latitude" jdbcType="VARCHAR" property="lte_latitude" />
+    <result column="lte_site_tall" jdbcType="VARCHAR" property="lte_site_tall" />
+    <result column="lte_azimuth" jdbcType="VARCHAR" property="lte_azimuth" />
+    <result column="lte_mechanical_downdip" jdbcType="VARCHAR" property="lte_mechanical_downdip" />
+    <result column="lte_electronic_downdip" jdbcType="VARCHAR" property="lte_electronic_downdip" />
+    <result column="lte_total_downdip" jdbcType="VARCHAR" property="lte_total_downdip" />
+    <result column="lte_tac" jdbcType="VARCHAR" property="lte_tac" />
+    <result column="lte_sys" jdbcType="VARCHAR" property="lte_sys" />
+    <result column="lte_site_type" jdbcType="VARCHAR" property="lte_site_type" />
+    <result column="lte_earfcn" jdbcType="VARCHAR" property="lte_earfcn" />
+    <result column="lte_derrick_type" jdbcType="VARCHAR" property="lte_derrick_type" />
+    <result column="lte_address" jdbcType="VARCHAR" property="lte_address" />
+    <result column="lte_scene" jdbcType="VARCHAR" property="lte_scene" />
+    <result column="lte_grid" jdbcType="VARCHAR" property="lte_grid" />
+    <result column="lte_firm" jdbcType="VARCHAR" property="lte_firm" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    lte_ci, lte_city_name, lte_net, lte_enodebid, lte_sector_id, lte_cell, lte_phycellid, 
+    lte_longitude2, lte_longitude, lte_latitude2, lte_latitude, lte_site_tall, lte_azimuth, 
+    lte_mechanical_downdip, lte_electronic_downdip, lte_total_downdip, lte_tac, lte_sys, 
+    lte_site_type, lte_earfcn, lte_derrick_type, lte_address, lte_scene, lte_grid, lte_firm,lte_ecgi
+  </sql>
+  
+  
+ 
+  <select id="find" resultMap="BaseResultMap">
+		select 
+	    <include refid="Base_Column_List" />
+	    from us_lte5
+		where 1=1 
+	</select>
+ 
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from us_lte5
+    where lte_ci = #{lte_ci,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from us_lte5
+    where lte_ci = #{lte_ci,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.boot.kaizen.business.es.model.sim.GcModel">
+    insert into us_lte5 (lte_ci, lte_ecgi,lte_city_name, lte_net, 
+      lte_enodebid, lte_sector_id, lte_cell, 
+      lte_phycellid, lte_longitude2, lte_longitude, 
+      lte_latitude2, lte_latitude, lte_site_tall, 
+      lte_azimuth, lte_mechanical_downdip, lte_electronic_downdip, 
+      lte_total_downdip, lte_tac, lte_sys, 
+      lte_site_type, lte_earfcn, lte_derrick_type, 
+      lte_address, lte_scene, lte_grid, 
+      lte_firm)
+    values (#{lte_ci,jdbcType=VARCHAR},
+     #{lte_ecgi,jdbcType=VARCHAR}, 
+     #{lte_city_name,jdbcType=VARCHAR}, 
+     #{lte_net,jdbcType=VARCHAR}, 
+      #{lte_enodebid,jdbcType=VARCHAR}, #{lte_sector_id,jdbcType=VARCHAR}, #{lte_cell,jdbcType=VARCHAR}, 
+      #{lte_phycellid,jdbcType=VARCHAR}, #{lte_longitude2,jdbcType=VARCHAR}, #{lte_longitude,jdbcType=VARCHAR}, 
+      #{lte_latitude2,jdbcType=VARCHAR}, #{lte_latitude,jdbcType=VARCHAR}, #{lte_site_tall,jdbcType=VARCHAR}, 
+      #{lte_azimuth,jdbcType=VARCHAR}, #{lte_mechanical_downdip,jdbcType=VARCHAR}, #{lte_electronic_downdip,jdbcType=VARCHAR}, 
+      #{lte_total_downdip,jdbcType=VARCHAR}, #{lte_tac,jdbcType=VARCHAR}, #{lte_sys,jdbcType=VARCHAR}, 
+      #{lte_site_type,jdbcType=VARCHAR}, #{lte_earfcn,jdbcType=VARCHAR}, #{lte_derrick_type,jdbcType=VARCHAR}, 
+      #{lte_address,jdbcType=VARCHAR}, #{lte_scene,jdbcType=VARCHAR}, #{lte_grid,jdbcType=VARCHAR}, 
+      #{lte_firm,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.boot.kaizen.business.es.model.sim.GcModel">
+    insert into us_lte5
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="lte_ci != null">
+        lte_ci,
+      </if>
+      <if test="lte_ecgi != null">
+        lte_ecgi,
+      </if>
+      <if test="lte_city_name != null">
+        lte_city_name,
+      </if>
+      <if test="lte_net != null">
+        lte_net,
+      </if>
+      <if test="lte_enodebid != null">
+        lte_enodebid,
+      </if>
+      <if test="lte_sector_id != null">
+        lte_sector_id,
+      </if>
+      <if test="lte_cell != null">
+        lte_cell,
+      </if>
+      <if test="lte_phycellid != null">
+        lte_phycellid,
+      </if>
+      <if test="lte_longitude2 != null">
+        lte_longitude2,
+      </if>
+      <if test="lte_longitude != null">
+        lte_longitude,
+      </if>
+      <if test="lte_latitude2 != null">
+        lte_latitude2,
+      </if>
+      <if test="lte_latitude != null">
+        lte_latitude,
+      </if>
+      <if test="lte_site_tall != null">
+        lte_site_tall,
+      </if>
+      <if test="lte_azimuth != null">
+        lte_azimuth,
+      </if>
+      <if test="lte_mechanical_downdip != null">
+        lte_mechanical_downdip,
+      </if>
+      <if test="lte_electronic_downdip != null">
+        lte_electronic_downdip,
+      </if>
+      <if test="lte_total_downdip != null">
+        lte_total_downdip,
+      </if>
+      <if test="lte_tac != null">
+        lte_tac,
+      </if>
+      <if test="lte_sys != null">
+        lte_sys,
+      </if>
+      <if test="lte_site_type != null">
+        lte_site_type,
+      </if>
+      <if test="lte_earfcn != null">
+        lte_earfcn,
+      </if>
+      <if test="lte_derrick_type != null">
+        lte_derrick_type,
+      </if>
+      <if test="lte_address != null">
+        lte_address,
+      </if>
+      <if test="lte_scene != null">
+        lte_scene,
+      </if>
+      <if test="lte_grid != null">
+        lte_grid,
+      </if>
+      <if test="lte_firm != null">
+        lte_firm,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="lte_ci != null">
+        #{lte_ci,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_ecgi != null">
+        #{lte_ecgi,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_city_name != null">
+        #{lte_city_name,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_net != null">
+        #{lte_net,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_enodebid != null">
+        #{lte_enodebid,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_sector_id != null">
+        #{lte_sector_id,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_cell != null">
+        #{lte_cell,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_phycellid != null">
+        #{lte_phycellid,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_longitude2 != null">
+        #{lte_longitude2,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_longitude != null">
+        #{lte_longitude,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_latitude2 != null">
+        #{lte_latitude2,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_latitude != null">
+        #{lte_latitude,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_site_tall != null">
+        #{lte_site_tall,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_azimuth != null">
+        #{lte_azimuth,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_mechanical_downdip != null">
+        #{lte_mechanical_downdip,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_electronic_downdip != null">
+        #{lte_electronic_downdip,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_total_downdip != null">
+        #{lte_total_downdip,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_tac != null">
+        #{lte_tac,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_sys != null">
+        #{lte_sys,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_site_type != null">
+        #{lte_site_type,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_earfcn != null">
+        #{lte_earfcn,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_derrick_type != null">
+        #{lte_derrick_type,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_address != null">
+        #{lte_address,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_scene != null">
+        #{lte_scene,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_grid != null">
+        #{lte_grid,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_firm != null">
+        #{lte_firm,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.boot.kaizen.business.es.model.sim.GcModel">
+    update us_lte5
+    <set>
+      <if test="lte_city_name != null">
+        lte_city_name = #{lte_city_name,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_ecgi != null">
+        lte_ecgi = #{lte_city_name,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_net != null">
+        lte_net = #{lte_net,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_enodebid != null">
+        lte_enodebid = #{lte_enodebid,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_sector_id != null">
+        lte_sector_id = #{lte_sector_id,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_cell != null">
+        lte_cell = #{lte_cell,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_phycellid != null">
+        lte_phycellid = #{lte_phycellid,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_longitude2 != null">
+        lte_longitude2 = #{lte_longitude2,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_longitude != null">
+        lte_longitude = #{lte_longitude,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_latitude2 != null">
+        lte_latitude2 = #{lte_latitude2,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_latitude != null">
+        lte_latitude = #{lte_latitude,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_site_tall != null">
+        lte_site_tall = #{lte_site_tall,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_azimuth != null">
+        lte_azimuth = #{lte_azimuth,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_mechanical_downdip != null">
+        lte_mechanical_downdip = #{lte_mechanical_downdip,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_electronic_downdip != null">
+        lte_electronic_downdip = #{lte_electronic_downdip,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_total_downdip != null">
+        lte_total_downdip = #{lte_total_downdip,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_tac != null">
+        lte_tac = #{lte_tac,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_sys != null">
+        lte_sys = #{lte_sys,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_site_type != null">
+        lte_site_type = #{lte_site_type,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_earfcn != null">
+        lte_earfcn = #{lte_earfcn,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_derrick_type != null">
+        lte_derrick_type = #{lte_derrick_type,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_address != null">
+        lte_address = #{lte_address,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_scene != null">
+        lte_scene = #{lte_scene,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_grid != null">
+        lte_grid = #{lte_grid,jdbcType=VARCHAR},
+      </if>
+      <if test="lte_firm != null">
+        lte_firm = #{lte_firm,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where lte_ci = #{lte_ci,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.boot.kaizen.business.es.model.sim.GcModel">
+    update us_lte5
+    set lte_city_name = #{lte_city_name,jdbcType=VARCHAR},
+      lte_net = #{lte_net,jdbcType=VARCHAR},
+      lte_enodebid = #{lte_enodebid,jdbcType=VARCHAR},
+      lte_sector_id = #{lte_sector_id,jdbcType=VARCHAR},
+      lte_cell = #{lte_cell,jdbcType=VARCHAR},
+      lte_phycellid = #{lte_phycellid,jdbcType=VARCHAR},
+      lte_longitude2 = #{lte_longitude2,jdbcType=VARCHAR},
+      lte_longitude = #{lte_longitude,jdbcType=VARCHAR},
+      lte_latitude2 = #{lte_latitude2,jdbcType=VARCHAR},
+      lte_latitude = #{lte_latitude,jdbcType=VARCHAR},
+      lte_site_tall = #{lte_site_tall,jdbcType=VARCHAR},
+      lte_azimuth = #{lte_azimuth,jdbcType=VARCHAR},
+      lte_mechanical_downdip = #{lte_mechanical_downdip,jdbcType=VARCHAR},
+      lte_electronic_downdip = #{lte_electronic_downdip,jdbcType=VARCHAR},
+      lte_total_downdip = #{lte_total_downdip,jdbcType=VARCHAR},
+      lte_tac = #{lte_tac,jdbcType=VARCHAR},
+      lte_sys = #{lte_sys,jdbcType=VARCHAR},
+      lte_site_type = #{lte_site_type,jdbcType=VARCHAR},
+      lte_earfcn = #{lte_earfcn,jdbcType=VARCHAR},
+      lte_derrick_type = #{lte_derrick_type,jdbcType=VARCHAR},
+      lte_address = #{lte_address,jdbcType=VARCHAR},
+      lte_scene = #{lte_scene,jdbcType=VARCHAR},
+      lte_grid = #{lte_grid,jdbcType=VARCHAR},
+      lte_firm = #{lte_firm,jdbcType=VARCHAR}
+    where lte_ci = #{lte_ci,jdbcType=VARCHAR}
+  </update>
+</mapper>

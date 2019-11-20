@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- 下面我们添加一个meta标签，以便使您的页面更好的在移动平台上展示。 -->
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<title>地图呈现的时候  没有信令事件的模块</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../../layui/css/layui.css">
+
+	<!-- 处理easyui -->
+    <link rel="stylesheet" type="text/css" href="../../../js/easyui/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../../../js/easyui/themes/icon.css">
+	<link rel="stylesheet" href="../../../css/font-awesome/css/font-awesome.css" media="all" />
+
+<style type="text/css">
+ .anchorBL{display: none;}
+</style>
+
+
+
+</head>
+<body  class="easyui-layout">
+	
+	
+	    
+	    <div data-options="region:'center',border:false" id="center" style="margin-top: -1px;">
+	    	
+	    	<div class="easyui-layout" data-options="fit:true,border:false">
+			    <div data-options="region:'center'" style="height: 80%;">
+			    	<div class="easyui-panel" title="L3 MESSAGE1" style="height: 100%;" data-options="tools:'#tt'">
+								<!--  创建地图的容器 -->
+				    			<div id="container" style="width: 100%;height: 100%;"></div> 
+					</div>
+			    </div>
+			    
+			    <div data-options="region:'south',title:'LTE Serving+Neighboring Cells',collapsible:true" style="height: 25%;">
+						<table class="layui-table" lay-size="sm" style="margin-top: 0px;">
+						  <colgroup><col width="80"><col><col><col><col><col><col><col></colgroup>
+						  <thead>
+						  	<tr><th style="text-align: center;">Type</th><th style="text-align: center;">cellName</th><th style="text-align: center;">SINR</th><th style="text-align: center;">RSRP</th><th style="text-align: center;">CI</th><th style="text-align: center;">TAC</th><th style="text-align: center;">PCI</th><th style="text-align: center;">earfcn</th></tr>
+						  </thead>
+						  
+						  <tbody id="lteLayout">
+						  	 <!-- 注意  type  第一个值是PCell  其余的是NCell  -->
+						     <!-- <tr><td style="text-align: center;font-weight: bold;">PCell</td><td style="text-align: center;font-weight: bold;">2016-11-29</td><td style="text-align: center;font-weight: bold;">人生</td><td style="text-align: center;font-weight: bold;">贤心</td><td style="text-align: center;font-weight: bold;">2016-11-29</td><td>贤心</td><td style="text-align: center;font-weight: bold;">2016-11-29</td><td style="text-align: center;font-weight: bold;">2016-11-29</td></tr> -->
+						  </tbody>
+						  
+					   </table>			    
+			    </div>
+	   		</div>
+	   		
+	    </div>
+	
+	    <div data-options="region:'east',border:false" style="width:600px;margin-top: 0px;" >
+	    	<div class="easyui-layout" data-options="fit:true,border:false">
+			    
+			      <div class="easyui-panel" title="L3 MESSAGE1" style="height: 100%;" data-options="tools:'#tt1'">
+								<!-- 信令 -->
+							   <table id="msgTableModel" class="layui-table" lay-size="sm" style="margin-top: 0px;width: 8000px;" >
+								  <colgroup>
+								  
+								     <col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80">
+								     <col width="80"><col width="80">
+								  
+								     <col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80">
+								     <col width="80"><col width="80">
+								    
+								     <col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80">
+								     <col width="80"><col width="80">
+								  
+								     <col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80">
+								     <col width="80"><col width="80">
+								     
+								     <col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80"><col width="80">
+								     <col width="80"><col width="80">
+
+								     <col width="80">
+								     <col width="80">
+								  </colgroup>
+								  <thead>
+								  	<tr>
+								  	  <!-- colspan="2"  这个是跨两列 -->
+								  	  <th rowspan="2" style="text-align: center;">时间</th>
+								  	  <th rowspan="2" style="text-align: center;">网络类型</th>
+								  	  <th rowspan="2" style="text-align: center;">经度</th>
+								  	  <th rowspan="2" style="text-align: center;">纬度</th>
+								  	  <th rowspan="2" style="text-align: center;">速度</th>
+								  	  <th rowspan="2" style="text-align: center;">高度</th>
+								  	  <th rowspan="2" style="text-align: center;">小区名</th>
+								  	  <th rowspan="2" style="text-align: center;">CI</th>
+								  	  <th rowspan="2" style="text-align: center;">eNodeB</th>
+								  	  <th rowspan="2" style="text-align: center;">Cell ID</th>
+								  	  <th rowspan="2" style="text-align: center;">EARFCN</th>
+								  	  <th rowspan="2" style="text-align: center;">TAC</th>
+								  	  <th rowspan="2" style="text-align: center;">RSRQ</th>
+								  	  <th rowspan="2" style="text-align: center;">RSRP</th>
+								  	  <th rowspan="2" style="text-align: center;">SINR</th>
+								  	  <th rowspan="2" style="text-align: center;">下载速率</th>
+								  	  <th rowspan="2" style="text-align: center;">上传速率</th>
+								  	  <th rowspan="2" style="text-align: center;">Ping时延</th>
+								  	  <th rowspan="2" style="text-align: center;">Http时延</th>
+								  	  <th rowspan="2" style="text-align: center;">正常事件</th>
+								  	  <th rowspan="2" style="text-align: center;">异常事件</th>
+								  	  
+								  	  <th colspan="4" style="text-align: center;">1邻区</th>
+								  	  <th colspan="4" style="text-align: center;">2邻区</th>
+								  	  <th colspan="4" style="text-align: center;">3邻区</th>
+								  	  <th colspan="4" style="text-align: center;">4邻区</th>
+								  	  <th colspan="4" style="text-align: center;">5邻区</th>
+								  	  <th colspan="4" style="text-align: center;">6邻区</th>
+								  	</tr>
+								  	 
+								    <tr>
+								  	 <!-- 1 -->
+								  	  <th  style="text-align: center;">EARFCN</th>
+								  	  <th  style="text-align: center;">PCI</th>
+								  	  <th  style="text-align: center;">RSRP</th>
+								  	  <th  style="text-align: center;">RSRQ</th>
+								  	  <!-- 2 -->
+								  	  <th  style="text-align: center;">EARFCN</th>
+								  	  <th  style="text-align: center;">PCI</th>
+								  	  <th  style="text-align: center;">RSRP</th>
+								  	  <th  style="text-align: center;">RSRQ</th>
+								  	  <!-- 3 -->
+								  	  <th  style="text-align: center;">EARFCN</th>
+								  	  <th  style="text-align: center;">PCI</th>
+								  	  <th  style="text-align: center;">RSRP</th>
+								  	  <th  style="text-align: center;">RSRQ</th>
+								  	  <!-- 4 -->
+								  	  <th  style="text-align: center;">EARFCN</th>
+								  	  <th  style="text-align: center;">PCI</th>
+								  	  <th  style="text-align: center;">RSRP</th>
+								  	  <th  style="text-align: center;">RSRQ</th>
+								  	  <!-- 5 -->
+								  	  <th  style="text-align: center;">EARFCN</th>
+								  	  <th  style="text-align: center;">PCI</th>
+								  	  <th  style="text-align: center;">RSRP</th>
+								  	  <th  style="text-align: center;">RSRQ</th>
+								  	  <!-- 6 -->
+								  	  <th  style="text-align: center;">EARFCN</th>
+								  	  <th  style="text-align: center;">PCI</th>
+								  	  <th  style="text-align: center;">RSRP</th>
+								  	  <th  style="text-align: center;">RSRQ</th>
+								  	  
+								    </tr>
+								  </thead>
+								  
+								  <tbody  id="msgLayout" class="msgTble">
+								  	
+								  </tbody>
+								  
+							   </table>	
+					</div>
+	   		</div>
+	    </div>
+	
+	<!-- 工具条 -->
+	<div id="tt">
+		<a  class="icon-add" style="margin-right: 8px;" onclick="add();"></a>
+		<a  class="icon-edit"  style="margin-right: 8px;" onclick="javascript:alert('edit')"></a>
+		<a  class="icon-cut"  style="margin-right: 8px;" onclick="javascript:alert('cut')"></a>
+		<a  class="icon-help"  style="margin-right: 8px;" onclick="javascript:alert('help')"></a>
+	</div>
+	
+	<div id="tt1" > 
+		   <a  class="icon-search" style="margin-right: 8px;" onclick="msgSearch()"></a>
+	</div>
+	
+</body>
+</html>
+
+	<script type="text/javascript" src="../../../js/libs/jquery-2.1.1.min.js" ></script>
+	<script type="text/javascript" src="../../../js/easyui/jquery.easyui.min.js"></script>
+	
+	<script type="text/javascript" src="../../../layui/layui.js" ></script>
+	<script type="text/javascript" src="../../../js/jq.js"></script>
+	<script type="text/javascript" src="../../../js/common.js" charset="UTF-8"></script>
+
+    <!-- 百度地图api -->
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=vEgRtpbR6hgHTNtN0HiHhTPLDxaCl3YE"></script>
+
+	<script type="text/javascript">
+	
+	var pointEntity;//轨迹回放的时候的记录上一个点
+	var myP1 ;    //起点
+	var myP2 ;    //终点
+	
+	var map;   //百度地图对象
+	var car;   //汽车图标
+	var centerPoint;
+	var timer;     //定时器
+	var index = 0; //记录播放到第几个point
+
+	
+
+	//点击行改变颜色
+	function changeColorMsg(obj,lnglat){
+	     common.showLoadingDialog();
+		 $('#msgTableModel tr').each(function(){
+	         $(this).css("background-color","transparent");//还原所有td的颜色
+	     });
+		 
+	     $(obj).css("background-color","#FFFF00");//设置点击td的颜色
+	     
+		var lngLatArray=lnglat.split("_");
+		var lng=lngLatArray[0];
+		var lat=lngLatArray[1];
+		//加载左下角得数据
+		queryButtonDta(lng, lat);
+		setTimeout(function(){
+			//upMsgInfo(lng,lat);
+			common.closeLoadingDialog();},200);
+		//地图打点
+		lnglatSetMapPoint(lng,lat);
+	}
+	
+	//添加按钮测试使用
+	function  add(){
+		
+		map.addOverlay(car);
+		if(index==0){
+			 $("#msgLayout").empty();
+		}
+		var point = points[index];
+		if(index > 0) {
+			map.addOverlay(new BMap.Polyline([points[index - 1], point], {strokeColor: "red", strokeWeight: 1, strokeOpacity: 1}));
+		}
+		car.setPosition(point);
+		index++;
+		map.panTo(point);
+		if(index < points.length) {
+			timer = window.setTimeout("add(" + index + ")", 500);
+		} else {//  便利结束之后  立马 移除所有的覆盖物  然后重新绘制海量的数据点
+			parent.layer.msg("回放结束");
+			map.clearOverlays();  //移除所有的覆盖物    
+			//绘制海量点
+		    addPointsOverlay("blue",points);
+		    $("#msgLayout").empty();
+			//处理信令
+			for(var t=0;t<msgArrayData.length;t++){
+				var msgData=msgArrayData[t];
+				var msgDataArray=msgData.split('~');
+				var msgHtml=msgDataArray[1];
+				$("#msgLayout").prepend(msgHtml);
+			}
+		
+		}
+		
+		var lat=point.lat;
+		var lng=point.lng;
+		
+		//处理信令
+		for(var t=0;t<msgArrayData.length;t++){
+			var msgData=msgArrayData[t];
+			var msgDataArray=msgData.split('~');
+			var one=msgDataArray[0];
+			var msgHtml=msgDataArray[1];
+			var latlng=one.split("_");
+			if(lng==latlng[0] && lat==latlng[1]){
+				 $("#msgLayout").prepend(msgHtml);
+			}
+		}
+		
+		//左下角模块
+		 queryButtonDta(lng,lat);
+	}
+	
+	
+	
+	//画折线
+	function addPolyline(pointOne,pointTwo){
+		var polyline = new BMap.Polyline([pointOne,pointTwo], {strokeColor:"blue", strokeWeight:2, strokeOpacity:0.5});   //创建折线
+		map.addOverlay(polyline);          //增加折线
+	}
+	
+
+
+	
+	//信令搜索功能
+	function msgSearch(){
+		//parent.layer.msg("你点击了信令的搜索");
+		parent.layer.open({
+			  content: 'test'
+			  ,offset: 't'
+			  ,anim: 3
+			  ,title:'信令搜索'
+			  ,shade:0
+			  ,area: ['400px', '180px']
+			  ,btn: ['搜索', '按钮二', '按钮三']
+			  ,yes: function(index, layero){
+			    //按钮【按钮一】的回调
+			  }
+			  ,btn2: function(index, layero){
+			    //按钮【按钮二】的回调
+			    //return false 开启该代码可禁止点击该按钮关闭
+			  }
+			  ,btn3: function(index, layero){
+			    //按钮【按钮三】的回调
+			    //return false 开启该代码可禁止点击该按钮关闭
+			  }
+			  ,cancel: function(){ 
+			    //右上角关闭回调
+			    //return false 开启该代码可禁止点击该按钮关闭
+			  }
+			});
+	};
+	
+	
+	//根据经纬度  将该点对应的信令放在最上面  其他的放在下面  联动
+	function upMsgInfo(longitude,latitude){
+		   $("#msgLayout").empty();
+		   
+		   var htmlUpMsg="";
+		   if(msgArrayData && msgArrayData.length>0){
+			    for(var f=0;f<msgArrayData.length;f++){
+				   var obj=msgArrayData[f];
+					   var upArray=obj.split("~");
+					   var upArrayOne=upArray[0];
+					   var upArrayOneHtml=upArray[1];
+					   var latlongArray=upArrayOne.split("_");
+					   if(latlongArray[0]==longitude && latlongArray[1]==latitude){
+						   var zwcArray=upArrayOneHtml.split("<tr");
+						   var htmlFinalZ='<tr  style="color:red;"  '+zwcArray[1];
+						   htmlUpMsg += htmlFinalZ;
+					   }else{
+						   $("#msgLayout").append(upArrayOneHtml);
+					   }
+			   }
+				     $("#msgLayout").prepend(htmlUpMsg); 
+		   }
+	}
+	
+	//根据经度纬度 在地图上打点  这个后期作为  拉线
+	function lnglatSetMapPoint(longitude,latitude){
+		
+		map.clearOverlays();  //移除所有的覆盖物  
+		//绘制海量点
+	    addPointsOverlay("blue",points);
+		
+		var points1 = [];
+		  var point=new BMap.Point(longitude, latitude);
+	      map.panTo(point); //地图移动到该点位置
+	   
+	       var options = {
+	    		size: BMAP_POINT_SIZE_BIGGER,
+	            color: 'red'
+	        }
+	       points1.push(point);
+	        var pointCollection = new BMap.PointCollection(points1, options);  // 初始化PointCollection
+	        pointCollection.addEventListener('click', function (e) {
+	        	//加载此点对应的的前后十分钟的数据
+	        	//queryMsgEventData(e.point.lng,e.point.lat);
+	        });
+	        map.addOverlay(pointCollection);  // 添加Overlay
+	}
+	
+	
+	
+	
+	var currData;
+	var checkArray=new Array();
+	var map;
+	var loadData=true;
+	
+	 var diatinctArray = new Array();//起到去重 和寻找此经纬度对应的时间的作用
+	 
+	 
+	 var msgArrayData=[];  //全部信令的信息
+	 var latlonArrayData=[];  //全部经纬度的信息  diatinctArray.push(obj.longitude+"_"+obj.latitude+"-"+obj.testTime);
+	
+	 
+	 var common;
+	 var layer;
+	 var mainLogId;
+	 var points = [];  // 添加海量点数据  里面是一下 new map point对象
+	layui.use([ 'layer' ,'table','jquery','common'], function() {
+	   layer = layui.layer;
+	  var $=layui.$;
+	  common = layui.common;
+	  var table = layui.table;
+	  
+	  //室外测试id
+	  mainLogId=getUrlParam("id");
+	
+	  //展示加载层
+	  common.showLoadingDialog();
+	   /***地图部分开始*/
+	  
+		//创建地图实例
+		map = new BMap.Map("container",{enableMapClick: false});  //屏蔽地图的点击 出现框的问题
+		//地图的初始化，必须具备这个初始化操作之后 才能进行后续的操作   中心点和展示级别
+		 map.centerAndZoom("上海",50);      // 初始化地图,用城市名设置地图中心点
+		 //map.centerAndZoom(new BMap.Point(121.493, 31.250), 11);
+		 //开启鼠标缩放
+		 map.enableScrollWheelZoom(true);
+		 map.enableAutoResize();
+		 //设置地图默认的鼠标指针样式
+		 map.setDefaultCursor("url('bird.cur')");  
+		 map.addControl(new BMap.MapTypeControl({
+				mapTypes:[
+		            BMAP_NORMAL_MAP,
+		            BMAP_HYBRID_MAP
+		 ]}));
+		 //地图加载完毕 需要做的事情
+		 map.addEventListener("tilesloaded",function(){//注意 是地图 第一次加载完成得时候 做的操作 
+			 if(loadData){
+				 queryMainLog();
+			 }
+		 });
+		
+		 /***地图部分结束  */
+		
+});
+
+	
+	
+    //根据经纬度返回在这个数组里面的时间
+    function queryTimeFromArray(longitude,latitude,arr) {//数组里面存储的是  lon_lat-testTime
+	    var i = arr.length;
+	    while(i--) {
+	    	var obj=arr[i];
+	    	if(obj){
+	    		var array=obj.split("-");
+		    	if(array !=null && array.length==2){
+		    		var latlng=array[0].split("_");
+		    		if(latlng !=null && latlng.length==2){
+				        if(latlng[0] == longitude && latlng[1] == latitude ) {
+				            return array[1];
+				        }
+		    		}
+		    	}
+	    	}
+	    }
+	    return -1;
+	}
+    
+	
+
+	 /***平台操作部分*/
+	function queryMainLog(){
+		 parent.layer.msg('正在加载数据。。。');
+	           //判断是不是支持还两点得绘制
+				if (document.createElement('canvas').getContext) {  // 判断当前浏览器是否支持绘制海量点
+			        //加载日志得数据
+					$.ajax({
+						   type: "POST"
+						   ,url: "/es/buss/queryMainLog"
+						   ,dataType: "json"
+						   ,contentType:"application/json;charset=utf-8"
+						   ,data: '{"type":"logmain","index":"logmain","pid":"'+mainLogId+'","termMap":{"pid.keyword":"'+mainLogId+'"},"limit":1000,"sortMap":{"testTime":"ASC"},"revelFields":["longitude","latitude","NetWorkType","testTime","id","cellName","sinr","rsrp","cI","tAC","pci","earfcn","downLoadSpeed","normalEventType","abNormalEventType","upLoadSpeed","CELLID","ENB","doorDataInfoBeans"],"revelPk":"false"}'
+						   ,success: function(msg){
+							   loadData=false;//禁止数据得变化
+							   common.closeLoadingDialog();
+							  if(msg && msg.length>0){
+								  for(var i=0;i<msg.length;i++){
+									  var obj=msg[i];
+									  if(i==0){//移动地图到第一个点得位置
+										  map.panTo(new BMap.Point(obj.longitude, obj.latitude)); //地图移动到该点位置
+									  }
+									  var index=contains(obj.longitude,obj.latitude,obj.testTime,diatinctArray);
+									  if(index == -1){//不在数组中
+										  points.push(new BMap.Point(obj.longitude, obj.latitude));
+										  if(obj.testTime){
+											  diatinctArray.push(obj.longitude+"_"+obj.latitude+"-"+obj.testTime);
+										  }
+									  }
+									  if(i==(msg.length-1)){
+										  //最后一个点  加载主左下角信息
+										  $("#lteLayout").empty();
+ 				 						  var lteLayoutLhtml=loadLteHtml(obj);
+										  $("#lteLayout").append(lteLayoutLhtml);
+									  }
+									  //加载信令
+									  loadMsgHtml(obj,msgArrayData);
+								   }
+								        //绘制海量点
+								        addPointsOverlay("blue",points);
+								       //数据存储
+										var latlonArrayData=diatinctArray;  //全部经纬度的信息   diatinctArray.push(obj.longitude+"_"+obj.latitude+"-"+obj.testTime);
+										//绘制回放路线
+										//通过DrivingRoute获取一条路线的point
+										var driving = new BMap.DrivingRoute(map);
+										driving.search(points[0], points[points.length-1]);
+										driving.setSearchCompleteCallback(function() {
+										car = new BMap.Marker(points[0]);
+									});
+							  }else{
+								  parent.layer.msg("查询得数据不存在");
+							  } 
+						   }
+						});	
+			    } else {
+			        parent.layer.msg('请在chrome、safari、IE8+以上浏览器查看本示例');
+			    };	
+	 }
+	 
+function queryMsgEventData(lng,lat){
+	common.showLoadingDialog();
+	//加载信令
+	//加载事件
+	//加载左下角
+	setTimeout(function(){
+		upMsgInfo(lng,lat);
+		queryButtonDta(lng, lat);
+		common.closeLoadingDialog();
+		//地图打点
+		lnglatSetMapPoint(lng,lat);
+		}
+	,200);
+	//加载左下角得数据
+} 
+
+
+ //添加海量点
+ function addPointsOverlay(color,points){
+	        var options = {
+	            color: 'blue'
+	        }
+	        var pointCollection = new BMap.PointCollection(points, options);  // 初始化PointCollection
+	        pointCollection.addEventListener('click', function (e) {
+	        	//加载此点对应的的前后十分钟的数据
+	        	queryMsgEventData(e.point.lng,e.point.lat);
+	        });
+	        map.addOverlay(pointCollection);  // 添加Overlay
+ }
+
+//根据经纬度加载 左下角最后得数据
+function queryButtonDta(longitudeModel,latitudeModel){
+	 $.ajax({
+		   type: "POST"
+		   ,url: "/es/queryList"
+		   ,dataType: "json"
+		   , async: false
+		   ,contentType:"application/json;charset=utf-8"
+		   ,data: '{"type":"logmain","index":"logmain","limit":1,"termMap":{"longitude":"'+longitudeModel+'","latitude":"'+latitudeModel+'"},"sortMap":{"testTime":"ASC"},"revelFields":["id","latitude","cellName","sinr","rsrp","cI","tAC","pci","earfcn","doorDataInfoBeans","testTime","mSignaEventBean","mSignaBean"]}'
+		   ,success: function(msg){
+			  if(msg && msg.length>0){
+				  var lteLayoutLhtml="";
+				  for(var i=0;i<msg.length;i++){
+					  var obj=msg[i];
+					  //根据obj加载左下角的日志信息
+					  lteLayoutLhtml= loadLteHtml(obj);
+				   }
+				  $("#lteLayout").empty();
+				  $("#lteLayout").append(lteLayoutLhtml);
+
+			  }else{
+				  parent.layer.msg("查询得数据不存在");
+			  } 
+		   }
+		});	
+}
+
+
+//传入主log信息 返回左下角的表格tr，以及邻区信息
+function loadLteHtml(obj){
+	var lteLayoutLhtml="";
+	if(obj){
+   	  lteLayoutLhtml= '<tr><td style="text-align: center;font-weight: bold;">PCell</td><td style="text-align: center;font-weight: bold;">'+obj.cellName+'</td><td style="text-align: center;font-weight: bold;">'+obj.sinr+'</td><td style="text-align: center;font-weight: bold;">'+obj.rsrp+'</td><td style="text-align: center;font-weight: bold;">'+obj.cI+'</td><td style="text-align: center;font-weight: bold;">'+obj.tAC+'</td><td style="text-align: center;font-weight: bold;">'+obj.pci+'</td><td style="text-align: center;font-weight: bold;">'+obj.earfcn+'</td></tr>'
+		  //加载邻区信息
+		  var doorDataInfoBeans=obj.doorDataInfoBeans;
+		   if(doorDataInfoBeans){
+			  var mLteNeighborhoodInfos=doorDataInfoBeans.mLteNeighborhoodInfos;
+			  if(mLteNeighborhoodInfos && mLteNeighborhoodInfos.length>0){
+				  for(var j=0;j<mLteNeighborhoodInfos.length;j++){
+					  var model=mLteNeighborhoodInfos[j];
+			          lteLayoutLhtml= lteLayoutLhtml+'<tr><td style="text-align: center;">NCell</td><td style="text-align: center;"> </td><td style="text-align: center;">'+doorDataInfoBeans.sinr+'</td><td style="text-align: center;">'+doorDataInfoBeans.rsrp+'</td><td style="text-align: center;">'+model.mLteNeighborhoodCI+'</td><td style="text-align: center;">'+model.mLteNeighborhoodTAC+'</td><td style="text-align: center;">'+model.mLteNeighborhoodPCI+'</td><td style="text-align: center;">'+model.mLteNeighborhoodEarfcn+'</td></tr>'
+				  }
+			  }
+		  }
+	}
+	return lteLayoutLhtml;
+}
+
+//格式化 时间戳
+function formatMyTime(timestamp){
+	if(timestamp){
+	    var date = new Date(timestamp);
+	    var Y = date.getFullYear() + '-';
+	    var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+	    var D = date.getDate()<10?'0'+date.getDate():date.getDate();
+	    var h = date.getHours() + ':';
+	    var m = date.getMinutes() + ':';
+	    var s = date.getSeconds();
+	    return Y+M+D+" "+h+m+s;
+	}else{
+		return "";
+	}
+}
+
+/**
+ * 字段不存在同意设置为空
+ */
+function nullToEmpty(fieldVal){
+	var val="";
+	if(fieldVal){
+		if(fieldVal !="" && fieldVal !=null && fieldVal !='undefined'){
+			return fieldVal;
+		}
+	}
+	return val;
+}
+
+
+//传入主log信息 处理信令模块的数据  
+function loadMsgHtml(obj,msgArrayData){
+	if(obj){
+		var lnglatModel=obj.longitude+"_"+obj.latitude;
+       var htmlModel='<tr  onclick="changeColorMsg(this,\''+lnglatModel+'\')"><td style="text-align: center;">'+formatMyTime(obj.testTime)+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(obj.NetWorkType)+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+obj.longitude+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+obj.latitude+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(obj.SPEED)+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;"></td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(obj.CellName)+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(obj.CI)+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(obj.ENB)+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(obj.CELLID)+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(obj.earfcn)+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(obj.TAC)+'</td>';
+	   
+       var doorDataInfoBeans=obj.doorDataInfoBeans;
+       if(doorDataInfoBeans){
+    	   console.info(obj);
+    	   htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(doorDataInfoBeans.rsrq)+'</td>';
+       }else{
+    	   htmlModel=htmlModel+'<td   style="text-align: center;"></td>';
+       }
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(doorDataInfoBeans.rsrp)+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(doorDataInfoBeans.sinr)+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(doorDataInfoBeans.downLoadSpeed)+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(doorDataInfoBeans.upLoadSpeed)+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;"></td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;"></td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(obj.normalEventType)+'</td>';
+       htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(obj.abNormalEventType)+'</td>';
+       
+	   if(doorDataInfoBeans){
+		  var mLteNeighborhoodInfos= doorDataInfoBeans.mLteNeighborhoodInfos;
+		  if(mLteNeighborhoodInfos && mLteNeighborhoodInfos.length>0){
+			  var numModel=0;
+			   for(var w=0;w<mLteNeighborhoodInfos.length;w++){
+				   if(w<6){
+				   	var objEvent=mLteNeighborhoodInfos[w];
+				   	htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(objEvent.mLteNeighborhoodEarfcn)+'</td>';
+				   	htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(objEvent.MLteNeighborhoodPCI)+'</td>';
+				   	htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(doorDataInfoBeans.rsrp)+'</td>';
+				   	htmlModel=htmlModel+'<td   style="text-align: center;">'+nullToEmpty(objEvent.MLteNeighborhoodRsrq)+'</td>';
+				   	numModel++;
+				   }
+			   }
+			   
+		  }
+	   }
+	   htmlModel =htmlModel+'</tr>';
+	   msgArrayData.push(obj.longitude+"_"+obj.latitude+"~"+htmlModel);
+	   $("#msgLayout").append(htmlModel);
+	}
+}
+
+ 
+ 
+//扩展经纬度的循环判断的原则
+function contains(longitude,latitude,testTime,arr) {//数组里面存储的是  lon_lat-testTime
+   var i = arr.length;
+   while(i--) {
+   	var obj=arr[i];
+   	if(obj){
+   		var array=obj.split("-");
+	    	if(array !=null && array.length==2){
+	    		var latlng=array[0].split("_");
+	    		if(latlng !=null && latlng.length==2){
+			        if(latlng[0] == longitude && latlng[1] == latitude ) {
+			           if(testTime){
+			        	   arr[i]=longitude+"_"+latitude+"-"+testTime;
+			        	} 
+			            return i;
+			        }
+	    		}
+	    	}
+   	}
+   }
+   return -1;
+}
+
+	
+</script>
+
+
+
