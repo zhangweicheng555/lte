@@ -186,7 +186,6 @@
 			map.panTo(point);
 			var lat=point.lat;
 			var lng=point.lng;
-			
 			if(index < points.length) {
 				timer = window.setTimeout("add(" + index + ")", 1500);
 			} else {//  便利结束之后  立马 移除所有的覆盖物  然后重新绘制海量的数据点
@@ -258,16 +257,18 @@
 	function dealMainCellInfo(lng,lat){
 		//移除所有的线覆盖物
 		//处理主服务小区
+		
+		 //先清除之前的
+		   if(overlayArray !=null && overlayArray.length>0){
+			   for(var i=0;i<overlayArray.length;i++){
+				   map.removeOverlay(overlayArray[i]);
+			   }
+		   }
+		
 	  $.ajax({
 		   type:"POST",url:"/es/buss/queryMainService",dataType: "json",data:{"longitude":lng,"latitude":lat}
 		   ,success: function(msg){
 			   if(msg && msg.length>0){
-				   //先清除之前的
-				   if(overlayArray !=null && overlayArray.length>0){
-					   for(var i=0;i<overlayArray.length;i++){
-						   map.removeOverlay(overlayArray[i]);
-					   }
-				   }
 				   overlayArray=[];
 				   var obj=msg[0];
 				   var polyline = new BMap.Polyline([new BMap.Point(lng, lat),new BMap.Point(obj.lte_longitude2, obj.lte_latitude2)], {strokeColor:"red", strokeWeight:1.5, strokeOpacity:0.8});  
@@ -393,12 +394,15 @@
 					  if(msg !=null && msg.length>0){
 						  for(var i=0;i<msg.length;i++){
 							  var model=msg[i];
-							  //地图渲染点 并且移动--这个地图后期是拉线得问题
-							   lnglatSetMapPoint(model.longitude, model.latitude);
+							        //地图渲染点 并且移动--这个地图后期是拉线得问题
+							        lnglatSetMapPoint(model.longitude, model.latitude);
 							        //加载左下角得数据
 							        queryButtonDta(model.longitude, model.latitude);
 							        //将事件的数据   属于该点的放在最上面
 							        upEventInfo(model.longitude, model.latitude);
+							        //主服务器拉线
+							        //加载主的邻区信息
+							       	 dealMainCellInfo(longitude,latitude);
 							        
 						  }
 					  }
@@ -415,37 +419,12 @@
 	
 	//根据经纬度  将该点对应的事件放在最上面  其他的放在下面  联动
 	function upEventInfo(longitude,latitude){
-		 checkPlayEnd();
-		   $("#eventLayout").empty();
-		   
-		   var htmlUpEvent="";
-		   if(eventArrayData && eventArrayData.length>0){
-			   for(var f=0;f<eventArrayData.length;f++){
-				   var obj=eventArrayData[f];
-				   var upArray=obj.split("~");
-				   var upArrayOne=upArray[0];
-				   var upArrayOneHtml=upArray[1];
-				   var latlongArray=upArrayOne.split("_");
-				   if(latlongArray[0]==longitude && latlongArray[1]==latitude){
-					   var zwcArray=upArrayOneHtml.split("<tr");
-					   var htmlFinalZ='<tr  style="color:red;"  '+zwcArray[1];
-					   htmlUpEvent += htmlFinalZ;
-				   }else{
-					   $("#eventLayout").append(upArrayOneHtml);
-				   }
-			   }
-				     $("#eventLayout").prepend(htmlUpEvent);
-		   }
-	}
-	//根据经纬度  将该点对应的信令放在最上面  其他的放在下面  联动
-	function upMsgInfo(longitude,latitude){
-		 checkPlayEnd();
-		   $("#msgLayout").empty();
-		   
-		   var htmlUpMsg="";
-		   if(msgArrayData && msgArrayData.length>0){
-			    for(var f=0;f<msgArrayData.length;f++){
-				   var obj=msgArrayData[f];
+		 if(checkPlayEnd()){
+			   $("#eventLayout").empty();
+			   var htmlUpEvent="";
+			   if(eventArrayData && eventArrayData.length>0){
+				   for(var f=0;f<eventArrayData.length;f++){
+					   var obj=eventArrayData[f];
 					   var upArray=obj.split("~");
 					   var upArrayOne=upArray[0];
 					   var upArrayOneHtml=upArray[1];
@@ -453,41 +432,65 @@
 					   if(latlongArray[0]==longitude && latlongArray[1]==latitude){
 						   var zwcArray=upArrayOneHtml.split("<tr");
 						   var htmlFinalZ='<tr  style="color:red;"  '+zwcArray[1];
-						   htmlUpMsg += htmlFinalZ;
+						   htmlUpEvent += htmlFinalZ;
 					   }else{
-						   $("#msgLayout").append(upArrayOneHtml);
+						   $("#eventLayout").append(upArrayOneHtml);
 					   }
+				   }
+					     $("#eventLayout").prepend(htmlUpEvent);
 			   }
-				     $("#msgLayout").prepend(htmlUpMsg); 
-		   }
+			 }
+	}
+	//根据经纬度  将该点对应的信令放在最上面  其他的放在下面  联动
+	function upMsgInfo(longitude,latitude){
+		if(checkPlayEnd()){
+			$("#msgLayout").empty();
+			   var htmlUpMsg="";
+			   if(msgArrayData && msgArrayData.length>0){
+				    for(var f=0;f<msgArrayData.length;f++){
+					   var obj=msgArrayData[f];
+						   var upArray=obj.split("~");
+						   var upArrayOne=upArray[0];
+						   var upArrayOneHtml=upArray[1];
+						   var latlongArray=upArrayOne.split("_");
+						   if(latlongArray[0]==longitude && latlongArray[1]==latitude){
+							   var zwcArray=upArrayOneHtml.split("<tr");
+							   var htmlFinalZ='<tr  style="color:red;"  '+zwcArray[1];
+							   htmlUpMsg += htmlFinalZ;
+						   }else{
+							   $("#msgLayout").append(upArrayOneHtml);
+						   }
+				   }
+					     $("#msgLayout").prepend(htmlUpMsg); 
+			   }
+		}
 	}
 	
 	//根据经度纬度 在地图上打点  先重新去掉所有的点  在绘制该点并变大
 	function lnglatSetMapPoint(longitude,latitude){
-		 checkPlayEnd();
-		map.clearOverlays();  //移除所有的覆盖物  
-		//绘制海量点
-	    addPointsOverlay("blue",points);
-		
-		var points1 = [];
-		  var point=new BMap.Point(longitude, latitude);
-	      map.panTo(point); //地图移动到该点位置
-	   
-	       var options = {
-	    		size: BMAP_POINT_SIZE_BIGGER,
-	            color: 'red'
-	        }
-	       points1.push(point);
-	        var pointCollection = new BMap.PointCollection(points1, options);  // 初始化PointCollection
-	        pointCollection.addEventListener('click', function (e) {
-	        	//queryMsgEventData(e.point.lng,e.point.lat);
-	        });
-	        map.addOverlay(pointCollection);  // 添加Overlay
-	        
-	      //加载主的邻区信息
-       	 dealMainCellInfo(longitude,latitude);
-	     
+		if(checkPlayEnd()){
+			map.clearOverlays();  //移除所有的覆盖物  
+			//绘制海量点
+		    addPointsOverlay("blue",points);
+			
+			var points1 = [];
+			  var point=new BMap.Point(longitude, latitude);
+		      map.panTo(point); //地图移动到该点位置
+		   
+		       var options = {
+		    		size: BMAP_POINT_SIZE_BIGGER,
+		            color: 'red'
+		        }
+		       points1.push(point);
+		        var pointCollection = new BMap.PointCollection(points1, options);  // 初始化PointCollection
+		        pointCollection.addEventListener('click', function (e) {
+		        	//queryMsgEventData(e.point.lng,e.point.lat);
+		        });
+		        map.addOverlay(pointCollection);  // 添加Overlay
+		}
 	}
+	
+	
 	//单机事件处理逻辑
 	function selectCustomerDbEvent(lonLan){
 		 if(checkPlayEnd()){
@@ -495,11 +498,13 @@
 			var lngLatArray=lonLan.split("_");
 			var lng=lngLatArray[0];
 			var lat=lngLatArray[1];
-			//加载左下角得数据
+			//加载左下角得数据  以及邻区拉线
 			queryButtonDta(lng, lat);
-			setTimeout(function(){upMsgInfo(lng,lat);common.closeLoadingDialog();},200);
+			setTimeout(function(){upMsgInfo(lng,lat);common.closeLoadingDialog();},100);
 			//地图打点
 			lnglatSetMapPoint(lng,lat);
+		      //加载主的邻区信息
+	       	 dealMainCellInfo(longitude,latitude);
 		 }
 	}
 	
@@ -601,7 +606,7 @@
 					  simGcModel=msg;
 					  cycleSimGc();
 				  }else{
-					  parent.layer.msg("查询得数据不存在");
+					  //parent.layer.msg("查询得数据不存在");
 				  } 
 			   }
 			});	
@@ -678,7 +683,7 @@
 				  if(msg){
 					   return msg;
 				  }else{
-					  parent.layer.msg("查询得数据不存在");
+					  //parent.layer.msg("查询得数据不存在");
 					  return null;
 				  } 
 			   }
@@ -718,7 +723,7 @@
 										  $("#lteLayout").empty();
 										  //加载主小区拉线
 										 dealMainCellInfo(obj.longitude, obj.latitude);
- 				 						  var lteLayoutLhtml=loadLteHtml(obj,false);  // 这个回加载邻区拉线
+ 				 						  var lteLayoutLhtml=loadLteHtml(obj);  // 这个回加载邻区拉线
 										  $("#lteLayout").append(lteLayoutLhtml);
 									  }
 									  //加载信令
@@ -736,14 +741,13 @@
 										var driving = new BMap.DrivingRoute(map);
 										driving.search(points[0], points[points.length-1]);
 										driving.setSearchCompleteCallback(function() {
-										car = new BMap.Marker(points[0]);
+										    car = new BMap.Marker(points[0]);
 										});
 										
-										
 								    //加载sim工参里面的东西  这里是测试使用 后期根据时机情况 呈现
-								//loadSiGcInfo();
+								    //loadSiGcInfo();
 							  }else{
-								  parent.layer.msg("查询得数据不存在");
+								  //parent.layer.msg("查询得数据不存在");
 							  } 
 						   }
 						});	
@@ -754,23 +758,26 @@
 	 }
 	
 
-
+//点击点触发的事件
 function queryMsgEventData(lng,lat){
-	 checkPlayEnd();
-	common.showLoadingDialog();
-	//加载信令
-	//加载事件
-	//加载左下角
-	setTimeout(function(){
-		upMsgInfo(lng,lat);
-		upEventInfo(lng,lat);
-		queryButtonDta(lng, lat);
-		common.closeLoadingDialog();
-		//地图打点
-		lnglatSetMapPoint(lng,lat);
-		}
-	,200);
-	//加载左下角得数据
+	if(checkPlayEnd()){
+		common.showLoadingDialog();
+		//加载信令
+		//加载事件
+		//加载左下角
+		setTimeout(function(){
+			upMsgInfo(lng,lat);
+			upEventInfo(lng,lat);
+			queryButtonDta(lng, lat);
+			common.closeLoadingDialog();
+			//地图打点
+			lnglatSetMapPoint(lng,lat);
+		      //加载主的邻区信息
+	     	 dealMainCellInfo(lng,lat);
+			}
+		,100);
+		//加载左下角得数据
+	}
 } 
  //添加海量点
  function addPointsOverlay(color,points){
@@ -800,12 +807,12 @@ function queryButtonDta(longitudeModel,latitudeModel){//dealLine  是否处理  
 				  for(var i=0;i<msg.length;i++){
 					  var obj=msg[i];
 					  //根据obj加载左下角的日志信息
-					  lteLayoutLhtml= loadLteHtml(obj,true);
+					  lteLayoutLhtml= loadLteHtml(obj);
 				   }
 				  $("#lteLayout").empty();
 				  $("#lteLayout").append(lteLayoutLhtml);
 			  }else{
-				  parent.layer.msg("查询得数据不存在");
+				//  parent.layer.msg("查询得数据不存在");
 			  } 
 		   }
 		});	
@@ -814,8 +821,8 @@ function queryButtonDta(longitudeModel,latitudeModel){//dealLine  是否处理  
 
 var overlayLqArray=[];
 
-//传入主log信息 返回左下角的表格tr，以及邻区信息
-function loadLteHtml(obj,dealLine){
+//传入主log信息 返回左下角的表格tr，以及邻区信息  邻区拉线
+function loadLteHtml(obj){
 	
 	//存储邻区线的轨迹
 	if(overlayLqArray.length>0){//先清除掉
@@ -877,7 +884,7 @@ function lqLineOperate(longitudeModel,latitudeModel,linquPci,overlayLqArray){
 					  dealLqCellInfo(longitudeModel,latitudeModel,overlayLqArray,obj.lte_longitude2,obj.lte_latitude2);
 				   }
 			  }else{
-				  parent.layer.msg("查询得数据不存在");
+				//  parent.layer.msg("查询得数据不存在");
 			  } 
 		   }
 		});	
