@@ -1,6 +1,11 @@
 package com.boot.kaizen.business.es.model.sim;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * sim同步的时候的工参存储信息
@@ -21,8 +26,8 @@ public class GcModel implements Serializable {
 	private String lte_ecgi;// lte_ecgi
 	private String lte_phycellid;// PhyCellId 这个就是PCI
 	private String lte_longitude2;// 经度 百度的
-	private String lte_longitude;
 	private String lte_latitude2;// 纬度 百度的
+	private String lte_longitude;
 	private String lte_latitude;
 	private String lte_site_tall;// 站高
 	private String lte_azimuth;// 方位角
@@ -41,7 +46,32 @@ public class GcModel implements Serializable {
 	// private String lte_enodeb_name;// eNodeB Name
 	// private String lte_site_name;// 站名
 
-	
+	private Map<String, Double> location;
+
+	public Map<String, Double> getLocation() {
+		return location;
+	}
+
+	/**
+	 * 经纬度做一下处理
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年11月21日 上午10:52:33 108.265221 22.89169
+	 */
+	public void dealLocation() {
+		Map<String, Double> paramMap = new LinkedHashMap<String, Double>();
+		if (StringUtils.isNotBlank(lte_latitude2) && StringUtils.isNotBlank(lte_longitude2)) {
+			paramMap.put("lat", Double.valueOf(lte_latitude2.toString()));
+			paramMap.put("lon", Double.valueOf(lte_longitude2.toString()));
+		}
+		this.location = paramMap;
+	}
+
+	public void setLocation(Map<String, Double> location) {
+		this.location = location;
+	}
+
 	public GcModel(String lte_city_name, String lte_net, String lte_enodebid, String lte_sector_id, String lte_cell,
 			String lte_ci, String lte_phycellid, String lte_longitude2, String lte_longitude, String lte_latitude2,
 			String lte_latitude, String lte_site_tall, String lte_azimuth, String lte_mechanical_downdip,

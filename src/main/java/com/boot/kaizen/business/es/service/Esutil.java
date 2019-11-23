@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
+
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
@@ -27,11 +29,16 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.geo.GeoDistance;
+import org.elasticsearch.common.geo.GeoPoint;
+import org.elasticsearch.common.unit.DistanceUnit;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.GeoDistanceQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -42,6 +49,8 @@ import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.GeoDistanceSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.cache.annotation.Cacheable;
 
@@ -136,7 +145,6 @@ public class Esutil {
 	 * @date 2019年10月17日 下午2:34:27
 	 */
 	public static List<Map<String, Object>> scrollQuery(QueryParamData queryParamData) {
-		System.out.println("---------------------------");
 		TransportClient client = SpringUtil.getBean(TransportClient.class);
 		// 校验
 		queryParamData.verificationIndexType();
@@ -196,33 +204,115 @@ public class Esutil {
 		BoolQueryBuilder boolFilterBuilder = QueryBuilders.boolQuery();
 		// 处理参数问题
 		if (queryParamData != null) {
-			Map<String, Object> matchMap = queryParamData.getMatchMap();
-			if (matchMap != null && matchMap.size() > 0) {
-				for (Entry<String, Object> entry : matchMap.entrySet()) {
-					MatchQueryBuilder matchQuery = QueryBuilders.matchQuery(entry.getKey(), entry.getValue());
-					boolQueryBuilder.must(matchQuery);
+			Map<String, List<Object>> orMap = queryParamData.getOrMap();
+			if (orMap != null && !orMap.isEmpty()) {// or查询的时候 仅仅支持 termMap联合使用 其余的不支持
+				TermQueryBuilder orTermQuery=null;
+				for (Entry<String, List<Object>> entry : orMap.entrySet()) {
+					List<Object> kvs = entry.getValue();
+					if(kvs !=null && kvs.size()>0) {
+						for (Object object : kvs) {
+							BoolQueryBuilder bb=QueryBuilders.boolQuery();
+							orTermQuery = QueryBuilders.termQuery(entry.getKey(),object);
+							bb.must(orTermQuery);
+							//处理term条件
+							Map<String, Object> termMapModel = queryParamData.getTermMap();
+							if (termMapModel != null && termMapModel.size() > 0) {
+								for (Entry<String, Object> entryModel : termMapModel.entrySet()) {
+									orTermQuery = QueryBuilders.termQuery(entryModel.getKey(),entryModel.getValue());
+									bb.must(orTermQuery);
+								}
+							}
+							boolQueryBuilder.should(bb);
+						}
+					}
+				}
+			} else {// 非or查询
+				Map<String, Object> matchMap = queryParamData.getMatchMap();
+				if (matchMap != null && matchMap.size() > 0) {
+					for (Entry<String, Object> entry : matchMap.entrySet()) {
+						MatchQueryBuilder matchQuery = QueryBuilders.matchQuery(entry.getKey(), entry.getValue());
+						boolQueryBuilder.must(matchQuery);
+					}
+				}
+
+				Map<String, Object> termMap = queryParamData.getTermMap();
+				if (termMap != null && termMap.size() > 0) {
+					for (Entry<String, Object> entry : termMap.entrySet()) {
+						boolQueryBuilder.must(QueryBuilders.termQuery(entry.getKey(), entry.getValue()));
+					}
+				}
+
+				Map<String, Object> phraseMap = queryParamData.getPhraseMap();
+				if (phraseMap != null && phraseMap.size() > 0) {
+					for (Entry<String, Object> entry : phraseMap.entrySet()) {
+						boolQueryBuilder.must(QueryBuilders.matchPhraseQuery(entry.getKey(), entry.getValue()));
+					}
+				}
+
+				Map<String, Object> filterMap = queryParamData.getFilterMap();
+				if (filterMap != null && filterMap.size() > 0) {
+					for (Entry<String, Object> entry : filterMap.entrySet()) {
+						boolFilterBuilder.must(QueryBuilders.termQuery(entry.getKey(), entry.getValue()));
+					}
+				}
+
+				// 注意 中心范围查询 通用版本仅仅支持 公里 为单位
+				Map<String, Map<GeoPoint, Double>> diatinceGeoMap = queryParamData.getDiatinceGeoMap();
+				if (diatinceGeoMap != null && diatinceGeoMap.size() > 0) {
+					for (Entry<String, Map<GeoPoint, Double>> entry : diatinceGeoMap.entrySet()) {
+						Map<GeoPoint, Double> value = entry.getValue();
+						if (value != null && value.size() > 0) {
+							for (Entry<GeoPoint, Double> model : value.entrySet()) {
+								GeoDistanceQueryBuilder geoDistance = QueryBuilders.geoDistanceQuery(entry.getKey())
+										.point(model.getKey()).distance(model.getValue(), DistanceUnit.KILOMETERS)
+										.geoDistance(GeoDistance.ARC);
+								boolFilterBuilder.must(geoDistance);
+							}
+						}
+					}
+				}
+
+				Map<String, List<GeoPoint>> geoMap = queryParamData.getGeoMap();
+				if (geoMap != null && geoMap.size() > 0) {
+					for (Entry<String, List<GeoPoint>> entry : geoMap.entrySet()) {
+						List<GeoPoint> value = entry.getValue();
+						if (value != null && value.size() == 2) {// 这个是 对角查询
+							boolFilterBuilder.must(QueryBuilders.geoBoundingBoxQuery(entry.getKey())
+									.setCorners(value.get(0), value.get(1)));
+						} else {
+							boolFilterBuilder.must(QueryBuilders.geoPolygonQuery(entry.getKey(), value));
+						}
+					}
+				}
+				// 范围过滤
+				handleRangeQuery(queryParamData, boolFilterBuilder);
+
+				// 排序
+				Map<String, Object> sortMap = queryParamData.getSortMap();
+				if (sortMap != null && !sortMap.isEmpty()) {
+					for (Entry<String, Object> entry : sortMap.entrySet()) {
+						String val = entry.getValue().toString().toUpperCase();
+						if ("DESC".equals(val)) {
+							sourceBuilder.sort(entry.getKey(), SortOrder.DESC);
+						} else {
+							sourceBuilder.sort(entry.getKey(), SortOrder.ASC);
+						}
+					}
+				}
+
+				// 排序 1 地理查询的时候 距离的排序 这里仅仅支持 ASC
+				Map<String, GeoPoint> sortGeoMap = queryParamData.getSortGeoMap();
+				if (sortGeoMap != null && !sortGeoMap.isEmpty()) {
+					for (Entry<String, GeoPoint> entry : sortGeoMap.entrySet()) {
+						if (StringUtils.isNotBlank(entry.getKey()) && entry.getValue() != null) {
+							GeoDistanceSortBuilder geoDistanceSortBuilder = SortBuilders
+									.geoDistanceSort(entry.getKey(), entry.getValue()).unit(DistanceUnit.KILOMETERS)
+									.order(SortOrder.ASC);
+							sourceBuilder.sort(geoDistanceSortBuilder);
+						}
+					}
 				}
 			}
-			Map<String, Object> termMap = queryParamData.getTermMap();
-			if (termMap != null && termMap.size() > 0) {
-				for (Entry<String, Object> entry : termMap.entrySet()) {
-					boolQueryBuilder.must(QueryBuilders.termQuery(entry.getKey(), entry.getValue()));
-				}
-			}
-			Map<String, Object> phraseMap = queryParamData.getPhraseMap();
-			if (phraseMap != null && phraseMap.size() > 0) {
-				for (Entry<String, Object> entry : phraseMap.entrySet()) {
-					boolQueryBuilder.must(QueryBuilders.matchPhraseQuery(entry.getKey(), entry.getValue()));
-				}
-			}
-			Map<String, Object> filterMap = queryParamData.getFilterMap();
-			if (filterMap != null && filterMap.size() > 0) {
-				for (Entry<String, Object> entry : filterMap.entrySet()) {
-					boolFilterBuilder.must(QueryBuilders.matchQuery(entry.getKey(), entry.getValue()));
-				}
-			}
-			// 范围过滤
-			handleRangeQuery(queryParamData, boolFilterBuilder);
 		}
 
 		sourceBuilder.query(boolQueryBuilder);// 与条件集合
@@ -231,22 +321,16 @@ public class Esutil {
 		// 分页
 		sourceBuilder.from((queryParamData.getPage() - 1) * queryParamData.getLimit());
 		sourceBuilder.size(queryParamData.getLimit());
-		// 排序
-		Map<String, Object> sortMap = queryParamData.getSortMap();
-		if (sortMap != null && !sortMap.isEmpty()) {
-			for (Entry<String, Object> entry : sortMap.entrySet()) {
-				String val = entry.getValue().toString().toUpperCase();
-				if ("DESC".equals(val)) {
-					sourceBuilder.sort(entry.getKey(), SortOrder.DESC);
-				} else {
-					sourceBuilder.sort(entry.getKey(), SortOrder.ASC);
-				}
-			}
-		}
+
 		// 显示指定字段
 		List<String> revelFields = queryParamData.getRevelFields();
 		if (revelFields != null && revelFields.size() > 0) {
 			sourceBuilder.fetchSource(revelFields.toArray(new String[revelFields.size()]), null);
+		}
+		// 派出字段
+		List<String> excludeFields = queryParamData.getExcludeFields();
+		if (excludeFields != null && excludeFields.size() > 0) {
+			sourceBuilder.fetchSource(null, excludeFields.toArray(new String[excludeFields.size()]));
 		}
 		return sourceBuilder;
 	}

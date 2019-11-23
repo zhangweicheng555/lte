@@ -16,8 +16,26 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.geo.GeoDistance;
+import org.elasticsearch.common.geo.GeoPoint;
+import org.elasticsearch.common.unit.DistanceUnit;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.GeoBoundingBoxQueryBuilder;
+import org.elasticsearch.index.query.GeoDistanceQueryBuilder;
+import org.elasticsearch.index.query.GeoPolygonQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.GeoDistanceSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ResourceUtils;
@@ -228,7 +246,7 @@ public class EsController {
 
 	@Autowired
 	private GcModelService gcModelService;
-	
+
 	/**
 	 * 
 	 * @Description: 日志文件的内部导入
@@ -241,6 +259,7 @@ public class EsController {
 		BulkRequest request = new BulkRequest();
 		List<GcModel> find = gcModelService.find();
 		for (GcModel gcModel : find) {
+			gcModel.dealLocation();
 			IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc");
 			indexRequestOther.source(JSONObject.toJSONString(gcModel), XContentType.JSON);
 			request.add(indexRequestOther);
@@ -252,7 +271,6 @@ public class EsController {
 		System.out.println(find.size());
 		return "success";
 	}
-
 
 	/**
 	 * 一键测试数据的导入
@@ -328,6 +346,143 @@ public class EsController {
 			indexRequestEvent.source(JSONObject.toJSONString(paramMap), XContentType.JSON);
 			request.add(indexRequestEvent);
 		}
+	}
+
+	/**
+	 * es地理坐标查询 矩形坐标查询
+	 * 
+	 * //bssw.lng,bsne.lat 108.37550228611097,22.825263470505483 //bsne.lng,bssw.lat
+	 * 108.37695754103666,22.82323569809738
+	 * 
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/esLqQuery")
+	public Object esLqQuery() throws Exception {
+		GeoPoint topLeft = new GeoPoint(22.825263470505483d, 108.37550228611097d);
+		GeoPoint bottomRight = new GeoPoint(22.82323569809738d, 108.37695754103666);
+
+		Double splitMi = 200d; // 单位是米
+		GeoDistanceQueryBuilder distanceQueryBuilder = QueryBuilders.geoDistanceQuery("location").point(topLeft)
+				.distance(splitMi, DistanceUnit.METERS);
+		BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+		boolQueryBuilder.must(QueryBuilders.termQuery("lte_city_name.keyword", "南宁"));
+
+		SearchResponse searchResponse = transportClient.prepareSearch("simgc").setTypes("simgc")
+				.setQuery(distanceQueryBuilder).setPostFilter(boolQueryBuilder).get();
+		SearchHits hits = searchResponse.getHits();
+		for (SearchHit searchHit : hits) {
+			Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
+			System.out.println(JSONObject.toJSONString(sourceAsMap));
+		}
+		return "success";
+	}
+
+	/**
+	 * 查询到指定点的距离 按升序的距离排序
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年11月22日 上午10:01:54
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/esQueryDiatance")
+	public Object esQueryDiatance(@RequestParam("lat") Double lat, @RequestParam("lng") Double lng) throws Exception {
+		GeoPoint topLeft = new GeoPoint(lat, lng);
+
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); // 100千米
+
+		GeoDistanceQueryBuilder geoDistance = QueryBuilders.geoDistanceQuery("location").point(topLeft)
+				.distance(10000, DistanceUnit.KILOMETERS).geoDistance(GeoDistance.ARC);
+
+		GeoDistanceSortBuilder geoDistanceSortBuilder = SortBuilders.geoDistanceSort("location", topLeft)
+				.unit(DistanceUnit.KILOMETERS).order(SortOrder.ASC);
+
+		sourceBuilder.sort(geoDistanceSortBuilder);
+		sourceBuilder.query(geoDistance);
+
+		SearchRequest searchRequest = new SearchRequest("simgc");
+		searchRequest.types("simgc");
+		searchRequest.source(sourceBuilder);
+		SearchResponse searchResponse = transportClient.search(searchRequest).actionGet();
+		SearchHits hits = searchResponse.getHits();
+		for (SearchHit searchHit : hits) {
+			Object obj = "";
+			Object[] sortValues = searchHit.getSortValues();
+			System.out.println(JSONObject.toJSONString(sortValues));
+			if (sortValues != null && sortValues.length > 0) {
+				obj = sortValues[0];
+			}
+			Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
+			System.out.println(JSONObject.toJSONString(sourceAsMap) + "-----------" + obj);
+		}
+		return "success";
+	}
+
+	/**
+	 * or查询 where (a=b and bc=c) or (d=c and f=m)
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年11月22日 上午10:01:54
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/esOrQuery")
+	public Object esOrQuery() throws Exception {
+
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); // 100千米
+		BoolQueryBuilder orBuilder = QueryBuilders.boolQuery();
+
+		BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
+
+		BoolQueryBuilder bqb2 = QueryBuilders.boolQuery();
+
+		BoolQueryBuilder bqb3 = QueryBuilders.boolQuery();
+		
+		BoolQueryBuilder bqb4 = QueryBuilders.boolQuery();
+
+		TermQueryBuilder toQuery = null;
+		TermQueryBuilder fromQuery = null;
+
+		toQuery = QueryBuilders.termQuery("lte_city_name.keyword", "湖南");
+		fromQuery = QueryBuilders.termQuery("lte_ci.keyword", "10371011");
+		bqb1.must(toQuery);
+		bqb1.must(fromQuery);
+
+		toQuery = QueryBuilders.termQuery("lte_city_name.keyword", "湖南");
+		fromQuery = QueryBuilders.termQuery("lte_ci.keyword", "10371012");
+		bqb2.must(toQuery);
+		bqb2.must(fromQuery);
+
+		toQuery = QueryBuilders.termQuery("lte_city_name.keyword", "湖南");
+		fromQuery = QueryBuilders.termQuery("lte_ci.keyword", "10371021");
+		bqb3.must(toQuery);
+		bqb3.must(fromQuery);
+		
+		toQuery = QueryBuilders.termQuery("lte_city_name.keyword", "湖南");
+		fromQuery = QueryBuilders.termQuery("lte_ecgi.keyword", "7749412");
+		bqb4.must(toQuery);
+		bqb4.must(fromQuery);
+		
+
+		orBuilder.should(bqb3);
+		orBuilder.should(bqb2);
+		orBuilder.should(bqb1);
+		orBuilder.should(bqb4);
+		
+
+		sourceBuilder.postFilter(orBuilder);
+
+		SearchRequest searchRequest = new SearchRequest("simgc");
+		searchRequest.types("simgc");
+		searchRequest.source(sourceBuilder);
+
+		SearchResponse searchResponse = transportClient.search(searchRequest).actionGet();
+		SearchHits hits = searchResponse.getHits();
+		for (SearchHit searchHit : hits) {
+			Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
+			System.out.println(JSONObject.toJSONString(sourceAsMap));
+		}
+		return "success";
 	}
 
 }

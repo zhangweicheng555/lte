@@ -251,6 +251,26 @@
 			<artifactId>elasticsearch-rest-high-level-client</artifactId>
 		</dependency>
 		
+		<!-- elasticsearch 地理位置查询支持
+		
+		<dependency>
+		    <groupId>org.locationtech.spatial4j</groupId>
+		    <artifactId>spatial4j</artifactId>
+		    <version>0.7</version>                        
+		</dependency>
+		<dependency>
+		    <groupId>org.locationtech.jts</groupId>
+		    <artifactId>jts-core</artifactId>
+		    <version>1.15.0</version>                         
+		    <exclusions>
+		        <exclusion>
+		            <groupId>xerces</groupId>
+		            <artifactId>xercesImpl</artifactId>
+		        </exclusion>
+		    </exclusions>
+		</dependency>
+		 -->
+		
 		<dependency>
 			<groupId>org.elasticsearch.plugin</groupId>
 			<artifactId>transport-netty4-client</artifactId>

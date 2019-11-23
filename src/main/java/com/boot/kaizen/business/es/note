@@ -106,3 +106,56 @@ half_float
 
 scaled_float
 缩放类型的的浮点数, 比如price字段只需精确到分, 57.34缩放因子为100, 存储结果为5734
+
+
+
+
+
+
+[{
+  "bool" : {
+    "must" : [
+      {
+        "term" : {
+          "lte_ecgi.keyword" : {
+            "value" : "7749412",
+            "boost" : 1.0
+          }
+        }
+      },
+      {
+        "term" : {
+          "lte_city_name.keyword" : {
+            "value" : "湖南",
+            "boost" : 1.0
+          }
+        }
+      }
+    ],
+    "adjust_pure_negative" : true,
+    "boost" : 1.0
+  }
+}, {
+  "bool" : {
+    "must" : [
+      {
+        "term" : {
+          "lte_ci.kenword" : {
+            "value" : "10371011",
+            "boost" : 1.0
+          }
+        }
+      },
+      {
+        "term" : {
+          "lte_city_name.keyword" : {
+            "value" : "湖南",
+            "boost" : 1.0
+          }
+        }
+      }
+    ],
+    "adjust_pure_negative" : true,
+    "boost" : 1.0
+  }
+}]

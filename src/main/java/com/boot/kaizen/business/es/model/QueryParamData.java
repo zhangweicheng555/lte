@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.common.geo.GeoPoint;
 
 import com.boot.kaizen.util.MyDateUtil;
 
@@ -26,13 +27,24 @@ public class QueryParamData implements Serializable {
 	private Map<String, Object> matchMap;// 模糊匹配的map 全文检索的那种
 	private Map<String, Object> termMap; // 精确查询的map
 	private Map<String, Object> phraseMap; // 短语匹配
+	private Map<String, List<GeoPoint>> geoMap; // 仅仅支持2个 多点图形查询(这个没有顺序之分)、对角查询（注意对角查询的时候 第一个是左上角  第二个是右下角）  key是字段
 
-	private Map<String, Object> filterMap; // 过滤条件
+	private Map<String, Map<GeoPoint, Double>> diatinceGeoMap; // k：经纬度字段的名字   GeoPoint  中心点  Double  是距离多少范围内  注意 这里的单位是 1万公里
+	
+	private Map<String, GeoPoint> sortGeoMap; // 地理查询的时候的排序  仅仅支持ASC   key匹配的地理字段   v:中心点
+	private Map<String, Object> sortMap; // 排序字段  两个排序 一般最好选择 之一
+	
+	private Map<String, List<Object>> orMap; // or条件模式查询时用(or的时候 仅仅支持termMap联合使用)   注意 如果or中有过滤的条件 放在 termMap  里面  (a=b and c=d) or (a=b and f=e) 这个a就可以放在termMap里面
+	                                         // list  是key对应的值列表
+	
+	private Map<String, Object> filterMap; // 过滤条件   这个目前的理解是【查询结束之后  执行的操作  不建议使用】
 	private boolean revelPk = true; // 是否显示记录得主键key 这个主键是es自带得
 
-	private Map<String, Object> sortMap; // 排序字段
 
 	private List<String> revelFields;// 指定要显示的字段
+	private List<String> excludeFields;// 指定派出的字段    这俩个 使用其中一个
+	
+	
 
 	private Integer page = 1;// 默认页码
 	private Integer limit = 1000;// 默认数量 这个是分页显示的数量 或者是滚动查询的数量
@@ -50,6 +62,40 @@ public class QueryParamData implements Serializable {
 
 	
 	
+	
+	public List<String> getExcludeFields() {
+		return excludeFields;
+	}
+	public void setExcludeFields(List<String> excludeFields) {
+		this.excludeFields = excludeFields;
+	}
+	
+	
+	
+	public Map<String, List<Object>> getOrMap() {
+		return orMap;
+	}
+	public void setOrMap(Map<String, List<Object>> orMap) {
+		this.orMap = orMap;
+	}
+	public Map<String, GeoPoint> getSortGeoMap() {
+		return sortGeoMap;
+	}
+	public void setSortGeoMap(Map<String, GeoPoint> sortGeoMap) {
+		this.sortGeoMap = sortGeoMap;
+	}
+	public Map<String, Map<GeoPoint, Double>> getDiatinceGeoMap() {
+		return diatinceGeoMap;
+	}
+	public void setDiatinceGeoMap(Map<String, Map<GeoPoint, Double>> diatinceGeoMap) {
+		this.diatinceGeoMap = diatinceGeoMap;
+	}
+	public Map<String, List<GeoPoint>> getGeoMap() {
+		return geoMap;
+	}
+	public void setGeoMap(Map<String, List<GeoPoint>> geoMap) {
+		this.geoMap = geoMap;
+	}
 	public QueryParamData(String index, String type, boolean revelPk, Integer limit) {
 		super();
 		this.index = index;
@@ -283,6 +329,25 @@ public class QueryParamData implements Serializable {
 		if (StringUtils.isBlank(this.index) || StringUtils.isBlank(this.type)) {
 			throw new IllegalArgumentException("索引跟类型不能为空");
 		}
+	}
+	/**
+	 * 处理  距离这个点  1万公里的点的距离  参数设置
+	* @Description: TODO
+	* @author weichengz
+	* @date 2019年11月22日 下午2:41:53
+	 */
+	public void dealGeoDiatanceBuss(GeoPoint ceterPoint, double d,String geoField) {
+		//处理点位置
+		Map<String, Map<GeoPoint, Double>> diatinceGeoMapModel=new HashMap<>(); 
+		Map<GeoPoint, Double> ceterPointMap=new HashMap<>();
+		ceterPointMap.put(ceterPoint, d);
+		diatinceGeoMapModel.put(geoField, ceterPointMap);
+		this.diatinceGeoMap=diatinceGeoMapModel;
+		
+		//处理排序
+		Map<String, GeoPoint> sortGeoMapModel=new HashMap<>();
+		sortGeoMapModel.put(geoField, ceterPoint);
+		this.sortGeoMap=sortGeoMapModel;
 	}
 
 }

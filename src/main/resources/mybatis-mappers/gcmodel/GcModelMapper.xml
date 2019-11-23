@@ -41,7 +41,7 @@
   <select id="find" resultMap="BaseResultMap">
 		select 
 	    <include refid="Base_Column_List" />
-	    from us_lte5
+	    from us_lte51
 		where 1=1 
 	</select>
  
@@ -49,15 +49,15 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from us_lte5
+    from us_lte51
     where lte_ci = #{lte_ci,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from us_lte5
+    delete from us_lte51
     where lte_ci = #{lte_ci,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" parameterType="com.boot.kaizen.business.es.model.sim.GcModel">
-    insert into us_lte5 (lte_ci, lte_ecgi,lte_city_name, lte_net, 
+    insert into us_lte51 (lte_ci, lte_ecgi,lte_city_name, lte_net, 
       lte_enodebid, lte_sector_id, lte_cell, 
       lte_phycellid, lte_longitude2, lte_longitude, 
       lte_latitude2, lte_latitude, lte_site_tall, 
@@ -80,7 +80,7 @@
       #{lte_firm,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.boot.kaizen.business.es.model.sim.GcModel">
-    insert into us_lte5
+    insert into us_lte51
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="lte_ci != null">
         lte_ci,
@@ -243,7 +243,7 @@
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.boot.kaizen.business.es.model.sim.GcModel">
-    update us_lte5
+    update us_lte51
     <set>
       <if test="lte_city_name != null">
         lte_city_name = #{lte_city_name,jdbcType=VARCHAR},
@@ -324,7 +324,7 @@
     where lte_ci = #{lte_ci,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.boot.kaizen.business.es.model.sim.GcModel">
-    update us_lte5
+    update us_lte51
     set lte_city_name = #{lte_city_name,jdbcType=VARCHAR},
       lte_net = #{lte_net,jdbcType=VARCHAR},
       lte_enodebid = #{lte_enodebid,jdbcType=VARCHAR},

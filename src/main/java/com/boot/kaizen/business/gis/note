@@ -17,3 +17,12 @@
    
    密码  ：zwc@nokia_147258
   
+  
+{"lte_latitude2":"22.824592","lte_total_downdip":"0.0","lte_cell":"1","lte_longitude2":"108.37631","lte_azimuth":"0","lte_city_name":"南宁","lte_latitude":"22.820992","lte_phycellid":"417","lte_net":"LTE","lte_site_tall":"0","lte_ci":"7333291","lte_firm":"中兴","lte_earfcn":"2120","lte_ecgi":"187732225","location":{"lon":108.37631,"lat":22.824592},"lte_tac":"45907","lte_longitude":"108.365783","lte_grid":"ALL"}
+
+{"lte_latitude2":"22.824429","lte_total_downdip":"0.0","lte_cell":"8","lte_longitude2":"108.376848","lte_azimuth":"0","lte_city_name":"南宁","lte_latitude":"22.820833","lte_phycellid":"423","lte_net":"LTE","lte_site_tall":"0","lte_ci":"7332648","lte_firm":"中兴","lte_earfcn":"2120","lte_ecgi":"187715592","location":{"lon":108.376848,"lat":22.824429},"lte_tac":"45907","lte_longitude":"108.366319","lte_grid":"ALL"}
+{"lte_latitude2":"22.824592","lte_total_downdip":"0.0","lte_cell":"9","lte_longitude2":"108.37631","lte_azimuth":"0","lte_city_name":"南宁","lte_latitude":"22.820992","lte_phycellid":"389","lte_net":"LTE","lte_site_tall":"3","lte_ci":"7333299","lte_firm":"中兴","lte_earfcn":"100","lte_ecgi":"B30919","location":{"lon":108.37631,"lat":22.824592},"lte_tac":"45907","lte_longitude":"108.365783","lte_grid":"ALL"}
+{lte_latitude2":"22.824592","lte_total_downdip":"0.0","lte_cell":"1","lte_longitude2":"108.37631","lte_azimuth":"0","lte_city_name":"南宁","lte_latitude":"22.820992","lte_phycellid":"366","lte_net":"LTE","lte_site_tall":"3","lte_ci":"7333301","lte_firm":"中兴","lte_earfcn":"100","lte_ecgi":"B30921","location":{"lon":108.37631,"lat":22.824592},"lte_tac":"45907","lte_longitude":"108.365783","lte_grid":"ALL"}
+
+{"lte_latitude2":"22.823323","lte_total_downdip":"0.0","lte_cell":"6","lte_longitude2":"108.376082","lte_azimuth":"0","lte_city_name":"南宁","lte_latitude":"22.819722","lte_phycellid":"310","lte_net":"LTE","lte_site_tall":"0","lte_ci":"7333196","lte_firm":"中兴","lte_earfcn":"2120","lte_ecgi":"187729670","location":{"lon":108.376082,"lat":22.823323},"lte_tac":"45907","lte_longitude":"108.365556","lte_grid":"ALL"}
+  

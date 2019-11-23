@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.geo.GeoPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -310,22 +311,21 @@ public class EsBusssController {
 	@PostMapping(value = "/queryMainService")
 	public List<Map<String, Object>> queryMainService(@RequestParam(value = "longitude") String longitude,
 			@RequestParam(value = "latitude") String latitude) {
-		
-		//查询主log的 cELLID cI eNB
-		Map<String, Object> termMainMap=new HashMap<>();
+
+		// 查询主log的 cELLID cI eNB
+		Map<String, Object> termMainMap = new HashMap<>();
 		termMainMap.put("longitude", longitude);
 		termMainMap.put("latitude", latitude);
-		
+
 		QueryParamData queryMainParamData = new QueryParamData("logmain", "logmain", termMainMap,
-				Arrays.asList("cI","cELLID","eNB"), 1);
-		List<Map<String,Object>> queryList = Esutil.queryList(queryMainParamData);
-		if (queryList !=null && queryList.size()>0) {
-			Map<String,Object> map=queryList.get(0);
-			String ci=map.get("cI").toString();
-			String cellId=map.get("cELLID").toString();
-			String enb=map.get("eNB").toString();
-			
-			
+				Arrays.asList("cI", "cELLID", "eNB"), 1);
+		List<Map<String, Object>> queryList = Esutil.queryList(queryMainParamData);
+		if (queryList != null && queryList.size() > 0) {
+			Map<String, Object> map = queryList.get(0);
+			String ci = map.get("cI").toString();
+			String cellId = map.get("cELLID").toString();
+			String enb = map.get("eNB").toString();
+
 			Map<String, Object> termMap = new HashMap<String, Object>();
 			termMap.put("lte_ecgi.keyword", cellId);
 			QueryParamData queryParamData = new QueryParamData("simgc", "simgc", termMap,
@@ -341,7 +341,59 @@ public class EsBusssController {
 				List<Map<String, Object>> dataSecond = Esutil.queryList(queryParamDataOne);
 				return dataSecond;
 			}
-		}else {
+		} else {
+			return new ArrayList<>();
+		}
+	}
+
+	/**
+	 * 对角坐标查询
+	 */
+	@ResponseBody
+	@PostMapping(value = "/boundingBoxQuery")
+	public List<Map<String, Object>> boundingBoxQuery(@RequestBody QueryParamData queryParamData) {
+		// 处理一下对角坐标 这里面pid接收
+		String pid = queryParamData.getPid();
+		if (StringUtils.isNoneBlank(pid)) {
+			String[] pointArray = pid.trim().split("_");//pid接收
+			if (pointArray != null && pointArray.length == 4) {
+				List<GeoPoint> points = new ArrayList<>();
+				GeoPoint topLeft = new GeoPoint(Double.valueOf(pointArray[1]), Double.valueOf(pointArray[0]));
+				GeoPoint bottomRight = new GeoPoint(Double.valueOf(pointArray[3]), Double.valueOf(pointArray[2]));
+				points.add(topLeft);
+				points.add(bottomRight);// 注意这个顺序
+
+				Map<String, List<GeoPoint>> geoMap = new HashMap<>();
+				geoMap.put("location", points);
+				queryParamData.setGeoMap(geoMap);
+			}
+			return Esutil.scrollQuery(queryParamData);
+		} else {
+			return new ArrayList<>();
+		}
+	}
+	
+	/**
+	 * 
+	* @Description: 查询距离某个最近的点   这里默认是  公里为单位  传入的是经纬度
+	* @author weichengz
+	* @date 2019年11月22日 下午2:37:43
+	 */
+	@ResponseBody
+	@PostMapping(value = "/queryNearPoint")
+	public List<Map<String, Object>> queryNearPoint(@RequestBody QueryParamData queryParamData) {
+		// 这里用pid接收  经纬度
+		String pid = queryParamData.getPid();
+		if (StringUtils.isNoneBlank(pid)) {
+			String[] pointArray = pid.trim().split("_");//pid接收
+			if (pointArray != null && pointArray.length == 2) {
+				GeoPoint ceterPoint = new GeoPoint(Double.valueOf(pointArray[1]), Double.valueOf(pointArray[0]));
+				//处理
+				queryParamData.dealGeoDiatanceBuss(ceterPoint,10000D,"location");
+				return Esutil.queryList(queryParamData);
+			}
+			return new ArrayList<>();
+		} else {
 			return new ArrayList<>();
 		}
 	}
