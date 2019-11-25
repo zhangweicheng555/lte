@@ -157,7 +157,8 @@
 	
 	<!-- 工具条 -->
 	<div id="tt">
-		<a  class="icon-add" style="margin-right: 8px;" onclick="add();"></a>
+		<a  class="icon-add" style="margin-right: 8px;" onclick="addTest();"></a>
+		<a  class="icon-add" style="margin-right: 8px;" title="结束回放" onclick="addClose();"></a>
 		<a  class="icon-edit"  style="margin-right: 8px;" onclick="javascript:alert('edit')"></a>
 		<a  class="icon-cut"  style="margin-right: 8px;" onclick="javascript:alert('cut')"></a>
 		<a  class="icon-help"  style="margin-right: 8px;" onclick="javascript:alert('help')"></a>
@@ -196,91 +197,139 @@
 
 	//点击行改变颜色
 	function changeColorMsg(obj,lnglat){
-	     common.showLoadingDialog();
 		 $('#msgTableModel tr').each(function(){
 	         $(this).css("background-color","transparent");//还原所有td的颜色
 	     });
 		 
 	     $(obj).css("background-color","#FFFF00");//设置点击td的颜色
-	     
-		var lngLatArray=lnglat.split("_");
-		var lng=lngLatArray[0];
-		var lat=lngLatArray[1];
-		//加载左下角得数据
-		queryButtonDta(lng, lat);
-		setTimeout(function(){
-			//upMsgInfo(lng,lat);
-			common.closeLoadingDialog();},200);
-		//地图打点
-		lnglatSetMapPoint(lng,lat);
-		//加载主的邻区信息
-      	 dealMainCellInfo(lng,lat);
+	     if(checkPlayEnd()){ 
+		    common.showLoadingDialog();
+			var lngLatArray=lnglat.split("_");
+			var lng=lngLatArray[0];
+			var lat=lngLatArray[1];
+			//加载左下角得数据
+			queryButtonDta(lng, lat);
+			setTimeout(function(){
+				//upMsgInfo(lng,lat);
+				common.closeLoadingDialog();},200);
+			//地图打点
+			lnglatSetMapPoint(lng,lat);
+			//加载主的邻区信息
+	      	 dealMainCellInfo(lng,lat);
+	     }
 	}
 	
-	//添加按钮测试使用
-	function  add(){
-		
-		map.addOverlay(car);
-		if(index==0){
-			 $("#msgLayout").empty();
-		}
-		var point = points[index];
-		
-		var lat=point.lat;
-		var lng=point.lng;
-		
-		
-		if(index > 0) {
-			map.addOverlay(new BMap.Polyline([points[index - 1], point], {strokeColor: "red", strokeWeight: 1, strokeOpacity: 1}));
-		}
-		
-		car.setPosition(point);
-		index++;
-		map.panTo(point);
-		if(index < points.length) {
-			timer = window.setTimeout("add(" + index + ")", 500);
-		} else {//  便利结束之后  立马 移除所有的覆盖物  然后重新绘制海量的数据点
-			parent.layer.msg("回放结束");
+	var playEnd=true;//回放是不是结束了  true是结束,false未结束
+	//手动结束回放
+	function addClose(){
+		index=0;//充值播放的起点
+		playEnd=true;
+		parent.layer.msg("回放结束");
+		setTimeout(function(){
 			map.clearOverlays();  //移除所有的覆盖物    
 			//绘制海量点
 		    addPointsOverlay("blue",points);
 		    $("#msgLayout").empty();
-			//处理信令
+			$("#eventLayout").empty();
+		    //处理信令
 			for(var t=0;t<msgArrayData.length;t++){
 				var msgData=msgArrayData[t];
 				var msgDataArray=msgData.split('~');
 				var msgHtml=msgDataArray[1];
 				$("#msgLayout").prepend(msgHtml);
 			}
+			//处理事件
+			for(var w=0;w<eventArrayData.length;w++){
+				var msgData=eventArrayData[w];
+				var msgDataArray=msgData.split('~');
+				var msgHtml=msgDataArray[1];
+				$("#eventLayout").prepend(msgHtml);
+			} 
+		},200);
+	}
+	
+	
+	function addTest(){
+		 playEnd=false;  //开始回放
+		 add();
+	}
+	
+	//添加按钮测试使用
+	function  add(){
+		if(!playEnd){
+			map.addOverlay(car);
+			if(index==0){
+				 $("#msgLayout").empty();
+			}
+			var point = points[index];
 			
-
-			//左下角模块     true 处理主服务小区  和拉线的问题
+			var lat=point.lat;
+			var lng=point.lng;
+			
+			
+			if(index > 0) {
+				map.addOverlay(new BMap.Polyline([points[index - 1], point], {strokeColor: "red", strokeWeight: 1, strokeOpacity: 1}));
+			}
+			
+			car.setPosition(point);
+			index++;
+			map.panTo(point);
+			if(index < points.length) {
+				timer = window.setTimeout("add(" + index + ")", 500);
+			} else {//  便利结束之后  立马 移除所有的覆盖物  然后重新绘制海量的数据点
+				index=0;
+				parent.layer.msg("回放结束");
+				map.clearOverlays();  //移除所有的覆盖物    
+				//绘制海量点
+			    addPointsOverlay("blue",points);
+			    $("#msgLayout").empty();
+				//处理信令
+				for(var t=0;t<msgArrayData.length;t++){
+					var msgData=msgArrayData[t];
+					var msgDataArray=msgData.split('~');
+					var msgHtml=msgDataArray[1];
+					$("#msgLayout").prepend(msgHtml);
+				}
+				
+	
+				//左下角模块     true 处理主服务小区  和拉线的问题
+				 queryButtonDta(lng,lat);
+				//加载主服务小区的信息
+				 dealMainCellInfo(lng,lat);
+				
+				 playEnd=true;//标记为播放结束
+				return ;
+			}
+			
+		
+			
+			//处理信令
+			for(var t=0;t<msgArrayData.length;t++){
+				var msgData=msgArrayData[t];
+				var msgDataArray=msgData.split('~');
+				var one=msgDataArray[0];
+				var msgHtml=msgDataArray[1];
+				var latlng=one.split("_");
+				if(lng==latlng[0] && lat==latlng[1]){
+					 $("#msgLayout").prepend(msgHtml);
+				}
+			}
+			
+			//左下角模块
 			 queryButtonDta(lng,lat);
 			//加载主服务小区的信息
 			 dealMainCellInfo(lng,lat);
-			return ;
 		}
-		
-	
-		
-		//处理信令
-		for(var t=0;t<msgArrayData.length;t++){
-			var msgData=msgArrayData[t];
-			var msgDataArray=msgData.split('~');
-			var one=msgDataArray[0];
-			var msgHtml=msgDataArray[1];
-			var latlng=one.split("_");
-			if(lng==latlng[0] && lat==latlng[1]){
-				 $("#msgLayout").prepend(msgHtml);
-			}
-		}
-		
-		//左下角模块
-		 queryButtonDta(lng,lat);
-		//加载主服务小区的信息
-		 dealMainCellInfo(lng,lat);
 	}
 	
+	//检验回放是不是结束了
+	function checkPlayEnd(){
+		  if(!playEnd){
+				parent.layer.msg('停止轨迹回放或者待轨迹回访结束即可操作');
+				return playEnd;
+			}
+		  return playEnd;
+	}
 	
 	
 	//画折线
@@ -324,6 +373,7 @@
 	
 	//根据经纬度  将该点对应的信令放在最上面  其他的放在下面  联动
 	function upMsgInfo(longitude,latitude){
+		if(checkPlayEnd()){
 		   $("#msgLayout").empty();
 		   
 		   var htmlUpMsg="";
@@ -344,11 +394,13 @@
 			   }
 				     $("#msgLayout").prepend(htmlUpMsg); 
 		   }
+		}
 	}
 	
 	
 	//根据经度纬度 在地图上打点  这个后期作为  拉线
 	function lnglatSetMapPoint(longitude,latitude){
+		if(checkPlayEnd()){
 		map.clearOverlays();  //移除所有的覆盖物  
 		//绘制海量点
 	    addPointsOverlay("blue",points);
@@ -368,6 +420,7 @@
 	        	//queryMsgEventData(e.point.lng,e.point.lat);
 	        });
 	        map.addOverlay(pointCollection);  // 添加Overlay
+		}
 	}
 	
 	
@@ -627,21 +680,23 @@
 	}
 	 
 function queryMsgEventData(lng,lat){
-	common.showLoadingDialog();
-	//加载信令
-	//加载事件
-	//加载左下角
-	setTimeout(function(){
-		upMsgInfo(lng,lat);
-		queryButtonDta(lng, lat);
-		common.closeLoadingDialog();
-		//地图打点
-		lnglatSetMapPoint(lng,lat);
-		//加载主的邻区信息
-    	 dealMainCellInfo(lng,lat);
-		}
-	,100);
-	//加载左下角得数据
+	if(checkPlayEnd()){
+		common.showLoadingDialog();
+		//加载信令
+		//加载事件
+		//加载左下角
+		setTimeout(function(){
+			upMsgInfo(lng,lat);
+			queryButtonDta(lng, lat);
+			common.closeLoadingDialog();
+			//地图打点
+			lnglatSetMapPoint(lng,lat);
+			//加载主的邻区信息
+	    	 dealMainCellInfo(lng,lat);
+			}
+		,100);
+		//加载左下角得数据
+	}
 } 
 
 

@@ -21,8 +21,8 @@ public class QueryParamData implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String index = "test";// 索引
-	private String type = "test";// 类型
+	private String index ;// 索引
+	private String type ;// 类型
 
 	private Map<String, Object> matchMap;// 模糊匹配的map 全文检索的那种
 	private Map<String, Object> termMap; // 精确查询的map

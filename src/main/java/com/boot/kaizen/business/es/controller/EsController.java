@@ -1,9 +1,13 @@
 package com.boot.kaizen.business.es.controller;
 
 import java.io.BufferedReader;
+import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -11,8 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -25,13 +29,18 @@ import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.unit.DistanceUnit;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.GeoBoundingBoxQueryBuilder;
 import org.elasticsearch.index.query.GeoDistanceQueryBuilder;
-import org.elasticsearch.index.query.GeoPolygonQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Bucket;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.GeoDistanceSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
@@ -59,6 +68,7 @@ import com.boot.kaizen.business.es.service.Esutil;
 import com.boot.kaizen.business.es.service.GcModelService;
 import com.boot.kaizen.util.JsonMsgUtil;
 import com.boot.kaizen.util.MyUtil;
+import com.boot.kaizen.util.SpringUtil;
 import com.boot.kaizen.util.TableResultUtil;
 
 /**
@@ -437,7 +447,7 @@ public class EsController {
 		BoolQueryBuilder bqb2 = QueryBuilders.boolQuery();
 
 		BoolQueryBuilder bqb3 = QueryBuilders.boolQuery();
-		
+
 		BoolQueryBuilder bqb4 = QueryBuilders.boolQuery();
 
 		TermQueryBuilder toQuery = null;
@@ -457,18 +467,16 @@ public class EsController {
 		fromQuery = QueryBuilders.termQuery("lte_ci.keyword", "10371021");
 		bqb3.must(toQuery);
 		bqb3.must(fromQuery);
-		
+
 		toQuery = QueryBuilders.termQuery("lte_city_name.keyword", "湖南");
 		fromQuery = QueryBuilders.termQuery("lte_ecgi.keyword", "7749412");
 		bqb4.must(toQuery);
 		bqb4.must(fromQuery);
-		
 
 		orBuilder.should(bqb3);
 		orBuilder.should(bqb2);
 		orBuilder.should(bqb1);
 		orBuilder.should(bqb4);
-		
 
 		sourceBuilder.postFilter(orBuilder);
 
@@ -481,6 +489,41 @@ public class EsController {
 		for (SearchHit searchHit : hits) {
 			Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
 			System.out.println(JSONObject.toJSONString(sourceAsMap));
+		}
+		return "success";
+	}
+
+	/**
+	 * 根据条件查询之后的聚合分析 这个可用于下拉框的检索 某个下拉框需要某些信息的时候 可以这样检索内容
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年11月24日 下午12:43:06
+	 */
+	@RequestMapping(value = "/testAggr")
+	public Object testAggr(@RequestBody QueryParamData queryParamData)
+			throws InterruptedException, ExecutionException, ParseException {
+		// 校验
+		queryParamData.verificationIndexType();
+		SearchRequestBuilder searchRequestBuilder = transportClient.prepareSearch(queryParamData.getIndex())
+				.setTypes(queryParamData.getType());
+		// 查询条件
+		BoolQueryBuilder boolQueryBuilder = Esutil.getBoolQueryBuilder(queryParamData);
+		SearchResponse searchResponse = searchRequestBuilder.setQuery(boolQueryBuilder)
+				.addAggregation(AggregationBuilders//
+						.terms("city")//
+						.field("lte_city_name.keyword")//
+						.order(BucketOrder.key(true))//
+						.size(10000))
+				.get();
+		Aggregations aggregations = searchResponse.getAggregations();
+		StringTerms aggTerms = aggregations.get("city");
+
+		List<org.elasticsearch.search.aggregations.bucket.terms.StringTerms.Bucket> buckets = aggTerms.getBuckets();
+
+		for (org.elasticsearch.search.aggregations.bucket.terms.StringTerms.Bucket bucket : buckets) {
+			String key = bucket.getKey().toString();
+			System.out.println(key + "---" + bucket.getDocCount());
 		}
 		return "success";
 	}

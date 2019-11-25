@@ -18,6 +18,7 @@ import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -29,6 +30,7 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInter
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ResourceUtils;
@@ -98,46 +100,7 @@ public class EsQueryController {
 
 	
 
-	/**
-	 * 
-	 * 2019-01-22 02:00:00---109 2019-01-22 02:00:00-----109------1----109
-	 * 
-	 * @Description: 以时间分组之后在以别的分组/其他的操作类推 ["测试1","测试2"] 注意这种格式的是也可以进行聚合分析的
-	 * @author weichengz
-	 * @date 2019年4月5日 下午8:48:11
-	 */
-	@RequestMapping(value = "/aggTwo")
-	public Object aggTwo() throws InterruptedException, ExecutionException, ParseException {
-		TransportClient transportClient = SpringUtil.getBean(TransportClient.class);
-		SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		SimpleDateFormat df2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
-		TermQueryBuilder termQuery = QueryBuilders.termQuery("state", "1");
-		SearchResponse searchResponse = transportClient.prepareSearch("zwp").setTypes("zwp")
-				// .setQuery(termQuery)
-				.addAggregation(AggregationBuilders//
-						.dateHistogram("dateAgg")//
-						.field("createdate")//
-						.dateHistogramInterval(DateHistogramInterval.HOUR)//
-						.order(BucketOrder.key(true))//
-						.subAggregation(AggregationBuilders.terms("state").field("state").order(BucketOrder.key(true)))//
-				).get();
-		Histogram timeAgg = searchResponse.getAggregations().get("dateAgg");
-		System.out.println("----聚合结束" + timeAgg.getBuckets().size());
-		for (Bucket bucket : timeAgg.getBuckets()) {
-			String key = bucket.getKey().toString();
-			key = df1.format(df2.parse(key));
-			System.out.println(key + "---" + bucket.getDocCount());
-			LongTerms longTerms = bucket.getAggregations().get("state");
-			List<org.elasticsearch.search.aggregations.bucket.terms.LongTerms.Bucket> buckets = longTerms.getBuckets();
-			for (org.elasticsearch.search.aggregations.bucket.terms.LongTerms.Bucket bucket2 : buckets) {
-				System.out.println(key + "-----" + bucket.getDocCount() + "------" + bucket2.getKey() + "----"
-						+ bucket2.getDocCount());
-			}
-		}
-		return "success";
-	}
-
+	
 	/**
 	 * 日志文件的内部导入
 	* @Description: TODO
@@ -167,5 +130,49 @@ public class EsQueryController {
 		}
 		return "success";
 	}
+	
+	/**
+	 * 
+	 * 2019-01-22 02:00:00---109 2019-01-22 02:00:00-----109------1----109
+	 * 
+	 * @Description: 以时间分组之后在以别的分组/其他的操作类推 ["测试1","测试2"] 注意这种格式的是也可以进行聚合分析的
+	 * @author weichengz
+	 * @date 2019年4月5日 下午8:48:11
+	 */
+	@RequestMapping(value = "/aggTwo")
+	public Object aggTwo() throws InterruptedException, ExecutionException, ParseException {
+		TransportClient transportClient = SpringUtil.getBean(TransportClient.class);
+		SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat df2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+		TermQueryBuilder termQuery = QueryBuilders.termQuery("state", "1");
+		
+		SearchResponse searchResponse = transportClient.prepareSearch("zwp").setTypes("zwp")
+				 //.setQuery(termQuery)
+				.addAggregation(AggregationBuilders//
+						.dateHistogram("dateAgg")//
+						.field("createdate")//
+						.dateHistogramInterval(DateHistogramInterval.HOUR)//
+						.order(BucketOrder.key(true))//
+						.subAggregation(AggregationBuilders.terms("state").field("state").order(BucketOrder.key(true)))//
+				).get();
+		Histogram timeAgg = searchResponse.getAggregations().get("dateAgg");//时间的聚合结果是这种term
+		System.out.println("----聚合结束" + timeAgg.getBuckets().size());
+		for (Bucket bucket : timeAgg.getBuckets()) {
+			String key = bucket.getKey().toString();
+			key = df1.format(df2.parse(key));
+			System.out.println(key + "---" + bucket.getDocCount());
+			LongTerms longTerms = bucket.getAggregations().get("state");
+			List<org.elasticsearch.search.aggregations.bucket.terms.LongTerms.Bucket> buckets = longTerms.getBuckets();  //其余的目前的理解是这个term
+			for (org.elasticsearch.search.aggregations.bucket.terms.LongTerms.Bucket bucket2 : buckets) {
+				System.out.println(key + "-----" + bucket.getDocCount() + "------" + bucket2.getKey() + "----"
+						+ bucket2.getDocCount());
+			}
+		}
+		return "success";
+	}
+	
+	
+	
 	
 }
