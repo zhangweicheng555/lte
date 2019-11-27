@@ -1,0 +1,1119 @@
+/**
+* @author sujiming
+* @date 2019-07-23 19:03
+*/
+
+
+a,
+b,
+body,
+dd,
+del,
+div,
+dl,
+dt,
+em,
+form,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+html,
+i,
+iframe,
+img,
+ins,
+label,
+legend,
+li,
+ol,
+p,
+pre,
+small,
+span,
+strong,
+u,
+ul,
+var,
+input {
+    padding: 0;
+    margin: 0;
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
+img,
+button,
+input {
+    border: 0;
+}
+
+em,
+i,
+u {
+    font-style: normal;
+}
+
+a {
+    color: #919699;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+
+::-webkit-scrollbar-track { background-color: #F5F5F5;  }
+::-webkit-scrollbar {width: 2px;height:8px;  background-color:#EBECF0;border-radius: 5px;  }
+::-webkit-scrollbar-thumb { /* */background: rgba(0,0,0,0.2);border-radius: 5px; }
+::-webkit-scrollbar-corner{ background-color: #464646;}
+
+
+
+/**********CSS公共类**********/
+.clearfix:after {
+    content: '';
+    display: block;
+    clear: both;
+    height: 0;
+    visibility: hidden;
+}
+
+.clearfix {
+    *zoom: 1;
+}
+
+/*浮动公共类*/
+.fl {
+    float: left;
+}
+
+.fr {
+    float: right;
+}
+
+/*版心公共类*/
+.w1200 {
+    width: 1200px;
+    margin: 0 auto;
+}
+
+/*设置 body 的最小宽度*/
+body {
+    font-family: "Open Sans", "Helvetica Neue", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", Arial, sans-serif;
+    word-spacing: -1px;
+    /*font-family: "Open Sans","PingFang SC","Microsoft YaHei","Helvetica Neue","Hiragino Sans GB","WenQuanYi Micro Hei",Arial,sans-serif;*/
+    /*font-family: "Helvetica Neue","Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",Arial,sans-serif;*/
+    position: relative;
+    width: 100%;
+    /*height: 100%;*/
+    font-size: 14px;
+    line-height: 1.4;
+    /*background-color: #ffffff;*/
+    /* background-color: #1e9df7; */
+    background-color: #F0F0F0;
+    color: #707473;
+    min-width: 900px;
+    min-height: 100%;
+    /* height: 3000px; */
+}
+
+/*网页头部导航栏样式*/
+.sites-header-nav {
+    height: 60px;
+    border: 0;
+    margin: auto;
+    display: block;
+    position: relative;
+    background-color: #3F9FF7;
+    z-index: 2000;
+}
+
+/*网页头部导航栏 logo 区域*/
+.sites-header-nav-container .sites-header-nav-logo {
+    width: 230px;
+}
+
+.sites-header-nav-logo a {
+    display: inline-block;
+    padding:  0;
+    height: auto;
+    font-size: 18px;
+    line-height: 60px;
+    text-decoration: none;
+    color: #FFFFFF;
+}
+
+.sites-header-nav-logo a span {
+    display: inline-block;
+    width: 45px;
+    height: 26px;
+    /*background: url("../images/logo-black2-145dcb13c56f36a65d084180a42136fa.svg");*/
+    background-size: cover;
+    vertical-align: middle;
+}
+
+/*网页头部导航栏 导航 区域*/
+.sites-header-nav-container .sites-header-nav-function {
+    width: 100%;
+    height: 60px;
+    opacity: 1;
+}
+
+/*网页头部导航栏 产品类别 区域*/
+.sites-header-nav-function .sites-header-nav-category {
+    list-style: none;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.sites-header-nav-category .sites-header-nav-category-item,
+.sites-header-nav-link .link-nav {
+    font-size: 14px;
+    line-height: 14px;
+    margin-right: 20px;
+}
+
+div.sites-header-nav-right ul.sites-header-nav-category .sites-header-nav-category-item .nav-category-link,
+.link-nav .nav-category-link {
+    padding: 0px 10px;
+    width: 80px;
+    display: inline-block;
+    transition: all .3s;
+    color: #303233;
+    vertical-align: middle;
+    line-height: 60px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+}
+div.sites-header-nav-left ul.sites-header-nav-category .sites-header-nav-category-item .nav-category-link, .link-nav .nav-category-link {
+    padding: 0px 10px;
+    width: 70px;
+    display: inline-block;
+    transition: all .3s;
+    color: #303233;
+    vertical-align: middle;
+    line-height: 60px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+}
+
+#booNavigation > ul > li:nth-child(1) > div.nav-category-link{
+    padding: 0px 10px;
+    width: 80px;
+    display: inline-block;
+    transition: all .3s;
+    color: #303233;
+    vertical-align: middle;
+    line-height: 60px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+}
+#booNavigation > ul > li:nth-child(2) > div.nav-category-link{
+    padding: 0px 10px;
+    width: 90px;
+    display: inline-block;
+    transition: all .3s;
+    color: #303233;
+    vertical-align: middle;
+    line-height: 60px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+}
+#booNavigation > ul > li:nth-child(3) > div.nav-category-link{
+    padding: 0px 10px;
+    width: 90px;
+    display: inline-block;
+    transition: all .3s;
+    color: #303233;
+    vertical-align: middle;
+    line-height: 60px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+}
+#booNavigation > ul > li:nth-child(4) > div.nav-category-link{
+    padding: 0px 10px;
+    width: 90px;
+    display: inline-block;
+    transition: all .3s;
+    color: #303233;
+    vertical-align: middle;
+    line-height: 60px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+}
+
+
+.sites-header-nav-category-item:hover .nav-category-link,
+.link-nav:hover .nav-category-link {
+    color: #303233;
+    position: relative
+}
+
+/*网页头部导航栏 产品类别下拉菜单 区域*/
+.sites-header-nav-category-item .nav-category-item-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    z-index: 1100;
+    background-color: #ffffff;
+    display: none;
+    width: 100%;
+    min-width: 600px;
+    left: 0;
+    margin-top: 0;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .05);
+    padding-bottom: 0px;
+}
+
+.dropdown-menu-container .dropdown-menu-nav-list {
+    padding-top: 0px;
+}
+
+.list-container .list {
+    margin: 0;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.dropdown-menu-container .dropdown-menu-nav-top {
+    background-color: #ebeff2;
+}
+
+.dropdown-menu-nav-top .list-container-top {
+    border-right: 1px solid #dae1e6;
+}
+
+.list-container-top .list-container-top-class {
+    margin: 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+
+.list-container-top-class .list-item {
+    padding: 0;
+    border-left: 1px solid #dae1e6;
+    flex-basis: 16.66666667%;
+    max-width: 16.66666667%;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.list-container-top-class .list-item a {
+    font-size: 16px;
+    line-height: 20px;
+    padding: 0 24px;
+    color: #303233;
+    font-weight: 600;
+    position: relative;
+    transition: all .3s ease;
+    cursor: pointer;
+    height: 96px;
+    display: flex;
+    align-items: center;
+}
+
+.list-container-top-class .list-item a:before {
+    content: '';
+    width: 3px;
+    height: 40px;
+    border-radius: 0 2px 2px 0;
+    position: absolute;
+    left: -1px;
+    top: 28px;
+    background-color: #c2c8cc;
+    transition: all .3s ease;
+}
+
+.list-container-top-class:hover .list-item a {
+    color: #919699;
+}
+
+.list-container-top-class .list-item a:hover:before {
+    /*color: #303233;*/
+    background-color: #303233;
+}
+
+.list-container-top-class .list-item-un a {
+    text-align: center;
+    justify-content: center;
+}
+
+.list-container-top-class .list-item-un a:before {
+    display: none;
+}
+
+.list-container-top-class:hover .list-item a:hover,
+.list-container-top-class:hover .list-item-un a {
+    color: #303233;
+}
+
+.list-container-top-class .list-item a span {
+    margin-right: 8px;
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    background-size: cover;
+    /* background-image: url("../images/site-89de0b45cb4e8f60dad5f32658204c1a.svg");*/
+}
+
+.list-container .list .list-item {
+    position: relative;
+    padding-left: 0;
+    padding-right: 20px;
+    padding-bottom: 16px;
+    max-width: 20%;
+}
+
+.list-item .list-item-a .title {
+    color: #303233;
+    font-weight: 600;
+    line-height: 14px;
+    margin-bottom: 8px;
+}
+
+
+
+.list-item .list-item-a .content {
+    color: #303233;
+    font-size: 12px;
+    line-height: 14px;
+    min-height: 28px;
+    margin-bottom: 16px;
+    padding-right: 16px;
+}
+
+.list-item .list-item-img {
+    width: 220px;
+    height: 120px;
+    margin-bottom: 16px;
+}
+
+.list-item .list-item-img img {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+}
+
+.list-item ul .nav-list a {
+    color: #303233;
+    line-height: 14px;
+    margin-bottom: 16px;
+    display: inline-block;
+}
+
+.list-item ul:hover .nav-list a {
+    transition: all .3s;
+    color: #919699;
+}
+
+.list-item ul .nav-list:hover a {
+    color: #303233;
+}
+
+.dropdown-menu-nav-bottom .list-container-bottom {
+    padding: 24px 0 32px;
+    border-top: 1px solid #dae1e6;
+}
+
+.dropdown-menu-nav-bottom .list-container-bottom a {
+    color: #303233;
+    background-image: linear-gradient(-180deg, #d8e0e6 0%, #ccd3d9 96%);
+    margin-right: 16px;
+    font-weight: 600;
+    transition: all .3s;
+    display: inline-block;
+    height: 46px;
+    font-size: 16px;
+    line-height: 16px;
+    padding: 15px 32px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.dropdown-menu-nav-bottom .list-container-bottom a:hover {
+    background-image: linear-gradient(-180deg, #e4ecf2 0%, #c0c7cc 96%);
+}
+
+.dropdown-menu-nav-bottom .list-container-bottom a span {
+    /* background-image: url("../images/compare2-3bbe671e963feecf56bc3b42bcb4c343.svg");*/
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    vertical-align: top;
+    background-size: cover;
+}
+
+.dropdown-menu-nav-bottom .list-container-bottom a p {
+    display: inline-block;
+    white-space: nowrap;
+    vertical-align: top;
+}
+
+
+.sites-header-nav-link>.link-nav {
+    position: relative;
+}
+
+.sites-header-nav-link>.link-nav .sites-header-link-nav {
+    z-index: 1100;
+    background: 0 0;
+    margin-top: 0;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height .7s;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    border: none;
+    color: #303233;
+    width: auto;
+    height: auto;
+    padding: 0;
+}
+
+.sites-header-nav-link>.link-nav .sites-header-link-nav ul {
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .05);
+    margin-bottom: 0;
+}
+
+.sites-header-nav-link>.link-nav .sites-header-link-nav ul li:hover {
+    background-color: #ebeff2;
+}
+
+.sites-header-link-nav .sites-header-link-nav-item {
+    display: block;
+    width: 100%;
+    font-size: 12px;
+    transition: all .3s;
+}
+
+.sites-header-link-nav .sites-header-link-nav-item a {
+    padding: 0;
+    white-space: nowrap;
+    display: inline-block;
+    color: #303233;
+    line-height: 30px;
+    height: auto;
+    background: 0 0;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+body > div > div > div.sites-header-nav-function.clearfix > div > div.sites-header-nav-right.fl.project > ul > li > div.nav-category-link > div.title > span{
+    width: 100%;
+    min-width: 1000px;
+    overflow:hidden; /*超出的部分隐藏起来。*/
+    white-space:nowrap;/*不显示的地方用省略号...代替*/
+    text-overflow:ellipsis;
+}
+
+.sites-header-nav-link .link-nav:hover .sites-header-link-nav {
+    padding: 0;
+    width: 130px;
+    max-height: 500px;
+    opacity: 1;
+}
+
+.sites-header-nav-function .sites-header-nav-user {
+    vertical-align: middle;
+    margin-right: -15px;
+}
+
+.sites-header-nav-user>li {
+    font-size: 14px;
+    line-height: 14px;
+    position: relative;
+    padding: 20px 12px;
+    box-sizing: border-box;
+}
+
+.sites-header-nav-user .nav-store {
+    padding: 17px 20px;
+    box-sizing: border-box;
+}
+
+.sites-header-nav-user li a {
+    display: inline-block;
+    color: #303233;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.sites-header-nav-user .nav-store a {
+    color: #ffffff;
+    max-width: 100%;
+    background-color: #1e9df7;
+    background-image: linear-gradient(-180deg, #1e9df7 0%, #1392ed 100%);
+    height: 30px;
+    line-height: 14px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all .3s ease;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.sites-header-nav-user .nav-search a span {
+    background-position: center center;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    background-size: cover;
+    cursor: pointer;
+    /* background-image: url("../images/search2-f59385661d469676263d42217b56605a.svg");*/
+}
+
+.sites-header-nav-user .nav-account a span {
+    background-position: center center;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    background-size: cover;
+    cursor: pointer;
+    /*background-image: url("../images/user-ab280f4807cc9843ed51d34f78e7c960.svg");*/
+}
+
+.sites-header-nav-user .nav-account .nav-user-dropdown-menu {
+    width: auto;
+    right: -10px;
+    left: auto;
+    transform: none;
+    min-width: 100px;
+    z-index: 1100;
+    background: 0 0;
+    margin-top: 0;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height .7s;
+    position: absolute;
+    top: 100%;
+    border: none;
+    color: #303233;
+    height: auto;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.sites-header-nav-user .nav-account:hover .nav-user-dropdown-menu {
+    padding: 0 10px 10px;
+    max-height: 500px;
+    opacity: 1;
+}
+
+.sites-header-nav-user .nav-account .nav-user-dropdown-menu ul {
+    background: #ffffff;
+    margin-top: 16px;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .05);
+}
+
+.sites-header-nav-user .nav-account .nav-user-dropdown-menu ul:before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 26px;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 8px 8px;
+    border-color: transparent transparent #ffffff transparent;
+}
+
+.sites-header-nav-user .nav-account .nav-user-dropdown-menu ul li {
+    text-align: center;
+    display: block;
+    width: 100%;
+    font-size: 12px;
+    transition: all .3s;
+    box-sizing: border-box;
+}
+
+.sites-header-nav-user .nav-account .nav-user-dropdown-menu ul li a {
+    padding: 16px 32px;
+    white-space: nowrap;
+    display: inline-block;
+    color: #303233;
+    line-height: 1;
+    height: auto;
+    background: 0 0;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 12px;
+}
+
+.sites-header-nav-user .nav-account .nav-user-dropdown-menu ul li:hover {
+    background-color: #ebeff2;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(1) > ul > li > div.nav-category-link{
+    width: 70px;
+    padding: 0px 30px;
+}
+
+
+.sites-header-nav-container .sites-header-nav-function .sites-header-nav-div .sites-header-nav-left ul.sites-header-nav-category li.sites-header-nav-category-item div.nav-category-link div.title{
+    width: 100px;
+    height: 100%;
+    float: left;
+}
+.sites-header-nav-container .sites-header-nav-function .sites-header-nav-div .sites-header-nav-left ul.sites-header-nav-category li.sites-header-nav-category-item div.nav-category-link div.img{
+    float: left;
+    position: absolute;
+    background: url("../img/Dropdownpfeil@2x.png") no-repeat center;
+    background-size: 10px 6px;
+    top: 20px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+}
+
+
+div.sites-header-nav-logo img{
+    display: inline-block;
+    float: left;
+    cursor: pointer;
+    margin-top: 22px;
+    margin-left: 10px;
+}
+.sites-header-nav div.sites-header-nav-function div.sites-header-nav-div div.sites-header-nav-left ul.sites-header-nav-category li.sites-header-nav-category-item{
+    cursor: pointer;
+}
+.sites-header-nav div.sites-header-nav-function div.sites-header-nav-div div.sites-header-nav-left ul.sites-header-nav-category li.sites-header-nav-category-item div.nav-category-link div.title span{
+    color: white;
+    font-weight: 400;
+    font-size: 12px;
+}
+.sites-header-nav div.sites-header-nav-function div.sites-header-nav-div div.sites-header-nav-left ul.sites-header-nav-category li.sites-header-nav-category-item:hover div.nav-category-link div.title span{
+    color: black;
+}
+.sites-header-nav div.sites-header-nav-function div.sites-header-nav-div div.sites-header-nav-left ul.sites-header-nav-category li.sites-header-nav-category-item:hover{
+    background-color: white;
+}
+
+.sites-header-nav div.sites-header-nav-function div.sites-header-nav-div div.sites-header-nav-left ul.sites-header-nav-category li.sites-header-nav-category-item:hover div.nav-category-link div.img{
+    background: url("../img/DropdownpfeilBlue@2x.png") no-repeat center;
+    background-size: 10px 6px;
+    top: 20px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    float: left;
+    position: absolute;
+
+
+
+}
+
+.sites-header-nav-container .sites-header-nav-function .sites-header-nav-div .sites-header-nav-right ul.sites-header-nav-link li.link-nav div.nav-category-link div.title span{
+    color: white;
+    font-weight: 400;
+    font-size: 12px;
+}
+.sites-header-nav-container .sites-header-nav-function .sites-header-nav-div .sites-header-nav-right ul.sites-header-nav-link li.link-nav:hover{
+    background-color: white;
+}
+
+.sites-header-nav-container .sites-header-nav-function .sites-header-nav-div .sites-header-nav-right ul.sites-header-nav-link li.link-nav:hover div.nav-category-link div.img{
+    width: 20px;
+    height: 20px;
+    float: left;
+    position: absolute;
+    top: 20px;
+    right: 5px;
+    background: url(../img/DropdownpfeilBlue@2x.png) no-repeat center;
+    background-size: 10px 6px;
+}
+
+.sites-header-nav-container .sites-header-nav-function .sites-header-nav-div .sites-header-nav-right ul.sites-header-nav-link li.link-nav:hover div.nav-category-link div.title span{
+    color: black;
+}
+
+
+
+
+.sites-header-nav-container .sites-header-nav-function .sites-header-nav-div .sites-header-nav-right ul.sites-header-nav-link li.link-nav div.nav-category-link div.title{
+    width: 80px;
+    overflow:hidden; /*超出的部分隐藏起来。*/
+    white-space:nowrap;/*不显示的地方用省略号...代替*/
+    text-overflow:ellipsis;
+    color: white;
+}
+
+.sites-header-nav-container .sites-header-nav-function .sites-header-nav-div .sites-header-nav-right ul.sites-header-nav-link li.link-nav div.nav-category-link div.img{
+
+    width: 20px;
+    height: 20px;
+    float: left;
+    position: absolute;
+    top: 20px;
+    right: 5px;
+    background: url("../img/Dropdownpfeil@2x.png") no-repeat center;
+    background-size: 10px 6px;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(1) > ul > li > div.sites-header-link-nav > ul > div.input{
+    width: 100%;
+    height: 25px;
+    padding-top: 10px;
+    position: relative;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(1) > ul > li > div.sites-header-link-nav > ul > div.input div{
+    width: 80%;
+    height: 25px;
+    border: 1px solid #1e9df7;
+    border-radius: 3px;
+    margin-left: 11px;
+    position: relative;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(1) > ul > li > div.sites-header-link-nav > ul > div.input > div > input[type=text]{
+    float: left;
+    width: 80px;
+    height: 100%;
+    outline: none;
+}
+
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(1) > ul > li > div.sites-header-link-nav > ul > div.input > div > img{
+    position: absolute;
+    top: 5px;
+    width: 16px;
+    height: 16px;
+    right: 3px;
+    cursor: pointer;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(1) > ul > li > div.sites-header-link-nav > ul > div.Container{
+    max-height: 300px;
+    overflow: hidden;
+    width: 100%;
+}
+
+
+#booNavigation > ul > li:nth-child(1) > div.nav-category-item-dropdown-menu > div > div > div > div.Container{
+    width: 100%;
+    /* height: 100px; */
+    float: left;
+    position: relative;
+}
+
+#booNavigation > ul > li > div > div > div > div > div.Container:first-child div.left {
+    width: 20%;
+    height: 130px;
+    float: left;
+    position: relative;
+    background-color: #C4C6CF;
+    border-bottom: 1px solid white;
+}
+
+#booNavigation > ul > li > div > div > div > div > div > div.right {
+    width: 80%;
+    height: 130px;
+    float: left;
+    position: relative;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #C4C6CF;
+}
+
+#booNavigation > ul > li > div > div > div > div > div.Container div.left p {
+    color: #FFFFFF;
+    font-size: 24px;
+    line-height: 130px;
+    text-align: center;
+}
+
+#booNavigation > ul > li > div > div > div > div > div > div.right div {
+    width: 20%;
+    height: 100%;
+    float: left;
+}
+
+#booNavigation > ul > li > div > div > div > div > div > div.right > div > a {
+    text-align: center;
+    width: 100%;
+    float: left;
+    height: 30px;
+}
+
+#booNavigation > ul > li > div > div > div > div > div.Container:last-child div.left {
+    width: 20%;
+    height: 130px;
+    float: left;
+    position: relative;
+    background-color: #C4C6CF;
+    border-bottom: 1px solid white;
+}
+#booNavigation > ul > li > div.nav-category-item-dropdown-menu > div > div > div > div > div.right > div.Ctl > div{
+    width: 100%;
+    height: 90px;
+    float: left;
+}
+
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(1):hover > div.sites-header-link-nav{
+    padding-top: 10px;
+    width: 140px;
+    max-height: 500px;
+    opacity: 1;
+    margin-left: 25px;
+    margin-top: 0px;
+}
+.TwoDimensionCode p{
+    text-align: center;
+}
+
+
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(1) > div.sites-header-link-nav > ul > li:hover{
+    background-color: white;
+}
+
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(1) > div.sites-header-link-nav > ul > li div{
+    width: 70px;
+    height: 100%;
+    float: left;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(1) > div.sites-header-link-nav > ul > li > div > img{
+    margin-left: 8px;
+}
+
+
+
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(1) > div.nav-category-link > div{
+    background: url("../img/TwoDimensionalCodeWhite@2x.png") no-repeat center;
+    background-size: 20px 20px;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(1):hover > div.nav-category-link > div{
+    background: url("../img/TwoDimensionalCodeBlue@2x.png") no-repeat center;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(2) > div.nav-category-link{
+    padding: 0px 10px;
+    width: 140px;
+    display: inline-block;
+    transition: all .3s;
+    color: #303233;
+    vertical-align: middle;
+    line-height: 60px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(2) > div.nav-category-link > div.UserImg{
+    height: 40px;
+    width: 50px;
+    padding: 0;
+    float: left;
+}
+
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(2) > div.nav-category-link > div.UserImg > img{
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(2) > div.nav-category-link > div.UserInfo{
+    width: 70px;
+    float: left;
+    height: 40px;
+    padding: 10px 0;
+    position: relative;
+}
+
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(2) > div.nav-category-link > div.UserInfo > p:first-child{
+    overflow:hidden; /*超出的部分隐藏起来。*/
+    white-space:nowrap;/*不显示的地方用省略号...代替*/
+    text-overflow:ellipsis;
+    color: white;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(2) > div.nav-category-link > div.UserInfo > p:last-child{
+    overflow:hidden; /*超出的部分隐藏起来。*/
+    white-space:nowrap;/*不显示的地方用省略号...代替*/
+    text-overflow:ellipsis;
+    color: white;
+    font-size: 12px;
+    line-height: 20px;
+    font-weight: 400;
+}
+
+
+
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(2):hover > div.nav-category-link > div.UserInfo > p{
+    overflow:hidden; /*超出的部分隐藏起来。*/
+    white-space:nowrap;/*不显示的地方用省略号...代替*/
+    text-overflow:ellipsis;
+    color: black;
+    font-size: 12px;
+    line-height: 20px;
+    font-weight: 400;
+}
+
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(2) > div.nav-category-link > div.UserDropdown{
+    float: left;
+    position: absolute;
+    background: url("../img/Dropdownpfeil@2x.png") no-repeat center;
+    background-size: 10px 6px;
+    top: 20px;
+    right: 15px;
+    width: 20px;
+    height: 20px;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(2):hover > div.nav-category-link > div.UserDropdown{
+    float: left;
+    position: absolute;
+    background: url("../img/DropdownpfeilBlue@2x.png") no-repeat center;
+    background-size: 10px 6px;
+    top: 20px;
+    right: 15px;
+    width: 20px;
+    height: 20px;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(2){
+    margin-right: 0px;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(1) > div.sites-header-link-nav{
+    background-color: white;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(1) > div.sites-header-link-nav > ul > li img{
+    margin-left: 20px;
+}
+
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(2):hover > div.sites-header-link-nav {
+    padding: 0;
+    width: 160px;
+    max-height: 500px;
+    opacity: 1;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(3) > ul > li:nth-child(2) > div.sites-header-link-nav > ul > li:hover{
+    cursor: pointer;
+}
+body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(1) > ul > li > div.sites-header-link-nav > ul > div.Container > li:hover{
+    cursor: pointer;
+}
+
+#booNavigation > ul > li > div.nav-category-item-dropdown-menu > div > div > div > div> div.right > div:hover{
+    background-color: #C4C6CF;
+}
+#booNavigation > ul > li > div.nav-category-item-dropdown-menu > div > div > div > div> div.right > div:hover.enable{
+    cursor: pointer;
+}
+#booNavigation > ul > li > div.nav-category-item-dropdown-menu > div > div > div > div> div.right > div:hover.disable{
+    cursor: no-drop;
+}
+
+#booNavigation > ul > li > div.nav-category-item-dropdown-menu > div > div > div > div> div.right > div.enable a{
+    color: #303233;
+}
+#booNavigation > ul > li > div.nav-category-item-dropdown-menu > div > div > div > div> div.right > div.disable a{
+    color: #999999;
+}
+/*二级菜单图片样式*/
+div.Container div.right div.Ctl{
+    position: relative;
+}
+div.Container:first-child div.right div:nth-child(1).enable div.ImgContainer{
+    background: url("../img/LTEDownCellCoverRateEnable.png") no-repeat center;
+}
+div.Container:first-child div.right div:nth-child(1).disable div.ImgContainer{
+    background: url("../img/LTEDownCellCoverRateDisable.png") no-repeat center;
+}
+
+div.Container:first-child div.right div:nth-child(2).enable div.ImgContainer{
+    background: url("../img/LTEDASRoomSplit.png") no-repeat center;
+}
+div.Container:first-child div.right div:nth-child(2).disable div.ImgContainer{
+    background: url("../img/LTEDASRoomSplitDisable.png") no-repeat center;
+}
+
+div.Container:first-child div.right div:nth-child(3).enable div.ImgContainer{
+    background: url("../img/LTESourceRoom.png") no-repeat center;
+}
+div.Container:first-child div.right div:nth-child(3).disable div.ImgContainer{
+    background: url("../img/LTESourceRoomDisable.png") no-repeat center;
+}
+
+div.Container:first-child div.right div:nth-child(4).enable div.ImgContainer{
+    background: url("../img/LTETestBaseVersion.png") no-repeat center;
+}
+div.Container:first-child div.right div:nth-child(4).disable div.ImgContainer{
+    background: url("../img/LTETestBaseVersionDisable.png") no-repeat center;
+}
+div.Container:first-child div.right div:nth-child(5).enable div.ImgContainer{
+    background: url("../img/LTE_G_W.png") no-repeat center;
+}
+div.Container:first-child div.right div:nth-child(5).disable div.ImgContainer{
+    background: url("../img/LTE_G_WDisable.png") no-repeat center;
+}
+
+
+
+
+
+div.Container:last-child div.right div:nth-child(1).enable div.ImgContainer{
+    background: url("../img/5GSurvey.png") no-repeat center;
+}
+div.Container:last-child div.right div:nth-child(1).disable div.ImgContainer{
+    background: url("../img/5GSurveyDisable.png") no-repeat center;
+}
+div.Container:last-child div.right div:nth-child(2).enable div.ImgContainer{
+    background: url("../img/5GMacroStation.png") no-repeat center;
+}
+div.Container:last-child div.right div:nth-child(2).disable div.ImgContainer{
+    background: url("../img/5GMacroStationDisable.png") no-repeat center;
+}
+
+div.Container:last-child div.right div:nth-child(3).enable div.ImgContainer{
+    background: url("../img/5GRoomSplit.png") no-repeat center;
+}
+div.Container:last-child div.right div:nth-child(3).disable div.ImgContainer{
+    background: url("../img/5GRoomSplitDisable.png") no-repeat center;
+}
+
+/*导航栏样式到这里结束*/
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp{
+    width: 100%;
+    height: 100%;
+}
+/*媒体查询*/
+@media(max-width:1200px) {
+    body div.asideContainer{
+        display: none;
+    }
+    body div.mainContentArea{
+        left: 0;
+    }
+}
+
+/*.mask {
+    position: fixed;
+    top: 50px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #333;
+    opacity: 0.45;
+    z-index: 8;
+    display: none;
+}*/
+
+
+
+

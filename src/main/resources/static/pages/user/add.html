@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../layui/css/layui.css">
+</head>
+<body>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top: 25px;">
+	<form class="form-horizontal" onsubmit="return false" id="form">
+		<fieldset>
+			
+			
+			
+			<div class="form-group">
+				<label class="col-md-2 control-label">用户名</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="用户名" type="text" id="username" name="username"
+						data-bv-notempty="true"
+						data-bv-notempty-message="用户名 不能为空">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-2 control-label">登陆密码</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="密码" type="text" id="password"  name="password"
+						data-bv-notempty="true"
+						data-bv-notempty-message="密码 不能为空">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">姓名</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="姓名" type="text" id="nickname" name="nickname">
+				</div>
+			</div>
+			
+			
+			<div class="form-group"  permission="sys:user:add">
+				<label class="col-md-2 control-label">用户角色*</label>
+				<div class="col-md-10"  id="userRoleDiv">
+					  
+				</div>
+			</div>
+			
+			
+			<div class="form-group">
+				<label class="col-md-2 control-label">性别</label>
+				<div class="col-md-10" style="width: 100px">
+					<select class="form-control input-sm" name="sex" id="sex">
+					</select>
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-md-2 control-label">厂商</label>
+				<div class="col-md-10"  style="width: 150px">
+					<select class="form-control input-sm" name="comapny" id="comapny">
+						<option value=''></option>
+						<option value='诺基亚'>诺基亚</option>
+						<option value='华为'>华为</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">分区归属</label>
+				<div class="col-md-10">
+					    <label class="checkbox-inline">
+					       <input type="checkbox"  name="comapnyBelong"  value="东区" />东区
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox"  name="comapnyBelong"  value="南区" />南区
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox"  name="comapnyBelong"  value="北区" />北区
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox" name="comapnyBelong"  value="西区" />西区
+					    </label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">分公司名称</label>
+				<div class="col-md-10"   style="width: 800px">
+					 <label class="checkbox-inline">
+					    <input type="checkbox"  name="secondConpany" value="闵行分公司" />闵行分公司
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox"  name="secondConpany"  value="西区分公司" />西区分公司
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox"  name="secondConpany"  value="南区分公司" />南区分公司
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox" name="secondConpany"  value="宝山分公司" />宝山分公司
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox" name="secondConpany"  value="嘉定分公司" />嘉定分公司
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox" name="secondConpany"  value="东区分公司" />东区分公司
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox" name="secondConpany"  value="北区分公司" />北区分公司
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox" name="secondConpany"  value="金山分公司" />金山分公司
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox" name="secondConpany"  value="青浦分公司" />青浦分公司
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox" name="secondConpany"  value="奉贤分公司" />奉贤分公司
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox" name="secondConpany"  value="松江分公司" />松江分公司
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox" name="secondConpany"  value="崇明分公司" />崇明分公司
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox" name="secondConpany"  value="浦东分公司" />浦东分公司
+					    </label>
+					    <label class="checkbox-inline">
+					       <input type="checkbox" name="secondConpany"  value="重大办分公司" />重大办分公司
+					    </label>
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-md-2 control-label">生日</label>
+				<div class="col-xs-2">
+				  <input type="text" class="form-control" placeholder="生日" id="birthday" name='birthday'>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">手机号</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="手机号" type="text" maxlength="11" id="phone" name="phone">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">电话</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="电话" type="text" maxlength="20" id="telephone" name="telephone">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">邮箱</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="邮箱" type="text" maxlength="50" id="email" name="email">
+				</div>
+			</div>
+
+			<div class="form-actions">
+				<div class="row" align="center">
+					<div class="col-md-12">
+					    <button class="btn btn-primary" onclick="location.href='/pages/user/list.html'">返回</button>
+						<button class="btn btn-primary" type="submit" onclick="add()">
+							<i class="fa fa-save"></i> 保存
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</fieldset>
+	</form>
+</div>
+	<script type="text/javascript" src="../../js/libs/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../../js/jq.js"></script>
+	<script type="text/javascript" src="../../js/plugin/bootstrapvalidator/bootstrapValidator.min.js"></script>
+	<script type="text/javascript" src="../../js/common.js"></script>
+	<script type="text/javascript" src="../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../js/my/ztree-menu.js"></script>
+	
+	<script type="text/javascript" src="../../js/zTree/js/jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="../../js/zTree/js/jquery.ztree.excheck.js"></script>
+    <script type="text/javascript" src="../../js/zTree/js/jquery.ztree.exedit.js"></script>
+	
+	<script type="text/javascript">
+	
+		
+	
+	 var pers = checkPermission();
+	
+		initDicSelect("sex", "sex");
+		
+		
+		
+		layui.use(['layer','laydate'], function(){
+		    var layer = layui.layer;
+		    var laydate = layui.laydate;
+		    
+		    
+		    
+		    laydate.render({
+		    	elem: '#birthday'
+	   		    ,max: 0
+	   		    ,theme: 'molv'
+	   	   	    ,done: function(val, date, endDate){
+	   	   	    	$("#birthday").val(val);
+	   	   		 }
+	        });
+		    
+		    //当前项目的所有的角色
+		    $.ajax({
+				type : 'post',
+				url : '/role/queryByProId',
+				dataType: "json", 
+				data : {},
+				success : function(data) {
+					if(data != null && data.length>0){
+						var html="";
+						for(var i=0;i<data.length;i++){
+							var model=data[i];
+							  html=html+'<label class="checkbox-inline"><input type="checkbox"  name="roleIdsStr"  value="'+model.id+'" />'+model.name+'</label>';
+						}
+						$("#userRoleDiv").append(html);
+					}
+				}
+			});
+		    
+		});
+
+	
+		function add() {
+			$('#form').bootstrapValidator();
+			var bootstrapValidator = $("#form").data('bootstrapValidator');
+			bootstrapValidator.validate();
+		    if(!bootstrapValidator.isValid()){
+			   return;
+		    }
+		    
+			$.ajax({
+				type : 'post',
+				url : '/users/saveUser',
+				dataType: "json", 
+				data : $("#form").serialize(),
+				success : function(data) {
+					console.info(data);
+					if(data.success){
+						location.href = "/pages/user/list.html";
+						parent.layer.msg("添加成功");
+					}else{
+						parent.layer.msg("操作失败");
+					}
+				}
+			});
+		}
+		
+	</script>
+</body>
+</html>

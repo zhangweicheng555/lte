@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.dao.SysProjectDao">
+
+	
+	<select id="query" resultMap="SysProjectQMap">
+		 select * from sys_project sp order by sp.sort
+	</select>
+	
+	
+	<select id="findWithRoleRealtion" resultMap="SysProjectQMap">
+		 select distinct p.* 
+		 from 
+		 sys_project p left join  proj_role_relation r on  p.id=r.proj_id 
+		 where 1=1 
+		 <if test="projId != null and projId != ''">
+            and p.id=#{projId}
+        </if>
+		 <if test="projName != null and projName != ''">
+            and p.proj_name like '%${projName}%'
+        </if>
+		 order by p.sort asc
+	</select>
+	
+	<select id="queryProjects" resultType="java.util.Map">
+		  select distinct 
+		  p.id as "id"
+		  ,p.proj_name as "projName"
+		 from 
+		 sys_project p
+		 ,proj_role_relation pr
+		 ,sys_role r
+		 ,sys_role_user ru
+		 ,sys_user u
+		 
+		 where 
+		 p.id=pr.proj_id
+		 and pr.role_id=r.id
+		 and r.id=ru.roleId
+		 and u.id=ru.userId
+		 
+		 and u.username=#{username}
+		 
+	</select>
+	
+	<select id="findRandomProj" resultType="java.lang.Long">
+		 select distinct p.id
+		 from 
+		 sys_project p
+		 ,proj_role_relation pr
+		 ,sys_role r
+		 ,sys_role_user ru
+		 ,sys_user u
+		 where 
+		 p.id=pr.proj_id
+		 and pr.role_id=r.id
+		 and r.id=ru.roleId
+		 and u.id=ru.userId
+		 and u.username=#{username}
+		<!--  order by p.createTime desc -->
+		 limit 1
+	</select>
+	
+	<delete id="delete">
+		 delete from sys_project
+		 where id != 9 and id in
+		 <foreach collection="idsArray" index="index" item="item"
+            open="(" separator="," close=")">
+            #{item}
+        </foreach>
+	</delete>
+	
+	<select id="find" resultMap="SysProjectFMap">
+		 select 
+		 sp.id,sp.proj_name,sp.proj_code,sp.proj_intro,sp.sort,sp.createTime,sp.updateTime
+		 ,group_concat(distinct sr.id separator '、')  as roleIds
+		 ,group_concat(distinct sr.name separator '、')   as roleNames
+		 from 
+		 sys_project sp
+		 left join proj_role_relation prr 
+		 on sp.id=prr.proj_id
+		 left join sys_role sr
+		 on sr.id=prr.role_id
+		 where 1=1 
+		 <if test="map.projId != null and map.projId != ''">
+            and sp.id=#{map.projId}
+        </if>
+		 <if test="map.projName != null and map.projName != ''">
+            and sp.proj_name like '%${map.projName}%'
+        </if>
+		<if test="map.beginTime != null and map.beginTime != '' and (map.endTime == null or map.endTime == '')">
+            and sp.createTime &gt;=  str_to_date(#{map.beginTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+		<if test="map.endTime != null and map.endTime != '' and (map.beginTime == null or map.beginTime == '')">
+            and sp.createTime &lt;=  str_to_date(#{map.endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+		<if test="map.endTime != null and map.endTime != '' and map.beginTime != null and map.beginTime != ''">
+            and sp.createTime 
+            between str_to_date(#{map.beginTime},'%Y-%m-%d %H:%i:%s')
+            and     str_to_date(#{map.endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+		 group by sp.id,sp.proj_name,sp.proj_code,sp.proj_intro,sp.sort,sp.createTime,sp.updateTime
+		 order by sp.sort
+	</select>
+	<select id="findList" resultMap="SysProjectFMap">
+		 select * 
+		 from  
+		 sys_project sp 
+		 where  1=1
+		 <if test="projId != null">
+            and sp.id =#{projId}
+        </if>
+		 order by sp.sort
+	</select>
+	
+	
+	<resultMap type="com.boot.kaizen.model.SysProject" id="SysProjectQMap">
+		<id property="id" column="id" />
+		<result property="projName" column="proj_name" />
+		<result property="projCode" column="proj_code" />
+		<result property="projIntro" column="proj_intro" />
+		<result property="sort" column="sort" />
+		<result property="createTime" column="createTime" />
+		<result property="updateTime" column="updateTime" />
+		<collection property="roles" column="id" ofType="com.boot.kaizen.model.SysRole" select="com.boot.kaizen.dao.SysRoleDao.queryByProId" />
+	</resultMap>
+	
+	<resultMap type="com.boot.kaizen.model.SysProject" id="SysProjectFMap">
+		<id property="id" column="id" />
+		<result property="projName" column="proj_name" />
+		<result property="projCode" column="proj_code" />
+		<result property="projIntro" column="proj_intro" />
+		<result property="sort" column="sort" />
+		<result property="roleIds" column="roleIds" />
+		<result property="roleNames" column="roleNames" />
+		<result property="createTime" column="createTime" />
+		<result property="updateTime" column="updateTime" />
+	</resultMap>
+
+	
+</mapper>

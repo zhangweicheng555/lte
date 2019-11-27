@@ -56,10 +56,11 @@ public class HttpUtil {
 			HttpPost httpPost = new HttpPost(httpUrl);
 			// 设置超时
 			RequestConfig config = RequestConfig.custom()//
-					.setConnectTimeout(60000)// 链接超时 1分钟
-					.setConnectionRequestTimeout(60000)// 请求超时
-					.setSocketTimeout(60000)// 读取超时
+					.setConnectTimeout(60000)// 链接超时 1分钟     10秒=10000
+					.setConnectionRequestTimeout(300000)// 请求超时
+					.setSocketTimeout(300000)// 读取超时
 					.build();//
+			
 			httpPost.setConfig(config);
 			// 创建请求参数
 			List<NameValuePair> list = new LinkedList<>();

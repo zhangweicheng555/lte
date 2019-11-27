@@ -31,4 +31,9 @@ public class SysLoginServiceServiceImpl implements SysLoginServiceService {
 		sysLoginServiceDao.insert(loginService);
 	}
 
+	@Override
+	public void deleteByUserName(String username) {
+		sysLoginServiceDao.deleteByUserName(username);
+	}
+
 }

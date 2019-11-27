@@ -1,0 +1,977 @@
+/**
+* @author sujiming
+* @date 2019-07-25 15:58
+*/
+
+.fl{
+    float: left;
+}
+.fr{
+    float: right;
+}
+
+
+
+/*脚注区域*/
+div.footer{
+    float: left;
+    width: 100%;
+    height: 40px;
+    background-color: #F0F0F0;
+}
+div.footer p{
+    line-height: 40px;
+    text-align: center;
+    color: #333333;
+}
+
+
+
+
+::-webkit-scrollbar-track { background-color: #F5F5F5;  }
+::-webkit-scrollbar {width: 2px;height:8px;  background-color:#EBECF0;border-radius: 5px;  }
+::-webkit-scrollbar-thumb { /* */background: rgba(0,0,0,0.2);border-radius: 5px; }
+::-webkit-scrollbar-corner{ background-color: #464646;}
+
+.marginTop10{
+    margin-top: 20px;
+}
+.marginRight{
+    margin-right: 10px;
+}
+
+
+
+/*div.mainContentArea{
+    position: fixed;
+    top: 60px;
+    left: 200px;
+    right: 0;
+    background-color: #F0F0F0;
+    padding: 0px 20px;
+    z-index: 998;
+    width: auto;
+    overflow: hidden;
+    overflow-y: auto;
+    box-sizing: border-box;
+    bottom: 0;
+}*/
+
+/*
+div.mainContentArea div.mainContentBody {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    overflow-y: auto;
+    display: block !important;
+    min-width: 1200px;
+}
+*/
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp{
+    position: relative;
+    /*margin: 0 auto;*/
+    /*padding: 20px 20px;*/
+    margin: 20px 20px 0 20px;
+
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.sysManageMenu{
+    width: 100%;
+    float: left;
+}
+.clear:after, .clear:before {
+    content: '';
+    display: block;
+    clear: both;
+}
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.manageMenu{
+    width: 100%;
+    float: left;
+}
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.manageMenu div.manageMenuContainer{
+    width: 30%;
+    height: 80px;
+    background-color: white;
+    border-radius:6px;
+    float: left;
+    margin-right: 5%;
+}
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.manageMenu div:last-child.manageMenuContainer{
+    margin-right: 0;
+}
+
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.manageMenu div.manageMenuContainer:hover{
+    cursor: pointer;
+}
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.manageMenu div.manageMenuContainer div.manageMenuContainerheadSculpture{
+    width: 37%;
+    height: 100%;
+    position: relative;
+    vertical-align:middle;
+    border-radius: 6px 0 0 6px ;
+    float: left;
+}
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.manageMenu div:nth-child(1).manageMenuContainer div.manageMenuContainerheadSculpture{
+    background-color: #6B8CE1;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.manageMenu div:nth-child(2).manageMenuContainer div.manageMenuContainerheadSculpture{
+    background-color: #5BCC90;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.manageMenu div:nth-child(3).manageMenuContainer div.manageMenuContainerheadSculpture{
+    background-color: #59AAFF;
+}
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.manageMenu div.manageMenuContainer img.img{
+    margin-top: 32px;
+}
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.manageMenu div.manageMenuContainer div.manageMenuContainerheadSculpture img{
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+}
+
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.manageMenu div.manageMenuContainerTitle{
+    width: 45%;
+    height: 100%;
+    float: left;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.manageMenu div.manageMenuContainerTitle p{
+    line-height: 80px;
+    font-size: 14px;
+    text-align: center;
+}
+
+
+
+/*表格部分*/
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer{
+    background-color: white;
+    position: relative;
+    width: 100%;
+    float: left;
+    border-radius: 6px;
+}
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer div.head{
+    /*width: 100%;*/
+    height: 46px;
+    margin: 0 20px;
+    border-bottom: 1px solid #D8D8D8;
+}
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer div.head div.left{
+    float: left;
+    border: 1px solid #C4C6CF;
+    height: 26px;
+    margin-top: 10px;
+    border-radius: 4px;
+
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer div.head div.right{
+    float: right;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer div.head div.left div.leftTitle:hover{
+    cursor: pointer;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer div.head div.left div.leftTitle{
+    float: left;
+    width: 68px;
+    border-right: 1px solid #C4C6CF;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer div.head div.left div:last-child.leftTitle{
+    border-right: none;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer div.head div.left div.leftTitle a{
+    width: 100%;
+    display: block;
+    line-height: 26px;
+    text-align: center;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer div.head div.left div.leftTitle a.active{
+    background-color: #3F9FF7;
+    color: white;
+}
+a:hover{
+    cursor: pointer;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer div.head div.right a{
+    color: #3F9FF7;
+    line-height: 46px;
+    margin-right: 10px;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer div.head div.right a:last-child{
+    margin-right: 0;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer div.body{
+    margin: 0 20px;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer div.body div.operateArea{
+    width: 100%;
+    height: 40px;
+    margin-top: 15px;
+}
+
+/*表格主体部分layui样式覆盖*/
+.layui-table-tool {display: none;}
+.layui-table td, .layui-table th, .layui-table-col-set, .layui-table-fixed-r, .layui-table-grid-down, .layui-table-header, .layui-table-page, .layui-table-tips-main, .layui-table-tool, .layui-table-total, .layui-table-view, .layui-table[lay-skin=line], .layui-table[lay-skin=row] {border-color: #EBECF0;border-style: none;}
+.layui-form-checkbox[lay-skin=primary] i {border-radius: 9px;}
+div.layui-table-header table.layui-table thead tr th div.layui-table-cell span{color: #000000;font-size: 12px;}
+.layui-table-cell {height: 33px;line-height: 33px;}
+.layui-table td, .layui-table th {font-size: 12px;}
+.layui-table-fixed-l {box-shadow: none;}
+.layui-table-view .layui-table td, .layui-table-view .layui-table th {border-right: none;}
+.layui-form-checked[lay-skin=primary] i {border-color: #3F9FF7;background-color: #3F9FF7;}
+.layui-table-page .layui-laypage {float: right;}
+.layui-laypage .layui-laypage-curr .layui-laypage-em {background-color: #3F9FF7;}
+.layui-table tr {border-bottom: 1px solid #DCDEE3;}
+.layui-table tbody tr:hover{background-color: white}
+.layui-form-item .layui-input-inline {float: none;width: 190px;margin-right: 10px;margin-left: 6px;}
+.layui-btn {height: 27px;line-height: 27px;padding: 0 11px;}
+.layui-input, .layui-select, .layui-textarea {height: 27px;line-height: 1.3;line-height: 27px\9;}
+.layui-form-label {padding: 5px 5px;}
+.layui-form-label {width: auto;}
+.layui-form-select dl dd.layui-this {background-color: #1e9df7;color: #fff;}
+.layui-form-item {margin-bottom: 0px;}
+/*按钮样式覆盖*/
+.layui-input-block {
+    margin-left: 0px;
+    min-height: 36px;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer  input[type=button].add{
+    background-color: #5BCC90;
+    margin: 0 10px;
+    /*float: left;*/
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer  input[type=button].delete{
+    background-color: #EFA36D;
+    /*float: left;*/
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer  input[type=button].search{
+    background-color: #3F9FF7;
+    /*float: left;*/
+}
+
+
+
+/*
+工作进度
+*/
+div.workProgress{
+    position: relative;
+    float: left;
+    width: 100%;
+}
+div.workProgress div.head{
+    float: left;
+    width: 100%;
+    height: 43px;
+    border-bottom: 1px solid #D8D8D8;
+}
+div.workProgress div.head span{
+    color: #000000;
+    font-weight:400;
+    font-size: 14px;
+    line-height: 43px;
+}
+div.workProgress div.body{
+    position: relative;
+    float: left;
+    width: 100%;
+    margin-top: 14px;
+}
+
+div.workProgress div.body div.left{
+    float: left;
+    height: 120px;
+    width: 23%;
+    margin-right: 2%;
+    background-color: #FFFFFF;
+    border-radius:6px;
+    padding: 0 1%;
+}
+div.workProgress div.body div.left  div.title{
+    width: 100%;
+    height: 32px;
+}
+div.workProgress div.body div.left  div.title p{
+    font-size: 18px;
+    font-weight:400;
+    text-align: left;
+    line-height: 36px;
+}
+div.workProgress div.body div.left  div.content{
+    width: 100%;
+    float: left;
+    height: 88px;
+}
+div.workProgress div.body div.left  div.content p{
+    text-align: center;
+    line-height: 88px;
+    color: #3F9FF7;
+    font-size: 42px;
+}
+div.workProgress div.body div.right{
+    position: relative;
+    float: left;
+    height: 120px;
+    width: 71%;
+    background-color: #FFFFFF;
+    border-radius:6px;
+    padding: 0 1%;
+}
+div.workProgress div.body div.right div.fl{
+    width: 33.33333%;
+    height: 110px;
+    padding: 5px 0;
+}
+
+div.workProgress div.body div.right div.fl div.title{
+    width: 100%;
+    height: 32px;
+}
+div.workProgress div.body div.right div.fl div.title p{
+    line-height: 36px;
+    text-align: center;
+    font-size: 18px;
+}
+div.workProgress div.body div.right div:last-child.fl div.content{
+    border-right: none;
+}
+div.workProgress div.body div.right div.fl div.content{
+    border-right: 1px solid #C4C6CF;
+}
+div.workProgress div.body div.right div.fl div.content p{
+    font-size: 42px;
+    text-align: center;
+    line-height: 80px;
+    color: #3F9FF7;
+}
+
+/*流程管控*/
+div.processControl{
+    width:100%;
+    float: left;
+    /*height:460px;*/
+    height: 331px;
+    background:rgba(255,255,255,1);
+    border-radius:6px;
+    background-color: #FFFFFF;
+    /*padding:14px 20px;*/
+}
+div.processControl div.title{
+    margin: 14px 20px 0 20px;
+}
+div.processControl div.title p{
+    color:#000000;
+    font-size: 16px;
+}
+div.processControl div.content{
+    position: relative;
+    height: 100%;
+    float: left;
+    margin: 0 20px 14px 20px;
+    /*background: url("../img/processControl@2x.png") no-repeat center;
+    background-size:contain;*/
+    /*background-attachment: fixed;*/
+}
+
+div.processControl div.content div.imgContainer{
+    width: 100%;
+    /*height: 100%;*/
+    float: left;
+    z-index: -1;
+}
+
+div.processControl div.content  div.imgContainer img{
+    width: 100%;
+    height: 100%;
+}
+div.processControl div.content div.contentDetail{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+
+
+div.processControl div.content div.contentDetail div div p{
+    color: #333333;
+    font-size: 14px;
+}
+
+div.processControl div.content div.contentDetail div:nth-child(1).contentDetailContainer{
+    width:100% ;
+    /*height: 30.333%;*/
+    height: 25.333%;
+    position: relative;
+}
+
+div.processControl div.content div.contentDetail div.contentDetailContainer div{
+    position: relative;
+    width: 16%;
+    float: left;
+    height: 100%;
+}
+div.processControl div.content div.contentDetail div.contentDetailContainer div p{
+    /* display: inline-block;*/
+    margin-top: 25%;
+    text-align: center;
+}
+div.processControl div.content div.contentDetail div:nth-child(1).contentDetailContainer div.contentDetailContainerDiv1{
+    margin-left: 13%;
+}
+body > div.mainContentArea > div > div > div.processControl.marginTop10 > div.content > div.contentDetail > div:nth-child(1) > div.contentDetailContainerDiv2{
+    margin-left: 4%;
+}
+body > div.mainContentArea > div > div > div.processControl.marginTop10 > div.content > div.contentDetail > div:nth-child(1) > div.contentDetailContainerDiv3{
+    margin-left: 3.5%;
+}
+
+
+div.processControl div.content div.contentDetail div:nth-child(2).contentDetailContainer {
+    width: 100%;
+    /*height: 33.333%;*/
+    height: 27.333%;
+    position: relative;
+}
+div.processControl div.content div.contentDetail div:nth-child(2).contentDetailContainer div p {
+    /* display: inline-block; */
+    margin-top: 27%;
+    text-align: center;
+    font-size: 14px;
+    color: #333333;
+}
+body > div.mainContentArea > div > div > div.processControl.marginTop10 > div.content > div.contentDetail > div:nth-child(2) > div.contentDetailContainerDiv1{
+    margin-left: 13%;
+}
+body > div.mainContentArea > div > div > div.processControl.marginTop10 > div.content > div.contentDetail > div:nth-child(2) > div.contentDetailContainerDiv2{
+    margin-left: 4%;
+}
+
+body > div.mainContentArea > div > div > div.processControl.marginTop10 > div.content > div.contentDetail > div:nth-child(2) > div.contentDetailContainerDiv3{
+    margin-left: 3.6%;
+}
+
+body > div.mainContentArea > div > div > div.processControl.marginTop10 > div.content > div.contentDetail > div:nth-child(2) > div.contentDetailContainerDiv4{
+    margin-left: 15.4%;
+}
+
+body > div.mainContentArea > div > div > div.processControl.marginTop10 > div.content > div.contentDetail > div:nth-child(3){
+    width: 100%;
+    /*height: 33.333%;*/
+    height: 33.333%;
+    position: relative;
+}
+body > div.mainContentArea > div > div > div.processControl.marginTop10 > div.content > div.contentDetail > div:nth-child(3) div p{
+    margin-top: 32%;
+}
+
+body > div.mainContentArea > div > div > div.processControl.marginTop10 > div.content > div.contentDetail > div:nth-child(3) > div.contentDetailContainerDiv1{
+    margin-left: 2.8%;
+}
+body > div.mainContentArea > div > div > div.processControl.marginTop10 > div.content > div.contentDetail > div:nth-child(3) > div.contentDetailContainerDiv2{
+    margin-left: 34%;
+}
+
+
+
+
+
+/*勘站数量*/
+div.prospectingStationNum{
+    width:100%;
+    float: left;
+    background:rgba(255,255,255,1);
+    border-radius:6px;
+    background-color: #FFFFFF;
+    position: relative;
+}
+div.prospectingStationNum div.title{
+    /*margin: 14px 20px 0 20px;*/
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+div.prospectingStationNum div.title p{
+    color:#000000;
+    font-size: 16px;
+}
+div.prospectingStationNum div.content{
+    position: relative;
+    width: 100%;
+    height: 350px;
+    float: left;
+    margin: 0 20px 14px 20px;
+}
+div.prospectingStationNum div.content div.lineChartContainer{
+    margin-top: 10px;
+    width: 98%;
+    height: 100%;
+}
+
+div.prospectingStationNum div.content div.lineChartContainer div.lineChart{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    float: left;
+}
+
+
+/*5G勘察*/
+div.Survey5G{
+    position: relative;
+    float: left;
+    width: 100%;
+}
+div.Survey5G div.head{
+    float: left;
+    width: 100%;
+    height: 43px;
+    border-bottom: 1px solid #D8D8D8;
+}
+
+div.Survey5G div.head span{
+    color: #000000;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 43px;
+}
+div.Survey5G div.body {
+    width: 100%;
+    float: left;
+    height: 400px;
+}
+div.Survey5G div.body div.Survey5GContainer{
+    margin-right: 1%;
+    width: 24.25%;
+    float: left;
+    height: 100%;
+    background-color: white;
+    border-radius: 6px;
+    position: relative;
+}
+div.Survey5G div.body div.Survey5GContainer:first-child{
+    background:none;
+}
+div.Survey5G div.body div:last-child.Survey5GContainer{
+    position: relative;
+    margin-right: 0;
+}
+
+
+div.Survey5G div.body div.Survey5GContainer:nth-child(1) div.Survey5GNum{
+    background-color: #709DFF;
+    width: 100%;
+    height: 190px;
+    float: left;
+    border-radius: 6px;
+}
+div.Survey5G div.body div.Survey5GContainer:nth-child(1) div.Survey5GNum p{
+    color: #FFFFFF;
+    text-align: center;
+    overflow:hidden; /*超出的部分隐藏起来。*/
+    white-space:nowrap;/*不显示的地方用省略号...代替*/
+    text-overflow:ellipsis;
+}
+div.Survey5G div.body div.Survey5GContainer div.Survey5GNum p:first-child{
+    font-size: 70px;
+    line-height: 140px;
+}
+div.Survey5G div.body div.Survey5GContainer div.Survey5GNum p:last-child{
+    font-size: 18px;
+}
+div.Survey5G div.body div.Survey5GContainer div.title{
+    float: left;
+    padding: 20px 20px 10px 20px;
+
+    height: 22px;
+}
+
+/*div.Survey5G div.body div.Survey5GContainer div{
+    min-width: 200px;
+}*/
+
+div.Survey5G div.body div.Survey5GContainer div.title p{
+    color: #333333;
+    font-weight:600;
+    line-height: 22px;
+    font-size:16px;
+}
+/*div.Survey5G div.body div.Survey5GContainer div.echartsPicContainer{
+    height: 160px;
+    float: left;
+    padding: 0 20px;
+}*/
+div.Survey5G div.body div.Survey5GContainer div.echartsPicContainer{
+    width: 98%;
+    float: left;
+    padding: 0 1%;
+    position: absolute;
+}
+div.Survey5G div.body div.Survey5GContainer:nth-child(2) div.echartsPicContainer{
+    height: 300px;
+}
+div.Survey5G div.body div.Survey5GContainer:nth-child(3) div.echartsPicContainer{
+    height: 240px;
+    top: 32px;
+}
+div.Survey5G div.body div.Survey5GContainer:nth-child(4) div.echartsPicContainer{
+    height: 240px;
+    top: 32px;
+}
+
+
+div.Survey5G div.body div.Survey5GContainer div.echartsPicContainer div.echartsPic{
+    width: 100%;
+    height: 100%;
+}
+div.Survey5G div.body div.Survey5GContainer div.content{
+    height: 160px;
+    width: 100%;
+    float: left;
+    margin-top: 200px;
+}
+div.Survey5G div.body div.Survey5GContainer div.content div.main{
+    float: left;
+    width: 50%;
+    height:49px ;
+}
+div.Survey5G div.body div.Survey5GContainer div.content div.main div.left{
+    float: left;
+    width: 10px;
+    height:100% ;
+    margin-left: 40px;
+    margin-right: 5px;
+}
+div.Survey5G div.body div.Survey5GContainer div.content div.main div.left div.point{
+    float: left;
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+div.Survey5G div.body div.Survey5GContainer div.content div.main div.right p:first-child{
+    font-size: 12px;
+    color: #666666;
+    line-height:17px;
+}
+div.Survey5G div.body div.Survey5GContainer div.content div.main div.right p:last-child{
+    font-size: 16px;
+    color: #333333;
+    line-height:22px;
+}
+
+div.Survey5G div.body div.Survey5GContainer:nth-child(3) div.content div.main{
+    float: left;
+    width: 100%;
+    height:50px ;
+}
+
+div.Survey5G div.body div.Survey5GContainer div.content div.main:nth-child(1) div.left div.point{
+    background-color: #3057CF;
+}
+div.Survey5G div.body div.Survey5GContainer div.content div.main:nth-child(2) div.left div.point{
+    background-color: #4477F6;
+}
+div.Survey5G div.body div.Survey5GContainer div.content div.main:nth-child(3) div.left div.point{
+    background-color: #709DFF;
+}
+div.Survey5G div.body div.Survey5GContainer div.content div.main:nth-child(4) div.left div.point{
+    background-color: #99BDFF;
+}
+div.Survey5G div.body div.Survey5GContainer div.content div.main:nth-child(5) div.left div.point{
+    background-color: #C2D9FF;
+}
+div.Survey5G div.body div.Survey5GContainer div.content div.main:nth-child(6) div.left div.point{
+    background-color: #EBF3FF;
+}
+
+
+
+
+div.Survey5G div.body:last-child div.Survey5GContainer{
+    width: 49.5%;
+    height: 100%;
+    margin-right: 1%;
+    float: left;
+}
+div.Survey5G div.body:last-child div.Survey5GContainer div.title{
+    width: 100%;
+    height: 22px;
+}
+div.Survey5G div.body:last-child div.Survey5GContainer div.title p{
+    color: #000000;
+    font-size: 16px;
+}
+
+div.Survey5G div.body:last-child div.Survey5GContainer div.body{
+    height: 348px;
+    padding: 0 10px;
+    width: 96%;
+    position: relative;
+    float: left;
+    /*overflow: auto;*/
+}
+/*div.Survey5G div.body:last-child div.Survey5GContainer div.body{
+    width: 100%;
+    padding: 0 10px;
+}*/
+/*div.Survey5G div.body div.Survey5GContainer div.body table{
+    !*height: 348px;*!
+    !*width: 96%;*!
+    !*overflow: auto;*!
+    margin: 0 auto;
+   !* margin: 0 10px;*!
+}
+div.Survey5G div.body div.Survey5GContainer div.body table thead{
+    height: 20px;
+    background-color: #EBECF0;
+    color: #000000;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+div.Survey5G div.body div.Survey5GContainer div.body table thead tr td p{
+    line-height: 50px;
+}
+div.Survey5G div.body div.Survey5GContainer div.body table tbody tr{
+    border-bottom:1px solid #DCDEE3 ;
+}
+div.Survey5G div.body div.Survey5GContainer div.body table tbody tr td p{
+    line-height: 50px;
+}
+div.Survey5G div.body div.Survey5GContainer div.body table tbody{
+    height: 328px;
+    overflow: auto;
+}*/
+div.Survey5G div.body:last-child div.Survey5GContainer:first-child{
+    background-color: #ffffff;
+}
+div.Survey5G div.body:last-child div.Survey5GContainer:last-child{
+    margin-right: 0;
+    background-color: #ffffff;
+}
+
+
+
+
+
+
+
+
+
+
+
+/*图片轮播CSS*/
+div.popupWindow{
+    /*width: 100%;*/
+    padding: 0 20px;
+    overflow: auto;
+    display: none;
+}
+
+div.popupWindow .layui-input, .layui-select, .layui-textarea {
+    height: 38px;
+    line-height: 1.3;
+    line-height: 27px\9;
+}
+div.popupWindow .layui-form-label {
+    float: left;
+    display: block;
+    padding: 9px 15px;
+    width: 80px;
+    font-weight: 400;
+    line-height: 20px;
+    text-align: right;
+}
+div.popupWindow .layui-btn.confirm {
+    display: inline-block;
+    height: 38px;
+    line-height: 38px;
+    padding: 0 18px;
+    background-color: #3F9FF7;
+    color: #fff;
+    white-space: nowrap;
+    text-align: center;
+    font-size: 14px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+}
+div.popupWindow .layui-btn.cancle {
+    display: inline-block;
+    height: 38px;
+    line-height: 38px;
+    padding: 0 18px;
+    background-color: #FFFFFF;
+    color: #666666;
+    white-space: nowrap;
+    text-align: center;
+    font-size: 14px;
+    border: 1px solid #D8D8D8;
+    border-radius: 2px;
+    cursor: pointer;
+}
+div.popupWindow div.formContainer{
+    width: 100%;
+    height: 300px;
+    float: left;
+    overflow: auto;
+}
+div.popupWindow div.tableContainer div.layui-form{
+    margin: 0 ;
+}
+div.popupWindow .layui-input-block{
+    float: left;
+    padding-left: 254px;
+}
+
+#addOneUser > form > div.formContainer > div:nth-child(6) > div{
+    padding-left: 110px;
+}
+
+
+
+div.formContainer div.layui-form-item div.layui-inline{
+    margin-right: 0;
+}
+div.popupWindow .layui-input-block.belongArea{
+    float: left;
+    padding-left: 0px;
+}
+
+div.popupWindow .layui-form-checkbox[lay-skin=primary] i {
+    border-radius: 2px;
+}
+
+div.layui-carousel img{
+    width: 100%;
+    height: 100%;
+}
+div.popupWindow div.pictureRotationContainer{
+    height: 500px;
+    width: 100%;
+    float: left;
+}
+
+div.popupWindow div.pictureRotationContainer div.pictureTitle{
+    height: 34px;
+}
+div.popupWindow div.pictureRotationContainer div.pictureTitle span{
+    color: #666666;
+    font-size: 12px;
+    line-height: 34px;
+}
+
+div.popupWindow div.pictureRotationContainer div.pictureTitle a{
+    color: #3F9FF7;
+    font-size: 12px;
+    line-height: 34px;
+    float: right;
+}
+
+
+/*批量导入基站工参*/
+div.importBaseStationInfo{
+    float: left;
+    position: relative;
+    width: 100%;
+    background-color: #ffffff;
+    margin-top: 10px;
+    border-radius: 6px;
+}
+div.importBaseStationInfo div.importBaseStationInfoContainer{
+    position: relative;
+    margin: 0 20px;
+    background-color: #ffffff;
+}
+div.importBaseStationInfo div.importBaseStationInfoContainer div.attentionTitle{
+    width: 100%;
+    margin-top: 12px;
+    height: 27px;
+}
+div.importBaseStationInfo div.importBaseStationInfoContainer div.attentionTitle span{
+    font-size: 16px;
+    font-weight:600;
+    line-height: 27px;
+    color: #666666;
+}
+div.importBaseStationInfo div.importBaseStationInfoContainer div.attentionTitle input{
+    font-size: 12px;
+    line-height: 30px;
+    color: #ffffff;
+    background-color: #5BCC90;
+}
+div.importBaseStationInfo div.importBaseStationInfoContainer div.attentionBody{
+   border-radius: 6px;
+    color: #F16E59;
+    background:rgba(241,110,89,0.2);
+    margin-top: 10px;
+    padding: 14px 20px;
+
+}
+div.importBaseStationInfo div.importBaseStationInfoContainer div.attentionBody p{
+   line-height: 20px;
+    font-size: 12px;
+}
+div.importBaseStationInfo div.importBaseStationInfoContainer div.uploadFile{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+div.importBaseStationInfo div.importBaseStationInfoContainer div.uploadFile div.layui-upload button:first-child{
+    background-color: #5BCC90;
+}
+div.importBaseStationInfo div.importBaseStationInfoContainer div.uploadFile div.layui-upload button{
+    height: 27px;
+    line-height: 30px;
+}
+div.sysManageMenu p{
+    color: #666666;
+    line-height: 20px;
+}
+
+.uploadFile td .layui-btn+.layui-btn {
+    margin-left: 0px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

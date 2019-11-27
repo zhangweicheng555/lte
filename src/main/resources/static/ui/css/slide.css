@@ -1,0 +1,154 @@
+/**
+* @author sujiming
+* @date 2019-07-25 10:49
+*/
+
+
+
+/*侧边栏部分*/
+div.asideContainer{
+    overflow-x: hidden;
+    background-color: #464646;
+    position: fixed;
+    left: 0;
+    top: 60px;
+    bottom: 0;
+    z-index: 999;
+    width: 200px;
+    overflow-x: hidden;
+}
+
+div.asideContainer ul li{
+    /*padding: 0 15px;*/
+    position: relative;
+    line-height: 42px;
+    width: 100%;
+    float: left;
+    border-radius: 6px;
+    margin-top: 3px;
+}
+div.asideContainer ul li.active{
+    background-color:#3F9FF7 ;
+}
+
+div.asideContainer ul li.one-level div:hover{
+    /*padding: 0 15px;*/
+    border-radius: 6px;
+    background-color: #476A8A;
+}
+div.asideContainer ul div.two-level{
+    display: none;
+}
+div.asideContainer ul div li{
+    width: 100%;
+    overflow:hidden; /*超出的部分隐藏起来。*/
+    white-space:nowrap;/*不显示的地方用省略号...代替*/
+    text-overflow:ellipsis;
+
+}
+div.asideContainer ul div ul li a{
+    padding-left: 20px;
+}
+div.asideContainer ul div ul div ul li a{
+    padding-left: 40px;
+}
+
+div.asideContainer ul div li:hover{
+    border-radius: 6px;
+    background-color: #476A8A;
+}
+div.asideContainer ul li:nth-child(2) ul{
+    display: block;
+}
+div.asideContainer ul li ul{
+    display: none;
+}
+div.asideContainer ul li a{
+    font-size: 12px;
+    color: #ffffff ;
+    margin-left: 32px;
+}
+div.asideContainer ul li ul li a{
+    margin-left: 10px;
+}
+div.asideContainer ul li:hover{
+    cursor: pointer;
+
+}
+div.asideContainer ul li div{
+    position: relative;
+    width: 100%;
+    float: left;
+}
+div.asideContainer ul li div  div.menuImg{
+    float: left;
+    width: 15px;
+    height: 15px;
+    background-size: 12px 12px;
+    /*margin-top: 13px;*/
+    position: absolute;
+    left: 10px;
+    top: 13px;
+}
+
+div.asideContainer ul li:nth-child(1).one-level div  div{
+    background: url(../img/slideIndex.png) no-repeat center;
+}
+div.asideContainer ul li:nth-child(2).one-level div  div{
+    background: url(../img/slideSysManage.png) no-repeat center;
+}
+div.asideContainer ul li:nth-child(4).one-level div  div{
+    background: url(../img/slideAutoCtl.png) no-repeat center;
+
+}
+div.asideContainer ul li:nth-child(6).one-level div  div{
+    background: url(../img/slideLTE_G_W.png) no-repeat center;
+}
+div.asideContainer ul li:nth-child(8).one-level div  div{
+    background: url(../img/slideLTE_G_W.png) no-repeat center;
+}
+
+
+div.asideContainer ul li div img:last-child{
+    /*margin-top: 19px;*/
+    position: absolute;
+    right: 7px;
+    top: 19px;
+}
+
+div.asideContainer ul li ul{
+    width: 100%;
+    float: left;
+}
+div.asideContainer ul li ul li{
+    width: 140px;
+    /*height: 42px;*/
+    padding: 0 20px 0 20px;
+    line-height: 42px;
+    float: left;
+    border-radius: 6px;
+    margin-left: 10px;
+}
+
+div.asideContainer ul li ul li a{
+    width: 100%;
+    float: left;
+    overflow:hidden; /*超出的部分隐藏起来。*/
+    white-space:nowrap;/*不显示的地方用省略号...代替*/
+    text-overflow:ellipsis;
+}
+
+
+
+aside.asideContainer ul li ul li.active:hover{
+   background-color: #3F9FF7;
+}
+aside.asideContainer ul li ul li.active{
+   background-color: #3F9FF7;
+}
+aside.asideContainer ul li ul li:hover{
+    background-color: #476A8A;
+}
+
+
+

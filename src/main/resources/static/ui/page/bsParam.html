@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 浏览器实时刷新，不用清除缓存 -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=8">
+    <meta http-equiv="Cache" content="no-cache">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>2G工参管理</title>
+    <link rel="stylesheet" href="../libs/layui/css/layui.css" />
+    <!--<link rel="stylesheet" href="../../lib/malihu-custom-scrollbar-plugin-3.1.5/jquery.mCustomScrollbar.min.css" />
+    -->
+    <script type="text/javascript" src="../libs/layui/layui.js"></script>
+   <!-- <script type="text/javascript" src="../../lib/jquery/jquery3.4.1.js"></script>-->
+
+</head>
+
+<body>
+<!--导航下方主体功能区域-->
+<div class="mainMenu">
+    <div class="mainCenter">
+        <div class="centerBody">
+            <div class="navMsg">
+                <span>当前位置>单验报告管理>4G单验报告</span>
+            </div>
+            <div class="searchArea">
+                <form class="layui-form">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">基站名</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="number" lay-verify="text" autocomplete="off" placeholder="请输入基站名" class="layui-input" id="stationName" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">基站号</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="number" lay-verify="number" placeholder="请输入基站号" autocomplete="off" class="layui-input" id="stationNumber" />
+                        </div>
+                    </div>
+                    <div class="layui-inline operateArea" style="float: right">
+                        <input type="button" value="数据导入" id="importData" class="layui-btn layui-btn-normal" />
+                        <input type="button" value="搜索" id="search"  class="layui-btn layui-btn-normal" />
+                        <!--<input type="button" class="layui-btn layui-btn-normal" id="search" value="&nbsp;&nbsp;&nbsp;查&nbsp;询&nbsp;&nbsp;&nbsp;"></input>
+                        <input type="button" class="layui-btn layui-btn-danger" id="clearBt" value="清空搜索"></input>-->
+                    </div>
+                </form>
+            </div>
+            <div class="tableArea mCustomScrollbar"  data-mcs-theme="dark" >
+                <table class="layui-hide" id="dataList"  lay-filter="dataList">
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+</body>
+<script type="text/html" id="caozuo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="delete" style="background-color: #DF5A65">删除</a>
+</script>
+
+<script type="text/javascript">
+    layui.use(['jquery','table','layer','form','upload'], function(){
+        $ = layui.$;
+        var form = layui.form;
+        var table = layui.table;
+        var layer = layui.layer;
+        var upload = layui.upload;
+        table.render({
+            elem: '#dataList'
+            //,url: 'http://192.168.1.165:8080/g5/station/stationFour/list'
+            ,method:'get'
+            ,cols: [[
+                {field:'id', width:25, title: 'ID',type:'checkbox', fixed: 'left' }
+                ,{field:'province', width:120, title: '省份', align:'center'}
+                ,{field:'city', width:120, title: '地市', align:'center'}
+                ,{field:'enodebid', width:120, title: '基站号', align:'center'}
+                ,{field:'stationName', width:120, title: '基站名', align:'center'}
+                ,{field:'stationAddress', width:120, title: '站址', align:'center'}
+                ,{field:'stationType', width:120, title: '站型', align:'center'}
+                ,{field:'allDownInctAgl', width:120, title: '总下倾角', align:'center'}
+                ,{field:'longitude', width:120, title: '经度', align:'center'}
+                ,{field:'latitude', width:120, title: '纬度', align:'center'}
+                ,{field:'cellName', width:120, title: '小区名', align:'center'}
+                ,{field:'cellId', width:120, title: '小区编号', align:'center'}
+                ,{field:'eci', width:120, title: 'eci', align:'center'}
+                ,{field:'pci', width:120, title: 'pci', align:'center'}
+                ,{field:'tac', width:120, title: 'tac', align:'center'}
+                ,{field:'earfcn', width:120, title: 'earfcn', align:'center'}
+                ,{field:'azimuth', width:120, title: '方位角', align:'center'}
+                ,{field:'antBeamWidth', width:120, title: 'ant_beam_width', align:'center'}
+                ,{field:'preElectronicDown', width:120, title: '预制电下倾', align:'center'}
+                ,{field:'mechanicalDown', width:120, title: '机械下倾角', align:'center'}
+                ,{field:'templateId', width:120, title: '模板编号', align:'center'}
+                ,{field:'proId', width:120, title: '项目编号', align:'center'}
+                ,{field:'county', width:120, title: '区县', align:'center'}
+                ,{field:'vendor', width:120, title: '厂家', align:'center'}
+                ,{field:'equipmentType', width:120, title: '设备类型', align:'center'}
+                ,{field:'transmissionBandwidth', width:120, title: '传输带宽', align:'center'}
+                ,{field:'transmissionIpConfig', width:120, title: '传输IP设置', align:'center'}
+                ,{field:'hangUpHeigh', width:120, title: '挂高', align:'center'}
+                ,{field:'pa', width:120, title: 'pa', align:'center'}
+                ,{field:'pb', width:120, title: 'pb', align:'center'}
+                ,{field:'rspower', width:120, title: 'rspower', align:'center'}
+                ,{field:'combinerWay', width:120, title: '合路方式', align:'center'}
+                ,{field:'singleDoubleWay', width:120, title: '单双路', align:'center'}
+                ,{field:'originalRoomSystem', width:120, title: '原有室分系统', align:'center'}
+                ,{field:'openDate', width:120, title: '开通日期', align:'center'}
+                ,{field:'accessNetPlatformInformation', width:120, title: '接入网优平台信息', align:'center'}
+                ,{field:'enryManagementPlatformInformation', width:120, title: '录入资管平台信息', align:'center'}
+                ,{field:'mrrIsCanOpen', width:120, title: 'mrr是否可以开启', align:'center'}
+                ,{field:'stationSpacing', width:120, title: '站间距', align:'center'}
+                ,{field:'rruNum', width:120, title: 'rru数', align:'center'}
+                ,{field:'grid', width:120, title: '网格', align:'center'}
+                ,{field:'antennaVerticalHalfPowerAngle', width:120, title: '天线垂直半功率角度', align:'center'}
+                ,{field:'antennaLevelHalfPowerAngle', width:120, title: '天线水平半功率角度', align:'center'}
+                ,{field:'antennaVender', width:120, title: '天线厂家', align:'center'}
+                ,{field:'antennaModel', width:120, title: '天线型号', align:'center'}
+                ,{field:'templateId', width:120, title: '模板编号', align:'center'}
+                ,{field:'proId', width:120, title: '项目编号', align:'center'}
+                ,{ title: '操作',toolbar: '#caozuo',align:'center', width:160,fixed: 'right'}
+            ]]
+            ,page: true
+            ,toolbar: '#toolbarDemo'
+            ,where:{
+                /*"map[projectTeamId]":$("#projectTeam option:selected").attr("id"),*/
+                "map[stationName]":$("#stationName").val()
+                ,"map[stationNum]":$("#stationNumber").val()
+            }
+            ,limit:15
+            ,limits:[15,30,50,100,200,500]
+            ,loading:true
+            ,toolbar: '#toolbarDemo'
+            ,parseData: function(res){ //将原始数据解析成 table 组件所规定的数据
+                /*console.log(JSON.stringify(res));*/
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.msg, //解析提示文本
+                    "count": res.page.totalCount, //解析数据长度
+                    "data": res.page.list//解析数据列表
+                };
+            }
+            ,text: {
+                none: '无数据'
+            }
+            ,done: function(res, curr, count){
+                console.log(JSON.stringify(res));
+                /*$("[data-field = 'appMessage']").children().each(function(){
+                    var str = $(this).text();
+                    while (str.indexOf("///")!="-1"){
+                        str = str.replace("///",",");
+                    }
+                    $(this).text(str);
+                });*/
+            },
+            "data": [
+                 {"id": "00738b9810a34e6a89d359cccda2aa70", "enodebid": "SD24066", "baseStationName": "名都新城(1)", "city": "上海", "cellName": "名都新城(1)-2", "cellEnglishName": "F03509MingDouXinCheng(1)", "cellType": "FLEXIMR10", "lac": "4185", "ci": "40667", "bandModel": "1800M", "company": "诺基亚", "physicsStationNo": "503509", "stationType": "宏站", "configured": "S1111", "presetElectricDip": "7", "azimuth": "120", "mechanicalLowerInclination": "0", "longitude": "121.3872", "latitude": "31.1094", "stationHeight": "40", "presetElectricDipOpe": "", "commonStationNo": "", "coverScene": "", "loopLine": "", "stationStatus": "", "beautifyType": "", "beautifyingStop": "", "lifeRoundStatus": "", "useCombiner": "", "lowerType": "", "tkFlag": "", "lineCompany": "", "lineElectricUp": "", "noWirePortNum": "", "antennaHangUp": "", "lineCombiner": "", "lineType": "", "lineStationNo": "", "lineTypeNo": "", "netBlong": "", "conpanyRegion": "", "bcc": "5", "btsId": "", "hop": "", "msc": "", "ncc": "", "tch0": "", "tch1": "", "tch2": "", "tch3": "", "tch4": "", "tch5": "", "trxNu": "", "egena": "", "et": "", "gena": "", "bcfId": "", "bscId": "", "gsm": "", "hys": "", "nsei": "", "rruStop": "", "sdNum": "", "bcch": "674", "makeType": "2G", "tempMark": null, "templateId": 21, "projId": 4, "createTime": "2019-04-12 09:48:49", "LAY_TABLE_INDEX": 0},
+                 {"id": "00756297d2b8442d9b5e3e9f54acf532", "enodebid": "SD21311", "baseStationName": "移动奉北闸", "city": "上海", "cellName": "移动奉北闸-3", "cellEnglishName": "YiDongFengBeiZha", "cellType": "FLEXIMR10", "lac": "3182", "ci": "13119", "bandModel": "1800M", "company": "诺基亚", "physicsStationNo": "530223", "stationType": "宏站", "configured": "S111", "presetElectricDip": "2", "azimuth": "240", "mechanicalLowerInclination": "3", "longitude": "121.509031", "latitude": "30.961471", "stationHeight": "38", "presetElectricDipOpe": "", "commonStationNo": "", "coverScene": "", "loopLine": "", "stationStatus": "", "beautifyType": "", "beautifyingStop": "", "lifeRoundStatus": "", "useCombiner": "", "lowerType": "", "tkFlag": "", "lineCompany": "", "lineElectricUp": "", "noWirePortNum": "", "antennaHangUp": "", "lineCombiner": "", "lineType": "", "lineStationNo": "", "lineTypeNo": "", "netBlong": "", "conpanyRegion": "", "bcc": "2", "btsId": "", "hop": "", "msc": "", "ncc": "", "tch0": "", "tch1": "", "tch2": "", "tch3": "", "tch4": "", "tch5": "", "trxNu": "", "egena": "", "et": "", "gena": "", "bcfId": "", "bscId": "", "gsm": "", "hys": "", "nsei": "", "rruStop": "", "sdNum": "", "bcch": "675", "makeType": "2G", "tempMark": null, "templateId": 21, "projId": 4, "createTime": "2019-04-12 09:47:51", "LAY_TABLE_INDEX": 1},
+                 {"id": "0075f8176ccf41389a37635094e99cda", "enodebid": "SD15867", "baseStationName": "移动联丰", "city": "上海", "cellName": "移动联丰-1", "cellEnglishName": "YiDongLianFeng", "cellType": "FLEXIMR10", "lac": "2180", "ci": "58677", "bandModel": "1800M", "company": "诺基亚", "physicsStationNo": "508597", "stationType": "宏站", "configured": "S111", "presetElectricDip": "4", "azimuth": "10", "mechanicalLowerInclination": "5", "longitude": "121.31571", "latitude": "30.75327", "stationHeight": "42", "presetElectricDipOpe": "", "commonStationNo": "", "coverScene": "", "loopLine": "", "stationStatus": "", "beautifyType": "", "beautifyingStop": "", "lifeRoundStatus": "", "useCombiner": "", "lowerType": "", "tkFlag": "", "lineCompany": "", "lineElectricUp": "", "noWirePortNum": "", "antennaHangUp": "", "lineCombiner": "", "lineType": "", "lineStationNo": "", "lineTypeNo": "", "netBlong": "", "conpanyRegion": "", "bcc": "7", "btsId": "", "hop": "", "msc": "", "ncc": "", "tch0": "", "tch1": "", "tch2": "", "tch3": "", "tch4": "", "tch5": "", "trxNu": "", "egena": "", "et": "", "gena": "", "bcfId": "", "bscId": "", "gsm": "", "hys": "", "nsei": "", "rruStop": "", "sdNum": "", "bcch": "671", "makeType": "2G", "tempMark": null, "templateId": 21, "projId": 4, "createTime": "2019-04-12 09:47:38", "LAY_TABLE_INDEX": 2
+                 },
+                 {
+                     "id": "0076665ce9d44d4c9faf32feeee17255",
+                     "enodebid": "SD3217",
+                     "baseStationName": "徐通风",
+                     "city": "上海",
+                     "cellName": "徐通风-3",
+                     "cellEnglishName": "XUTONGFENG3",
+                     "cellType": "FLEXIMR10",
+                     "lac": "5195",
+                     "ci": "32173",
+                     "bandModel": "1800M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "502611",
+                     "stationType": "宏站",
+                     "configured": "S222",
+                     "presetElectricDip": "2",
+                     "azimuth": "200",
+                     "mechanicalLowerInclination": "5",
+                     "longitude": "121.45899",
+                     "latitude": "31.16578",
+                     "stationHeight": "33",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "5",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "666",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:46:51",
+                     "LAY_TABLE_INDEX": 3
+                 },
+                 {
+                     "id": "0076ab81224a4fae8b9d6d9ef94e8d68",
+                     "enodebid": "SD1579",
+                     "baseStationName": "移动奉收费",
+                     "city": "上海",
+                     "cellName": "移动奉收费-2",
+                     "cellEnglishName": "YiDongFengShouFei",
+                     "cellType": "FLEXIMR10",
+                     "lac": "3182",
+                     "ci": "5792",
+                     "bandModel": "1800M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "508461",
+                     "stationType": "宏站",
+                     "configured": "S111",
+                     "presetElectricDip": "0",
+                     "azimuth": "120",
+                     "mechanicalLowerInclination": "1",
+                     "longitude": "121.490171",
+                     "latitude": "30.857801",
+                     "stationHeight": "42",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "1",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "662",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:47:38",
+                     "LAY_TABLE_INDEX": 4
+                 },
+                 {
+                     "id": "0076b3cab6ab4785b4ccc9501ef980c0",
+                     "enodebid": "SD23024",
+                     "baseStationName": "闵新启德",
+                     "city": "上海",
+                     "cellName": "闵新启德-2",
+                     "cellEnglishName": "MinXinQiDe",
+                     "cellType": "FLEXIMR10",
+                     "lac": "4185",
+                     "ci": "30248",
+                     "bandModel": "1800M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "532317",
+                     "stationType": "宏站",
+                     "configured": "S212",
+                     "presetElectricDip": "4",
+                     "azimuth": "120",
+                     "mechanicalLowerInclination": "3",
+                     "longitude": "121.358921",
+                     "latitude": "31.112398",
+                     "stationHeight": "18",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "1",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "655",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:48:45",
+                     "LAY_TABLE_INDEX": 5
+                 },
+                 {
+                     "id": "00788cb4139044f8a25d59c73998601c",
+                     "enodebid": "SD12084",
+                     "baseStationName": "海边",
+                     "city": "上海",
+                     "cellName": "海边-1",
+                     "cellEnglishName": "HaiBian",
+                     "cellType": "FLEXIMR10",
+                     "lac": "3182",
+                     "ci": "20844",
+                     "bandModel": "1800M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "506088",
+                     "stationType": "宏站",
+                     "configured": "S111",
+                     "presetElectricDip": "2",
+                     "azimuth": "30",
+                     "mechanicalLowerInclination": "1",
+                     "longitude": "121.51624",
+                     "latitude": "30.86481",
+                     "stationHeight": "50",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "5",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "683",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:47:06",
+                     "LAY_TABLE_INDEX": 6
+                 },
+                 {
+                     "id": "00795b6bbd394f0ebac3dd7fd679ffa5",
+                     "enodebid": "SD1421",
+                     "baseStationName": "电信松人南",
+                     "city": "上海",
+                     "cellName": "电信松人南-2",
+                     "cellEnglishName": "DianXinSongRenNan",
+                     "cellType": "FLEXIMR10",
+                     "lac": "2183",
+                     "ci": "4212",
+                     "bandModel": "1800M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "508711",
+                     "stationType": "宏站",
+                     "configured": "S111",
+                     "presetElectricDip": "2",
+                     "azimuth": "120",
+                     "mechanicalLowerInclination": "3",
+                     "longitude": "121.22501",
+                     "latitude": "31.00442",
+                     "stationHeight": "23.5",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "0",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "683",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:47:31",
+                     "LAY_TABLE_INDEX": 7
+                 },
+                 {
+                     "id": "007e41ab866a42a9928e199ca1130d65",
+                     "enodebid": "G10696",
+                     "baseStationName": "地铁9号线松江南站（1）",
+                     "city": "上海",
+                     "cellName": "地铁9号线松江南站（1）9",
+                     "cellEnglishName": "G10696DT9SJN3",
+                     "cellType": "FLEXIMULTI",
+                     "lac": "4185",
+                     "ci": "6969",
+                     "bandModel": "900M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "",
+                     "stationType": "微站",
+                     "configured": "S111",
+                     "presetElectricDip": "0",
+                     "azimuth": "0",
+                     "mechanicalLowerInclination": "0",
+                     "longitude": "121.22626",
+                     "latitude": "30.98679",
+                     "stationHeight": "0",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "3",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "103",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:48:09",
+                     "LAY_TABLE_INDEX": 8
+                 },
+                 {
+                     "id": "007f615ae3454c99b8ca29406ae7067c",
+                     "enodebid": "SD21953",
+                     "baseStationName": "新飞",
+                     "city": "上海",
+                     "cellName": "新飞-3",
+                     "cellEnglishName": "XinFei",
+                     "cellType": "FLEXIMR10",
+                     "lac": "2183",
+                     "ci": "19539",
+                     "bandModel": "1800M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "502119",
+                     "stationType": "宏站",
+                     "configured": "S111",
+                     "presetElectricDip": "6",
+                     "azimuth": "280",
+                     "mechanicalLowerInclination": "3",
+                     "longitude": "121.31281",
+                     "latitude": "31.03622",
+                     "stationHeight": "25",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "6",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "671",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:48:00",
+                     "LAY_TABLE_INDEX": 9
+                 },
+                 {
+                     "id": "0076665ce9d44d4c9faf32feeee17255",
+                     "enodebid": "SD3217",
+                     "baseStationName": "徐通风",
+                     "city": "上海",
+                     "cellName": "徐通风-3",
+                     "cellEnglishName": "XUTONGFENG3",
+                     "cellType": "FLEXIMR10",
+                     "lac": "5195",
+                     "ci": "32173",
+                     "bandModel": "1800M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "502611",
+                     "stationType": "宏站",
+                     "configured": "S222",
+                     "presetElectricDip": "2",
+                     "azimuth": "200",
+                     "mechanicalLowerInclination": "5",
+                     "longitude": "121.45899",
+                     "latitude": "31.16578",
+                     "stationHeight": "33",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "5",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "666",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:46:51",
+                     "LAY_TABLE_INDEX": 3
+                 },
+                 {
+                     "id": "0076ab81224a4fae8b9d6d9ef94e8d68",
+                     "enodebid": "SD1579",
+                     "baseStationName": "移动奉收费",
+                     "city": "上海",
+                     "cellName": "移动奉收费-2",
+                     "cellEnglishName": "YiDongFengShouFei",
+                     "cellType": "FLEXIMR10",
+                     "lac": "3182",
+                     "ci": "5792",
+                     "bandModel": "1800M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "508461",
+                     "stationType": "宏站",
+                     "configured": "S111",
+                     "presetElectricDip": "0",
+                     "azimuth": "120",
+                     "mechanicalLowerInclination": "1",
+                     "longitude": "121.490171",
+                     "latitude": "30.857801",
+                     "stationHeight": "42",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "1",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "662",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:47:38",
+                     "LAY_TABLE_INDEX": 4
+                 },
+                 {
+                     "id": "0076b3cab6ab4785b4ccc9501ef980c0",
+                     "enodebid": "SD23024",
+                     "baseStationName": "闵新启德",
+                     "city": "上海",
+                     "cellName": "闵新启德-2",
+                     "cellEnglishName": "MinXinQiDe",
+                     "cellType": "FLEXIMR10",
+                     "lac": "4185",
+                     "ci": "30248",
+                     "bandModel": "1800M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "532317",
+                     "stationType": "宏站",
+                     "configured": "S212",
+                     "presetElectricDip": "4",
+                     "azimuth": "120",
+                     "mechanicalLowerInclination": "3",
+                     "longitude": "121.358921",
+                     "latitude": "31.112398",
+                     "stationHeight": "18",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "1",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "655",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:48:45",
+                     "LAY_TABLE_INDEX": 5
+                 },
+                 {
+                     "id": "00788cb4139044f8a25d59c73998601c",
+                     "enodebid": "SD12084",
+                     "baseStationName": "海边",
+                     "city": "上海",
+                     "cellName": "海边-1",
+                     "cellEnglishName": "HaiBian",
+                     "cellType": "FLEXIMR10",
+                     "lac": "3182",
+                     "ci": "20844",
+                     "bandModel": "1800M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "506088",
+                     "stationType": "宏站",
+                     "configured": "S111",
+                     "presetElectricDip": "2",
+                     "azimuth": "30",
+                     "mechanicalLowerInclination": "1",
+                     "longitude": "121.51624",
+                     "latitude": "30.86481",
+                     "stationHeight": "50",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "5",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "683",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:47:06",
+                     "LAY_TABLE_INDEX": 6
+                 },
+                 {
+                     "id": "00795b6bbd394f0ebac3dd7fd679ffa5",
+                     "enodebid": "SD1421",
+                     "baseStationName": "电信松人南",
+                     "city": "上海",
+                     "cellName": "电信松人南-2",
+                     "cellEnglishName": "DianXinSongRenNan",
+                     "cellType": "FLEXIMR10",
+                     "lac": "2183",
+                     "ci": "4212",
+                     "bandModel": "1800M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "508711",
+                     "stationType": "宏站",
+                     "configured": "S111",
+                     "presetElectricDip": "2",
+                     "azimuth": "120",
+                     "mechanicalLowerInclination": "3",
+                     "longitude": "121.22501",
+                     "latitude": "31.00442",
+                     "stationHeight": "23.5",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "0",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "683",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:47:31",
+                     "LAY_TABLE_INDEX": 7
+                 },
+                 {
+                     "id": "007e41ab866a42a9928e199ca1130d65",
+                     "enodebid": "G10696",
+                     "baseStationName": "地铁9号线松江南站（1）",
+                     "city": "上海",
+                     "cellName": "地铁9号线松江南站（1）9",
+                     "cellEnglishName": "G10696DT9SJN3",
+                     "cellType": "FLEXIMULTI",
+                     "lac": "4185",
+                     "ci": "6969",
+                     "bandModel": "900M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "",
+                     "stationType": "微站",
+                     "configured": "S111",
+                     "presetElectricDip": "0",
+                     "azimuth": "0",
+                     "mechanicalLowerInclination": "0",
+                     "longitude": "121.22626",
+                     "latitude": "30.98679",
+                     "stationHeight": "0",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "3",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "103",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:48:09",
+                     "LAY_TABLE_INDEX": 8
+                 },
+                 {
+                     "id": "007f615ae3454c99b8ca29406ae7067c",
+                     "enodebid": "SD21953",
+                     "baseStationName": "新飞",
+                     "city": "上海",
+                     "cellName": "新飞-3",
+                     "cellEnglishName": "XinFei",
+                     "cellType": "FLEXIMR10",
+                     "lac": "2183",
+                     "ci": "19539",
+                     "bandModel": "1800M",
+                     "company": "诺基亚",
+                     "physicsStationNo": "502119",
+                     "stationType": "宏站",
+                     "configured": "S111",
+                     "presetElectricDip": "6",
+                     "azimuth": "280",
+                     "mechanicalLowerInclination": "3",
+                     "longitude": "121.31281",
+                     "latitude": "31.03622",
+                     "stationHeight": "25",
+                     "presetElectricDipOpe": "",
+                     "commonStationNo": "",
+                     "coverScene": "",
+                     "loopLine": "",
+                     "stationStatus": "",
+                     "beautifyType": "",
+                     "beautifyingStop": "",
+                     "lifeRoundStatus": "",
+                     "useCombiner": "",
+                     "lowerType": "",
+                     "tkFlag": "",
+                     "lineCompany": "",
+                     "lineElectricUp": "",
+                     "noWirePortNum": "",
+                     "antennaHangUp": "",
+                     "lineCombiner": "",
+                     "lineType": "",
+                     "lineStationNo": "",
+                     "lineTypeNo": "",
+                     "netBlong": "",
+                     "conpanyRegion": "",
+                     "bcc": "6",
+                     "btsId": "",
+                     "hop": "",
+                     "msc": "",
+                     "ncc": "",
+                     "tch0": "",
+                     "tch1": "",
+                     "tch2": "",
+                     "tch3": "",
+                     "tch4": "",
+                     "tch5": "",
+                     "trxNu": "",
+                     "egena": "",
+                     "et": "",
+                     "gena": "",
+                     "bcfId": "",
+                     "bscId": "",
+                     "gsm": "",
+                     "hys": "",
+                     "nsei": "",
+                     "rruStop": "",
+                     "sdNum": "",
+                     "bcch": "671",
+                     "makeType": "2G",
+                     "tempMark": null,
+                     "templateId": 21,
+                     "projId": 4,
+                     "createTime": "2019-04-12 09:48:00",
+                     "LAY_TABLE_INDEX": 9
+                 }
+             ]
+        });
+        //监听行工具条
+        table.on('tool(dataList)', function(obj) {
+            var data = obj.data;
+            if (obj.event === 'delete') {
+                layer.confirm('真的删除吗？', function(index){
+                    var arr = [];
+                    arr.push(obj.data.id);
+                    arr.push(obj.data.extendId);
+                    $.ajax({
+                        url: projectName +'/g5/station/stationFour/delete',
+                        type: 'post',
+                        data: {
+                            "id":obj.data.id,
+                            "extendId":obj.data.extendId
+                        },
+                        async: true,
+                        dataType: 'json',
+                        success: function(res) {
+                            layer.msg(JSON.stringify(res))
+                        },
+                        error: function(e) {
+                            layer.msg("后台删除异常");
+                        }
+                    });
+                });
+            }else if(obj.event === 'edit'){
+                //回显需要修改的数据
+                $("#updateInfo_id").val(data.id);
+                $("#updateInfo_province").val(data.province);
+                $("#updateInfo_city").val(data.city);
+                $("#updateInfo_enodebid").val(data.enodebid);
+                $("#updateInfo_station_name").val(data.stationName);
+                $("#updateInfo_station_address").val(data.stationAddress);
+                $("#updateInfo_station_type").val(data.stationType);
+                $("#updateInfo_longitude").val(data.longitude);
+                $("#updateInfo_latitude").val(data.latitude);
+                $("#updateInfo_cell_name").val(data.cellName);
+                $("#updateInfo_cell_id").val(data.cellId);
+                $("#updateInfo_eci").val(data.eci);
+                $("#updateInfo_pci").val(data.pci);
+                $("#updateInfo_tac").val(data.tac);
+                $("#updateInfo_earfcn").val(data.earfcn);
+                $("#updateInfo_azimuth").val(data.azimuth);
+                $("#updateInfo_ant_beam_width").val(data.antBeamWidth);
+                $("#updateInfo_pre_electronic_down").val(data.preElectronicDown);
+                $("#updateInfo_mechanical_down").val(data.mechanicalDown);
+                $("#updateInfo_all_down_inct_agl").val(data.allDownInctAgl);
+                $("#updateInfo_template_id").val(data.templateId);
+                $("#updateInfo_pro_id").val(data.proId);
+                /*$("#updateInfo_station_public_four_id").val(data.station_public_four_id);*/
+                $("#updateInfo_county").val(data.county);
+                $("#updateInfo_vendor").val(data.vendor);
+                $("#updateInfo_equipment_type").val(data.equipmentType);
+                $("#updateInfo_transmission_bandwidth").val(data.transmissionBandwidth);
+                $("#updateInfo_transmission_ip_config").val(data.transmissionIpConfig);
+                $("#updateInfo_hang_up_heigh").val(data.hangUpHeigh);
+                $("#updateInfo_pa").val(data.pa);
+                $("#updateInfo_pb").val(data.pb);
+                $("#updateInfo_rspower").val(data.rspower);
+                $("#updateInfo_combiner_way").val(data.combinerWay);
+                $("#updateInfo_single_double_way").val(data.singleDoubleWay);
+                $("#updateInfo_original_room_system").val(data.originalRoomSystem);
+                $("#updateInfo_open_date").val(data.openDate);
+                $("#updateInfo_access_net_platform_information").val(data.accessNetPlatformInformation);
+                $("#updateInfo_enry_management_platform_information").val(data.enryManagementPlatformInformation);
+                $("#updateInfo_mrr_is_can_open").val(data.mrrIsCanOpen);
+                $("#updateInfo_station_spacing").val(data.stationSpacing);
+                $("#updateInfo_rru_num").val(data.rruNum);
+                $("#updateInfo_grid").val(data.grid);
+                $("#updateInfo_antenna_vertical_half_power_angle").val(data.antennaVerticalHalfPowerAngle);
+                $("#updateInfo_antenna_level_half_power_angle").val(data.antennaLevelHalfPowerAngle);
+                $("#updateInfo_antenna_vender").val(data.antennaVender);
+                $("#updateInfo_antenna_model").val(data.antennaModel);
+                $("#updateInfo_template_id").val(data.templateId);
+                $("#updateInfo_pro_id").val(data.proId);
+                $("#updateInfo_extend_id").val(data.extendId);
+                index = layer.open({
+                    type: 1,
+                    title: '修改报告模板',
+                    area: ['680px', '580px'],
+                    shadeClose:true,
+                    cancel: function(index, layero){
+                        layer.close(index)
+                    },
+                    content: $("#updateStationInfo")
+                });
+            }
+        });
+    });
+</script>
+</html>

@@ -1,202 +1,288 @@
-﻿<!DOCTYPE html>
-
-<html>
-
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-	    <meta name="apple-mobile-web-app-status-bar-style" content="black"> 
-	    <meta name="apple-mobile-web-app-capable" content="yes">
-	    <meta name="format-detection" content="telephone=no">
-		<title>云后台管理系统</title>
-		<link rel="stylesheet" href="layui/css/layui.css" media="all" />
-		<link rel="stylesheet" href="css/global.css" media="all" />
-		<link rel="stylesheet" href="css/font-awesome/css/font-awesome.css" media="all" />
-	</head>
-
-	<body>
-		<div class="layui-layout layui-layout-admin" style="border-bottom: solid 5px #1aa094;">
-		    <!-- 标题栏 -->
-			<div class="layui-header header header-demo" >
-                <div class="layui-main">
-					<div class="admin-login-box">
-						<a class="logo" style="left: 0;cursor: pointer;width: 300px;" >
-							<span style="font-size: 22px;">Ihandle云后台管理系统</span>
-						</a>
-						<!--  左侧导航滚动
-						 <div class="admin-side-toggle" style="left: 220px;"><i class="fa fa-bars" aria-hidden="true"></i></div>  -->
-					</div>
-					
-				    <ul class="layui-nav" pc id="topDaoHangUl">
-				    
-				    	<!-- 顶部导航注意这里面支支持两级 -->
-						 <!--  <li class="layui-nav-item">
-							<a href='javascript:;' lay-id="index_5"><i style="padding-right: 2px;" class="fa fa-envelope-o" aria-hidden="true" title="公告" unreadNotice></i>公告</a>
-							 <dl class="layui-nav-child" id="childDl1">
-		                         <dd><a href='javascript:;'  lay-id="-9991"  data-url="pages/menu/list.html"><i style="padding-right: 2px;" class="fa fa-envelope-o" aria-hidden="true" title="公告" unreadNotice></i>待补充信息1</a></dd> 
-		                         <dd><a href='javascript:;'  lay-id="-9992" data-url="pages/menu/list.html"><i style="padding-right: 2px;" class="fa fa-envelope-o" aria-hidden="true" title="公告" unreadNotice></i>待补充信息2</a></dd> 
-		                         <dd><a href='javascript:;'   lay-id="-9993" data-url="pages/menu/list.html"><i style="padding-right: 2px;" class="fa fa-envelope-o" aria-hidden="true" title="公告" unreadNotice></i>待补充信息3</a></dd> 
-		                         <dd><a href='javascript:;'  lay-id="-9994" data-url="pages/menu/list.html"><i style="padding-right: 2px;" class="fa fa-envelope-o" aria-hidden="true" title="公告" unreadNotice></i>待补充信息14</a></dd> 
-		                    </dl>
-						   </li>   -->
-						
-						
-				    <!--   <li class="layui-nav-item" pc>
-				        <a href="javascript:;" class="admin-header-user">
-	                        <img />
-	                        <span></span>
-	                    </a>
-	                    <dl class="layui-nav-child">
-	                        <dd>
-	                            <a href="javascript:;" onclick="logout()"><i class="fa fa-sign-out" aria-hidden="true"></i>退出</a>
-	                        </dd>
-	                    </dl>
-				      </li> -->
-				      
-				      <!--  <li class="layui-nav-item">
-							<a href='javascript:;' id="nowProject" lang="" style="font-weight: bold;">切换项目</a>
-							 <dl class="layui-nav-child" id="childDl">
-		                        <dd><a href='javascript:;' class="clsProj"  data-url="#">待补充信息1</a></dd>
-		                    </dl>
-						</li>  -->
-				    </ul>
-			  </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>自动流程管控</title>
+    <meta name="viewport" content="width=device-width,initial-scale=0.5,minimum-scale=0.5">
+    <link rel="stylesheet" href="ui/libs/layui/css/layui.css">
+    <link rel="stylesheet" href="ui/css/Nav.css">
+    <link rel="stylesheet" href="ui/css/slide.css">
+    <link rel="stylesheet" href="ui/css/mainBody.css">
+    
+    
+    <link rel="stylesheet" href="css/font-awesome/css/font-awesome.min.css">
+    
+    <script type="text/javascript" src="ui/libs/jquery/jquery3.4.1.js"></script>
+    
+    <!-- index相关js配置 -->
+    <script type="text/javascript" src="ui/js/main.js"></script>
+    
+    
+    <script type="text/javascript" src="ui/libs/layui/layui.js"></script>
+    <script src="ui/libs/echarts/echarts.min.js"></script>
+    <!--walden.js为echarts定制的样式文件。样式文件必须引用在echarts文件之后-->
+    <script type="text/javascript" src="ui/libs/echarts/echartsThyme/walden.js"></script>
+    
+    
+   <style>
+        
+        body > div > div > div.sites-header-nav-function.clearfix > div > div:nth-child(1) > ul > li > div.sites-header-link-nav > ul > div.Container {
+            max-height: 300px;
+            overflow: auto;
+            width: 100%;
+        }
+    </style>
+    
+    
+</head>
+<body>
+    <!--导航栏-->
+    <div class="sites-header-nav">
+        <div class="sites-header-nav-container">
+            <div class="sites-header-nav-logo">
+                <a class="fl" style="margin-left: 25px;">工程自动流程管控</a>
+               <img src="ui/img/slide.png" onclick="menuNavClick()"  id="slideBtnShowMsg" >
             </div>
-            <!-- 菜单 -->
-			<div class="layui-side layui-bg-black" id="admin-side" style="width: 0px;">
-				<div class="layui-side-scroll" id="admin-navbar-side" lay-filter="side" >
-				    <ul id="menu" class="layui-nav layui-nav-tree" lay-filter="demo">
-				    	
-		            </ul>
-				</div>
-			</div>
+
+            <div class="sites-header-nav-function clearfix">
+                <div class="sites-header-nav-div fr clearfix">
+                    <div class="sites-header-nav-right fl">
+                        <ul class="sites-header-nav-link clearfix">
+                            
+                            
+                            <li class="link-nav fl" style="width: 160px;">
+                                <!-- 显示的内容 -->
+                                <div class="nav-category-link" >
+                                    <div class="title" style="width: 160px; ">
+                                        <span id="nowLoginPerson" style="text-align: center;"></span>
+                                    </div>
+                                </div>
+                            </li>
+                            
+                            
+                            
+                            <!-- 此模块代表最顶部的信息 -->
+                            <li class="link-nav fl" style="width: 140px;">
+                                <!-- 显示的内容 -->
+                                <div class="nav-category-link">
+                                    <div class="title" style="width: 140px;">
+                                        <!-- 当前项目的显示 -->
+                                        <span id="nowProject"></span>
+                                    </div>
+                                </div>
+								
+								<!-- 下拉的内容 -->
+                                <div class="sites-header-link-nav" style="width: 140px;">
+                                    <ul>
+                                        <div class="Container" id="childDl">
+                                            <!-- 叠加下拉项目 -->
+                                            <!-- <li class="sites-header-link-nav-item"><a>黑龙江移动单验团队</a></li> -->
+                                        </div>
+                                    </ul>
+                                </div> 
+                            </li>
+                            
+                        </ul>
+                    </div>
+                    
+                    
+                    
+                    <div id="booNavigation" class="sites-header-nav-left fl">
+                        <ul class="sites-header-nav-category clearfix">
+                            <li class="sites-header-nav-category-item fl">
+                                
+                               <!--   <div class="nav-category-link">
+                                    <div class="title">
+                                        <span>产品与服务</span>
+                                    </div>
+                                    <div class="img">
+                                    </div>
+                                </div>
+                                
+                                <div class="nav-category-item-dropdown-menu">
+                                    <div class="dropdown-menu-container">
+                                        <div class="dropdown-menu-nav-list">
+                                            <div class="list-container">
+                                                <div class="Container">
+                                                    <div class="left">
+                                                        <p>2/3/4G</p>
+                                                    </div>
+                                                    <div class="right">
+                                                        <div class="disable Ctl" onclick="toNewHtml(this)">
+                                                            <div class="ImgContainer">
+                                                            </div>
+                                                            <a name="">LTE宏站单验</a>
+                                                        </div>
+                                                        <div class="disable Ctl" onclick="toNewHtml(this)">
+                                                            <div class="ImgContainer">
+                                                            </div>
+                                                            <a name="">LTE DAS室分单验</a>
+                                                        </div>
+                                                        <div class="disable Ctl" onclick="toNewHtml(this)">
+                                                            <div class="ImgContainer">
+                                                            </div>
+                                                            <a name="">LTE有源室分单验</a>
+                                                        </div>
+                                                        <div class="disable Ctl" onclick="toNewHtml(this)">
+                                                            <div class="ImgContainer">
+                                                            </div>
+                                                            <a name="LTEtest.html">LTE单验(基础版)</a>
+                                                        </div>
+                                                        <div class="disable Ctl" onclick="toNewHtml(this)">
+                                                            <div class="ImgContainer">
+                                                            </div>
+                                                            <a name="">LTE/G/W 宏站单验</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="Container">
+                                                    <div class="left">
+                                                        <p>5G</p>
+                                                    </div>
+                                                    <div class="right">
+                                                        <div class="enable Ctl" onclick="childToNewHtml(this)">
+                                                            <div class="ImgContainer">
+                                                            </div>
+                                                            <a name="pages/autocheck/act/list.html">5G勘察</a>
+                                                        </div>
+                                                        <div class="disable Ctl" onclick="toNewHtml(this)">
+                                                            <div class="ImgContainer">
+                                                            </div>
+                                                            <a name="">5G宏站单验</a>
+                                                        </div>
+                                                        <div class="disable Ctl" onclick="toNewHtml(this)">
+                                                            <div class="ImgContainer">
+                                                            </div>
+                                                            <a name="">5G室分单验</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> 
+                                 -->
+                                
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    
+                    <div class="sites-header-nav-right fl">
+                        <ul class="sites-header-nav-link clearfix">
+                           
+                           <!-- 二维码模块 -->
+                            <li class="link-nav fl">
+                               <!--  <div class="nav-category-link">
+                                    <div class="TwoDimensionalCode">
+                                        <img>
+                                    </div>
+                                </div> 
+                                
+                                  <div class="sites-header-link-nav">
+                                    <ul>
+                                        <li class="sites-header-link-nav-item">
+                                           <div class="TwoDimensionCode">
+                                               <img src="ui/img/TwoDimensionalCode.png" alt="">
+                                               <p>Android</p>
+                                           </div>
+                                            <div class="TwoDimensionCode">
+                                                <img src="ui/img/TwoDimensionalCode.png" alt="">
+                                                <p>IOS</p>
+                                            </div>
+                                        </li>
+
+                                    </ul>
+                                </div> -->
+                            </li>
+                            
+                            
+                            
+                            <li class="link-nav fl">
+                                <div class="nav-category-link">
+                                    <div class="UserImg">
+                                        <img src="ui/img/UserLogo.png" alt="">
+                                    </div>
+                                    <div class="UserInfo">
+                                        <p style="text-align: center;line-height: 40px;" id="loginUserName"></p>
+                                        <!-- <p>李源潮</p> -->
+                                        <!--  <p>产品经理</p>  -->
+                                    </div>
+                                    <div class="UserDropdown">
+
+                                    </div>
+                                </div>
+                                <div class="sites-header-link-nav">
+                                    <ul>
+                                        <li class="sites-header-link-nav-item">
+                                            <a onclick="logout()" style="margin-left: 13px;">退出登录</a>
+                                        </li>
+                                        <!--   可多个
+                                        <li class="sites-header-link-nav-item">
+                                             <a style="margin-left: 13px;">退出登录</a>
+                                        </li> -->
+                                       
+                                    </ul>
+                                </div>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+        </div>
+    </div>
+    
+    
+    
+    
+    <!--侧边栏   左侧导航栏-->
+    <div class="asideContainer" id="asideContainer" style="display: 1;">
+        <ul  id="appendLeftItems">
 			
-			<div class="layui-body" style="bottom: 0;border-left: solid 2px #1AA094;left: 0px;" id="admin-body">
-				<div class="layui-tab admin-nav-card layui-tab-brief" lay-allowClose="true" lay-filter="admin-tab">
-					<ul class="layui-tab-title">
-						  <li class="layui-this">
-							<i class="fa fa-dashboard" aria-hidden="true"></i>
-							<cite>欢迎访问</cite>
-						</li>  
-					</ul>
-					<div class="layui-tab-content" style="min-height: 150px; padding: 5px 0 0 0;">
-						<div class="layui-tab-item layui-show">
-							<!-- 首页展示的功能 -->
-							<iframe src="pages/dashboard.html"></iframe> 
-						</div>
-					</div>
-				</div>
-			</div>
-			
-			
-			<div class="layui-footer footer footer-demo" id="admin-footer" style="left: 0px;">
-				<div>
-					<p>Ihandle日志分析系统</p>
-				</div>
-			</div> 
-			<div class="site-tree-mobile layui-hide">
-				<i class="layui-icon">&#xe602;</i>
-			</div>
-			<div class="site-mobile-shade"></div>
-			
-			<script type="text/javascript" src="layui/layui.js"></script>
-			<script type="text/javascript" src="js/libs/jquery-2.1.1.min.js"></script>
-			<script type="text/javascript" src="js/jq.js"></script>
-			<script type="text/javascript" src="js/main.js"></script>
-			
-	</div>
-	<input type="hidden" id="username" name="username" />
+        </ul>
+    </div>
+    
+    
+    <!--遮罩区域-->
+    <div class="mask" style="/* display: none; */"></div>
+
+
+
+    <!--主体内容区域   这里可以存在默认展示的页面-->
+    <div class="mainContentArea">
+        <div class="mainContentBody">
+            <div class="mainContentBodyTemp clear">
+                <div class="iframeContainer" id="containerCommonHtml">
+                    <!-- body体默认显示的页面 -->
+                    <!-- <iframe id="iframe" style="width:100%;"  src="ui/page/indexBody.html"></iframe> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 </body>
-	
-	<script type="text/javascript">
-		$(function(){
-			
-			 
-			 //获取用户信息
-			 $.ajax({
-					type : 'get',
-					url : 'http://140.206.187.251:50123/users/current',
-					async : false,
-					success : function(data) {
-						
-						var html='<li class="layui-nav-item" pc><a href="javascript:;" class="admin-header-user"><img /><span></span></a><dl class="layui-nav-child"><dd><a href="javascript:;" onclick="logout()"><i class="fa fa-sign-out" aria-hidden="true"></i>退出</a></dd></dl></li>';
-				    	 $("#topDaoHangUl").append(html);
-						
-						$(".admin-header-user span").text(data.nickname);
-						username=data.username;
-						var pro = window.location.protocol;
-						var host = window.location.host;
-						var domain = pro + "//" + host;
-						
-						var sex = data.sex;
-						var url = data.headImgUrl;
-						if(url == null || url == ""){
-							if(sex == 1){
-								url = "/img/avatars/sunny.png";
-							} else {
-								url = "/img/avatars/1.png";
-							}
-							
-							url = domain + url;
-						} else {
-							url = domain + "/statics" + url;
-						}
-						var img = $(".admin-header-user img");
-						img.attr("src", url);
-					}
-				});
-			 
-			 
-			//获取资源
-			 $.ajax({  
-			     url:"http://140.206.187.251:50123/permissions/getPermissionsFouUserProj",  
-			     type:"post", 
-			     dataType:"json",
-			     data:{
-			    	 "username":username,
-			    	 "projId":526
-			     },
-			     async:false,
-			     success:function(data){
-			    	 console.info(data);
-			    	 if(!$.isArray(data)){
-			    		 location.href='/login.html';
-			    		 return;
-			    	 }
-			    	 var menu = $("#menu");
-			    	 var htmlOri=$("#topDaoHangUl").html();
-			    	 var html="";
-			    	 $.each(data, function(i,item){
-		    			 html=html+'<li class="layui-nav-item"><a href="javascript:;" lay-id="'+item.id+'" data-url="'+item.href+'"><i style="padding-right: 2px;" aria-hidden="true" title="'+item.name+'" unreadNotice></i>'+item.name+'</a><dl class="layui-nav-child">';
-		    			 //item  每一项
-		    			 var arrayItem=item.child;
-		    			 if(arrayItem && arrayItem.length>0){//有子项
-		    				 for(var j=0;j<arrayItem.length;j++){
-		    					 html = html +'<dd><a href="javascript:;"  lay-id="'+arrayItem[j].id+'"  data-url="'+arrayItem[j].href+'"><i style="padding-right: 2px;"  aria-hidden="true" title="'+arrayItem[j].name+'" unreadNotice></i>'+arrayItem[j].name+'</a></dd>';
-		    				 }
-		    			 }
-		    			 html = html+'</dl></li>';
-			          
-			        });
-			    	 $("#topDaoHangUl").empty();
-			    	 html=html+htmlOri;
-			    	 $("#topDaoHangUl").append(html);
-			     }
-			 });
-		});
-		
-		
-		function logout(){
-			$.ajax({
-				type : 'get',
-				url : 'http://140.206.187.251:50123/logout',
-				success : function(data) {
-					localStorage.removeItem("token");
-					location.href='/login.html';
-				}
-			});
-		}
-	</script>
-	
+
+
+
+<script type="text/javascript" src="ui/js/booNavigation.js"></script>
+<script type="text/javascript" src="ui/js/index.js"></script>
+<script type="text/javascript" src="js/jq.js"></script>
+
+<script type="text/javascript">
+	layui.use([ 'layer' ,'jquery'], function() {
+		  var layer = layui.layer;
+		  var $=layui.$;
+		  
+		 /*  window.setInterval(function () {
+			  layer.tips('点我使用导航', '#slideBtnShowMsg',{});
+		  }, 20000); */
+	});
+</script>
+
+
 </html>

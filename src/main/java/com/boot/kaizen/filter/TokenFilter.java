@@ -1,7 +1,7 @@
 package com.boot.kaizen.filter;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.FilterChain;
@@ -10,87 +10,122 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.boot.kaizen.client.KaizenClient;
-import com.boot.kaizen.util.JsonMsgUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.boot.kaizen.entity.LoginUser;
+import com.boot.kaizen.model.Permission;
+import com.boot.kaizen.model.log.LoginLog;
+import com.boot.kaizen.model.log.LoginService;
+import com.boot.kaizen.service.PermissionService;
+import com.boot.kaizen.service.SysLoginServiceService;
+import com.boot.kaizen.service.TokenService;
+import com.boot.kaizen.service.log.ISysLogService;
+import com.boot.kaizen.util.HttpUtil;
 
 /**
- * token过滤器 所有的请求都会拦截
+ * token过滤器  所有的请求都会拦截
  * 
  * @author weichengz
  * @date 2018年9月2日 上午2:11:55
  */
 @Component
 public class TokenFilter extends OncePerRequestFilter {
-	private static final String TOKEN_KEY = "token";
-
-	// 屏蔽的静态资源
-	private static final List<String> EXCLUDE_URI = Arrays.asList("png", "jpg", "html", "css", "js", "txt", "ttf",
-			"woff", "woff2", "ico");
-	// 开放动态的资源（以什么开头的不拦截）
-	private static final List<String> EXCLUDE_CONTROLLER_PREFIX = Arrays.asList("open", "/");
 
 	@Autowired
-	private KaizenClient kaizenClient;
+	private TokenService tokenService;
+	@Autowired
+	private UserDetailsService userDetailsService;
+	@Autowired
+	private PermissionService permissionService;
+	@Autowired
+	private SysLoginServiceService sysLoginServiceService;
+	@Autowired
+	private ISysLogService sysLogService;
+
+	private static final Long MINUTES_10 = 10 * 60 * 1000L;
+	private static final String SPRING_SECURITY_PROJ = "proj";
+	private static final String TOKEN_KEY = "token";
+	public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "username";
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		String requestURI = request.getRequestURI();
-		System.out.println("我拦截的信息----------"+requestURI);
-		String utiType = requestURI.substring(requestURI.lastIndexOf(".") + 1);
-		String prefix = findUriPrefix(requestURI);
-		if (!EXCLUDE_URI.contains(utiType) && !EXCLUDE_CONTROLLER_PREFIX.contains(prefix)) {
-			String token = getToken(request);
-			if (StringUtils.isNotBlank(token)) {
-				// 查询token对应的用户是不是存在 存在用户 在校验更新时间
-				try {
-					/**存在疑问：微服务之间的调用不同的处理机制 在catch处理*/
-					JsonMsgUtil jsonMsgUtil = kaizenClient.checkAndRefreshToken(token);
-					if (jsonMsgUtil != null && jsonMsgUtil.isSuccess()) {
-						System.out.println("更新成功");
-					} else {
-						response.sendRedirect("/login.html");
+
+		String projId = obtainProjId(request);
+		String username = obtainUserName(request);
+		if (StringUtils.isNoneBlank(username) && StringUtils.isNoneBlank(projId)) {
+			LoginService loginService = new LoginService(username, Long.valueOf(projId), new Date());
+			sysLoginServiceService.insert(loginService);
+		}
+
+		String token = getToken(request);
+		if (StringUtils.isNotBlank(token)) {
+			LoginUser loginUser = tokenService.getLoginUser(token);
+			if (loginUser != null) {
+				/** 更新权限 刷新token*/
+				if (StringUtils.isNoneBlank(projId) && StringUtils.isNoneBlank(username)) {
+					List<Permission> listPermissions = permissionService.queryByUserIdAndProjId(username,
+							Long.valueOf(projId));
+					if (listPermissions == null || listPermissions.size() == 0) {
+						throw new AuthenticationCredentialsNotFoundException("用户在该项目下无授权");
 					}
-				} catch (Exception e) {
-					throw new IllegalArgumentException("访问异常：" + e.getMessage());
+					loginUser.setPermissions(listPermissions);
+					loginUser.setProjId(Long.valueOf(projId));
+					tokenService.refresh(loginUser);
+					/**切换项目 记录登陆成功*/
+					try {
+						LoginLog loginLog=new LoginLog(loginUser.getProjId(),loginUser.getUsername(), HttpUtil.getIp(request), HttpUtil.queryRegionByIp(HttpUtil.getIp(request)), LoginLog.StatusV.SUCCESS+"", new Date(), JSONObject.toJSONString(loginUser));
+						sysLogService.save(loginLog);
+					} catch (Exception e) {
+						/**记录登陆错误日志*/
+					}
+				} else {
+					loginUser = checkLoginTime(loginUser);
 				}
-			} else {
-				response.sendRedirect("/login.html");
+
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(loginUser,
+						null, loginUser.getAuthorities());
+				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
 		}
+
 		filterChain.doFilter(request, response);
 	}
-	
-	
 
-	/**
-	 * 
-	 * @Description: 获取前缀
-	 * @author weichengz
-	 * @date 2019年11月4日 上午10:31:10
-	 */
-	public String findUriPrefix(String requestURI) {
-		if (StringUtils.isNotBlank(requestURI)) {
-			if (("/").equals(requestURI)) {
-				return "/";
-			} else {
-				String[] split = requestURI.split("/");
-				if (split != null && split.length != 1) {
-					return split[1];
-				}
-			}
-		}
-		return "";
+	private String obtainUserName(HttpServletRequest request) {
+		return request.getParameter(SPRING_SECURITY_FORM_USERNAME_KEY);
+	}
+
+	private String obtainProjId(HttpServletRequest request) {
+		return request.getParameter(SPRING_SECURITY_PROJ);
 	}
 
 	/**
-	 * 
+	 * @Description: 校验时间 小于10分钟刷新
+	 * @author weichengz
+	 * @date 2018年9月2日 上午2:12:36
+	 */
+	private LoginUser checkLoginTime(LoginUser loginUser) {
+		long expireTime = loginUser.getExpireTime();
+		long currentTime = System.currentTimeMillis();
+		if (expireTime - currentTime <= MINUTES_10) {
+			String token = loginUser.getToken();
+			loginUser = (LoginUser) userDetailsService.loadUserByUsername(loginUser.getUsername());
+			loginUser.setToken(token);
+			tokenService.refresh(loginUser);
+		}
+		return loginUser;
+	}
+
+	/**
 	 * @Description: 根据参数或者header获取token
 	 * @author weichengz
-	 * @date 2019年11月3日 下午4:32:53
+	 * @date 2018年9月2日 上午2:13:02
 	 */
 	public static String getToken(HttpServletRequest request) {
 		String token = request.getParameter(TOKEN_KEY);

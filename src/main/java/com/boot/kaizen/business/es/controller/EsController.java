@@ -62,10 +62,14 @@ import com.boot.kaizen.business.es.model.OutHomeLogModel;
 import com.boot.kaizen.business.es.model.QueryParamData;
 import com.boot.kaizen.business.es.model.logModel.MSignaBean;
 import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
+import com.boot.kaizen.business.es.model.sim.CommonModel;
 import com.boot.kaizen.business.es.model.sim.GcModel;
 import com.boot.kaizen.business.es.model.sim.GcModelList;
+import com.boot.kaizen.business.es.model.sim.ResultModel;
 import com.boot.kaizen.business.es.service.Esutil;
 import com.boot.kaizen.business.es.service.GcModelService;
+import com.boot.kaizen.util.AEStest;
+import com.boot.kaizen.util.HttpUtil;
 import com.boot.kaizen.util.JsonMsgUtil;
 import com.boot.kaizen.util.MyUtil;
 import com.boot.kaizen.util.SpringUtil;
@@ -528,4 +532,38 @@ public class EsController {
 		return "success";
 	}
 
+	/**
+	 * 
+	 * @Description: 拉取sim工参的问题解决了
+	 * @author weichengz
+	 * @throws Exception
+	 * @date 2019年11月26日 下午2:32:03
+	 */
+	public static void main(String[] args) throws Exception {
+
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("projectName", "上海联通");
+		paramMap.put("netId", "1");
+		paramMap.put("projectLevel", "3");
+		paramMap.put("provinceName", "上海");
+		paramMap.put("operator", "联通");
+		paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
+				"lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm");
+		paramMap.put("limit", "10000000");
+
+		String token = AEStest.encrypt(JSONObject.toJSONString(paramMap), "zcto8k3i*a2c6");
+
+		Map<String, Object> param = new HashMap<>();
+		param.put("askJson", token);
+
+		String url = "http://61.132.73.61:8012/SIM/ihandle!getParamSync.action";
+		String responseResult = HttpUtil.sendPostRequest(url, param);
+		// System.out.println(responseResult);
+		ResultModel resultModel = JSONObject.parseObject(responseResult, ResultModel.class);
+		List<List<String>> datas = resultModel.getData();
+		for (List<String> data : datas) {
+			CommonModel commonModel = CommonModel.changeStrToObj(data);
+			System.out.println(JSONObject.toJSONString(commonModel));
+		}
+	}
 }

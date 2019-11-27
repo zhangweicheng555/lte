@@ -34,7 +34,7 @@ function buttonDel(data, permission, pers) {
 		}
 	}
 
-	var btn = $("<button class='layui-btn layui-btn-xs' title='删除' onclick='del(\""
+	var btn = $("<button class='layui-btn layui-btn-normal layui-btn-xs' title='删除' onclick='del(\""
 			+ data + "\")'><i class='layui-icon'>&#xe640;</i></button>");
 	return btn.prop("outerHTML");
 }
@@ -47,7 +47,7 @@ function buttonEdit(href, permission, pers) {
 		}
 	}
 
-	var btn = $("<button class='layui-btn layui-btn-xs' title='编辑' onclick='update(\""
+	var btn = $("<button class='layui-btn layui-btn-normal layui-btn-xs' title='编辑' onclick='update(\""
 			+ href + "\")'><i class='layui-icon'>&#xe642;</i></button>");
 	return btn.prop("outerHTML");
 }
@@ -60,7 +60,7 @@ function buttonEditOpen(flag, permission, pers) {
 		}
 	}
 	var array=flag.split(",");
-	var btn = $("<button class='layui-btn layui-btn-xs myB' lang='"+array[0]+"'  title='编辑' '><i class='layui-icon'>&#xe642;</i></button>");
+	var btn = $("<button class='layui-btn layui-btn-normal layui-btn-xs myB' lang='"+array[0]+"'  title='编辑' '><i class='layui-icon'>&#xe642;</i></button>");
 	return btn.prop("outerHTML");
 }
 

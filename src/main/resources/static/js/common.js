@@ -29,7 +29,8 @@ layui.define(['layer','laydate','jquery'], function(exports) {
 					type: 2, 
 					title:title,
 					content: openUrl,
-					skin:"layui-layer-molv",
+					  skin:'layui-layer-lan',
+					//skin:"layui-layer-molv",
 					icon: 2,
 					closeBtn :1,
 					area: [width,height],/**宽高*/
@@ -74,14 +75,13 @@ layui.define(['layer','laydate','jquery'], function(exports) {
 				  shade: [0.5, '#393D49'],
 				 // shadeClose :true,
 				  id:'checkCar',
+				  skin:'layui-layer-lan',
 				  maxmin :isMax,
 				  fixed :true,
 				  success: function(layero, index){},
 				  btn: [btn1,btn2],
 				  yes: function(index, layero){
 					  var iframeWin = parent.window[layero.find('iframe')[0]['name']]; /**获得子的ifram对象*/
-					  //var typecouponVal = layero.find('iframe').contents().find("#typecoupon").val();父页面获取子页面typecoupon的值
-					  //iframeWin.find('input').val('Hi，我是从父页来的')
 					  if(iframeWin.submitForm()){
 						  parent.layer.confirm('您确定要提交吗?', {icon: 3, title:'再次确认'}, function(index){
 							  parent.layer.close(index);
@@ -145,7 +145,23 @@ layui.define(['layer','laydate','jquery'], function(exports) {
 		/**
 		 * 清除缓存   有success  成功的时候返回msg  
 		 */
-		
+		clearCacheOperate:function(submitUrl,fun){
+			 parent.layer.confirm('您确定要清除缓存吗?', {icon: 3, title:'再次确认'}, function(index){
+				  /**发送ajax*/
+				  $.ajax({
+					   type: "POST",url: submitUrl,data:{} ,dataType: "json",
+					   success: function(msg){
+						   if(msg.success){
+							   parent.layer.close(index);
+							   common.getMsgBlackDialog(msg.message,2000);
+							   fun();
+					       }else{
+					    	   common.getMsgDialog("操作失败...",5,2000);
+					       }
+					   }
+				  });
+		   });
+		},
 		
 		/**
 		 * 关闭所有的层
@@ -173,12 +189,10 @@ layui.define(['layer','laydate','jquery'], function(exports) {
 		getConfirmDelDialog:function(title,content,icon,submitUrl,data,funModel){
 			parent.layer.confirm(content,{title:title,icon :icon},
 				function(index){
-				common.showLoadingDialog();
 					parent.layer.close(index);
 					$.ajax({
 						   type: "POST",url: submitUrl,data:data,dataType: "json",
 						   success: function(msg){
-							   common.closeLoadingDialog();
 							   if(msg.success){
 								   common.getMsgBlackDialog(msg.message,2000);
 								   if(typeof funModel == 'function'){

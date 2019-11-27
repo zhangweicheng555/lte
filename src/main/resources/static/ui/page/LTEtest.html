@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width,initial-scale=0.5,minimum-scale=0.5">
+    <link rel="stylesheet" href="../libs/layui/css/layui.css">
+    <link rel="stylesheet" href="../css/mainContent.css">
+    <script type="text/javascript" src="../libs/jquery/jquery3.4.1.js"></script>
+    <script type="text/javascript" src="../libs/layui/layui.js"></script>
+    <script src="../libs/echarts/echarts.min.js"></script>
+    <!--walden.js为echarts定制的样式文件。样式文件必须引用在echarts文件之后-->
+    <script type="text/javascript" src="../libs/echarts/echartsThyme/walden.js"></script>
+</head>
+<body>
+<!--主体内容区域-->
+<div class="mainContentArea">
+    <div class="mainContentBody">
+        <div class="mainContentBodyTemp clear">
+
+            <!--位置导航-->
+            <div class="sysManageMenu">
+                <p>LTE宏站单验</p>
+                <div class="">
+
+                </div>
+
+            </div>
+
+            <!--表格区域-->
+            <div class="tableContainer marginTop10">
+                <!--<div class="head">
+                    <div class="left">
+                        <div class="leftTitle">
+                            <a class="active">我的任务</a>
+                        </div>
+                        <div class="leftTitle">
+                            <a>任务发布</a>
+                        </div>
+                        <div class="leftTitle">
+                            <a>任务追踪</a>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <a>我的任务</a>
+                        <a>任务发布</a>
+                        <a>任务追踪</a>
+                    </div>
+                </div>-->
+                <div class="body">
+                    <div class="operateArea">
+                        <form  class="layui-form">
+                            <div class="layui-inline">
+                                <div class="layui-input-block">
+                                    <input type="button" class="layui-btn search fl" value="搜索"></input>
+                                    <input type="button" class="layui-btn add fl" value="添加"></input>
+                                    <input type="button" class="layui-btn add fl" id="deleteAlertWindow" value="删除警告弹窗"></input>
+
+                                </div>
+                            </div>
+                            <div class="layui-inline fr">
+                                <div class="layui-input-block">
+                                    <input type="button" class="layui-btn delete fr " value="清空"></input>
+                                    <input type="button" class="layui-btn search fr marginRight" value="搜索"></input>
+                                </div>
+                            </div>
+                            <div class="layui-inline fr">
+                                <div class="layui-input-block">
+                                    <label class="layui-form-label">添加时间</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text" name="date" id="date" lay-verify="date" placeholder="请选择日期" autocomplete="off" class="layui-input">
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="layui-inline fr">
+                                <div class="layui-input-block">
+                                    <label class="layui-form-label">姓名</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text" name="date"  lay-verify="date" placeholder="请选择姓名" autocomplete="off" class="layui-input">
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="layui-inline fr">
+                                <div class="layui-input-block">
+                                    <label class="layui-form-label">登录名</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text"  placeholder="请输入登录名" autocomplete="off" class="layui-input">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                    <table id="tableData">
+
+                    </table>
+                </div>
+            </div>
+
+            <!--脚注区域-->
+            <div class="footer">
+                <p>Copyright © 2019 上海诺基亚贝尔股份有限公司</p>
+            </div>
+
+
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+<script type="text/html" id="caozuo">
+    <a lay-event="edit" style="color:#5584FF;width:50%;float: left;">编辑</a>
+    <a lay-event="delete" style="color:#F16E59;width:50%;float: left;">删除</a>
+</script>
+<script type="text/javascript" src="../js/booNavigation.js"></script>
+<script type="text/javascript" src="../js/userManage.js"></script>
+</html>

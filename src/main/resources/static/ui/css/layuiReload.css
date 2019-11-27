@@ -1,0 +1,36 @@
+/**
+* @author sujiming
+* @date 2019-08-06 17:24
+*/
+
+/*隐藏chrome浏览器滚动条*/
+::-webkit-scrollbar-track { background-color: #F5F5F5;  }
+::-webkit-scrollbar {  width: 2px;height:8px;  background-color:#EBECF0;border-radius: 5px;  }
+::-webkit-scrollbar-thumb { /* */background: rgba(0,0,0,0.2);border-radius: 5px; }
+::-webkit-scrollbar-corner{ background-color: #464646;}
+
+
+
+
+/*表格主体部分layui样式覆盖*/
+.layui-table-tool {display: none;}
+.layui-table td, .layui-table th, .layui-table-col-set, .layui-table-fixed-r, .layui-table-grid-down, .layui-table-header, .layui-table-page, .layui-table-tips-main, .layui-table-tool, .layui-table-total, .layui-table-view, .layui-table[lay-skin=line], .layui-table[lay-skin=row] {border-color: #EBECF0;border-style: none;}
+.layui-form-checkbox[lay-skin=primary] i {border-radius: 9px;}
+div.layui-table-header table.layui-table thead tr th div.layui-table-cell span{color: #000000;font-size: 12px;}
+.layui-table-cell {height: 33px;line-height: 33px;}
+.layui-table td, .layui-table th {font-size: 12px;}
+.layui-table-fixed-l {box-shadow: none;}
+.layui-table-view .layui-table td, .layui-table-view .layui-table th {border-right: none;}
+.layui-form-checked[lay-skin=primary] i {border-color: #3F9FF7;background-color: #3F9FF7;}
+.layui-table-page .layui-laypage {float: right;}
+.layui-laypage .layui-laypage-curr .layui-laypage-em {background-color: #3F9FF7;}
+.layui-table tr {border-bottom: 1px solid #DCDEE3;}
+.layui-table tbody tr:hover{background-color: white}
+.layui-form-item .layui-input-inline {float: none;width: 190px;margin-right: 10px;}
+.layui-btn {height: 27px;line-height: 27px;padding: 0 11px;}
+.layui-input, .layui-select, .layui-textarea {height: 27px;line-height: 1.3;line-height: 27px\9;}
+.layui-form-label {padding: 5px 5px;}
+.layui-form-label {width: auto;}
+
+
+

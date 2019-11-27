@@ -18,4 +18,5 @@ public interface SysLoginServiceDao {
 	
 	void insert(LoginService loginService);
 
+	void deleteByUserName(@Param("username") String username);
 }

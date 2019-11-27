@@ -13,8 +13,8 @@ public class OneButtonTest implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String id;
-	private String operatorService;// 运营商 无
-	private String netWorkType;// 网络类型 netWorkType
+	private String operatorService;// 运营商 无           【必须填写】
+	private String netWorkType;// 网络类型 netWorkType   【这个要确认】
 	private String city;// 城市 无
 	private String county;// 区县 无
 	private String testPerson;// 测试人员 无

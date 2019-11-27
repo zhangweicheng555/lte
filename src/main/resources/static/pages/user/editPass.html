@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>修改计划表</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../../../layui/css/layui.css">
+</head>
+<body>
+
+	
+	
+	<form class="layui-form" lay-filter="formDemo"  id="formDemo" style="margin-top: 20px;">
+	
+	<input type="hidden" name="id" id="id" />
+	
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">旧密码</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="oldPassword" id="oldPassword"   required  lay-verify="required"  autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">新密码</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="newPassword" id="newPassword"   required  lay-verify="required"  autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	   
+	  
+		<button class="layui-btn" id="formDemoBtn" style="display: none;" lay-submit lay-filter="formDemo">立即提交</button>
+	</form>
+	
+	
+	
+	
+	
+	<script type="text/javascript" src="../../../../js/libs/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../../../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../../../js/jq.js"></script>
+	
+<script>
+
+	var flag=false;
+	
+	
+	function submitForm(){
+		$("#formDemoBtn").click();
+		return flag;
+	 }
+	
+	
+	
+	
+	var form;
+	layui.use(['layer', 'form','jquery','laydate'], function(){
+	  var layer = layui.layer,form = layui.form,$=layui.jquery;
+	  var laydate = layui.laydate;
+	  
+	 
+	//监听提交
+	  form.on('submit(formDemo)', function(data){
+		flag=true;
+	    return false;
+	  });
+	
+
+	
+	  //初始化工作
+	  initData();
+	  function initData(){
+			var id=getUrlParam("id");
+			$("#id").val(id);
+		};
+		
+	});
+	
+	
+</script> 
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.dao.SysRolePermissionDao">
+
+	
+	<insert id ="batchInsert" parameterType="java.util.List" >
+           insert into sys_role_permission
+           (roleId,permissionId)
+           values
+            <foreach collection ="list" item="item" index= "index" separator =",">
+                (
+                	#{item.roleId}, #{item.permissionId}
+                )
+            </foreach >
+     </insert >
+     
+	<delete id ="deleteByRoleId" >
+		delete from sys_role_permission
+		where roleId=#{roleId} and roleId not in (1,20)
+     </delete >
+	<delete id ="deleteByPermissionId" >
+		delete from sys_role_permission
+		where permissionId=#{permissionId}
+     </delete >
+	
+	
+	<delete id="deleteByProjIds">
+		 delete from sys_role_permission
+		 where  roleId in
+		 (
+		 	select role_id from proj_role_relation
+		 	where proj_id !=9 and proj_id in 
+		 		 <foreach collection="projIds" index="index" item="item"
+		            open="(" separator="," close=")">
+		            #{item}
+		        </foreach>
+		 )
+	</delete>
+	
+	
+	
+</mapper>

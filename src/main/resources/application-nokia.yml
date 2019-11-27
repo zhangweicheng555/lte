@@ -52,13 +52,23 @@ spring:
     name: kaizenLog1
 
    
+  redis: 
+    host: 127.0.0.1
+    port: 6379
+    timeout: 20000
+    lettuce:
+      pool:
+        min-idle: 0
+        max-idle: 8
+        max-active: 8
+        max-wait: -1ms
+        
+   
    
 
 
-
-
-mybatis-plus:
-  type-aliases-package: com.boot.kaizen.model.lte,com.boot.kaizen.dao.log,com.boot.kaizen.model
+mybatis-plus: 
+  type-aliases-package: com.boot.kaizen.dao.log,com.boot.kaizen.model
   mapper-locations: classpath:/mybatis-mappers/**/*.xml
   global-config:
     #驼峰
@@ -72,7 +82,9 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
     cache-enabled: false
-    
+
+
+   
 pagehelper:
     helperDialect: mysql
     reasonable: false
@@ -111,6 +123,13 @@ log:
   file: c:/kaizensoft/kaizen/logs_log/admin-server.log
   dayfile: c:/kaizensoft/kaizen/logs_log/day.log
   maxsize: 1024MB
+  
+
+  
+token: 
+  expire:
+    seconds: 7200
+  jwtSecret: (XIAO:)_$^11244^%$_(WEI:)_@@++--(LAO:)_++++_.sds_(SHI:)
   
   
   

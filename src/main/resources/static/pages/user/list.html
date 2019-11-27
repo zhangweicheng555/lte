@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>用户管理列表</title>
+
+	<!-- 引入样式 -->
+    <meta name="viewport" content="width=device-width,initial-scale=0.5,minimum-scale=0.5">
+    <link rel="stylesheet" href="../../ui/libs/layui/css/layui.css">
+    <link rel="stylesheet" href="../../ui/css/mainContent.css">
+    <script type="text/javascript" src="../../ui/libs/layui/layui.js"></script>
+
+</head>
+
+
+<body>
+
+
+<!--主体内容区域-->
+<div class="mainContentArea">
+    <div class="mainContentBody">
+        <div class="mainContentBodyTemp clear">
+
+            <!--表格区域-->
+            <div class="tableContainer marginTop10">
+               
+                <div class="body">
+                    <div class="operateArea">
+                    
+                        <form  class="layui-form"  onsubmit="return false">
+                        
+                           <!-- CRUD按钮处理部分 -->
+                            <div class="layui-inline">
+                                <div class="layui-input-block">
+                                
+                                <button type="button" class="layui-btn   layui-btn-normal layui-btn-xs"  id="userAddBtn" permission="sys:user:add" onclick="location.href='/pages/user/add.html'"><i class="layui-icon">&#xe608;</i>添加</button>
+                                <button type="button" style="margin-left: -1px;" class="layui-btn   layui-btn-normal layui-btn-xs"   id="deleteProjectBtn"  permission="sys:user:del"><i class="layui-icon">&#xe640;</i>删除</button>
+                                <button type="button" style="margin-left: -1px;" class="layui-btn    layui-btn-danger layui-btn-xs"  id="userEditPassword"  permission="sys:user:add" ><i class="layui-icon layui-icon-refresh"></i>重置密码</button>
+                                
+                                </div>
+                            </div>
+                            
+                        
+                            <!-- 搜索按钮 -->
+                            <div class="layui-inline fr">
+                                <div class="layui-input-block">
+                                    <input type="button" class="layui-btn delete fr " style="margin-left: 2px;"  id="clearBt" value="清空"></input>
+                                    <input type="button" class="layui-btn search fr"    id="searchBt" value="搜索"></input>
+                                </div>
+                            </div>
+                          
+                            <!-- 搜索条件 -->
+                            <div class="layui-inline fr">
+                                <div class="layui-input-block">
+                                    <label class="layui-form-label">姓名：</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text" name="nickname"  id="nickname" placeholder="请选择姓名" autocomplete="off" class="layui-input">
+                                    </div>
+
+                                </div>
+                            </div>
+                            
+                            <div class="layui-inline fr">
+                                <div class="layui-input-block">
+                                    <label class="layui-form-label">登录名：</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text"  id="username" name="username" placeholder="请输入登录名" autocomplete="off" class="layui-input">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                    
+                    <!-- 数据展示的table区域 -->
+                    <div style="margin-top: -10px;">
+        				<table class="layui-hide" id="sysuser" lay-filter="sysuser"></table>
+        			</div>
+                </div>
+            </div>
+
+
+
+
+            <!--脚注区域
+            <div class="footer">
+                <p>Copyright © 2019 上海诺基亚贝尔股份有限公司</p>
+            </div>
+-->
+        </div>
+    </div>
+
+</div>
+
+
+
+</body>
+
+</html>
+	
+	<script type="text/javascript" src="../../ui/libs/jquery/jquery3.4.1.js"></script>
+    <!-- index相关js配置 -->
+    <script type="text/javascript" src="../../ui/libs/layui/layui.js"></script>
+	<script type="text/javascript" src="../../js/jq.js"></script>
+	<script type="text/javascript" src="../../js/common.js" charset="UTF-8"></script>
+	<script type="text/javascript">
+	
+	var currData;
+	var checkArray=new Array();
+	layui.use([ 'layer' ,'table','laydate','jquery','common'], function() {
+	  var layer = layui.layer;
+	  var laydate = layui.laydate;
+	  var $=layui.$;
+	  var common = layui.common;
+	  
+	  
+	  /**清空*/
+	  $("#importIhandleUser").click(function(){
+		  $.ajax({
+			   type: "POST",
+			   url: "/users/inportUserModel",
+			   success: function(msg){
+				   if(msg.success){
+					   layer.msg("导入成功");
+				   }
+			   }
+			});
+	  });
+	  
+	  
+	  var table = layui.table;
+	  var tableIns=table.render({
+	    elem: '#sysuser'    
+	    ,id:'sysuser'
+	    ,url:'/users/find'  
+	    ,method:'post'    
+	    ,where:{
+			   "map[username]":$("#username").val()
+			   ,"map[beginTime]":$("#beginTime").val()
+			   ,"map[nickname]":$("#nickname").val() 
+			   }
+	    ,cols: [[        
+	      {field:'id', width:30, title: 'ID', sort: true,type:'checkbox'}
+	      ,{title: '序号',width:40,templet: '#indexTpl',align:'center'}
+	      ,{field:'username',   minWidth:150, title: '登陆名',align:'center'}
+	      ,{field:'nickname',   width:150, title: '姓名',align:'center'}
+	      ,{field:'birthday', width:150, title: '出生日期',align:'center'}
+	      ,{field:'sex', width:80, title: '性别',align:'center', templet: '#sexTpl'}
+	      ,{field:'phone', width:150, title: '手机号码',align:'center'}
+	      ,{field:'telephone', width:150, title: '电话号码',align:'center'}
+	      ,{field:'email', width:150, title: '邮箱',align:'center'}
+	      ,{field:'createTime', width:150, title: '添加时间',align:'center'}
+	      ,{title:'操作', toolbar: '#editBtnBar', width:140,align:'center', fixed: 'right'}
+	    ]]
+	    ,page: true
+	    ,limit:10
+	    ,limits:[10,20,50,100,200,500,1000,2000,20000] 
+        ,loading:true
+        ,text: {
+            none: '无数据' 
+        }
+	    ,done: function(res, curr, count){
+	    	//layer.tips('搜索条件改变之后务必重新搜索', '#clearBt',{time:5000});
+	    	currData=res.data;
+	    	
+	    	//记忆选中的checkbox
+	    	for(var i=0;i<res.data.length;i++){
+                for(var j=0;j<checkArray.length;j++){
+                    if(res.data[i].id==checkArray[j]){
+                        res.data[i]["LAY_CHECKED"]='true';
+                        var index= res.data[i]['LAY_TABLE_INDEX'];
+                        $('.layui-table tr[data-index=' + index + '] input[type="checkbox"]').prop('checked', true);
+                        $('.layui-table tr[data-index=' + index + '] input[type="checkbox"]').next().addClass('layui-form-checked');
+                    }
+                }
+            }
+            //设置全选checkbox的选中状态
+            var checkStatus = table.checkStatus('sysuser');
+            console.info(checkStatus);
+            if(checkStatus.isAll){
+                $('.layui-table-header th[data-field="id"] input[type="checkbox"]').prop('checked', true);
+                $('.layui-table-header th[data-field="id"] input[type="checkbox"]').next().addClass('layui-form-checked');
+            }
+	    }
+        ,height:'full'
+        ,cellMinWidth: 80
+		/* ,size: 'sm'  */
+	  });
+	  
+	  //监听行工具事件  操作对应
+	  table.on('tool(sysuser)', function(obj){
+	    var row = obj.data;
+	    if(obj.event === 'del'){//单行删除
+	    	common.getConfirmDelDialog("确定要删除吗？","删除【"+row.username+"】记录",2,"/users/delete",{"ids":row.id},function(){deleteRow(obj);});
+	    } else if(obj.event === 'edit'){//编辑
+	    	location.href="/pages/user/edit.html?id="+row.id;
+	    }
+	  });
+	  
+	  
+	  /**搜索*/
+	  $("#searchBt").click(function(){
+		  fresh();
+	  });
+	  
+	  /**多项删除*/
+	  $("#deleteProjectBtn").click(function(){
+		  if(checkArray && checkArray.length>0){
+		  	  common.getConfirmDelDialog("确定要删除吗？",'共删除【'+checkArray.length+'】条记录',2,"/users/delete",{"ids":checkArray.join(",")},fresh);
+		  }else{
+			  layer.msg('未选中要删除的记录');
+		  }
+		  
+	  });
+	  
+	  /**密码重置*/
+	  $("#userEditPassword").click(function(){
+		  if(checkArray && checkArray.length ==1){
+			  common.openEditDialog(fresh,"修改密码","pages/user/editPass.html?id="+checkArray.join(","),"550px","250px",false,"确定","取消","/users/editPassword");
+		  }else{
+			  layer.msg('未选中要修改密码的一条记录');
+		  }
+		  
+	  });
+	  
+	  //currData  checkArray  监听checkbox  选中取消事件
+	  table.on('checkbox', function(obj){
+		 var checkStatus = table.checkStatus('sysuser');
+		 var rows=checkStatus.data;
+		  if(obj.checked==true){//选中事件
+			  var nowCheckArray=new Array();
+			  for(var i=0;i<rows.length;i++){//处理选中
+	 				 if($.inArray(rows[i].id,checkArray)<0){
+	 					checkArray.push(rows[i].id);
+	 				 }
+	 				nowCheckArray.push(rows[i].id);
+				  }
+	 			 if(currData.length>0){//处理当前页的所有数据
+	 				for(var i=0;i<currData.length;i++){
+	 					if($.inArray(currData[i].id,nowCheckArray)<0){
+	 						if($.inArray(currData[i].id,checkArray)>=0){
+	 							checkArray.splice($.inArray(currData[i].id,checkArray), 1);
+	 	 	 				 }
+	 	 				 }
+	 				}
+	 			 }
+		  }else{//删除事件
+			  if(rows.length==0){
+				  for(var i=0;i<currData.length;i++){
+ 						if($.inArray(currData[i].id,checkArray)>=0){
+ 							checkArray.splice($.inArray(currData[i].id,checkArray), 1);
+ 	 	 				 }
+	 				}
+			  }else{
+				  var nowCheckArray=new Array();
+				  for(var i=0;i<rows.length;i++){//处理选中
+		 				 if($.inArray(rows[i].id,checkArray)<0){
+		 					checkArray.push(rows[i].id);
+		 				 }
+		 				nowCheckArray.push(rows[i].id);
+					  }
+		 			 if(currData.length>0){//处理当前页的所有数据
+		 				for(var i=0;i<currData.length;i++){
+		 					if($.inArray(currData[i].id,nowCheckArray)<0){
+		 						if($.inArray(currData[i].id,checkArray)>=0){
+		 							checkArray.splice($.inArray(currData[i].id,checkArray), 1);
+		 	 	 				 }
+		 	 				 }
+		 				}
+		 			 }
+			  }
+		  }
+	});
+	  
+	  /**清空*/
+	  $("#clearBt").click(function(){
+		  $("#beginTime").val("");
+		  $("#nickname").val("");
+		  $("#username").val("");
+		  fresh();
+	  });
+	
+	  
+	  
+	  function fresh(){
+		  table.reload('sysuser'
+				   ,{where:{
+					   "map[username]":$("#username").val()
+					   ,"map[nickname]":$("#nickname").val()
+					   ,"map[beginTime]":$("#beginTime").val()
+					   }
+				   ,page: {curr: 1}
+		  		   }
+		  );
+		  checkArray.length=0;
+	  }
+	  /**只删除行 无刷新*/
+	  function deleteRow(obj){
+		  obj.del();
+		  fresh();
+	  }
+	  
+	  
+	  /**日期框*/
+	  laydate.render({
+	     elem: '#beginTime'
+	    ,type: 'datetime'
+	    ,max: 0
+	    ,theme: 'molv'
+   	    ,done: function(val, date, endDate){
+   	    	$("#beginTime").val(val);//给搜索赋值
+   		 }
+	  });
+	  
+	  
+	  var pers = checkPermission();
+});
+
+</script>
+
+<script type="text/html" id="sexTpl">
+  {{#  if(0==d.sex){ }}
+           男 
+  {{#  } else { }}
+        女
+  {{#  } }}
+</script>
+
+<script type="text/html" id="indexTpl">
+    {{d.LAY_TABLE_INDEX+1}}
+</script>
+
+<script type="text/html" id="editBtnBar">
+ <a class="layui-btn   layui-btn-normal layui-btn-sm" lay-event="edit"   permission="sys:user:edit">编辑</a>
+ <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del" style="margin-left: 1px;"  permission="sys:user:del">删除</a>
+</script>

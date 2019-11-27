@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" href="../../js/zTree/css/bootstrapStyle/bootstrapStyle.css" type="text/css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/font-awesome/css/font-awesome.css">
+
+</head>
+<body>
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"  style="margin-top: 20px;margin-bottom: 30px;">
+		<form class="form-horizontal" onsubmit="return false" id="formDemo">
+			
+			<input type="hidden" id="permissionIds" name="permissionIds" />
+			
+			<fieldset>
+				<div class="form-group">
+					<label class="col-md-2 control-label">项目名称</label>
+					<div class="col-md-10">
+						<select id="projId" name="projId" class="form-control input-sm" data-bv-notempty="true"
+							data-bv-notempty-message="名称 不能为空"></select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-2 control-label">角色名称</label>
+					<div class="col-md-10">
+						<input class="form-control" placeholder="名称" type="text" name="name" id="name"
+							data-bv-notempty="true"
+							data-bv-notempty-message="角色名称 不能为空">
+					</div>
+				</div>
+	
+			
+				<div class="form-group">
+					<label class="col-md-2 control-label">角色描述</label>
+					<div class="col-md-10">
+						<input class="form-control" placeholder="描述信息" name="description" id="description"/>
+					</div>
+				</div>
+				
+				<div class="form-group">
+	                <label class="col-md-2 control-label">排序</label>
+	                <div class="col-md-10">
+	                    <input class="form-control" placeholder="排序" name="sort" id="sort" type="number" value="100"
+	                        data-bv-notempty="true"
+	                        data-bv-notempty-message="排序 不能为空">
+	                </div>
+	            </div>
+	            
+	            <div class="form-group">
+	            <label class="col-md-2 control-label">分配资源</label>
+	               <div class="col-md-10">
+	                 <ul id="treeDemo" class="ztree"></ul>
+	               </div>
+	            </div>
+	            
+	            <div class="form-actions">
+					<div class="row" align="center">
+						<div class="col-md-12">
+						    <button class="btn btn-primary" onclick="location.href='/pages/role/list.html'">返回</button>
+							<button class="btn btn-primary" type="submit" onclick="add(this)">
+								<i class="fa fa-save"></i> 保存
+							</button>
+						</div>
+					</div>
+				</div>
+			</fieldset>
+		</form>
+	</div>
+	
+	<script type="text/javascript" src="../../js/libs/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../../js/jq.js"></script>
+	<script type="text/javascript" src="../../js/plugin/bootstrapvalidator/bootstrapValidator.min.js"></script>
+	<script type="text/javascript" src="../../js/common.js"></script>
+	<script type="text/javascript" src="../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../js/my/ztree-menu.js"></script>
+	
+	<script type="text/javascript" src="../../js/zTree/js/jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="../../js/zTree/js/jquery.ztree.excheck.js"></script>
+    <script type="text/javascript" src="../../js/zTree/js/jquery.ztree.exedit.js"></script>
+	
+	<script type="text/javascript">
+		
+	    initProjSelect("projId",null);
+	    initZtree("treeDemo",null);
+	    
+	
+		function add(obj) {
+			$('#formDemo').bootstrapValidator();
+			var bootstrapValidator = $("#formDemo").data('bootstrapValidator');
+			bootstrapValidator.validate();
+		    if(!bootstrapValidator.isValid()){
+			   return ;
+		    }
+
+		   
+		    var ztreeOperate=$.fn.zTree.getZTreeObj("treeDemo");
+		    var array=ztreeOperate.getCheckedNodes(true);
+		    var permissions="";
+		    if(array != null && array.length>0){
+		    	for(var i=0;i<array.length;i++){
+		    		permissions +=array[i].id;
+		    		if(i<array.length-1){
+		    			permissions +=",";
+		    		}
+		    	}
+		    	if(permissions){
+		    		$("#permissionIds").val(permissions.trim());
+		    	}
+		    }
+		    
+		    //验证同一项目下是不是存在相同的项目名称
+		    $.ajax({
+				type : 'post',
+				url : '/role/chechUnique',
+				dataType: "json", 
+				async: false,
+				data : {
+					  "name":$("#name").val(),
+					  "projId":$("#projId").val()
+					},
+				success : function(msg) {
+					if(msg.success){
+						submit();
+					}else{
+						parent.layer.msg(msg.message);
+					}
+				}
+			});
+		}
+		//提交
+		function submit(){
+			$.ajax({
+				type : 'post',
+				url : '/role/edit',
+				dataType: "json", 
+				async: false,
+				data : $("#formDemo").serialize(),
+				success : function(msg) {
+					if(msg.success){
+						parent.layer.msg("操作成功");
+	                   location.href = "/pages/role/list.html";
+					}else{
+						parent.layer.msg("操作失败");
+					}
+				}
+			});
+		}
+		
+	</script>
+</body>
+</html>

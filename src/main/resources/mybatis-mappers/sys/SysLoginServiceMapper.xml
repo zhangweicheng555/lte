@@ -36,6 +36,9 @@
 		values(#{username},#{proj},#{createTime})
 	</insert>
 	
+	<delete id="deleteByUserName" >
+		delete from  sys_login_service where username= #{username}
+	</delete>
 	
 	
 </mapper>

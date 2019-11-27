@@ -1,0 +1,76 @@
+/**
+* @author sujiming
+* @date 2019-07-19 14:32
+*/
+*{margin: 0;padding: 0;}
+html{height: 100%;width: 100%;min-width: 1200px;}
+body{font-size: 14px;font: 12px/1.5 Tahoma ,Microsoft YaHei,Arial,sans-serif;}
+li{list-style: none;}
+img{display: block;border: none;}
+label{cursor: pointer;}
+input[type='checkbox']{cursor: pointer;}
+.hide{display: none;}
+a{color:#FFFFFF;text-decoration: none;}
+body{background: url("../img/login1X.png") no-repeat center;background-size:cover;background-color: #101e30;background-attachment: fixed;}
+body .content {/*padding-left: 20%;padding-top: 8%;*/padding: 10% 0 0 20%;min-width: 400px;}
+body .content img{width: 202px;height: 29px;}
+body .content p{color: #FFFFFF;font-size: 30px;margin-top: 19px;line-height:42px;}
+body .content .loginContainer{border-radius:4px;width: 250px;margin-top: 4%;padding: 21px 16px;background:rgba(52,86,153,0.52);position: relative}
+body .content .loginContainer p{color: #FFFFFF;height: 25px;font-size: 18px;line-height: 18px;text-align: center;margin-top: 0}
+body .content .loginContainer .errorMsg {
+    display: non;
+    float: left;
+    margin: 0 auto;
+    width: 100%;
+    height: 30px;
+    margin-top: 5px;
+    /*margin-left: 20%;*/
+    /*position: relative;
+    background: rgba(241,97,89, 0.5);
+    border-radius: 4px;
+    filter: alpha(Opacity=80);*/
+}
+body .content .loginContainer .errorMsg p{
+    font-size: 14px;
+    line-height: 27px;
+    color: #F16159;
+    opacity: 1;
+    text-align: left;
+    filter: alpha(Opacity=80);
+    border-radius: 4px;
+    /*background: rgba(52,80,135, 1);*/
+    overflow:hidden; /*超出的部分隐藏起来。*/
+    white-space:nowrap;/*不显示的地方用省略号...代替*/
+    text-overflow:ellipsis;
+}
+body .content .loginContainer div:nth-child(1).inputContainer{float: left; width:100%;height:46px;background-color: #345087;margin-top: 10px;border-radius: 4px;opacity: revert;position: relative;}
+body .content .loginContainer div:nth-child(2).inputContainer{float: left; width:100%;height:46px;background-color: #345087;margin-top: 20px;border-radius: 4px;opacity: revert;position: relative;}
+body .content .loginContainer .loginButton{font-size: 14px;color: #FFFFFF;border: none;cursor: pointer; width:100%;height:46px;background-color: #3F9FF7;margin-top: 15px;border-radius: 4px;margin-bottom: 2%;}
+body .content .loginContainer .inputContainer div.imgContainer{ height: 100%; float: left;   /* margin-left: 5%;margin-top: 5%;*/vertical-align: middle;}
+body .content .loginContainer .inputContainer div.imgContainer img{     margin-left: 15px;  margin-top: 13px;width: 16px;height: 18px;   /* margin-left: 5%;margin-top: 5%;*/vertical-align: middle;}
+body .content .loginContainer .inputContainer input{float: left;font-size:14px;width: 80%;height: 70%;margin-top: 8px; text-align: center;background:rgba(52,80,135,1);border: none;outline: none;color: #C4C6CF}
+body .content .loginContainer .inputContainer input:focus{color: #FFFFFF}
+body p.footer{text-align: center;position: absolute; bottom: 20px;width: 100%;color: #C4C6CF;font-size: 14px;}
+
+/*修改输入框placeholder文字颜色*/
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+    /* WebKit browsers */
+    color: #C4C6CF;
+}
+
+input:-moz-placeholder,
+textarea:-moz-placeholder {
+    /* Mozilla Firefox 4 to 18 */
+    color: #C4C6CF;
+}
+
+input::-moz-placeholder,
+textarea::-moz-placeholder {
+    color: #C4C6CF;
+}
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+    /* Internet Explorer 10+ */
+    color: #C4C6CF;
+}

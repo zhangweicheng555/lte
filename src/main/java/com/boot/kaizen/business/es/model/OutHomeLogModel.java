@@ -24,8 +24,8 @@ public class OutHomeLogModel {
 	private String fileName;// 文件名
 	private Long fileUpTime;// 文件上传日期
 	private String filePath;// 文件路径  这个不导出
-	private String operatorService;// 运营商 无
-	private String netWorkType;// 网络类型 netWorkType
+	private String operatorService;// 运营商 无                【这个必须填写】
+	private String netWorkType;// 网络类型 netWorkType    【 这个必须填写  这个目前数据的LTE】
 	private String city;// 城市 无
 	private String county;// 地市 无
 	private String testPerson;// 测试人员 无

@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width,initial-scale=0.5,minimum-scale=0.5">
+    <link rel="stylesheet" href="../libs/layui-v2.5.4/layui/css/layui.css">
+    <link rel="stylesheet" href="../css/mainContent.css">
+    <link rel="stylesheet" href="../css/popupWindow.css">
+    <!-- <script type="text/javascript" src="../libs/jquery/jquery3.4.1.js"></script>-->
+    <script type="text/javascript" src="../libs/layui-v2.5.4/layui/layui.js"></script>
+</head>
+<body>
+<!--主体内容区域-->
+<div class="mainContentArea">
+    <div class="mainContentBody">
+        <div class="mainContentBodyTemp clear">
+
+            <!--位置导航-->
+            <div class="sysManageMenu">
+                <p>窗口样式>窗口样例</p>
+            </div>
+
+            <!--表格区域-->
+            <div class="tableContainer marginTop10">
+                <!--<div class="head">
+                    <div class="left">
+                        <div class="leftTitle">
+                            <a class="active">我的任务</a>
+                        </div>
+                        <div class="leftTitle">
+                            <a>任务发布</a>
+                        </div>
+                        <div class="leftTitle">
+                            <a>任务追踪</a>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <a>我的任务</a>
+                        <a>任务发布</a>
+                        <a>任务追踪</a>
+                    </div>
+                </div>-->
+                <div class="body">
+                    <div class="operateArea">
+                        <form  class="layui-form">
+                            <div class="layui-inline">
+                                <div class="layui-input-block">
+                                    <input type="button" class="layui-btn search fl" value="搜索"></input>
+                                    <input type="button" class="layui-btn add fl" id="addOneBtn" value="添加"></input>
+                                    <input type="button" class="layui-btn add fl" id="updateUserPasswordBtn" value="修改密码"></input>
+                                    <input type="button" class="layui-btn add fl" id="addProjectRoleBtn" value="添加角色"></input>
+                                    <input type="button" class="layui-btn add fl" id="addTableBtn" value="表格弹窗"></input>
+                                    <input type="button" class="layui-btn add fl" id="carouselWindow" value="图片轮播"></input>
+                                    <input type="button" class="layui-btn add fl" id="testItemBtn" value="测试项配置"></input>
+                                    <input type="button" class="layui-btn add fl" id="thresholdTestBtn" value="阈值配置"></input>
+                                    <input type="button" class="layui-btn add fl" id="appVersionManageBtn" value="app管理"></input>
+                                </div>
+                            </div>
+                            <div class="layui-inline fr">
+                                <div class="layui-input-block">
+                                    <input type="button" class="layui-btn delete fr " value="清空"></input>
+                                    <input type="button" class="layui-btn search fr marginRight" value="搜索"></input>
+                                </div>
+                            </div>
+                            <div class="layui-inline fr">
+                                <div class="layui-input-block">
+                                    <label class="layui-form-label">姓名</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text" name="date"  lay-verify="date" placeholder="请选择姓名" autocomplete="off" class="layui-input">
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="layui-inline fr">
+                                <div class="layui-input-block">
+                                    <label class="layui-form-label">登录名</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text"  placeholder="请输入登录名" autocomplete="off" class="layui-input">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <table class="layui-hide" id="tableData"  lay-filter="tableData">
+                    </table>
+                </div>
+            </div>
+            <!--添加用户弹窗-->
+            <div class="addOneUser popupWindow" id="addOneUser">
+                <form class="layui-form">
+                    <div class="formContainer">
+
+                        <div class="layui-form-item marginTop10">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">用户名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="number" lay-verify="required|number" autocomplete="off" placeholder="请输入旧密码" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item marginTop10">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">登录密码</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="number" lay-verify="required|number" autocomplete="off" placeholder="请输入旧密码" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">姓名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="number" lay-verify="required|number" autocomplete="off" placeholder="请输入姓名" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">性别</label>
+                                <div class="layui-input-inline">
+                                    <select name="modules" lay-verify="required" lay-search="">
+                                        <option value="1">男</option>
+                                        <option value="2">女</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">厂商</label>
+                                <div class="layui-input-inline">
+                                    <select name="modules" lay-verify="required" lay-search="">
+                                        <option value="1">诺基亚</option>
+                                        <option value="2">华为</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item" pane="">
+                            <label class="layui-form-label" style="color: red">用户角色*</label>
+                            <div class="layui-input-block">
+                                <input type="checkbox" name="like1[write]" lay-skin="primary" title="管理员" checked="">
+                                <input type="checkbox" name="like1[read]" lay-skin="primary" title="项目经理">
+                                <input type="checkbox" name="like1[read]" lay-skin="primary" title="厂家单验区域负责人">
+                                <input type="checkbox" name="like1[game]" lay-skin="primary" title="测试工程师">
+                                <input type="checkbox" name="like1[game]" lay-skin="primary" title="塔工">
+                                <input type="checkbox" name="like1[game]" lay-skin="primary" title="厂家单验负责人">
+                                <input type="checkbox" name="like1[game]" lay-skin="primary" title="性能测试工程师">
+                                <input type="checkbox" name="like1[game]" lay-skin="primary" title="网优管理处">
+                                <input type="checkbox" name="like1[game]" lay-skin="primary" title="后台工程师">
+                                <input type="checkbox" name="like1[game]" lay-skin="primary" title="网优分区">
+                            </div>
+                        </div>
+                        <div class="layui-form-item" pane="">
+                            <label class="layui-form-label">分区归属</label>
+                            <div class="layui-input-block belongArea">
+                                <input type="checkbox" name="like1[write]" lay-skin="primary" title="东区" checked="">
+                                <input type="checkbox" name="like1[read]" lay-skin="primary" title="西区">
+                                <input type="checkbox" name="like1[read]" lay-skin="primary" title="南区">
+                                <input type="checkbox" name="like1[game]" lay-skin="primary" title="北区">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">生日</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="number" lay-verify="required|number" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">手机号</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="number" lay-verify="required|number" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">电话</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="number" lay-verify="required|number" autocomplete="off"  class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">邮箱</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="number" lay-verify="required|number" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="layui-form-item" >
+                        <div class="layui-inline fr">
+                            <button type="button" class="layui-btn confirm ">确定</button>
+                            <button type="button" class="layui-btn cancle ">取消</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+
+            <!--重置用户密码弹窗-->
+            <div class="popupWindow" id="updateUserPassword">
+                <form class="layui-form">
+                    <div class="layui-form-item marginTop10">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">旧密码</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="number" lay-verify="required|number" autocomplete="off" placeholder="请输入旧密码" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">新密码</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="number" lay-verify="required|number" placeholder="请输入新密码" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item" >
+                        <div class="layui-inline fr">
+                            <button type="button" class="layui-btn confirm marginTop10">确定</button>
+                            <button type="button" class="layui-btn cancle marginTop10">取消</button>
+                        </div>
+                    </div>
+                </form>
+
+
+            </div>
+
+
+            <!--项目角色管理-->
+            <div class="addOneUser popupWindow" id="addProjectRole">
+                <form class="layui-form">
+                    <div class="formContainer">
+                        <div class="layui-form-item marginTop10">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">项目名称</label>
+                                <div class="layui-input-inline">
+                                    <select name="modules" lay-verify="required" lay-search="">
+                                        <option value="1">上海联通</option>
+                                        <option value="2">上海移动</option>
+                                        <option value="3">上海电信</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item ">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">角色名称</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="number" lay-verify="required|number" autocomplete="off" placeholder="请输入旧密码" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item marginTop10">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">角色描述</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="number" lay-verify="required|number" autocomplete="off" placeholder="请输入旧密码" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">排序</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="number" lay-verify="required|number" autocomplete="off" placeholder="请输入姓名" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">分配资源</label>
+                                <div class="layui-input-inline">
+                                    <div id="test12" class="demo-tree-more"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item" >
+                        <div class="layui-inline fr">
+                            <button type="button" class="layui-btn confirm ">确定</button>
+                            <button type="button" class="layui-btn cancle ">取消</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+
+            <!--弹窗表格
+                 弹窗表格部分的样式宽度需要在layui表格渲染的属性中设置每个属性的宽度，
+                 手动调整到与弹窗宽度大小适应
+            -->
+            <div class="addOneUser popupWindow" id="addTable">
+                <form class="layui-form">
+                    <div class="formContainer">
+                        <div class="layui-form-item marginTop10">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">登录名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="number" lay-verify="required|number" autocomplete="off" placeholder="请输入旧密码" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">姓名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="number" lay-verify="required|number" autocomplete="off" placeholder="请输入旧密码" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <div class="layui-input-block">
+                                    <button type="button" class="layui-btn confirm ">搜索</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tableContainer" style="height: 200px; overflow-y: scroll;">
+                            <table  class="layui-hide" id="table1"  lay-filter="table1">
+
+                            </table>
+                        </div>
+                    </div>
+                    <div class="layui-form-item" >
+                        <div class="layui-inline fr">
+                            <button type="button" class="layui-btn confirm ">确定</button>
+                            <button type="button" class="layui-btn cancle ">取消</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+            <!--图片轮播弹窗-->
+            <div class="addOneUser popupWindow" id="pictureRotation">
+                <div class="pictureRotationContainer">
+                    <div class="pictureTitle">
+                        <span>N50000电信松新城局-2G3GL900L1800-1扇区天线标牌</span>
+                        <a> 下载图片</a>
+                    </div>
+                    <div class="layui-carousel" id="test1" lay-filter="test1" style="height: 400px;width: 100%;">
+                        <div carousel-item="">
+                            <div>
+                                <img src="../img/carousel/N50000电信松新城局-0度照片.jpg" alt="">
+                            </div>
+                            <div>
+                                <img src="../img/carousel/N50000电信松新城局-2G3GL900L1800-1扇区天线标牌.jpg" alt="">
+                            </div>
+                            <div>
+                                <img src="../img/carousel/N50000电信松新城局-2G3GL900L1800-1扇区天线照片.jpg" alt="">
+                            </div>
+                            <div>
+                                <img src="../img/carousel/N50000电信松新城局-2G3GL900L1800-1扇区天线覆盖方向.jpg" alt="">
+                            </div>
+                            <div>
+                                <img src="../img/carousel/N50000电信松新城局-2G3GL900L1800-1扇区天线铭牌.jpg" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--测试项配置区域-->
+            <div class="mainArea_right" id="mainArea_right">
+                <!--模板及ID信息-->
+                <div>
+                    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;模板名称 ：&nbsp;</span>
+                    <span id="templateName"></span>
+                    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;模板ID：&nbsp;</span>
+                    <span id="templateId"></span>
+                    <span id="testItemConfigId" style="display:none"></span>
+                </div>
+                <!--配置区域-->
+                <div class="configArea" id="mainArea_right_div">
+                    <div id="configArea_contentArea">
+                        <!--小区测试项配置-->
+                        <div class="configArea_contentArea1 cellModelConfig">
+                            <p class="configArea_contentArea1p">小区测试项配置</p>
+                            <!--attach配置-->
+                            <div class="testItem attachItem">
+                                <div class="itemTitle">
+                                    <span class="title">attach配置</span>
+                                    <input  type="button" class="del" value="-" onclick="hideItemContent(this)"/>
+                                    <input  type="button" class="add" value="+" onclick="showItemContent(this)"/>
+                                </div>
+                                <div class="itemContentMain">
+                                    <div class="itemContent">
+                                        <span>测试次数(次)：</span>
+                                        <input type="text" class="testNumber itemContentInput" id = "attachItemTestNumber" />
+                                        <span>预计时长(s)：</span>
+                                        <input type="text" class="testExpectedDuration itemContentInput" id = "attachItemTestExpectedDuration" />
+                                        <span>间隔时长(s)：</span>
+                                        <input type="text" class="testInterval itemContentInput" id = "attachItemTestInterval"  />
+                                    </div>
+                                    <div class="Standard">
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;达标标准：</p>
+                                        <span>达标次数(次)：</span>
+                                        <input type="text" class="standardNumber itemContentInput" />
+                                        <span>达标成功率(%)：</span>
+                                        <input type="text" class="standardSuccessRate itemContentInput" />
+                                        <span>达标时延(ms)：</span>
+                                        <input type="text" class="standardDelay itemContentInput" />
+                                    </div>
+                                    <input type="text" class="testInterval Dnone mTestStatus"  />
+                                    <input type="text" class="testInterval Dnone mUpStatus"  />
+                                    <input type="text" class="testInterval Dnone mTestSwitch"  />
+                                    <input type="text" class="testInterval Dnone mTestName"  />
+                                </div>
+                            </div>
+                            <!--CSFB配置-->
+                            <div class="testItem CSFBItem">
+                                <div class="itemTitle">
+                                    <span class="title">CSFB配置</span>
+                                    <input  type="button" class="del" value="-" onclick="hideItemContent(this)"/>
+                                    <input  type="button" class="add" value="+" onclick="showItemContent(this)"/>
+                                </div>
+                                <div class="itemContentMain">
+                                    <div class="itemContent">
+                                        <span>测试次数(次)：</span>
+                                        <input type="text" class="testNumber itemContentInput" id="CSFBItemNumber" />
+                                        <span>测试间隔(s)：</span>
+                                        <input type="text" class="testInterval itemContentInput" id="CSFBItemTestInterval" />
+                                        <span>测试模式：</span>
+                                        <div class="zhanxingArea TestType" style="">
+                                            <form>
+                                                <div>
+                                                    <input id="CSFBItemTestType" type="radio" name="item" value="1" checked>
+                                                    <label for="CSFBItemTestType"></label>
+                                                    <span class="form" onclick="clickInput(this)">计次</span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <span>呼叫模式：</span>
+                                        <div class="zhanxingArea CallType" style="">
+                                            <form>
+                                                <div>
+                                                    <input id="CSFBItemCallType"  class="CSFBItemCallType" type="radio" name="csfbItem" value="0" checked>
+                                                    <label for="CSFBItemCallType"></label>
+                                                    <span class="form" onclick="clickInput(this)">去电</span>
+                                                </div>
+                                                <div>
+                                                    <input id="CSFBItemCallType1" class="CSFBItemCallType" type="radio" name="csfbItem" value="1" >
+                                                    <label for="CSFBItemCallType1"></label>
+                                                    <span class="form" onclick="clickInput(this)">来电</span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <span>测试保持时间(s)：</span>
+                                        <input type="text" class="testExpectedDuration itemContentInput"  id="CSFBItemTestExpectedDuration"/>
+                                        <span>保持时间(s)：</span>
+                                        <input type="text" class="keepTime itemContentInput" id="CSFBItemKeepTime" />
+                                        <span>测试号码：</span>
+                                        <input type="text" class="testPhone itemContentInput" id="CSFBItemTestPhone" />
+
+                                    </div>
+                                    <div class="Standard">
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;达标标准：</p>
+                                        <span>达标次数(次)：</span>
+                                        <input type="text" class="standardNumber itemContentInput" />
+                                        <span>达标接通率(%)：</span>
+                                        <input type="text" class="standardSuccessRate itemContentInput" />
+                                        <span>达标呼叫建立时延(ms)：</span>
+                                        <input type="text" class="standardDelay itemContentInput" />
+                                    </div>
+                                    <input type="text" class="testInterval Dnone mTestStatus"  />
+                                    <input type="text" class="testInterval Dnone mUpStatus"  />
+                                    <input type="text" class="testInterval Dnone mTestSwitch"  />
+                                    <input type="text" class="testInterval Dnone mTestName"  />
+                                </div>
+                            </div>
+                            <!--ping配置-->
+                            <div class="testItem pingItem">
+                                <div class="itemTitle">
+                                    <span class="title">ping配置</span>
+                                    <input  type="button" class="del" value="-" onclick="hideItemContent(this)"/>
+                                    <input  type="button" class="add" value="+" onclick="showItemContent(this)"/>
+                                </div>
+                                <div class="itemContentMain">
+                                    <div class="itemContent">
+                                        <span>测试次数(次)：</span>
+                                        <input type="text" class="testNumber itemContentInput" id="pingItemTestNumber" />
+                                        <span>测试间隔(s)：</span>
+                                        <input type="text" class="testInterval itemContentInput" id="pingItemTestInterval" />
+                                        <span>测试预计时长(s)：</span>
+                                        <input type="text" class="testExpectedDuration itemContentInput" id="pingItemTestExpectedDuration" />
+                                        <span>ping地址：</span>
+                                        <input type="text" class="pingAddress itemContentInput" id="pingItemPingAddress" />
+                                        <span>Ping包发送次数(次)：</span>
+                                        <input type="text" class="pingPlyCount itemContentInput" id="pingItemPingPlyCount" />
+                                        <span>Ping默认超时(s)：</span>
+                                        <input type="text" class="pingTimeOut itemContentInput" id="pingItemPingTimeOut" />
+                                        <span>默认包大小(byte)：</span>
+                                        <input type="text" class="pingSize itemContentInput" id="pingItemPingSize" />
+
+                                    </div>
+                                    <div class="Standard">
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;达标标准：</p>
+                                        <span>时延小于等于(ms)：</span>
+                                        <input type="text" class="standardDelay itemContentInput" />
+                                    </div>
+
+                                    <input type="text" class="testInterval Dnone mTestStatus"  />
+                                    <input type="text" class="testInterval Dnone mUpStatus"  />
+                                    <input type="text" class="testInterval Dnone mTestSwitch"  />
+                                    <input type="text" class="testInterval Dnone mTestName"  />
+                                </div>
+                            </div>
+                            <!--Volte配置-->
+                            <div class="testItem VolteItem">
+                                <div class="itemTitle">
+                                    <span class="title">Volte配置</span>
+                                    <input  type="button" class="del" value="-" onclick="hideItemContent(this)"/>
+                                    <input  type="button" class="add" value="+" onclick="showItemContent(this)"/>
+                                </div>
+                                <div class="itemContentMain">
+                                    <div class="itemContent">
+                                        <span>测试次数(次)：</span>
+                                        <input type="text" class="testNumber itemContentInput" id="VolteItemTestNumber"/>
+                                        <span>测试间隔(s)：</span>
+                                        <input type="text" class="testInterval itemContentInput" id="VolteItemTestInterval" />
+                                        <span>测试模式：</span>
+                                        <div class="zhanxingArea1" style="">
+                                            <form>
+                                                <div>
+                                                    <input id="VolteItemTestType"  class="testMode" type="radio" name="VolteItem" value="0" checked>
+                                                    <label for="VolteItemTestType"></label>
+                                                    <span class="form1" onclick="clickInput(this)">语音去电</span>
+                                                </div>
+                                                <div>
+                                                    <input id="VolteItemTestType1" class="testMode" type="radio" name="VolteItem" value="1" >
+                                                    <label for="VolteItemTestType1"></label>
+                                                    <span class="form1" onclick="clickInput(this)">语音来电</span>
+                                                </div>
+                                                <div>
+                                                    <input id="VolteItemTestType2" class="testMode" type="radio" name="VolteItem" value="2" >
+                                                    <label for="VolteItemTestType2"></label>
+                                                    <span class="form1" onclick="clickInput(this)">视频去电</span>
+                                                </div>
+                                                <div>
+                                                    <input id="VolteItemTestType3" class="testMode" type="radio" name="VolteItem" value="3" >
+                                                    <label for="VolteItemTestType3"></label>
+                                                    <span class="form1" onclick="clickInput(this)">视频来电</span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <span>测试保持时间(s)：</span>
+                                        <input type="text" class="testExpectedDuration itemContentInput" id="VolteItemTestExpectedDuration" />
+                                        <span>保持时间(s)：</span>
+                                        <input type="text" class="keepTime itemContentInput" id="VolteItemKeepTime" />
+                                        <span>测试号码：</span>
+                                        <input type="text" class="testPhone itemContentInput" id="VolteItemTestPhone" />
+                                    </div>
+                                    <div class="Standard">
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;达标标准：</p>
+                                        <span>达标次数(次)：</span>
+                                        <input type="text" class="standardNumber itemContentInput" />
+                                        <span>达标接通率(%)：</span>
+                                        <input type="text" class="standardSuccessRate itemContentInput" />
+                                        <span>呼叫建立时延(ms)：</span>
+                                        <input type="text" class="standardDelay itemContentInput" />
+                                    </div>
+
+                                    <input type="text" class="testInterval Dnone mTestStatus"  />
+                                    <input type="text" class="testInterval Dnone mUpStatus"  />
+                                    <input type="text" class="testInterval Dnone mTestSwitch"  />
+                                    <input type="text" class="testInterval Dnone mTestName"  />
+                                </div>
+                            </div>
+                            <!--FTP上传配置-->
+                            <div class="testItem FTPUpItem">
+                                <div class="itemTitle">
+                                    <span class="title">FTPUp配置</span>
+                                    <input  type="button" class="del" value="-" onclick="hideItemContent(this)"/>
+                                    <input  type="button" class="add" value="+" onclick="showItemContent(this)"/>
+                                </div>
+                                <div class="itemContentMain">
+                                    <div class="itemContent">
+                                        <span>服务器地址：</span>
+                                        <input type="text" class="ftpUServerAddress itemContentInput" id="FTPUpItemFtpUServerAddress"/>
+                                        <span>服务器端口：</span>
+                                        <input type="text" class="ftpUPort itemContentInput" id="FTPUpItemFtpUPort" />
+                                        <span>用户名：</span>
+                                        <input type="text" class="ftpUUserName itemContentInput" id="FTPUpItemFtpUUserName" />
+                                        <span>密码：</span>
+                                        <input type="text" class="ftpUPassword itemContentInput" id="FTPUpItemFtpUPassword" />
+                                        <span>测试次数(次)：</span>
+                                        <input type="text" class="testNumber itemContentInput" id="FTPUpItemTestNumber" />
+                                        <span>测试间隔(s)：</span>
+                                        <input type="text" class="testInterval itemContentInput" id="FTPUpItemTestInterval" />
+                                        <span>测试预计时长(s)：</span>
+                                        <input type="text" class="testExpectedDuration itemContentInput" id="FTPUpItemTestExpectedDuration" />
+                                        <span>上传线程数(个)：</span>
+                                        <input type="text" class="ftpUThreads itemContentInput" id="FTPUpItemFtpUThreads" />
+                                        <span>上传文件路径：</span>
+                                        <input type="text" class="ftpUFilePath itemContentInput" id="FTPUpItemFtpUFilePath" />
+                                        <span>是否删除文件：</span>
+                                        <div class="zhanxingArea IsDelete">
+                                            <form>
+                                                <div>
+                                                    <input id="FTPUpItemTestType"  class="testMode" type="radio" name="CFTPUpItemItem" value="0" checked>
+                                                    <label for="FTPUpItemTestType"></label>
+                                                    <span class="form" onclick="clickInput(this)">是</span>
+                                                </div>
+                                                <div>
+                                                    <input id="FTPUpItemTestType1" class="testMode" type="radio" name="CFTPUpItemItem" value="1" >
+                                                    <label for="FTPUpItemTestType1"></label>
+                                                    <span class="form" onclick="clickInput(this)">否</span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <input type="text" class="testInterval Dnone mTestStatus"  />
+                                        <input type="text" class="testInterval Dnone mUpStatus"  />
+                                        <input type="text" class="testInterval Dnone mTestSwitch"  />
+                                        <input type="text" class="testInterval Dnone mTestName"  />
+                                    </div>
+                                    <div class="Standard">
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;达标标准：</p>
+                                        <span>好点达标rsrp(dBm)：</span>
+                                        <input type="text" class="goodStandardRsrp itemContentInput" />
+                                        <span>好点达标sinr(dB)：</span>
+                                        <input type="text" class="goodStandardSinr itemContentInput" />
+                                        <span>好点达标速率(kbps)：</span>
+                                        <input type="text" class="goodStandardRate itemContentInput" />
+                                        <span>中点达标rsrp(dBm)：</span>
+                                        <input type="text" class="generalStandardRsrp itemContentInput" />
+                                        <span>中点达标sinr(dB)：</span>
+                                        <input type="text" class="generalStandardSinr itemContentInput" />
+                                        <span>中点达标速率(kbps)：</span>
+                                        <input type="text" class="generalStandardRate itemContentInput" />
+                                        <span>差点达标rsrp(dBm)：</span>
+                                        <input type="text" class="rottenStandardRsrp itemContentInput" />
+                                        <span>差点达标sinr(dB)：</span>
+                                        <input type="text" class="rottenStandardSinr itemContentInput" />
+                                        <span>差点达标速率(kbps)：</span>
+                                        <input type="text" class="rottenStandardRate itemContentInput" />
+                                    </div>
+                                    <input type="text" class="testInterval Dnone mTestStatus"  />
+                                    <input type="text" class="testInterval Dnone mUpStatus"  />
+                                    <input type="text" class="testInterval Dnone mTestSwitch"  />
+                                    <input type="text" class="testInterval Dnone mTestName"  />
+                                </div>
+                            </div>
+                            <!--FTPDown配置-->
+                            <div class="testItem FTPDownItem">
+                                <div class="itemTitle">
+                                    <span class="title">FTPDown配置</span>
+                                    <input  type="button" class="del" value="-" onclick="hideItemContent(this)"/>
+                                    <input  type="button" class="add" value="+" onclick="showItemContent(this)"/>
+                                </div>
+                                <div class="itemContentMain">
+                                    <div class="itemContent">
+                                        <span>服务器地址：</span>
+                                        <input type="text" class="ftpDServerAddress itemContentInput" id="FTPDownItemFtpDServerAddress" />
+                                        <span>服务器端口：</span>
+                                        <input type="text" class="ftpDPort itemContentInput" id="FTPDownItemFtpDPort" />
+
+                                        <span>用户名：</span>
+                                        <input type="text" class="ftpDUserName itemContentInput" id="FTPDownItemFtpDUserName" />
+
+                                        <span>密码：</span>
+                                        <input type="text" class="ftpDPassword itemContentInput" id="FTPDownItemFtpDPassword" />
+
+                                        <span>测试次数(次)：</span>
+                                        <input type="text" class="testNumber itemContentInput" id="FTPDownItemTestNumber" />
+                                        <span>测试间隔(s)：</span>
+                                        <input type="text" class="testInterval itemContentInput" id="FTPDownItemTestInterval" />
+                                        <span>测试预计时长(s)：</span>
+                                        <input type="text" class="testExpectedDuration itemContentInput" id="FTPDownItemTestExpectedDuration" />
+                                        <span>下载线程数(个)：</span>
+                                        <input type="text" class="ftpDThreads itemContentInput" id="FTPDownItemFtpDThreads" />
+                                        <span>下载文件路径：</span>
+                                        <input type="text" class="ftpDFilePath itemContentInput" id="FTPDownItemFtpDFilePath" />
+                                        <span>下载后是否删除文件：</span>
+                                        <div class="zhanxingArea IsDelete" style="">
+                                            <form>
+                                                <div>
+                                                    <input id="FTPDownItemTestType"  class="testMode" type="radio" name="FTPDownItem" value="0" checked>
+                                                    <label for="FTPDownItemTestType"></label>
+                                                    <span class="form" onclick="clickInput(this)">是</span>
+                                                </div>
+                                                <div>
+                                                    <input id="FTPDownItemTestType1" class="testMode" type="radio" name="FTPDownItem" value="1" >
+                                                    <label for="FTPDownItemTestType1"></label>
+                                                    <span class="form" onclick="clickInput(this)">否</span>
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                    </div>
+                                    <div class="Standard">
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FTPDown达标标准：</p>
+                                        <span>好点达标rsrp(dBm)：</span>
+                                        <input type="text" class="goodStandardRsrp itemContentInput" />
+                                        <span>好点达标sinr(dB)：</span>
+                                        <input type="text" class="goodStandardSinr itemContentInput" />
+                                        <span>好点达标速率(kbps)：</span>
+                                        <input type="text" class="goodStandardRate itemContentInput" />
+                                        <span>中点达标rsrp(dBm)：</span>
+                                        <input type="text" class="generalStandardRsrp itemContentInput" />
+                                        <span>中点达标sinr(dB)：</span>
+                                        <input type="text" class="generalStandardSinr itemContentInput" />
+                                        <span>中点达标速率(kbps)：</span>
+                                        <input type="text" class="generalStandardRate itemContentInput" />
+                                        <span>差点达标rsrp(dBm)：</span>
+                                        <input type="text" class="rottenStandardRsrp itemContentInput" />
+                                        <span>差点达标sinr(dB)：</span>
+                                        <input type="text" class="rottenStandardSinr itemContentInput" />
+                                        <span>差点达标速率(kbps)：</span>
+                                        <input type="text" class="rottenStandardRate itemContentInput" />
+                                    </div>
+                                    <input type="text" class="testInterval Dnone mTestStatus"  />
+                                    <input type="text" class="testInterval Dnone mUpStatus"  />
+                                    <input type="text" class="testInterval Dnone mTestSwitch"  />
+                                    <input type="text" class="testInterval Dnone mTestName"  />
+                                </div>
+                            </div>
+                        </div>
+                        <!--路测测试项配置-->
+                        <div class="configArea_contentArea1 roadModelConfig">
+                            <p class="configArea_contentArea1p">路测测试项配置</p>
+                            <!--FTP上传配置-->
+                            <div class="testItem FTPUpItem">
+                                <div class="itemTitle">
+                                    <span class="title">FTPUp配置</span>
+                                    <input  type="button" class="del" value="-" onclick="hideItemContent(this)"/>
+                                    <input  type="button" class="add" value="+" onclick="showItemContent(this)"/>
+                                </div>
+                                <div class="itemContentMain">
+                                    <div class="itemContent">
+                                        <span>服务器地址：</span>
+                                        <input type="text" class="ftpUServerAddress itemContentInput" id="roadModelConfigFTPUpItemFtpUServerAddress" />
+                                        <span>服务器端口：</span>
+                                        <input type="text" class="ftpUPort itemContentInput" id="roadModelConfigFTPUpItemFtpUPort" />
+
+                                        <span>用户名：</span>
+                                        <input type="text" class="ftpUUserName itemContentInput" id="roadModelConfigFTPUpItemFtpUUserName" />
+
+                                        <span>密码：</span>
+                                        <input type="text" class="ftpUPassword itemContentInput" id="roadModelConfigFTPUpItemFtpUPassword" />
+
+                                        <span>测试次数：</span>
+                                        <input type="text" class="testNumber itemContentInput" id="roadModelConfigFTPUpItemTestNumber" />
+                                        <span>测试间隔：</span>
+                                        <input type="text" class="testInterval itemContentInput" id="roadModelConfigFTPUpItemTestInterval" />
+                                        <span>测试预计时长：</span>
+                                        <input type="text" class="testExpectedDuration itemContentInput" id="roadModelConfigFTPUpItemTestExpectedDuration" />
+                                        <span>上传线程数：</span>
+                                        <input type="text" class="ftpUThreads itemContentInput" id="roadModelConfigFTPUpItemFtpUThreads" />
+                                        <span>上传文件路径：</span>
+                                        <input type="text" class="ftpUFilePath itemContentInput" id="roadModelConfigFTPUpItemFtpUFilePath" />
+                                        <span>是否删除文件：</span>
+                                        <div class="zhanxingArea IsDelete">
+                                            <form>
+                                                <div>
+                                                    <input id="roadModelConfigFTPUpItemTestType"  class="testMode" type="radio" name="LFTPUpItem" value="0" checked>
+                                                    <label for="roadModelConfigFTPUpItemTestType"></label>
+                                                    <span class="form" onclick="clickInput(this)">是</span>
+                                                </div>
+                                                <div>
+                                                    <input id="roadModelConfigFTPUpItemTestType1" class="testMode" type="radio" name="LFTPUpItem" value="1" >
+                                                    <label for="roadModelConfigFTPUpItemTestType1"></label>
+                                                    <span class="form" onclick="clickInput(this)">否</span>
+                                                </div>
+                                            </form>
+                                        </div>
+
+
+                                        <input type="text" class="testInterval Dnone mTestStatus"  />
+                                        <input type="text" class="testInterval Dnone mUpStatus"  />
+                                        <input type="text" class="testInterval Dnone mTestSwitch"  />
+                                        <input type="text" class="testInterval Dnone mTestName"  />
+
+                                    </div>
+                                    <div class="Standard">
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;达标标准：</p>
+                                        <span>好点达标rsrp(dBm)：</span>
+                                        <input type="text" class="goodStandardRsrp itemContentInput" />
+                                        <span>好点达标sinr(dB)：</span>
+                                        <input type="text" class="goodStandardSinr itemContentInput" />
+                                        <span>好点达标速率(kbps)：</span>
+                                        <input type="text" class="goodStandardRate itemContentInput" />
+                                        <span>中点达标rsrp(dBm)：</span>
+                                        <input type="text" class="generalStandardRsrp itemContentInput" />
+                                        <span>中点达标sinr(dB)：</span>
+                                        <input type="text" class="generalStandardSinr itemContentInput" />
+                                        <span>中点达标速率(kbps)：</span>
+                                        <input type="text" class="generalStandardRate itemContentInput" />
+                                        <span>差点达标rsrp(dBm)：</span>
+                                        <input type="text" class="rottenStandardRsrp itemContentInput" />
+                                        <span>差点达标sinr(dB)：</span>
+                                        <input type="text" class="rottenStandardSinr itemContentInput" />
+                                        <span>差点达标速率(kbps)：</span>
+                                        <input type="text" class="rottenStandardRate itemContentInput" />
+                                    </div>
+                                    <input type="text" class="testInterval Dnone mTestStatus"  />
+                                    <input type="text" class="testInterval Dnone mUpStatus"  />
+                                    <input type="text" class="testInterval Dnone mTestSwitch"  />
+                                    <input type="text" class="testInterval Dnone mTestName"  />
+                                </div>
+                            </div>
+                            <!--FTPDown配置-->
+                            <div class="testItem FTPDownItem">
+                                <div class="itemTitle">
+                                    <span class="title">FTPDown配置</span>
+                                    <input  type="button" class="del" value="-" onclick="hideItemContent(this)"/>
+                                    <input  type="button" class="add" value="+" onclick="showItemContent(this)"/>
+                                </div>
+                                <div class="itemContentMain">
+                                    <div class="itemContent">
+                                        <span>服务器地址：</span>
+                                        <input type="text" class="ftpDServerAddress itemContentInput" id="roadModelConfigFTPDownItemFtpDServerAddress" />
+                                        <span>服务器端口：</span>
+                                        <input type="text" class="ftpDPort itemContentInput" id="roadModelConfigFTPDownItemFtpDPort" />
+
+                                        <span>用户名：</span>
+                                        <input type="text" class="ftpDUserName itemContentInput" id="roadModelConfigFTPDownItemFtpDUserName" />
+
+                                        <span>密码：</span>
+                                        <input type="text" class="ftpDPassword itemContentInput" id="roadModelConfigFTPDownItemFtpDPassword" />
+
+                                        <span>测试次数：</span>
+                                        <input type="text" class="testNumber itemContentInput" id="roadModelConfigFTPDownItemTestNumber" />
+                                        <span>测试间隔：</span>
+                                        <input type="text" class="testInterval itemContentInput" id="roadModelConfigFTPDownItemTestInterval" />
+                                        <span>测试预计时长：</span>
+                                        <input type="text" class="testExpectedDuration itemContentInput" id="roadModelConfigFTPDownItemTestExpectedDuration" />
+                                        <span>下载线程数：</span>
+                                        <input type="text" class="ftpDThreads itemContentInput" id="roadModelConfigFTPDownItemFtpDThreads" />
+                                        <span>下载文件路径：</span>
+                                        <input type="text" class="ftpDFilePath itemContentInput" id="roadModelConfigFTPDownItemFtpDFilePath" />
+                                        <span>下载后是否删除文件：</span>
+                                        <div class="zhanxingArea IsDelete">
+                                            <form>
+                                                <div>
+                                                    <input id="roadModelConfigFTPDownItemTestType"  class="testMode" type="radio" name="LFTPDownItem" value="0" checked>
+                                                    <label for="roadModelConfigFTPDownItemTestType"></label>
+                                                    <span class="form" onclick="clickInput(this)">是</span>
+                                                </div>
+                                                <div>
+                                                    <input id="roadModelConfigFTPDownItemTestType1" class="testMode" type="radio" name="LFTPDownItem" value="1" >
+                                                    <label for="roadModelConfigFTPDownItemTestType1"></label>
+                                                    <span class="form" onclick="clickInput(this)">否</span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <input type="text" class="testInterval Dnone mTestStatus"  />
+                                        <input type="text" class="testInterval Dnone mUpStatus"  />
+                                        <input type="text" class="testInterval Dnone mTestSwitch"  />
+                                        <input type="text" class="testInterval Dnone mTestName"  />
+
+                                    </div>
+                                    <div class="Standard">
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FTPDown达标标准：</p>
+                                        <span>好点达标rsrp(dBm)：</span>
+                                        <input type="text" class="goodStandardRsrp itemContentInput" />
+                                        <span>好点达标sinr(dB)：</span>
+                                        <input type="text" class="goodStandardSinr itemContentInput" />
+                                        <span>好点达标速率(kbps)：</span>
+                                        <input type="text" class="goodStandardRate itemContentInput" />
+                                        <span>中点达标rsrp(dBm)：</span>
+                                        <input type="text" class="generalStandardRsrp itemContentInput" />
+                                        <span>中点达标sinr(dB)：</span>
+                                        <input type="text" class="generalStandardSinr itemContentInput" />
+                                        <span>中点达标速率(kbps)：</span>
+                                        <input type="text" class="generalStandardRate itemContentInput" />
+                                        <span>差点达标rsrp(dBm)：</span>
+                                        <input type="text" class="rottenStandardRsrp itemContentInput" />
+                                        <span>差点达标sinr(dB)：</span>
+                                        <input type="text" class="rottenStandardSinr itemContentInput" />
+                                        <span>差点达标速率(kbps)：</span>
+                                        <input type="text" class="rottenStandardRate itemContentInput" />
+                                    </div>
+                                    <input type="text" class="testInterval Dnone mTestStatus"  />
+                                    <input type="text" class="testInterval Dnone mUpStatus"  />
+                                    <input type="text" class="testInterval Dnone mTestSwitch"  />
+                                    <input type="text" class="testInterval Dnone mTestName"  />
+                                </div>
+                            </div>
+
+                            <!--CSFB配置-->
+                            <div class="testItem CSFBItem">
+                                <div class="itemTitle">
+                                    <span class="title">CSFB配置</span>
+                                    <input  type="button" class="del" value="-" onclick="hideItemContent(this)"/>
+                                    <input  type="button" class="add" value="+" onclick="showItemContent(this)"/>
+                                </div>
+                                <div class="itemContentMain">
+                                    <div class="itemContent">
+                                        <span>测试次数：</span>
+                                        <input type="text" class="testNumber itemContentInput" id="roadCSFBItemNumber" />
+                                        <span>测试间隔：</span>
+                                        <input type="text" class="testInterval itemContentInput" id="roadCSFBItemTestInterval" />
+                                        <span>测试模式：</span>
+                                        <div class="zhanxingArea TestType" style="">
+                                            <form>
+                                                <div>
+                                                    <input id="roadCSFBItemTestType" type="radio" name="item" value="1" checked>
+                                                    <label for="roadCSFBItemTestType"></label>
+                                                    <span class="form" onclick="clickInput(this)">计次</span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <span>呼叫模式：</span>
+                                        <div class="zhanxingArea CallType" style="">
+                                            <form>
+                                                <div>
+                                                    <input id="roadCSFBItemCallType"  class="CSFBItemCallType" type="radio" name="roadCsfbItem" value="0" checked>
+                                                    <label for="roadCSFBItemCallType"></label>
+                                                    <span class="form" onclick="clickInput(this)">去电</span>
+                                                </div>
+                                                <div>
+                                                    <input id="roadCSFBItemCallType1" class="CSFBItemCallType" type="radio" name="roadCsfbItem" value="1" >
+                                                    <label for="roadCSFBItemCallType1"></label>
+                                                    <span class="form" onclick="clickInput(this)">来电</span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <span>测试保持时间：</span>
+                                        <input type="text" class="testExpectedDuration itemContentInput"  id="roadCSFBItemTestExpectedDuration"/>
+                                        <span>保持时间：</span>
+                                        <input type="text" class="keepTime itemContentInput" id="roadCSFBItemKeepTime" />
+                                        <span>测试号码：</span>
+                                        <input type="text" class="testPhone itemContentInput" id="roadCSFBItemTestPhone" />
+
+                                        <input type="text" class="testInterval Dnone mTestStatus"  />
+                                        <input type="text" class="testInterval Dnone mUpStatus"  />
+                                        <input type="text" class="testInterval Dnone mTestSwitch"  />
+                                        <input type="text" class="testInterval Dnone mTestName"  />
+
+                                    </div>
+                                    <div class="Standard">
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;达标标准：</p>
+                                        <span>达标次数：</span>
+                                        <input type="text" class="standardNumber itemContentInput" />
+                                        <span>达标接通率：</span>
+                                        <input type="text" class="standardSuccessRate itemContentInput" />
+                                        <span>达标呼叫建立时延：</span>
+                                        <input type="text" class="standardDelay itemContentInput" />
+                                    </div>
+                                    <input type="text" class="testInterval Dnone mTestStatus"  />
+                                    <input type="text" class="testInterval Dnone mUpStatus"  />
+                                    <input type="text" class="testInterval Dnone mTestSwitch"  />
+                                    <input type="text" class="testInterval Dnone mTestName"  />
+                                </div>
+                            </div>
+                        </div>
+                        <!--修改与取消修改操作区域-->
+                        <div class="confirmCaozuo">
+                            <div>
+                                <input type="button" id="confirmCaozuo_confirm" value="确定修改" />
+                                <input type="button" id="confirmCaozuo_cancle" value="取消修改" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--阈值测试配置-->
+            <div class="mainArea_rightThreshold" id="updateThreshold">
+                <!--模板及ID信息-->
+                <div style="height: 37px;line-height: 37px;">
+                    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;模板名称 ：&nbsp;</span>
+                    <span id="templateNameThreshold">上海联通FDDLTE宏站</span>
+                    <span>
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;模板ID：&nbsp;
+						</span>
+                    <span id="templateIdThreshold">21</span>
+                    <span id="thresholdId" class="thresholdId">2</span>
+                    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;阈值单位 ：&nbsp;kbps/s</span>
+                </div>
+                <!--配置区域-->
+                <div class="configArea">
+                    <div id="configArea_contentAreaThreshold">
+                        <!--rsrp阈值修改-->
+                        <div class="RSRP configArea_content">
+                            <div class="configArea_content_title">
+                                <input type="button" value="-" onclick="delArea(this)">
+                                <span class="select">rsrp阈值设置</span>
+                                <span class="selectCancle" style="display: none;">取消rsrp阈值设置</span>
+                                <input type="button" value="+" onclick="addArea(this)">
+                            </div>
+                            <div class="configArea_content_update">
+                                <div class="configArea_content_update_end">
+                                    <input type="number" class="updateInput floatRight updateInputMarginRight">
+                                    <span class="floatRight span2">&lt;</span>
+                                    <input class="updateButton jscolor floatRight " value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                </div>
+                                <div class="configArea_content_update_content">
+                                    <div class="update_content">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-">
+                                        <input type="number" class="updateInput updateInput1 floatLeft ">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                </div>
+                                <div class="configArea_content_update_title">
+                                    <div>
+                                        <input type="number" class="updateInput floatLeft updateInputMarginLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <input id="hello" class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--sinr阈值修改-->
+                        <div class="SINR configArea_content">
+                            <div class="configArea_content_title">
+                                <input type="button" value="-" onclick="delArea(this)">
+                                <span class="select">sinr阈值设置</span>
+                                <span class="selectCancle" style="display: none;">取消sinr阈值设置</span>
+                                <input type="button" value="+" onclick="addArea(this)">
+                            </div>
+                            <div class="configArea_content_update">
+                                <div class="configArea_content_update_end">
+                                    <input type="number" class="updateInput floatRight updateInputMarginRight">
+                                    <span class="floatRight span2">&lt;</span>
+                                    <input class="updateButton jscolor floatRight " value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                </div>
+                                <div class="configArea_content_update_content">
+                                    <div class="update_content">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-">
+                                        <input type="number" class="updateInput updateInput1 floatLeft ">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                </div>
+                                <div class="configArea_content_update_title">
+                                    <div>
+                                        <input type="number" class="updateInput floatLeft updateInputMarginLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Ftp上传阈值修改-->
+                        <div class="FTPUpload configArea_content">
+                            <div class="configArea_content_title">
+                                <input type="button" value="-" onclick="delArea(this)">
+                                <span class="select">FTP上传阈值设置</span>
+                                <span class="selectCancle" style="display: none;">取消FTP上传阈值设置</span>
+                                <input type="button" value="+" onclick="addArea(this)">
+                            </div>
+                            <div class="configArea_content_update">
+                                <div class="configArea_content_update_end">
+                                    <input type="number" class="updateInput floatRight updateInputMarginRight">
+                                    <span class="floatRight span2">&lt;</span>
+                                    <input class="updateButton jscolor floatRight " value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                </div>
+                                <div class="configArea_content_update_content">
+                                    <div class="update_content">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-">
+                                        <input type="number" class="updateInput updateInput1 floatLeft ">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                </div>
+                                <div class="configArea_content_update_title">
+                                    <div>
+                                        <input type="number" class="updateInput floatLeft updateInputMarginLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--FTP下载阈值修改-->
+                        <div class="FTPDownload configArea_content">
+                            <div class="configArea_content_title">
+                                <input type="button" value="-" onclick="delArea(this)">
+                                <span class="select">FTP下载阈值设置</span>
+                                <span class="selectCancle" style="display: none;">取消FTP下载阈值设置</span>
+                                <input type="button" value="+" onclick="addArea(this)">
+                            </div>
+                            <div class="configArea_content_update">
+                                <div class="configArea_content_update_end">
+                                    <input type="number" class="updateInput floatRight updateInputMarginRight">
+                                    <span class="floatRight span2">&lt;</span>
+                                    <input class="updateButton jscolor floatRight " value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                </div>
+                                <div class="configArea_content_update_content">
+                                    <div class="update_content">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-">
+                                        <input type="number" class="updateInput updateInput1 floatLeft ">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: block;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                    <div class="update_content configAreaDisplay" style="display: none;">
+                                        <input type="button" class="updateInput configArea_contentButtonDel floatLeft" value="-" onclick="deleteDiv(this)">
+                                        <input type="number" class="updateInput updateInput1 floatLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <div class="jscolorContainer">
+                                            <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                        </div>
+                                        <span class="floatLeft span2">&lt;</span>
+                                        <input type="number" class="updateInput updateInput2 floatLeft">
+                                        <input type="button" class="updateInput configArea_contentButtonAdd floatLeft" value="+" onclick="addDiv(this)">
+                                    </div>
+                                </div>
+                                <div class="configArea_content_update_title">
+                                    <div>
+                                        <input type="number" class="updateInput floatLeft updateInputMarginLeft">
+                                        <span class="floatLeft span1">&lt;=</span>
+                                        <input class="updateButton jscolor floatLeft" value="3F9FF7" autocomplete="off" style="background-image: none; background-color: #3F9FF7; color: rgb(255, 255, 255);">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--修改与取消修改操作区域-->
+                        <div class="confirmCaozuo">
+                            <div>
+                                <input type="button" id="confirmCaozuo_confirmThreshold" value="确定修改">
+                                <input type="button" id="confirmCaozuo_cancleThreshold" value="取消修改">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--app版本管理-->
+            <div class="appVersionManage" id="appVersionManage">
+                <form class="appVersionManageForm">
+                    <div class="versionName">
+                        <span>版本名称：</span>
+                        <input type="text" id="versionName" class="versionNameInput" autocomplete="off">
+                    </div>
+                    <div class="versionFileUpload">
+                        <span class="wid">文件上传：</span>
+                        <div class="file-box">
+                            <input type="text" size="30" name="upfile" id="upfile" readonly="true" class="name" placeholder="&nbsp;&nbsp;&nbsp;仅能上传后缀为apk的文件">
+                            <input type="button" class="liulan" onclick="apkFile.click()" value="浏览">
+                            <input type="file" id="apkFile" class="smt" style=" display:none" formmethod="POST" value="上传文件" onchange="upfile.value=this.value" accept=".apk,.app">
+                        </div>
+                    </div>
+                    <div id="versionDesc" class="versionDesc">
+                        <div class="versionDescTitle">版本描述：</div>
+                        <div class="versionDescInputFirst">
+                            <input type="button" onclick="desVersionDesc(this)" value="-" class="desVersionDesc ">
+                            <input type="text" class="addVersionInput">
+                            <input type="button" onclick="addVersionDesc()" value="+" class="addVersionDesc">
+                        </div>
+
+                        <div class="versionDescInputContent">
+
+                            <div>
+                                <input type="button" onclick="desVersionDesc(this)" value="-" class="desVersionDesc desVersionDesc_marginleft">
+                                <input type="text" class="addVersionInput">
+                                <input type="button" onclick="addVersionDesc(this)" value="+" class="addVersionDesc">
+                            </div>
+                            <div>
+                                <input type="button" onclick="desVersionDesc(this)" value="-" class="desVersionDesc desVersionDesc_marginleft">
+                                <input type="text" class="addVersionInput">
+                                <input type="button" onclick="addVersionDesc(this)" value="+" class="addVersionDesc">
+                            </div>
+                            <div>
+                                <input type="button" onclick="desVersionDesc(this)" value="-" class="desVersionDesc desVersionDesc_marginleft">
+                                <input type="text" class="addVersionInput">
+                                <input type="button" onclick="addVersionDesc(this)" value="+" class="addVersionDesc">
+                            </div>
+                            <div>
+                                <input type="button" onclick="desVersionDesc(this)" value="-" class="desVersionDesc desVersionDesc_marginleft">
+                                <input type="text" class="addVersionInput">
+                                <input type="button" onclick="addVersionDesc(this)" value="+" class="addVersionDesc">
+                            </div>
+                            <div>
+                                <input type="button" onclick="desVersionDesc(this)" value="-" class="desVersionDesc desVersionDesc_marginleft">
+                                <input type="text" class="addVersionInput">
+                                <input type="button" onclick="addVersionDesc(this)" value="+" class="addVersionDesc">
+                            </div>
+                            <div>
+                                <input type="button" onclick="desVersionDesc(this)" value="-" class="desVersionDesc desVersionDesc_marginleft">
+                                <input type="text" class="addVersionInput">
+                                <input type="button" onclick="addVersionDesc(this)" value="+" class="addVersionDesc">
+                            </div>
+                            <div>
+                                <input type="button" onclick="desVersionDesc(this)" value="-" class="desVersionDesc desVersionDesc_marginleft">
+                                <input type="text" class="addVersionInput">
+                                <input type="button" onclick="addVersionDesc(this)" value="+" class="addVersionDesc">
+                            </div>
+                            <div>
+                                <input type="button" onclick="desVersionDesc(this)" value="-" class="desVersionDesc desVersionDesc_marginleft">
+                                <input type="text" class="addVersionInput">
+                                <input type="button" onclick="addVersionDesc(this)" value="+" class="addVersionDesc">
+                            </div>
+                            <div>
+                                <input type="button" onclick="desVersionDesc(this)" value="-" class="desVersionDesc desVersionDesc_marginleft">
+                                <input type="text" class="addVersionInput">
+                                <input type="button" onclick="addVersionDesc(this)" value="+" class="addVersionDesc">
+                            </div>
+                            <div>
+                                <input type="button" onclick="desVersionDesc(this)" value="-" class="desVersionDesc desVersionDesc_marginleft">
+                                <input type="text" class="addVersionInput">
+                                <input type="button" onclick="addVersionDesc(this)" value="+" class="addVersionDesc">
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="versionCaozuo">
+                        <input class="caozuo white" type="button" value="取消上传" id="cancleUpload">
+                        <input class="caozuo blue" type="button" value="确定上传" id="confirmUpload">
+                    </div>
+                </form>
+            </div>
+
+
+
+            <!--脚注区域-->
+            <div class="footer">
+                <p>Copyright © 2019 上海诺基亚贝尔股份有限公司</p>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+</div>
+
+</body>
+
+
+
+
+<script type="text/html" id="caozuo">
+    <a lay-event="edit" style="color:#5584FF;width:50%;float: left;">编辑</a>
+    <a lay-event="delete" style="color:#F16E59;width:50%;float: left;">删除</a>
+</script>
+<!--<script type="text/javascript" src="../js/booNavigation.js"></script>-->
+<script type="text/javascript" src="../js/popupWindow.js"></script>
+</html>

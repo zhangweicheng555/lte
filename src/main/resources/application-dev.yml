@@ -45,7 +45,20 @@ spring:
     baseline-version: 1.0.0
     sql-migration-prefix: v
     sql-migration-suffixes: .sql
-
+  
+   
+  redis: 
+    host: 127.0.0.1
+    port: 6379
+    timeout: 20000
+    lettuce:
+      pool:
+        min-idle: 0
+        max-idle: 8
+        max-active: 8
+        max-wait: -1ms
+        
+ 
 
  
   application:
@@ -55,6 +68,7 @@ spring:
 ribbon: 
   eureka: 
     enabled: true
+
 
 
 eureka:
@@ -70,8 +84,8 @@ eureka:
       defaultZone: http://ihandle.huanuo-nsb.com/eureka/
 
 
-mybatis-plus:
-  type-aliases-package: com.boot.kaizen.model.lte,com.boot.kaizen.dao.log,com.boot.kaizen.model
+mybatis-plus: 
+  type-aliases-package: com.boot.kaizen.dao.log,com.boot.kaizen.model
   mapper-locations: classpath:/mybatis-mappers/**/*.xml
   global-config:
     #驼峰
@@ -85,6 +99,8 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
     cache-enabled: false
+
+
     
 pagehelper:
     helperDialect: mysql
@@ -125,6 +141,13 @@ server:
   port: 8088
 
   
+token: 
+  expire:
+    seconds: 7200
+  jwtSecret: (XIAO:)_$^11244^%$_(WEI:)_@@++--(LAO:)_++++_.sds_(SHI:)
+  
+  
+  
 gis: 
   ak: vEgRtpbR6hgHTNtN0HiHhTPLDxaCl3YE
   projectname: ihandle_log
@@ -134,3 +157,7 @@ gis:
 #日志分析系统额外配置
 logsystem: 
   projid: 526
+  
+sim:
+  key: zcto8k3i*a2c6
+  url: http://61.132.73.61:8012/SIM/iHandle!getParamSync.action

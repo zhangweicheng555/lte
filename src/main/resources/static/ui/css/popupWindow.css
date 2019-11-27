@@ -1,0 +1,437 @@
+/**
+* @author sujiming
+* @date 2019-08-10 16:38
+*/
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp {
+    position: relative;
+    /* margin: 0 auto; */
+    /* padding: 20px 20px; */
+    margin: 8px 20px 0 20px;
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer {
+    background-color: white;
+    position: relative;
+    width: 100%;
+    float: left;
+    border-radius: 6px;
+    /*margin-top: 10px;*/
+}
+div.addOneUser form.layui-form div.tableContainer{
+    height: 225px!important;
+}
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.tableContainer div.body div.operateArea {
+    width: 100%;
+    height: 30px;
+    margin-top: 15px;
+}
+#addTable > form > div.formContainer > div.layui-form-item.marginTop10 > div > label{
+    padding: 9px 0;
+    width: 50px;
+}
+
+/*测试项配置*/
+div.mainArea_right {float: left;width: 725px;height: 100%;display: none;}
+div.mainArea_right div.configArea {width: 700px;height: 500px;margin-left: 19px;margin-top: 20px;overflow-y: auto;}
+div.mainArea_right div.configArea div.configArea_contentArea1 {padding-bottom: 10px;width: 100%;float: left;}
+div.mainArea_right div.configArea div.configArea_contentArea1 .configArea_contentArea1 p.configArea_contentArea1p {margin: 0;text-align: center;font-size: 20px;line-height: 50px;display: block;float: left;width: 100%;}
+div.mainArea_right div.configArea div.configArea_contentArea1 .configArea_contentArea1 .itemTitle {width: 100%;float: left;margin-top: 20px;}
+div.itemTitle span.title {font-weight: bold;display: block;margin-top: 0px;width: 100px;height: 30px;float: left;line-height: 30px;text-align: right;}
+div.itemTitle input.del {margin-top: 5px;background-color: #f77e75;color: white;cursor: pointer;border-radius: 3px;margin-left: 20px;width: 20px;height: 20px;line-height: 20px;float: left;text-align: center;border: none;}
+div.itemTitle input.add {margin-top: 5px;background-color: #50b494;color: white;cursor: pointer;border-radius: 3px;margin-left: 20px;width: 20px;height: 20px;line-height: 20px;float: left;text-align: center;border: none;}
+div.mainArea_right .itemContent {width: 100%;float: left;}
+div.mainArea_right .itemContent span {display: block;margin-top: 10px;width: 158px;height: 30px;float: left;line-height: 30px;text-align: right;color: #666666}
+div.mainArea_right div span{color: #666666;}
+div.mainArea_right input[type=text] {text-align: center;}
+div.mainArea_right .itemContent input {width: 160px;margin-top: 10px;height: 30px;float: left;}
+div.mainArea_right .Dnone {display: none;}
+div.mainArea_right .testItem p {line-height: 15px;float: left;width: 100%;margin-top: 10px;}
+div.mainArea_right .Standard {width: 100%;float: left;display: non;}
+div.mainArea_right .Standard p{color: #666666;}
+div.mainArea_right .testItem p {line-height: 15px;float: left;width: 100%;margin-top: 10px;}
+div.mainArea_right .Standard span {display: block;margin-top: 10px;width: 158px;height: 30px;float: left;line-height: 30px;text-align: right;}
+div.mainArea_right .Standard input {width: 160px;margin-top: 10px;height: 30px;float: left;}
+div.mainArea_right label {position: absolute;left: 5px;top: 8px;width: 20px;height: 20px;border-radius: 50%;border: 1px solid #999;}
+div.mainArea_right input:checked+label {background-color: #006eb2;border: 1px solid #006eb2;}
+div.mainArea_right input[type="radio"] {width: 20px;height: 20px;opacity: 0;}
+div.mainArea_right form div {position: relative;line-height: 36px;float: left;}
+div.mainArea_right form div input {cursor: pointer;}
+div.mainArea_right form div span {cursor: pointer;}
+div.mainArea_right .itemContent span.form {display: block;margin-top: 0px;width: 60px;float: left;line-height: 36px;text-align: center;}
+div.mainArea_right .itemContent span.form1 {display: block;margin-top: 0px;width: 88px;float: left;line-height: 36px;text-align: center;}
+div.mainArea_right .zhanxingArea1 {float: left;display: block;height: 40px;width: 493px;padding-top: 5px;}
+div.mainArea_right .zhanxingArea {float: left;display: block;height: 40px;width: 161px;padding-top: 5px;}
+div.mainArea_right .confirmCaozuo {width: 100%;height: 60px;float: left;}
+div.mainArea_right .confirmCaozuo div {margin: 0 auto;width: 200px;margin-top: 15px;}
+div.mainArea_right .confirmCaozuo div input:first-child {width: 80px;height: 40px;background-color: #3F9FF7;color: white;border: none;border-radius: 4px;float: left;}
+div.mainArea_right .confirmCaozuo div input:last-child {width: 80px;height: 40px;background-color: #ffffff;color: #666666;border: 1px solid #D8D8D8;border-radius: 4px;float: right;}
+div.mainArea_right input[type=button] {cursor: pointer;}
+div.mainArea_right .itemContent span.form{display: block; margin-top: 0px; width: 60px;float: left;line-height: 36px; text-align: center;}
+div.mainArea_right .itemContent span.form1{display: block; margin-top: 0px; width: 88px;float: left;line-height: 36px; text-align: center;}
+div.mainArea_right form div { position: relative;  line-height: 36px; float:left;}
+div.mainArea_right input[type="radio"] {  width: 20px;  height: 20px; opacity: 0;}
+div.mainArea_right label {  position: absolute;  left: 5px;  top: 8px;  width: 20px;  height: 20px;  border-radius: 50%;  border: 1px solid #999;}
+div.mainArea_right input:checked+label {  background-color: #006eb2;  border: 1px solid #006eb2;}
+div.mainArea_right input:checked+label::after { position: absolute; content: ""; width: 5px;  height: 10px; top: 3px; left: 6px;  border: 2px solid #fff; border-top: none;border-left: none;transform: rotate(45deg)}
+div.mainArea_right form div input{cursor:pointer;}
+div.mainArea_right form div span{cursor:pointer;}
+div.mainArea_right input[type=text]{text-align: center}
+div.mainArea_right input[type=button]{cursor: pointer}
+
+
+
+
+
+/*阈值测试配置*/
+div.mainArea_rightThreshold{width: 725px;height: 100%;display: none;}
+div.mainArea_rightThreshold .configArea {width: 700px; height:600px;margin-top: 20px;border: 1px solid #DFE5E7;overflow-y: auto;margin-bottom: 20px;margin: 0 auto;
+}
+div.mainArea_rightThreshold #configArea_contentArea {
+    margin: 0 auto;
+    width: 660px;
+}
+div.mainArea_rightThreshold .configArea_content {
+    width: 100%;
+}
+div.mainArea_rightThreshold .configArea_content_title {
+    width: 100%;
+    height: 48px;
+    text-align: center;
+    float: left;
+    line-height: 60px;
+}
+div.mainArea_rightThreshold .configArea_content_title input:first-child {
+    margin-right: 10px;
+    background-color: #f77e75;
+    border: none;
+    color: white;
+    width: 22px;
+    height: 22px;
+    font-size: 20px;
+    line-height: 22px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+div.mainArea_rightThreshold .configArea_content_title input:last-child {
+    margin-left: 10px;
+    background-color: #50b494;
+    border: none;
+    color: white;
+    width: 22px;
+    height: 22px;
+    font-size: 20px;
+    line-height: 22px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+div.mainArea_rightThreshold .configArea_content_update {
+    width: 100%;
+    float: left;
+}
+div.mainArea_rightThreshold .configArea_content_update div.configArea_content_update_end {
+    width: 660px;
+    margin: 0 auto;
+    height: 46px;
+}
+div.mainArea_rightThreshold .configArea_content_update div.configArea_content_update_content {
+    width: 670px;
+    margin: 0 auto;
+    height: 46px;
+}
+div.mainArea_rightThreshold .configArea_content_update div.configArea_content_update_title {
+    width: 670px;
+    margin: 0 auto;
+    height: 46px;
+}
+div.mainArea_rightThreshold .updateInputMarginRight {
+    margin-right: 60px;
+}
+div.mainArea_rightThreshold .floatRight {
+    float: right;
+}
+div.mainArea_rightThreshold .updateInput {
+    text-align: center;
+    width: 163px;
+    height: 30px;
+    margin-left: 10px;
+    margin-right: 9px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+div.mainArea_rightThreshold .configArea_content_update span {
+    display: block;
+    line-height: 30px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    width: 64px;
+    text-align: center;
+}
+div.mainArea_rightThreshold .updateButton {
+    width: 60px;
+    height: 28px;
+    border: none;
+    border-radius: 3px;
+    text-align: center;
+    line-height: 32px;
+    margin-top: 9px;
+    margin-bottom: 5px;
+}
+div.mainArea_rightThreshold input[type=button] {
+    cursor: pointer;
+}
+div.mainArea_rightThreshold .configArea_contentButtonDel {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background-color: lightgrey;
+    cursor: pointer;
+    color: white;
+    font-size: 24px;
+    line-height: 30px;
+    margin-top: 7px;
+}
+div.mainArea_rightThreshold .floatLeft {
+    float: left;
+}
+div.mainArea_rightThreshold .configArea_contentButtonAdd {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background-color: lightgrey;
+    cursor: pointer;
+    color: white;
+    font-size: 24px;
+    line-height: 30px;
+    margin-top: 7px;
+}
+div.mainArea_rightThreshold .update_content {
+    width: 100%;
+    float: left;
+}
+div.mainArea_rightThreshold .updateInputMarginRight {
+    margin-right: 66px;
+}
+div.mainArea_rightThreshold .updateInputMarginLeft {
+    margin-left: 59px;
+}
+div.mainArea_rightThreshold .confirmCaozuo {
+    width: 100%;
+    height: 60px;
+    float: left;
+}
+div.mainArea_rightThreshold .confirmCaozuo div {
+    margin: 0 auto;
+    width: 200px;
+    margin-top: 15px;
+}
+div.mainArea_rightThreshold .confirmCaozuo div input:first-child {
+    width: 80px;
+    height: 40px;
+    background-color: #3F9FF7;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    float: left;
+}
+div.mainArea_rightThreshold .confirmCaozuo div input:last-child {
+    width: 80px;
+    height: 40px;
+    color: #666666;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #D8D8D8;
+    float: right;
+}
+
+
+/**/
+div.appVersionManage {
+    float: left;
+    display: none;
+    width: 700px;
+    height: 500px;
+    position: relative;
+    overflow: hidden;
+}
+div.appVersionManage form.appVersionManageForm{
+    float: left;
+    width: 100%;
+    height: 100%;
+    padding-left: 20px;
+    margin-top: 20px;
+}
+div.appVersionManage form.appVersionManageForm div.versionName{
+    float: left;
+    width: 100%;
+    height: 27px;
+}
+
+div.appVersionManage form.appVersionManageForm div.versionName span{
+    float: left;
+    height: 27px;
+    font-size: 14px;
+    line-height: 30px;
+    color: #666666;
+}
+div.appVersionManage form.appVersionManageForm div.versionName input{
+    float: left;
+    height: 27px;
+    font-size: 14px;
+    color: #666666;
+    margin-left: 40px;
+    outline: none;
+    -web-kit-appearance:none;
+    -moz-appearance: none;
+    text-decoration: none;
+}
+
+div.appVersionManage form.appVersionManageForm div.versionFileUpload{
+    float: left;
+    height: 27px;
+    width: 100%;
+    font-size: 14px;
+    color: #666666;
+    margin-top: 20px;
+}
+div.appVersionManage form.appVersionManageForm div.versionFileUpload span{
+    float: left;
+    height: 27px;
+    font-size: 14px;
+    line-height: 30px;
+    color: #666666;
+}
+div.appVersionManage form.appVersionManageForm div.versionFileUpload div.file-box{
+    float: left;
+    height: 27px;
+    font-size: 14px;
+    line-height: 30px;
+    color: #666666;
+}
+div.appVersionManage form.appVersionManageForm div.versionFileUpload div.file-box input[type="text"]{
+    float: left;
+    width: 250px;
+    height: 27px;
+    color: #666666;
+    margin-left: 40px;
+}
+
+div.appVersionManage form.appVersionManageForm div.versionFileUpload div.file-box input[type="button"]{
+    float: left;
+    width: 70px;
+    height: 30px;
+    margin-left: 20px;
+    cursor: pointer;
+    border: none;
+    background-color: #1e9df7;
+    color: #ffffff;
+    border-radius: 3px;
+}
+
+div.appVersionManage form.appVersionManageForm div.versionDesc{
+    float: left;
+    width: 90%;
+    height: 300px;
+    /*border: 1px solid #DFE5E7;*/
+    border-radius: 3px;
+    margin-top: 20px;
+}
+
+div.appVersionManage form.appVersionManageForm div.versionDesc div.versionDescTitle{
+    width: 70px;
+    height: 300px;
+    color: #666666;
+    float: left;
+}
+div.appVersionManage form.appVersionManageForm div.versionDesc div.versionDescInputFirst{
+    width: 400px;
+    height: 30px;
+    float: left;
+}
+
+div.appVersionManage form.appVersionManageForm div.versionDesc div.versionDescInputContent{
+    width: 400px;
+    height: 270px;
+    float: left;
+    overflow: auto;
+}
+div.appVersionManage form.appVersionManageForm div.versionDesc div.versionDescInputContent div{
+    width: 100%;
+    height: 30px;
+    float: left;
+    margin-top: 10px;
+}
+
+div.appVersionManage form.appVersionManageForm div.versionDesc input.desVersionDesc{
+    width: 30px;
+    height: 30px;
+    float: left;
+    background-color: #F16E59;
+    color: #ffffff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+div.appVersionManage form.appVersionManageForm div.versionDesc input.addVersionInput{
+    width: 300px;
+    height: 28px;
+    float: left;
+    color: #666666;
+    margin-left: 10px;
+}
+/*
+div.appVersionManage form.appVersionManageForm div.versionDesc input.desVersionDesc_marginleft{
+    margin-left: 10px;
+}*/
+
+div.appVersionManage form.appVersionManageForm div.versionDesc input.addVersionDesc{
+    width: 30px;
+    height: 30px;
+    float: left;
+    background-color: #1e9df7;
+    color: #ffffff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+div.appVersionManage form.appVersionManageForm div.versionCaozuo{
+    width: 100%;
+    height: 40px;
+    float: left;
+    margin-top: 20px;
+
+}
+div.appVersionManage form.appVersionManageForm div.versionCaozuo input{
+    width: 100px;
+    height: 40px;
+    float: left;
+    cursor: pointer;
+    margin-left: 70px;
+    border: none;
+    border-radius: 3px;
+}
+div.appVersionManage form.appVersionManageForm div.versionCaozuo input.white{
+    background-color: #F16E59;
+    color: #FFFFFF;
+
+
+}
+div.appVersionManage form.appVersionManageForm div.versionCaozuo input.blue{
+    background-color: #1e9df7;
+    color: #FFFFFF;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

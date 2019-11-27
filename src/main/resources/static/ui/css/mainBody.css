@@ -1,0 +1,53 @@
+/**
+* @author sujiming
+* @date 2019-08-02 16:47
+*/
+.marginTop10{
+    margin-top: 20px;
+}
+.marginRight{
+    margin-right: 20px;
+}
+
+
+
+div.mainContentArea{
+    position: fixed;
+    top: 60px;
+    left: 200px;
+    right: 0;
+    background-color: #F0F0F0;
+    padding: 0px 20px;
+    z-index: 998;
+    width: auto;
+    overflow: hidden;
+    overflow-y: auto;
+    box-sizing: border-box;
+    bottom: 0;
+}
+
+div.mainContentArea div.mainContentBody {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    overflow-y: auto;
+    display: block !important;
+    min-width: 1200px;
+}
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp{
+    position: relative;
+    margin: 0 auto;
+
+}
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.iframeContainer{
+    position: relative;float: left;width: 100%;overflow: auto;
+}
+
+
+div.mainContentArea div.mainContentBody div.mainContentBodyTemp div.iframeContainer iframe{
+    border: none;
+}

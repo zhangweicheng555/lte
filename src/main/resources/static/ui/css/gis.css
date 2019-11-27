@@ -1,0 +1,447 @@
+/**
+* @author sujiming
+* @date 2019-08-12 10:39
+*/
+
+
+
+a,
+b,
+body,
+dd,
+del,
+div,
+dl,
+dt,
+em,
+form,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+html,
+i,
+iframe,
+img,
+ins,
+label,
+legend,
+li,
+ol,
+p,
+pre,
+small,
+span,
+strong,
+u,
+ul,
+var,
+input {
+    padding: 0;
+    margin: 0;
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
+img,
+button,
+input {
+    border: 0;
+}
+
+em,
+i,
+u {
+    font-style: normal;
+}
+
+a {
+    color: #919699;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+html{
+    width: 100%;
+    height: 100%;
+}
+body{
+    width: 100%;
+    height: 100%;
+}
+
+/*去除百度水印*/
+#baiduMap > div:nth-child(4) > a > img{
+    display: none;
+}
+
+/*layui样式覆盖*/
+.layui-form-checkbox[lay-skin=primary] i {
+    border-radius: 2px;
+}
+
+
+
+div.gisContentContainer{
+    position: absolute;
+    width: 100%;
+    top: 0;
+}
+
+div.gisContentContainer div.title{
+    position: relative;
+    height: 30px;
+    width: 100%;
+    background:rgba(255,255,255,0.65);
+}
+div.gisContentContainer div.title span.location{
+    color: #666666;
+    float: left;
+    line-height: 30px;
+    margin-left: 20px;
+}
+div.gisContentContainer div.title form{
+    float: right;
+    width: 180px;
+    height: 100%;
+    color: #666666;
+    line-height: 30px;
+}
+div.gisContentContainer div.title form input{
+    float: left;
+}
+div.gisContentContainer div.searchContentContainer{
+    width: 100%;
+    height: 40px;
+}
+
+div.gisContentContainer div.searchContentContainer div.searchContent{
+    width: 245px;
+    height: 30px;
+    float: left;
+    margin-top: 10px;
+    border:1px solid rgba(196,198,207,1);
+    border-radius:4px;
+    margin-left: 20px;
+    background-color: #ffffff;
+}
+
+div.gisContentContainer div.searchContentContainer div.searchContent div.searchContentInputContainer{
+    width: 205px;
+    height: 100%;
+    float: left;
+    margin-left: 10px;
+}
+
+
+div.gisContentContainer div.searchContentContainer div.searchContent div.searchContentInputContainer input{
+    width: 100%;
+    height: 100%;
+    float: left;
+}
+
+
+div.gisContentContainer div.searchContentContainer div.searchContent div.searchContentImgContainer{
+    width: 30px;
+    height: 100%;
+    float: left;
+    cursor: pointer;
+}
+
+div.gisContentContainer div.searchContentContainer div.searchContent div.searchContentImgContainer img{
+    width: 20px;
+    height: 20px;
+    margin-top: 5px;
+    float: left;
+    cursor: pointer;
+}
+
+
+div.gisContentContainer div.mainContent {
+    width: 100%;
+    float: left;
+    height: 225px;
+
+}
+
+/*搜素结果区域*/
+div.gisContentContainer div.mainContent div.searchResultContainer{
+    width: 245px;
+    height: 215px;
+    float: left;
+    margin-top: 10px;
+    margin-left: 20px;
+    background-color: #ffffff;
+    box-shadow:0px 0px 4px 0px rgba(196,198,207,1);
+    border:1px solid rgba(216,216,216,1);
+}
+div.gisContentContainer div.mainContent div.searchResultContainer div.searchResultBsInfo{
+    width: 100%;
+    height: 76px;
+    float: left;
+    border-bottom: 1px solid #D8D8D8;
+}
+div.gisContentContainer div.mainContent div.searchResultContainer div.searchResultBsInfo div.searchResultContent{
+    padding: 0 10px;
+    height: 22px;
+}
+div.gisContentContainer div.mainContent div.searchResultContainer div.searchResultBsInfo div.searchResultContent:first-child{
+    margin-top: 10px;
+}
+div.gisContentContainer div.mainContent div.searchResultContainer div.searchResultBsInfo div.searchResultContent p{
+    font-size: 14px;
+    color: #000000;
+
+}
+
+div.gisContentContainer div.mainContent div.searchResultContainer div.searchResultBsInfo div.searchResultContent span:first-child{
+    float: left;
+    width: 16%;
+    height: 100%;
+    line-height: 20px;
+    font-size: 12px;
+    color: #666666;
+}
+div.gisContentContainer div.mainContent div.searchResultContainer div.searchResultBsInfo div.searchResultContent span:last-child{
+    float: left;
+    width: 84%;
+    height: 100%;
+    line-height: 20px;
+    font-size: 12px;
+    color: #333333;
+    overflow:hidden; /*超出的部分隐藏起来。*/
+    white-space:nowrap;/*不显示的地方用省略号...代替*/
+    text-overflow:ellipsis;
+}
+
+div.gisContentContainer div.mainContent div.searchResultContainer div.searchResultBsInfoOperate{
+    padding: 0 10px;
+    height: 100%;
+    float: left;
+}
+div.gisContentContainer div.mainContent div.searchResultContainer div.searchResultBsInfoOperate div.searchResultBsInfoOperateContent{
+    width: 100%;
+    height: 22px;
+    margin-top: 10px;
+}
+div.gisContentContainer div.mainContent div.searchResultContainer div.searchResultBsInfoOperate div.searchResultBsInfoOperateContent{
+    margin-top: 10px;
+}
+div.gisContentContainer div.mainContent div.searchResultContainer div.searchResultBsInfoOperate div.searchResultBsInfoOperateContent span{
+    float: left;
+    width: 150px;
+    color: #666666;
+    font-size: 12px;
+    line-height: 22px;
+}
+div.gisContentContainer div.mainContent div.searchResultContainer div.searchResultBsInfoOperate div.searchResultBsInfoOperateContent div.picIconContainer{
+    float: left;
+    width: 22px;
+    height: 22px;
+    background-color: #3F9FF7;
+    color: #ffffff;
+    border-radius: 3px;
+    line-height: 24px;
+    cursor: pointer;
+}
+
+div.gisContentContainer div.mainContent div.searchResultContainer div.searchResultBsInfoOperate div.searchResultBsInfoOperateContent div.picIconContainer i{
+    margin-left: 3px;
+}
+
+div.gisContentContainer div.mainContent div.searchResultContainer div.searchResultBsInfoOperate div.searchResultBsInfoOperateContent input.layui-btn{
+    background-color: #5BCC90;
+    border-radius: 3px;
+    width: 40px;
+    height: 22px;
+    float: right;
+    text-align: center;
+    font-size: 12px;
+    padding: 0;
+    line-height: 24px;
+    margin-left: 10px;
+}
+
+
+
+
+
+/*信息统计区域*/
+div.gisContentContainer div.mainContent div.statisticsContainer{
+    width: 200px;
+    height: 130px;
+    float: right;
+    margin-right: 20px;
+    background-color: #ffffff;
+    box-shadow:0px 0px 4px 0px rgba(196,198,207,1);
+    border:1px solid rgba(216,216,216,1);
+}
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsTitleContainer{
+    width: 100%;
+    float: left;
+    height: 24px;
+    background-color: #F2F2F2;
+}
+
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsTitleContainer div.statisticsTitle{
+    width: 57px;
+    height: 100%;
+    float: left;
+    border-right: 1px solid #D8D8D8;
+    border-bottom: 1px solid #D8D8D8;
+    cursor: pointer;
+}
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsTitleContainer div.statisticsTitle.active{
+    border-bottom: none;
+    background-color: #ffffff;
+}
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsTitleContainer div.statisticsTitle.active p{
+    color: #333333;
+}
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsTitleContainer div.statisticsTitle p{
+    text-align: center;
+    line-height: 24px;
+    color: #666666;
+}
+
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsTitleContainer div.statisticsTitleOperate{
+    width: 26px;
+    height: 100%;
+    float: left;
+    border-bottom: 1px solid #D8D8D8;
+    background-color: #3F9FF7;
+    cursor: pointer;
+    transform: rotate(180deg);
+}
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsTitleContainer div.statisticsTitleOperate i{
+    line-height: 28px;
+    text-align: center;
+    font-size: 17px;
+    color: #FFFFFF;
+    margin-left: 4px;
+}
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsBody{
+    padding: 0 20px;
+}
+
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsBody div.statisticsContent{
+    width: 100%;
+    height: 17px;
+    float: left;
+    display: none;
+}
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsBody div.statisticsContent div.statisticsContentItem{
+    width: 100%;
+    height: 100%;
+    float: left;
+    margin-top: 8px;
+}
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsBody div.statisticsContent div.statisticsContentItem div.statisticsContentItemTitle{
+    width: 60%;
+    height: 100%;
+    float: left;
+}
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsBody div.statisticsContent div.statisticsContentItem div.statisticsContentItemTitle span{
+    color: #666666;
+    line-height: 17px;
+}
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsBody div.statisticsContent div.statisticsContentItem div.statisticsContentItemBody{
+    width: 40%;
+    height: 100%;
+    float: left;
+}
+div.gisContentContainer div.mainContent div.statisticsContainer div.statisticsBody div.statisticsContent div.statisticsContentItem div.statisticsContentItemBody p{
+    text-align: right;
+    color: #3F9FF7;
+    font-size: 12px;
+    line-height: 17px;
+}
+div.statisticsContentActive{
+    display: block !important;
+}
+.statisticsShowBtnContainer{
+    width: 26px;
+    height: 24.58px;
+    float: right;
+    margin-right: 20px;
+    display: none;
+    background-color: #1e9df7;
+    cursor: pointer;
+}
+.statisticsShowBtnContainer i{
+    color: #ffffff;
+    font-size: 17px;
+    margin-left: 4px;
+    line-height: 28px;
+    text-align: center;
+
+}
+
+
+    /*脚注区域样式重新覆盖*/
+div.footer{
+    position: absolute;
+    bottom: 0;
+    background:none;
+}
+
+
+
+
+/*图片轮播弹窗*/
+div.popupWindow {
+    /* width: 100%; */
+    padding: 0 20px;
+    overflow: auto;
+    display: none;
+}
+div.popupWindow div.pictureRotationContainer {
+    height: 500px;
+    width: 100%;
+    float: left;
+}
+div.popupWindow div.pictureRotationContainer div.pictureTitle {
+    height: 34px;
+}
+div.popupWindow div.pictureRotationContainer div.pictureTitle span {
+    color: #666666;
+    font-size: 12px;
+    line-height: 34px;
+}
+div.popupWindow div.pictureRotationContainer div.pictureTitle a {
+    color: #3F9FF7;
+    font-size: 12px;
+    line-height: 34px;
+    float: right;
+}
+div.layui-carousel img {
+    width: 100%;
+    height: 100%;
+}
+
+
+
+
+
+
+
+
+
+
+/*layui样式覆盖*/
+.layui-form-checkbox[lay-skin=primary] i {
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+}
+
+
+
+
+
+

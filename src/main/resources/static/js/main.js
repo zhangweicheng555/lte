@@ -1,8 +1,134 @@
+initMenu();
+function initMenu(){
+	 $.ajax({  
+	     url:"/permissions/current",  
+	     type:"get",  
+	     async:false,
+	     success:function(data){
+	    	 console.info('-----------------------------------------');
+	    	 console.info(data);
+	    	 if(!$.isArray(data)){
+	    		 //location.href='/login.html';
+	    		 return;
+	    	 }
+	    	 var menu = $("#menu");
+	    	 $.each(data, function(i,item){
+	             var a = $("<a href='javascript:;'></a>");
+	             
+	             var css = item.css;
+	             if(css!=null && css!=""){
+	            	 a.append("<i aria-hidden='true' class='fa " + css +"'></i>");
+	             }
+	             a.append("<cite>"+item.name+"</cite>");
+	             a.attr("lay-id", item.id);
+	             
+	             var href = item.href;
+	             if(href != null && href != ""){
+	                a.attr("data-url", href);
+	             }
+	             
+	             var li = $("<li class='layui-nav-item'></li>");
+	             if (i == 0) {
+	            	 li.addClass("layui-nav-itemed");
+	             }
+	             li.append(a);
+                 menu.append(li);
+	             
+	             //多级菜单
+	             setChild(li, item.child)
 
+	        });
+	     }
+	 });
+	 
+	 //显示当前在线人数
+	 $.ajax({  
+		 url:"/redis/queryLoginPersonNum",  
+		 type:"POST",  
+		 async:false,
+		 success:function(data){
+			 console.info(data);
+			 if(data.success){
+				 $("#nowLoginPerson").html("系统在线人数: "+data.object);
+				 $('#nowLoginPersonDiv').show();
+			 }
+		 }
+	 });
+}
 
+function setChild(parentElement, child){
+    if(child != null && child.length > 0){
+        $.each(child, function(j,item2){
+            var ca = $("<a href='javascript:;'></a>");
+            ca.attr("data-url", item2.href);
+            ca.attr("lay-id", item2.id);
+
+            var css2 = item2.css;
+            if(css2!=null && css2!=""){
+                ca.append("<i aria-hidden='true' class='fa " + css2 +"'></i>");
+            }
+
+            ca.append("<cite>"+item2.name+"</cite>");
+
+            var dd = $("<dd></dd>");
+            dd.append(ca);
+
+            var dl = $("<dl class='layui-nav-child'></dl>");
+            dl.append(dd);
+
+            parentElement.append(dl);
+
+            // 递归
+            setChild(dd, item2.child);
+        });
+    }
+}
 
 var username;
 // 登陆用户头像昵称
+showLoginInfo();
+function showLoginInfo(){
+	$.ajax({
+		type : 'get',
+		url : '/users/current',
+		async : false,
+		success : function(data) {
+			$(".admin-header-user span").text(data.nickname);
+			username=data.username;
+			var pro = window.location.protocol;
+			var host = window.location.host;
+			var domain = pro + "//" + host;
+			
+			var sex = data.sex;
+			var url = data.headImgUrl;
+			if(url == null || url == ""){
+				if(sex == 1){
+					url = "/img/avatars/sunny.png";
+				} else {
+					url = "/img/avatars/1.png";
+				}
+				
+				url = domain + url;
+			} else {
+				url = domain + "/statics" + url;
+			}
+			var img = $(".admin-header-user img");
+			img.attr("src", url);
+		}
+	});
+}
+
+
+function logout(){
+	$.ajax({
+		type : 'get',
+		url : '/logout',
+		success : function(data) {
+			localStorage.removeItem("token");
+			location.href='/login.html';
+		}
+	});
+}
 
 var active;
 
@@ -13,8 +139,7 @@ layui.use(['layer', 'element'], function() {
     element.on('nav(demo)', function(elem){
       //layer.msg(elem.text());
     });
-    
-    
+	
 	  //触发事件  
 	   active = {  
 	       tabAdd: function(obj){
@@ -69,6 +194,31 @@ layui.use(['layer', 'element'], function() {
 	       });  
 	   }).resize();  
 	   
+	   //toggle左侧菜单  
+	   $('.admin-side-toggle').on('click', function() {
+	       var sideWidth = $('#admin-side').width();  
+	       if(sideWidth === 200) {  
+	           $('#admin-body').animate({  
+	               left: '0'  
+	           });
+	           $('#admin-footer').animate({  
+	               left: '0'  
+	           });  
+	           $('#admin-side').animate({  
+	               width: '0'  
+	           });  
+	       } else {  
+	           $('#admin-body').animate({  
+	               left: '200px'  
+	           });  
+	           $('#admin-footer').animate({  
+	               left: '200px'  
+	           });  
+	           $('#admin-side').animate({  
+	               width: '200px'  
+	               });  
+	           }  
+	       });
 	   
 	    //手机设备的简单适配
 	    var treeMobile = $('.site-tree-mobile'),
@@ -79,4 +229,51 @@ layui.use(['layer', 'element'], function() {
 	    shadeMobile.on('click', function () {
 	        $('body').removeClass('site-mobile');
 	    });
+	    
+	    
+	    //开始登陆处理项目
+	    $.ajax({
+			type : 'post',
+			url : '/project/dealIndexProject',
+			async : false,
+			dataType: "json",
+			success : function(data) {
+				if(data.success){
+					$("#nowProject").attr("lang",data.object.nowProject.id);
+					$("#nowProject").text(data.object.nowProject.projName);
+					var listProjects=data.object.listProject;
+					if(listProjects != null && listProjects.length >0){
+						$("#childDl").empty();
+						for(var i=0;i<listProjects.length;i++){
+							var project=listProjects[i];
+							$("#childDl").append("<dd><a href='javascript:;' class='clsProj'  id='"+project.id+"'>"+project.projName+"</a></dd>");
+						}
+					}
+				}else{
+					layer.msg("系统异常！");
+				}
+			}
+		});
+	  //监听下拉菜单
+	  $(".clsProj").click(function(){
+		  var proj=$(this).attr("id");
+		  $.ajax({
+				type : 'post',
+				url : '/project/changeProject',
+				async : false,
+				dataType: "json",
+				data:{
+					"proj":proj,
+					"username":username
+				},
+				success : function(data) {
+					if(data.success){
+						 location.href = "/index.html";
+					}else{
+						layer.msg("系统异常！");
+					}
+				}
+			});
+		 
+	  });
 });

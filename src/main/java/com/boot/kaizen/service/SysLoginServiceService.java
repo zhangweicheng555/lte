@@ -1,5 +1,4 @@
 package com.boot.kaizen.service;
-
 import com.boot.kaizen.model.log.LoginService;
 /**
  * 
@@ -23,4 +22,6 @@ public interface SysLoginServiceService {
 	 * @date 2018年10月27日 下午7:20:25
 	 */
 	void insert(LoginService loginService);
+	
+	void deleteByUserName(String username);
 }

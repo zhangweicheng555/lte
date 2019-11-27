@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.kaizen.dao.SysRoleDao">
+
+
+	
+	<update id="update">
+		 
+		 update sys_role
+		 <set>
+		 	<if test="name != null and name != ''">
+            	 name=#{name},
+        	</if>
+		 	<if test="description != null and description != ''">
+            	 description=#{description},
+        	</if>
+		 	<if test="sort != null and sort != ''">
+            	 sort=#{sort},
+        	</if>
+		 	<if test="updateTime != null">
+            	 updateTime=#{updateTime},
+        	</if>
+		 </set>
+		 where id=#{id}
+		
+	</update>
+
+	
+	<select id="queryByProId" resultMap="SysRoleMap">
+		 select distinct sr.* from 
+		 sys_role sr
+		 ,proj_role_relation prr  
+		 where 1=1
+		 and sr.id=prr.role_id
+		 and prr.proj_id=#{projId}
+		 order by sr.sort
+	</select>
+	
+	<select id="findRolePersion" resultType="java.util.Map">
+		select 
+		     c.role_id  as "roleId"
+		     ,c.role_name as "roleName"
+		     ,GROUP_CONCAT(c.user_id_name SEPARATOR ',')   as "userList"
+		from (
+			select 
+                 r.id as role_id
+                ,r.name as role_name
+			    ,concat_ws('_',u.id,u.nickname) as user_id_name
+			 from 
+			   sys_project p
+			   ,proj_role_relation pr
+			   ,sys_role r
+			   ,sys_role_user ru
+			   ,sys_user u
+			 where 
+			   p.id=pr.proj_id
+			   and pr.role_id=r.id
+			   and r.id=ru.roleId
+			   and u.id=ru.userId
+			   and p.id=#{projId}
+		) c
+
+		group by c.role_id,c.role_name
+	</select>
+	
+	<delete id="delete">
+		 delete from sys_role  where id=#{id} and id not in (1,20)
+	</delete>
+	
+	<select id="findById" resultMap="roleMap">
+		 select distinct 
+		    sr.id,sr.name,sr.description
+		    ,sr.createTime,sr.updateTime
+		    ,sr.sort
+		    ,sp.id as projId
+		 from 
+		 sys_role sr
+		 ,proj_role_relation prr 
+		 ,sys_project sp 
+		 where 1=1
+		 and sr.id=prr.role_id
+		 and prr.proj_id=sp.id
+		 and sr.id=#{id}
+		 order by sr.sort
+	</select>
+	
+	<select id="queryByProIdAndUserId" resultMap="SysRoleMap">
+		 select distinct 
+		    sr.*
+		 from 
+		 sys_role sr
+		 ,proj_role_relation prr 
+		 ,sys_project sp
+		 ,sys_role_user rs
+		 ,sys_user u
+		 where 1=1
+		 and sr.id=prr.role_id
+		 and prr.proj_id=sp.id
+		 and sp.id=#{projId}
+		 and sr.id=rs.roleId
+		 and rs.userId=u.id
+		 and u.id=#{userId}
+	</select>
+	
+	<select id="chechUnique" resultType="java.lang.Long">
+		 select 
+		    count(1)
+		 from 
+		 sys_role sr
+		 ,proj_role_relation prr 
+		 ,sys_project sp 
+		 where 1=1
+		 and sr.id=prr.role_id
+		 and prr.proj_id=sp.id
+		 and sr.name=#{name}
+		 and sp.id=#{projId}
+	</select>
+	<select id="findPermissionIdsByRoleId" resultType="java.lang.Long">
+		 select 
+		   	sp.id
+		 from 
+		 sys_role sr
+		 ,sys_role_permission srp 
+		 ,sys_permission sp 
+		 where 1=1
+		 and sr.id=srp.roleId
+		 and srp.permissionId=sp.id
+		 and sr.id=#{roleId}
+	</select>
+	
+	<insert id="save" useGeneratedKeys="true" keyProperty="id" >
+		insert into 
+		sys_role(name,description,createTime,sort) 
+		values(#{name},#{description},#{createTime},#{sort})
+	</insert>
+	
+	
+	<resultMap type="com.boot.kaizen.model.SysRole" id="roleMap">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="description" column="description" />
+		<result property="sort" column="sort" />
+		<result property="projId" column="projId" />
+		<result property="createTime" column="createTime" />
+		<result property="updateTime" column="updateTime" />
+	</resultMap>
+	
+	<resultMap type="com.boot.kaizen.model.SysRole" id="SysRoleMap">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="description" column="description" />
+		<result property="sort" column="sort" />
+		<result property="createTime" column="createTime" />
+		<result property="updateTime" column="updateTime" />
+	</resultMap>
+	
+	
+	<select id="find" resultMap="SysRoleMap">
+		 select distinct 
+		    sr.id,sr.name,sr.description
+		    ,sr.createTime,sr.updateTime
+		    ,sr.sort
+		    ,sp.id as projId
+		 from 
+		 sys_role sr
+		 ,proj_role_relation prr 
+		 ,sys_project sp 
+		 where 1=1
+		 and sr.id=prr.role_id
+		 and prr.proj_id=sp.id
+		  <if test="map.projId != null and map.projId != ''">
+            and sp.id = #{map.projId}
+        </if>
+		 <if test="map.name != null and map.name != ''">
+            and sr.name = #{map.name}
+        </if>
+	</select>
+  
+  
+</mapper>

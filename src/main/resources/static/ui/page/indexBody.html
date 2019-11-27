@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>上海联通默认的欢迎页面</title>
+    <meta name="viewport" content="width=device-width,initial-scale=0.5,minimum-scale=0.5">
+    <link rel="stylesheet" href="../libs/layui/css/layui.css">
+    <link rel="stylesheet" href="../css/mainContent.css">
+    <script type="text/javascript" src="../libs/jquery/jquery3.4.1.js"></script>
+    <script type="text/javascript" src="../js/changeAtoNewHtml.js"></script>
+    <script type="text/javascript" src="../libs/layui/layui.js"></script>
+    <script src="../libs/echarts/echarts.min.js"></script>
+    <!--walden.js为echarts定制的样式文件。样式文件必须引用在echarts文件之后-->
+    <script type="text/javascript" src="../libs/echarts/echartsThyme/walden.js"></script>
+    
+    <style type="text/css">
+    	.layui-btn {
+		    height: 23px;
+		    line-height: 23px;
+		    padding: 0 0px;
+		    width: 33px;
+		}
+    </style>
+</head>
+<body>
+
+
+<!--主体内容区域-->
+<div class="mainContentArea">
+    <div class="mainContentBody">
+        <div class="mainContentBodyTemp clear">
+
+            <!--快捷标签（用户管理，角色管理，角色分类）-->
+            <div class="manageMenu">
+            
+               <!-- 用户管理模块    其中name是定位的用户管理的链接-->
+                <div class="manageMenuContainer" onclick="childToNewHtml(this)" name="pages/user/list.html">
+                    <div class="manageMenuContainerheadSculpture">
+                        <img src="../img/manageMenuUserManage.png" alt="">
+                    </div>
+                    <div class="manageMenuContainerTitle">
+                        <p>用户管理</p>
+                    </div>
+                    <img src="../img/manageMenuMore.png" alt="" class="img">
+                </div>
+
+				<!-- 角色管理模块    -->
+                <div class="manageMenuContainer"  onclick="childToNewHtml(this)" name="pages/role/list.html">
+                    <div class="manageMenuContainerheadSculpture">
+                        <img src="../img/manageMenuRoleManage.png" alt="">
+                    </div>
+                    <div class="manageMenuContainerTitle">
+                        <p>角色管理</p>
+                    </div>
+                    <img src="../img/manageMenuMore.png" alt="" class="img">
+                </div>
+
+
+				<!-- 用户分配模块 -->
+                <div class="manageMenuContainer"   onclick="childToNewHtml(this)" name="pages/distribute/list.html">
+                    <div class="manageMenuContainerheadSculpture">
+                        <img src="../img/manageMenuUserManageDistribute.png" alt="">
+                    </div>
+                    <div class="manageMenuContainerTitle">
+                        <p>用户分配</p>
+                    </div>
+                    <img src="../img/manageMenuMore.png" alt="" class="img">
+                </div>
+            </div>
+            
+            
+            
+
+            <!--表格区域
+            <div class="tableContainer marginTop10">
+                <div class="head">
+                    <div class="left">
+                        <div class="leftTitle">
+                            <a class="active">我的任务</a>
+                        </div>
+                        <div class="leftTitle">
+                            <a>任务发布</a>
+                        </div>
+                        <div class="leftTitle">
+                            <a>任务追踪</a>
+                        </div> 
+                    </div>
+                    <div class="right">
+                        <a name="pages/autocheck/act/mytask.html" onclick="childToNewHtml(this)">更多任务</a>
+                        <a  name="pages/autocheck/act/list.html" onclick="childToNewHtml(this)">任务发布</a>
+                        <a  name="pages/autocheck/bc/bcTaskView.html" onclick="childToNewHtml(this)">任务追踪</a>
+                    </div>
+                </div>
+                <div class="body">
+                    <table id="infolist" lay-filter="infolist">
+
+                    </table>
+                    
+                    
+                </div>
+            </div>
+-->
+            <!--工作进度-->
+            <div class="marginTop10 workProgress">
+                <div class="head fl">
+                    <span style="color: #000000;font-size: 16px;font-weight: bold;">工作进度</span>
+                </div>
+                <div class="body">
+                
+                    <div class="fl left">
+                        <div class="title">
+                            <p>计划勘站数</p>
+                        </div>
+                        <div class="content">
+                            <p id="planTask">0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="fl right">
+                        <div class="fl">
+                            <div class="title">
+                                <p>已完成勘站数</p>
+                            </div>
+                            <div class="content">
+                                <p id="completeTask">0</p>
+                            </div>
+                        </div>
+                        <div class="fl">
+                            <div class="title">
+                                <p>勘站完成率</p>
+                            </div>
+                            <div class="content">
+                                <p id="completeTaskLv">0%</p>
+                            </div>
+                        </div>
+                        <div class="fl">
+                            <div class="title">
+                                <p>平均勘站时长</p>
+                            </div>
+                            <div class="content">
+                                <p id="avgTime">0min</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+	        <!--正在进行任务的流程图-->
+            <div class="prospectingStationNum marginTop10">
+                <div class="title">
+                    <span style="color: #000000;font-size: 16px;font-weight: bold;">当前任务统计</span>
+                </div>
+                <div class="content">
+                    <div class="lineChartContainer">
+                        <div id="lineRunChart" class="lineChart" style="width: 1200px;">
+							
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!--流程管控-->
+            <div class="processControl marginTop10">
+                <div class="title">
+                    <p style="color: #000000;font-size: 16px;font-weight: bold;">流程管控</p>
+                </div>
+                
+                <div class="content" style="margin-left: 120px;">
+                    <div class="imgContainer">
+                        <img src="../img/processControl.png" alt="">
+                    </div>
+                    
+                    <div class="contentDetail">
+                        <div class="contentDetailContainer">
+                            <div class="contentDetailContainerDiv1">
+                                <p id="changjiarenwuqueren" style="font-weight: bold;font-size:17px ;">0</p>
+                            </div>
+                            <div class="contentDetailContainerDiv2">
+                                <p id="quyurenwufenpei"  style="font-weight: bold;font-size:17px ;">0</p>
+                            </div>
+                            <div class="contentDetailContainerDiv3">
+                                <p  style="font-weight: bold;font-size:17px ;">0</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contentDetailContainer">
+                            <div class="contentDetailContainerDiv1">
+                                <p style="font-weight: bold;font-size:17px ;" id="baogaoshenhe">0</p>
+                            </div>
+                            <div class="contentDetailContainerDiv2">
+                                <p  style="font-weight: bold;font-size:17px ;" id="changjiashenhe">0</p>
+                            </div>
+                            <div class="contentDetailContainerDiv3">
+                                <p style="font-weight: bold;font-size:17px ;" id="xianchangkanzhan">0</p>
+                            </div>
+                            <div class="contentDetailContainerDiv4">
+                                <p style="font-weight: bold;font-size:17px ;" id="xingnengceshi">0</p>
+                            </div>
+                        </div>
+
+                        
+                        <div class="contentDetailContainer">
+                            <div class="contentDetailContainerDiv1">
+                                <p style="font-weight: bold;font-size:17px ;" id="yichangwentichuli">0</p>
+                            </div>
+                            <div class="contentDetailContainerDiv2">
+                                <p style="font-weight: bold;font-size:17px ;" id="changjiaquyushenhe">0</p>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                
+            </div>
+            
+        
+
+            <!--勘站数量-->
+            <div class="prospectingStationNum marginTop10">
+                <div class="title">
+                    <span style="color: #000000;font-size: 16px;font-weight: bold;">勘站统计</span>
+                </div>
+                <div class="content">
+                    <div class="lineChartContainer">
+                        <div id="lineChart" class="lineChart" style="width: 1200px;">
+						
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!--5G勘察-->
+            <div class="Survey5G marginTop10">
+                <div class="head fl">
+                    <span style="color: #000000;font-size: 16px;font-weight: bold;">天面统计</span>
+                </div>
+                <div class="body marginTop10">
+                    <div class="Survey5GContainer">
+                        <div class="Survey5GNum">
+                            <p id="5gtxNum">0</p>
+                            <p>5G天线数</p>
+                        </div>
+                        <div class="Survey5GNum marginTop10">
+                            <p>49</p>
+                            <p>合路天线数</p>
+                        </div>
+                    </div>
+                   
+                   
+                    <div class="Survey5GContainer">
+                        <div class="title">
+                            <p>天线合路</p>
+                        </div>
+                        <div class="echartsPicContainer">
+                            <div class="echartsPic" id="echartsPic1"></div>
+                        </div>
+                        <div class="content">
+                            <div class="main">
+                                <div class="left">
+                                    <div class="point"></div>
+                                </div>
+                                <div class="right">
+                                    <p>5G天线</p>
+                                    <p>12%</p>
+                                </div>
+                            </div>
+                            <div class="main">
+                                <div class="left">
+                                    <div class="point"></div>
+                                </div>
+                                <div class="right">
+                                    <p>合路天线</p>
+                                    <p>12%</p>
+                                </div>
+                            </div>
+                            <div class="main">
+                                <div class="left">
+                                    <div class="point"></div>
+                                </div>
+                                <div class="right">
+                                    <p>4G天线</p>
+                                    <p>12%</p>
+                                </div>
+                            </div>
+                            <div class="main">
+                                <div class="left">
+                                    <div class="point"></div>
+                                </div>
+                                <div class="right">
+                                    <p>3G天线</p>
+                                    <p>12%</p>
+                                </div>
+                            </div>
+                            <div class="main">
+                                <div class="left">
+                                    <div class="point"></div>
+                                </div>
+                                <div class="right">
+                                    <p>2G天线</p>
+                                    <p>12%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                  
+                    
+                    
+                    <div class="Survey5GContainer">
+                        <div class="title">
+                            <p>天线型号</p>
+                        </div>
+                        <div class="echartsPicContainer">
+                            <div class="echartsPic" id="echartsPic2" class=""></div>
+                        </div>
+                        <div class="content">
+	                            <div class="main">
+	                                <div class="left">
+	                                    <div class="point"></div>
+	                                </div>
+	                                <div class="right">
+	                                    <p>ODV2-065R18K-G&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AEQN</p>
+	                                    <p id="ODV2065R18KG">0%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0%</p>
+	                                </div>
+	                            </div>
+	                            
+	                            <div class="main" >
+	                                <div class="left">
+	                                    <div class="point"></div>
+	                                </div>
+	                                <div class="right">
+	                                    <p>AEQA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AEQB</p>
+	                                    <p id="AEQA">0%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0%</p>
+	                                </div>
+	                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                      <div class="Survey5GContainer">
+                        <div class="title">
+                            <p>天线类型</p>
+                        </div>
+                        <div class="echartsPicContainer">
+                            <div class="echartsPic" id="echartsPic3" class=""></div>
+                        </div>
+                        <div class="content">
+                            <div class="main">
+                                <div class="left">
+                                    <div class="point"></div>
+                                </div>
+                                <div class="right">
+                                    <p>板状天线</p>
+                                    <p id="banTx">0%</p>
+                                </div>
+                            </div>
+                            <div class="main">
+                                <div class="left">
+                                    <div class="point"></div>
+                                </div>
+                                <div class="right">
+                                    <p>美化天线</p>
+                                    <p  id="meihuaTx">0%</p>
+                                </div>
+                            </div>
+                            <div class="main">
+                                <div class="left">
+                                    <div class="point"></div>
+                                </div>
+                                <div class="right">
+                                    <p>集束天线</p>
+                                    <p  id="jishuTx">0%</p>
+                                </div>
+                            </div>
+                            <div class="main">
+                                <div class="left">
+                                    <div class="point"></div>
+                                </div>
+                                <div class="right">
+                                    <p>吸顶天线</p>
+                                    <p  id="xidingTx">0%</p>
+                                </div>
+                            </div>
+                            <div class="main">
+                                <div class="left">
+                                    <div class="point"></div>
+                                </div>
+                                <div class="right">
+                                    <p>其它</p>
+                                    <p  id="otherNum">0%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                </div>
+                <div class="body marginTop10 line2">
+                    <div class="Survey5GContainer antennaFeedbackProblem">
+                        <div class="title">
+                            <p>天馈问题</p>
+                        </div>
+                        <div class="body" id="antennaFeedbackProblemChart">
+
+                        </div>
+                    </div> 
+                    
+                    
+                    <div class="Survey5GContainer problemAntennaList">
+                    	
+                        <div class="title" >
+                            <p>问题天线列表</p>
+                        </div> 
+                        
+                        <div class="body">
+                            <table id="antennaFeedbackProblemListTable" lay-filter="antennaFeedbackProblemListTable">
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--脚注区域
+            <div class="footer">
+                <p>Copyright © 2019 上海诺基亚贝尔股份有限公司</p>
+            </div>
+            -->
+
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+
+
+<!-- 
+
+<script type="text/html" id="editBtnBar">
+  <a class="layui-btn layui-btn-xs" title="信息预览"  lay-event="info" ><i class="layui-icon layui-icon-survey"></i></a>
+  <a class="layui-btn layui-btn-xs"   title="流程图" lay-event="seeProcessPic" style="margin-left: 1px;">  <i class="layui-icon layui-icon-search"></i> </a>
+  <a class="layui-btn layui-btn-xs"   title="办理任务" lay-event="distribute" style="margin-left: 1px;">  <i class="layui-icon layui-icon-release"></i> </a>
+</script>
+ -->
+
+
+
+<script type="text/javascript" src="../js/booNavigation.js"></script>
+<script type="text/javascript" src="../js/indexBody.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../js/common.js" charset="UTF-8"></script>
+</html>
