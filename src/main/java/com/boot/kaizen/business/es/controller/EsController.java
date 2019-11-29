@@ -1,9 +1,7 @@
 package com.boot.kaizen.business.es.controller;
 
 import java.io.BufferedReader;
-import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -549,7 +547,7 @@ public class EsController {
 		paramMap.put("operator", "联通");
 		paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
 				"lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm");
-		paramMap.put("limit", "10000000");
+		paramMap.put("limit", "1");
 
 		String token = AEStest.encrypt(JSONObject.toJSONString(paramMap), "zcto8k3i*a2c6");
 
@@ -558,7 +556,7 @@ public class EsController {
 
 		String url = "http://61.132.73.61:8012/SIM/ihandle!getParamSync.action";
 		String responseResult = HttpUtil.sendPostRequest(url, param);
-		// System.out.println(responseResult);
+		System.out.println(responseResult);
 		ResultModel resultModel = JSONObject.parseObject(responseResult, ResultModel.class);
 		List<List<String>> datas = resultModel.getData();
 		for (List<String> data : datas) {
@@ -566,4 +564,6 @@ public class EsController {
 			System.out.println(JSONObject.toJSONString(commonModel));
 		}
 	}
+	
+	
 }

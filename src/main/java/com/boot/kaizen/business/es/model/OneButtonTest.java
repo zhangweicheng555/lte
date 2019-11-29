@@ -14,7 +14,7 @@ public class OneButtonTest implements Serializable {
 
 	private String id;
 	private String operatorService;// 运营商 无           【必须填写】
-	private String netWorkType;// 网络类型 netWorkType   【这个要确认】
+	private String netWorkType;// 网络类型 netWorkType   就是我们的网络类型   1 LTE  2 WCDMA   3GSM  4 5G   5  CDMA
 	private String city;// 城市 无
 	private String county;// 区县 无
 	private String testPerson;// 测试人员 无

@@ -5,17 +5,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
-
 import javax.imageio.ImageIO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.boot.kaizen.entity.LoginUser;
+import com.boot.kaizen.enump.Constant;
 
 /**
  * 
@@ -24,12 +29,16 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
  */
 public class MyUtil {
 
+	private static final Logger log = LoggerFactory.getLogger("adminLogger");
 	private static double EARTH_RADIUS = 6378.137;// 单位千米
 
-	public static String getUuid() {
-		return UUID.randomUUID().toString().replace("-", "");
-	}
-
+	/**
+	 * 校验map的kv 将空的remove掉
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年10月21日 下午2:56:08
+	 */
 	public static Map<String, Object> clearMapEmptyVal(Map<String, Object> map) {
 		Map<String, Object> resultMap = new HashMap<>();
 		if (map != null && !map.isEmpty()) {
@@ -49,7 +58,63 @@ public class MyUtil {
 		}
 		return resultMap;
 	}
-	
+
+	/**
+	 * 创建EntityWrapper 条件构造器（针对mybatis-plus） conditionSymple:目前仅支持 LIKE,AND这两个条件
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @param <T>
+	 * @date 2019年10月22日 上午11:54:40
+	 */
+	public static <T> EntityWrapper<T> createEntityWrapper(Map<String, Object> conditionLikeMap, String defultFiledDesc,
+			String conditionSymple) {
+		EntityWrapper<T> qryWrapper = new EntityWrapper<>();
+		qryWrapper.orderDesc(Arrays.asList(defultFiledDesc));
+		if (conditionLikeMap != null && !conditionLikeMap.isEmpty()) {
+			Set<Entry<String, Object>> entrySet = conditionLikeMap.entrySet();
+			for (Entry<String, Object> entry : entrySet) {
+				if (("AND").equals(conditionSymple)) {
+					qryWrapper.and(entry.getKey() + "={0}", entry.getValue());
+				} else {
+					qryWrapper.like(entry.getKey(), entry.getValue().toString());
+				}
+			}
+		}
+		return qryWrapper;
+	}
+
+	public static String getUuid() {
+		return UUID.randomUUID().toString().replace("-", "");
+	}
+
+	public static Long getDealProjId(LoginUser user) {
+		if (Constant.SYSTEM_ID_PROJECT != user.getProjId()) {
+			return user.getProjId();
+		}
+		return null;
+	};
+
+	/**
+	 * 将图片填充到excel
+	 * 做列；做行，右列，右行
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年10月29日 下午1:57:55
+	 */
+	public static void picToExcel(HSSFWorkbook workbook, HSSFPatriarch patriarch,String basePath,String dbFileName,int ydbOne,int ydbTwo,int xdbOne,int xdbTwo)
+			throws IOException {
+		if (StringUtils.isNoneBlank(dbFileName)) {
+			File file = new File(basePath + dbFileName);
+			if (file.exists()) {
+				dbFileName = file.getAbsolutePath();
+			}
+		}
+		if (StringUtils.isNoneBlank(dbFileName)) {
+			MyUtil.createExcelPic(workbook, patriarch, dbFileName, (short) ydbOne, ydbTwo, (short) xdbOne, xdbTwo);
+		}
+	}
+
 	/**
 	 * 经纬度计算两点之间的距离
 	 * 
@@ -100,7 +165,7 @@ public class MyUtil {
 				result = nt.format(percent);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.info("异常：" + e);
 		}
 		return result;
 	};
@@ -156,7 +221,6 @@ public class MyUtil {
 		Map<String, Object> paramMap = new HashMap<>();
 		if (params != null && params.length > 0) {
 			for (String p : params) {
-				System.out.println(p);
 				String[] arrayKv = p.split("~");
 				if (arrayKv.length == 1) {
 					paramMap.put(arrayKv[0], "");

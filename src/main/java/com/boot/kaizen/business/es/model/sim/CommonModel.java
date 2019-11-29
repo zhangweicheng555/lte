@@ -13,32 +13,33 @@ public class CommonModel implements Serializable {
 
 	public static final long serialVersionUID = 1L;
 
-	public String lte_city_name;// 城市
-	public String lte_net;// 网络
-	public String lte_enodebid;// eNodeBID
-	public String lte_sector_id;// Sector ID
+	public String lte_azimuth;// 方位角
 	public String lte_cell;// Cell
 	public String lte_ci;// CI
+	public String lte_city_name;// 城市
+	public String lte_earfcn;// EARFCN
 	public String lte_ecgi;// lte_ecgi
-	public String lte_phycellid;// PhyCellId 这个就是PCI
+	public String lte_electronic_downdip;// 电子倾角
+	public String lte_enodebid;// eNodeBID
+	public String lte_firm;// 厂商
+	public String lte_grid;// 网格归属
 	public String lte_longitude2;// 经度 百度的
 	public String lte_latitude2;// 纬度 百度的
 	public String lte_longitude;
 	public String lte_latitude;
-	public String lte_site_tall;// 站高
-	public String lte_azimuth;// 方位角
 	public String lte_mechanical_downdip;// 机械下倾角
-	public String lte_electronic_downdip;// 电子倾角
-	public String lte_total_downdip;// 总下倾角
+	public String lte_net;// 网络
+	public String lte_phycellid;// PhyCellId 这个就是PCI
+	public String lte_site_tall;// 站高
+	public String lte_site_type;// 站型
 	public String lte_tac;// TAC
 	public String lte_sys;// 制式
-	public String lte_site_type;// 站型
-	public String lte_earfcn;// EARFCN
+	public String lte_total_downdip;// 总下倾角
+	
+	public String lte_sector_id;// Sector ID
 	public String lte_derrick_type;// 抱杆类型
 	public String lte_address;// 详细地址
 	public String lte_scene;// 场景归属
-	public String lte_grid;// 网格归属
-	public String lte_firm;// 厂商
 
 	public String getLte_city_name() {
 		return lte_city_name;

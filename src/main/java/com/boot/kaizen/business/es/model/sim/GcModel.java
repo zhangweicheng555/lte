@@ -7,7 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * sim同步的时候的工参存储信息
+ * sim同步的时候的工参存储信息 注意这里考虑到一个问题 sim工参添加得时候 得有个地市得标记 因为 联通电信移动 可能都会存在想相同得地市
  * 
  * @author weichengz
  * @date 2019年11月19日 下午3:23:25
@@ -16,13 +16,22 @@ public class GcModel extends CommonModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	// private String lte_enodeb_name;// eNodeB Name
-	// private String lte_site_name;// 站名
-
+	/**
+	 * 工参定义得额外信息在这里配置
+	 */
 	private Map<String, Double> location;
+	private String cityId;// 地市主键 目前根据登陆得账户获取
 
 	public Map<String, Double> getLocation() {
 		return location;
+	}
+
+	public String getCityId() {
+		return cityId;
+	}
+
+	public void setCityId(String cityId) {
+		this.cityId = cityId;
 	}
 
 	/**

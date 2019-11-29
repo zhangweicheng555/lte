@@ -44,7 +44,7 @@ public interface SysProjectService {
 	 * @author weichengz
 	 * @date 2018年9月9日 下午12:59:30
 	 */
-	public JsonMsgUtil delete(String ids,Long projId);
+	public JsonMsgUtil delete(String ids);
 
 	/**
 	 * 编辑
@@ -54,7 +54,8 @@ public interface SysProjectService {
 	 */
 	public JsonMsgUtil edit(SysProject sysProject);
 
-	public JsonMsgUtil findById(Long id);
+	public JsonMsgUtil  findById(Long id);
+	public SysProject  selectById(Long id);
 
 	/**
 	 * 

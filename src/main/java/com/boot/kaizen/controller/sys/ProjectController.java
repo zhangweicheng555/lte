@@ -45,9 +45,17 @@ public class ProjectController {
 	@RequestMapping(value = "/find", method = RequestMethod.POST)
 	public TableResultUtil find(RequestParamEntity param) {
 		LoginUser user = UserUtil.getLoginUser();
-		param.getMap().put("projId", "");
+		param.getMap().put("projIntroModel", "");
 		if (Constant.SYSTEM_ID_PROJECT != user.getProjId()) {
-			param.getMap().put("projId", user.getProjId());
+			Long projId = user.getProjId();
+			if (projId == null) {
+				throw new IllegalArgumentException("用户不属于任何的项目");
+			}
+			SysProject sysProject = projectService.selectById(projId);
+			if (sysProject == null) {
+				throw new IllegalArgumentException("用户不属于任何的项目");
+			}
+			param.getMap().put("projIntroModel", sysProject.getProjIntro());
 		}
 		PageInfo<SysProject> pageInfo = PageHelper.startPage(param.getPage(), param.getLimit())
 				.doSelectPageInfo(new ISelect() {
@@ -59,16 +67,11 @@ public class ProjectController {
 		return new TableResultUtil(0L, "操作成功", pageInfo.getTotal(), pageInfo.getList());
 	}
 
-	@LogAnnotation(flag="delete")
+	@LogAnnotation(flag = "delete")
 	@ResponseBody
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
 	public JsonMsgUtil delete(@RequestParam("ids") String ids) {
-		LoginUser user = UserUtil.getLoginUser();
-		Long projId=null;
-		if (Constant.SYSTEM_ID_PROJECT !=user.getProjId()) {
-			projId=user.getProjId();
-		}
-		return projectService.delete(ids,projId);
+		return projectService.delete(ids);
 	}
 
 	/**
@@ -81,6 +84,7 @@ public class ProjectController {
 	@ResponseBody
 	@RequestMapping(value = "/edit", method = RequestMethod.POST)
 	public JsonMsgUtil edit(SysProject sysProject) {
+
 		return projectService.edit(sysProject);
 	}
 

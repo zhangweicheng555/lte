@@ -14,37 +14,32 @@
 	
 	  <div class="layui-form-item">
 	    <label class="layui-form-label" style="width: 150px;">项目名称</label>
-	    <div class="layui-input-inline" style="width: 400px;">
-	      <select name="projIntro"  id="projIntro" lay-verify="required">
-	        <option value="0">北京</option>
-	        <option value="1">上海</option>
-	        <option value="2">广州</option>
-	        <option value="3">深圳</option>
-	        <option value="4">杭州</option>
-	      </select>
+	    <div class="layui-input-inline" style="width: 300px;">
+	      <input type="text" name="projName" id="projName"   required  lay-verify="required"  autocomplete="off" class="layui-input">
 	    </div>
 	     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*</span></div>
 	  </div>
-	  
+	
 	  <div class="layui-form-item">
-	    <label class="layui-form-label" style="width: 150px;">地市名称</label>
-	    <div class="layui-input-inline" style="width: 400px;">
-	      <input type="text" name="projName" id="projName"   required  lay-verify="required"  autocomplete="off" class="layui-input">
+	    <label class="layui-form-label" style="width: 150px;">SIM项目名称</label>
+	    <div class="layui-input-inline" style="width: 300px;">
+	      <input type="text" name="projSimName" id="projSimName"   required  lay-verify="required"  autocomplete="off" class="layui-input">
 	    </div>
-	     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*规则：项目名称_SIM地市</span></div>
+	     <div class="layui-form-mid layui-word-aux"><span style="color: red;">与SIM一致</span></div>
 	  </div>
 	  
 	  <div class="layui-form-item">
-	    <label class="layui-form-label" style="width: 150px;">SIM地市名称</label>
-	    <div class="layui-input-inline" style="width: 400px;">
-	      <input type="text" name="projCode" id="projCode"  required  lay-verify="required"  autocomplete="off" class="layui-input">
+	    <label class="layui-form-label" style="width: 150px;">SIM项目运营商</label>
+	    <div class="layui-input-inline" style="width: 300px;">
+	      <input type="text" name="projOperator" id="projOperator"   required  lay-verify="required"  autocomplete="off" class="layui-input">
 	    </div>
-	     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*务必同SIM一致</span></div>
+	     <div class="layui-form-mid layui-word-aux"><span style="color: red;">与SIM一致</span></div>
 	  </div>
+	  
 	  
 	  <div class="layui-form-item">
 	    <label class="layui-form-label" style="width: 150px;">排序码</label>
-	    <div class="layui-input-inline" style="width: 400px;">
+	    <div class="layui-input-inline" style="width: 300px;">
 	      <input type="text" name="sort" id="sort"  placeholder="建议数字" required  lay-verify="required"  autocomplete="off" class="layui-input">
 	    </div>
 	     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*</span></div>
@@ -85,29 +80,6 @@
 		flag=true;
 	    return false;
 	  });
-	
-	
-	//加载项目得选项
-	  $.ajax({
-		   type: "POST",url: "/projectmapper/findNowList",data: {},dataType:"json", async:false,
-		   success: function(msg){
-			 $("#projIntro").empty();
-		     if(msg.success){
-		    	var obj=msg.object;
-		    	if(obj && obj.length>0){
-		    		var html="";
-		    		for(var i=0;i<obj.length;i++){
-		    			var model=obj[i];
-		    			html +='<option value="'+model.id+'">'+model.projName+'</option>';
-		    		}
-		    		$("#projIntro").append(html);
-		    		form.render(); //更新全部
-		    	}
-		     }else{
-		    	 layer.msg('查询项目信息不存在');
-		     }
-		   }
-	});
 	
 	});
 	

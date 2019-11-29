@@ -50,26 +50,15 @@ public class SysProjectServiceImpl implements SysProjectService {
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public JsonMsgUtil delete(String ids, Long projId) {
+	public JsonMsgUtil delete(String ids) {
 		JsonMsgUtil j = new JsonMsgUtil(false);
 		try {
 			if (StringUtils.isNoneBlank(ids)) {
 				String[] idsArray = ids.trim().split(",");
 				Long[] array = new Long[idsArray.length];
-				if (projId == null) {
-					for (int i = 0; i < idsArray.length; i++) {
-						String id = idsArray[i];
-						array[i] = Long.valueOf(id.trim());
-					}
-				} else {
-					for (int i = 0; i < idsArray.length; i++) {
-						String id = idsArray[i];
-						Long projIdM = Long.valueOf(id.trim());
-						if (projId.equals(projIdM)) {
-							array[i] = projId;
-							break;
-						}
-					}
+				for (int i = 0; i < idsArray.length; i++) {
+					String id = idsArray[i];
+					array[i] = Long.valueOf(id.trim());
 				}
 				// 根据项目查询角色
 				Integer deleteNum = 0;
@@ -94,17 +83,39 @@ public class SysProjectServiceImpl implements SysProjectService {
 	public JsonMsgUtil edit(SysProject sysProject) {
 		JsonMsgUtil j = new JsonMsgUtil(false);
 		try {
+			//查询参数
+			Map<String, Object> paramMap=new HashMap<>();
+			paramMap.put("projNameModel", sysProject.getProjName());
+			paramMap.put("projCodeModel", sysProject.getProjCode());
+			paramMap.put("projIntroModel", sysProject.getProjIntro());
+			List<SysProject> sysProjects = find(paramMap);
+			
 			// add
 			if (sysProject.getId() == null) {
+				//判断该项目下该项目是 是不是存在了   项目
+				if (sysProjects !=null && sysProjects.size()>0) {
+					throw new IllegalArgumentException("该项目下已存在该地市或者SIM地市");
+				}
 				sysProject.setCreateTime(new Date());
 				projectDao.insert(sysProject);
 			} else {// edit
+				if (sysProjects !=null && sysProjects.size()>1) {
+					throw new IllegalArgumentException("该项目下已存在该地市或者SIM地市");
+				}
+				
+				if (sysProjects !=null && sysProjects.size()==1) {
+					SysProject model=sysProjects.get(0);
+					Long recordId = model.getId();
+					if (!recordId.equals(sysProject.getId())) {
+						throw new IllegalArgumentException("该项目下已存在该地市或者SIM地市");
+					}
+				}
 				sysProject.setUpdateTime(new Date());
 				projectDao.update(sysProject);
 			}
 			j = new JsonMsgUtil(true, "操作成功", null);
 		} catch (Exception e) {
-
+			throw new IllegalArgumentException("异常："+e.getMessage());
 		}
 		return j;
 	}
@@ -169,6 +180,11 @@ public class SysProjectServiceImpl implements SysProjectService {
 	@Override
 	public List<Map<String, Object>> queryProjects(String username) {
 		return projectDao.queryProjects(username);
+	}
+
+	@Override
+	public SysProject selectById(Long id) {
+		return projectDao.findById(id);
 	}
 
 }

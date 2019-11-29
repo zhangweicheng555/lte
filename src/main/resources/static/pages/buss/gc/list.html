@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>一键测试</title>
+<title>工参管理</title>
 <link rel="stylesheet" type="text/css" media="screen" href="../../../css/bootstrap.min.css">
 <link rel="stylesheet" type="text/css" media="screen" href="../../../layui/css/layui.css">
 <link rel="stylesheet" href="../../../css/font-awesome/css/font-awesome.css" media="all" />
@@ -102,11 +102,11 @@
 	  var tableIns=table.render({
 	    elem: '#infolist'    
 	    ,id:'infolist'
-	    ,url:'/es/buss/queryOneButtonTest'  
+	    ,url:'/es/scrollQuery'  
 	    ,method:'post' 
 	    ,contentType:"application/json"
 	    ,where:{
-	    	"endTime":$("#endTime").val(),"beginTime":$("#beginTime").val(),"index":"onebuttontest","type":"onebuttontest","termMap":{"operatorService.keyword":$("#operatorService").val(),"city.keyword":$("#city").val(),"testPerson.keyword":$("#testPerson").val()}
+	    	"index":"simgc","type":"simgc"
 			   }
 	    ,cols: [[        
 	      {field:'pk', width:'2%', title: 'ID', sort: true,type:'checkbox'}

@@ -3,7 +3,7 @@ package com.boot.kaizen.model;
 import java.io.Serializable;
 
 /**
- * 用户项目角色实体类设计
+ * 用户地市角色实体类设计
  * 
  * @author weichengz
  * @date 2018年9月8日 上午10:26:05

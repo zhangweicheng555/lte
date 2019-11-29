@@ -29,10 +29,14 @@ import com.boot.kaizen.business.es.model.OutHomeLogModel;
 import com.boot.kaizen.business.es.model.QueryParamData;
 import com.boot.kaizen.business.es.service.Esutil;
 import com.boot.kaizen.business.es.service.IEsBussService;
+import com.boot.kaizen.entity.LoginUser;
+import com.boot.kaizen.model.SysProject;
+import com.boot.kaizen.service.SysProjectService;
 import com.boot.kaizen.util.JsonMsgUtil;
 import com.boot.kaizen.util.MyDateUtil;
 import com.boot.kaizen.util.MyUtil;
 import com.boot.kaizen.util.TableResultUtil;
+import com.boot.kaizen.util.UserUtil;
 
 /**
  * ES 业务控制层
@@ -48,6 +52,8 @@ public class EsBusssController {
 	private IEsBussService esBussService;
 	@Autowired
 	private TransportClient transportClient;
+	@Autowired
+	private SysProjectService sysProjectService;
 
 	/**
 	 * 
@@ -64,6 +70,27 @@ public class EsBusssController {
 		queryParamData.handleFieldRange("beginTime", queryParamData.getBeginTime(), null);
 		queryParamData.handleFieldRange("endTime", null, queryParamData.getEndTime());
 
+		QueryParamData paramData = Esutil.queryPage(queryParamData);
+		return new TableResultUtil(0L, "操作成功", paramData.getTotalNums(), paramData.getRows());
+	}
+	/**
+	 * sim工参查询
+	* @Description: TODO
+	* @author weichengz
+	* @date 2019年11月29日 上午11:29:10
+	 */
+	@ResponseBody
+	@PostMapping(value = "/querySimGc")
+	public TableResultUtil querySimGc(@RequestBody QueryParamData queryParamData) {
+		
+		LoginUser loginUser = UserUtil.getLoginUser();
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于当前项目");
+		}
+		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
+		clearMapEmptyVal.put("lte_city_name.keyword", sysProject.getProjCode());
+		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
 		QueryParamData paramData = Esutil.queryPage(queryParamData);
 		return new TableResultUtil(0L, "操作成功", paramData.getTotalNums(), paramData.getRows());
 	}

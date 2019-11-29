@@ -5,7 +5,6 @@ function initMenu(){
 	     type:"get",  
 	     async:false,
 	     success:function(data){
-	    	 console.info('-----------------------------------------');
 	    	 console.info(data);
 	    	 if(!$.isArray(data)){
 	    		 //location.href='/login.html';
@@ -42,7 +41,7 @@ function initMenu(){
 	 });
 	 
 	 //显示当前在线人数
-	 $.ajax({  
+	 /*$.ajax({  
 		 url:"/redis/queryLoginPersonNum",  
 		 type:"POST",  
 		 async:false,
@@ -53,7 +52,7 @@ function initMenu(){
 				 $('#nowLoginPersonDiv').show();
 			 }
 		 }
-	 });
+	 });*/
 }
 
 function setChild(parentElement, child){
