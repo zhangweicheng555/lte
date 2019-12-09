@@ -5,7 +5,7 @@ spring:
       config: classpath:ehcache.xml
   datasource: 
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://10.255.255.133:3306/kaizen?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8
+    url: jdbc:mysql://10.255.255.133:3306/kaizenlog?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8
     username: root
     password: 123456
     druid:
@@ -167,3 +167,8 @@ gis:
 #日志分析系统额外配置
 logsystem: 
   projid: 526  
+
+  
+sim:
+  key: zcto8k3i*a2c6
+  url: http://61.132.73.61:8012/SIM/iHandle!getParamSync.action

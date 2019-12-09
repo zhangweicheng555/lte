@@ -825,3 +825,16 @@ term filter查询的时候 直接全部匹配，不分词查询，注意这就�
   }
 }
 
+
+
+
+
+
+
+
+"endTime":$("#endTime").val()
+,"beginTime":$("#beginTime").val()
+,"index":"onebuttontest"
+,"type":"onebuttontest"
+,"termMap":{"operatorService.keyword":$("#operatorService").val(),"city.keyword":$("#city").val(),"testPerson.keyword":$("#testPerson").val()
+

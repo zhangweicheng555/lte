@@ -28,8 +28,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
  * @author weichengz
  * @date 2019年5月21日 上午9:51:02
  */
-// @Deprecated
-@Primary
+//@Deprecated
 @Service
 public class TokenServiceJWTImpl implements TokenService {
 
