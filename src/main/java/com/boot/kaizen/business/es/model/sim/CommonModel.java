@@ -12,7 +12,7 @@ import java.util.List;
 public class CommonModel implements Serializable {
 
 	public static final long serialVersionUID = 1L;
-
+	
 	public String lte_azimuth;// 方位角
 	public String lte_cell;// Cell
 	public String lte_ci;// CI

@@ -20,7 +20,7 @@ public class GcModel extends CommonModel implements Serializable {
 	 * 工参定义得额外信息在这里配置
 	 */
 	private Map<String, Double> location;
-	private String cityId;// 地市主键 目前根据登陆得账户获取
+	private String cityId;// 地市主键  就是原来项目主键   目前根据登陆得账户获取
 
 	public Map<String, Double> getLocation() {
 		return location;
@@ -54,38 +54,31 @@ public class GcModel extends CommonModel implements Serializable {
 		this.location = location;
 	}
 
+	
+
+	
 	public GcModel(String lte_city_name, String lte_net, String lte_enodebid, String lte_sector_id, String lte_cell,
-			String lte_ci, String lte_phycellid, String lte_longitude2, String lte_longitude, String lte_latitude2,
-			String lte_latitude, String lte_site_tall, String lte_azimuth, String lte_mechanical_downdip,
-			String lte_electronic_downdip, String lte_total_downdip, String lte_tac, String lte_sys,
-			String lte_site_type, String lte_earfcn, String lte_derrick_type, String lte_address, String lte_scene,
-			String lte_grid, String lte_firm) {
-		super();
-		this.lte_city_name = lte_city_name;
-		this.lte_net = lte_net;
-		this.lte_enodebid = lte_enodebid;
-		this.lte_sector_id = lte_sector_id;
-		this.lte_cell = lte_cell;
-		this.lte_ci = lte_ci;
-		this.lte_phycellid = lte_phycellid;
-		this.lte_longitude2 = lte_longitude2;
-		this.lte_longitude = lte_longitude;
-		this.lte_latitude2 = lte_latitude2;
-		this.lte_latitude = lte_latitude;
-		this.lte_site_tall = lte_site_tall;
-		this.lte_azimuth = lte_azimuth;
-		this.lte_mechanical_downdip = lte_mechanical_downdip;
-		this.lte_electronic_downdip = lte_electronic_downdip;
-		this.lte_total_downdip = lte_total_downdip;
-		this.lte_tac = lte_tac;
-		this.lte_sys = lte_sys;
-		this.lte_site_type = lte_site_type;
-		this.lte_earfcn = lte_earfcn;
-		this.lte_derrick_type = lte_derrick_type;
-		this.lte_address = lte_address;
-		this.lte_scene = lte_scene;
-		this.lte_grid = lte_grid;
-		this.lte_firm = lte_firm;
+			String lte_ci, String lte_ecgi, String lte_phycellid, String lte_longitude2, String lte_latitude2,
+			String lte_longitude, String lte_latitude, String lte_site_tall, String lte_azimuth,
+			String lte_mechanical_downdip, String lte_electronic_downdip, String lte_total_downdip, String lte_tac,
+			String lte_sys, String lte_site_type, String lte_earfcn, String lte_derrick_type, String lte_address,
+			String lte_scene, String lte_grid, String lte_firm, Map<String, Double> location, String cityId) {
+		super(lte_city_name, lte_net, lte_enodebid, lte_sector_id, lte_cell, lte_ci, lte_ecgi, lte_phycellid,
+				lte_longitude2, lte_latitude2, lte_longitude, lte_latitude, lte_site_tall, lte_azimuth,
+				lte_mechanical_downdip, lte_electronic_downdip, lte_total_downdip, lte_tac, lte_sys, lte_site_type,
+				lte_earfcn, lte_derrick_type, lte_address, lte_scene, lte_grid, lte_firm);
+		this.location = location;
+		this.cityId = cityId;
+	}
+
+	public GcModel(CommonModel commonModel) {
+		super(commonModel.getLte_city_name(), commonModel.getLte_net(), commonModel.getLte_enodebid(), commonModel.getLte_sector_id(), commonModel.getLte_cell(), commonModel.getLte_ci(), commonModel.getLte_ecgi(), commonModel.getLte_phycellid(),
+				commonModel.getLte_longitude2(), commonModel.getLte_latitude2(), commonModel.getLte_longitude(), commonModel.getLte_latitude(), commonModel.getLte_site_tall(), commonModel.getLte_azimuth(),
+				commonModel.getLte_mechanical_downdip(), commonModel.getLte_electronic_downdip(), commonModel.getLte_total_downdip(), commonModel.getLte_tac(), commonModel.getLte_sys(), commonModel.getLte_site_type(),
+				commonModel.getLte_earfcn(), commonModel.getLte_derrick_type(), commonModel.getLte_address(), commonModel.getLte_scene(), commonModel.getLte_grid(), commonModel.getLte_firm());
+		//this.location = location;
+		//this.cityId = cityId;
+		dealLocation();//处理经纬度
 	}
 
 }

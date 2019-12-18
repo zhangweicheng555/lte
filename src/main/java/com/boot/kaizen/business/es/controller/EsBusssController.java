@@ -12,9 +12,13 @@ import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.geo.GeoPoint;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,11 +31,18 @@ import com.alibaba.fastjson.JSONObject;
 import com.boot.kaizen.business.es.model.OneButtonTest;
 import com.boot.kaizen.business.es.model.OutHomeLogModel;
 import com.boot.kaizen.business.es.model.QueryParamData;
+import com.boot.kaizen.business.es.model.sim.CommonModel;
+import com.boot.kaizen.business.es.model.sim.GcModel;
+import com.boot.kaizen.business.es.model.sim.ResultModel;
 import com.boot.kaizen.business.es.service.Esutil;
 import com.boot.kaizen.business.es.service.IEsBussService;
 import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.model.SysProject;
+import com.boot.kaizen.model.SysProjectMapper;
+import com.boot.kaizen.service.IProjectMapperService;
 import com.boot.kaizen.service.SysProjectService;
+import com.boot.kaizen.util.AEStest;
+import com.boot.kaizen.util.HttpUtil;
 import com.boot.kaizen.util.JsonMsgUtil;
 import com.boot.kaizen.util.MyDateUtil;
 import com.boot.kaizen.util.MyUtil;
@@ -54,6 +65,8 @@ public class EsBusssController {
 	private TransportClient transportClient;
 	@Autowired
 	private SysProjectService sysProjectService;
+	@Autowired
+	private IProjectMapperService projectMapperService;
 
 	/**
 	 * 
@@ -73,23 +86,25 @@ public class EsBusssController {
 		QueryParamData paramData = Esutil.queryPage(queryParamData);
 		return new TableResultUtil(0L, "操作成功", paramData.getTotalNums(), paramData.getRows());
 	}
+
 	/**
 	 * sim工参查询
-	* @Description: TODO
-	* @author weichengz
-	* @date 2019年11月29日 上午11:29:10
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年11月29日 上午11:29:10
 	 */
 	@ResponseBody
 	@PostMapping(value = "/querySimGc")
 	public TableResultUtil querySimGc(@RequestBody QueryParamData queryParamData) {
-		
+
 		LoginUser loginUser = UserUtil.getLoginUser();
 		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
 		if (sysProject == null) {
 			throw new IllegalArgumentException("该用户不属于当前项目");
 		}
 		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
-		clearMapEmptyVal.put("lte_city_name.keyword", sysProject.getProjCode());
+		// clearMapEmptyVal.put("lte_city_name.keyword", sysProject.getProjCode());
 		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
 		QueryParamData paramData = Esutil.queryPage(queryParamData);
 		return new TableResultUtil(0L, "操作成功", paramData.getTotalNums(), paramData.getRows());
@@ -382,7 +397,7 @@ public class EsBusssController {
 		// 处理一下对角坐标 这里面pid接收
 		String pid = queryParamData.getPid();
 		if (StringUtils.isNoneBlank(pid)) {
-			String[] pointArray = pid.trim().split("_");//pid接收
+			String[] pointArray = pid.trim().split("_");// pid接收
 			if (pointArray != null && pointArray.length == 4) {
 				List<GeoPoint> points = new ArrayList<>();
 				GeoPoint topLeft = new GeoPoint(Double.valueOf(pointArray[1]), Double.valueOf(pointArray[0]));
@@ -399,24 +414,24 @@ public class EsBusssController {
 			return new ArrayList<>();
 		}
 	}
-	
+
 	/**
 	 * 
-	* @Description: 查询距离某个最近的点   这里默认是  公里为单位  传入的是经纬度
-	* @author weichengz
-	* @date 2019年11月22日 下午2:37:43
+	 * @Description: 查询距离某个最近的点 这里默认是 公里为单位 传入的是经纬度
+	 * @author weichengz
+	 * @date 2019年11月22日 下午2:37:43
 	 */
 	@ResponseBody
 	@PostMapping(value = "/queryNearPoint")
 	public List<Map<String, Object>> queryNearPoint(@RequestBody QueryParamData queryParamData) {
-		// 这里用pid接收  经纬度
+		// 这里用pid接收 经纬度
 		String pid = queryParamData.getPid();
 		if (StringUtils.isNoneBlank(pid)) {
-			String[] pointArray = pid.trim().split("_");//pid接收
+			String[] pointArray = pid.trim().split("_");// pid接收
 			if (pointArray != null && pointArray.length == 2) {
 				GeoPoint ceterPoint = new GeoPoint(Double.valueOf(pointArray[1]), Double.valueOf(pointArray[0]));
-				//处理
-				queryParamData.dealGeoDiatanceBuss(ceterPoint,10000D,"location");
+				// 处理
+				queryParamData.dealGeoDiatanceBuss(ceterPoint, 10000D, "location");
 				return Esutil.queryList(queryParamData);
 			}
 			return new ArrayList<>();
@@ -425,4 +440,80 @@ public class EsBusssController {
 		}
 	}
 
+	/**
+	 * 
+	 * @Description: 更新sim工参信息
+	 * @author weichengz
+	 * @date 2019年12月17日 下午5:26:47
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/freshSimGc")
+	public JsonMsgUtil freshSimGc() throws Exception {
+
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
+		} else {
+			if (StringUtils.isBlank(sysProject.getProjCode())) {
+				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的sim地市不存在");
+			}
+		}
+
+		SysProjectMapper sysProjectMapper = projectMapperService.selectById(sysProject.getProjIntro());
+		if (sysProjectMapper == null) {
+			throw new IllegalArgumentException("该用户不属于任何项目");
+		} else {
+			if (StringUtils.isBlank(sysProjectMapper.getProjSimName())) {
+				throw new IllegalArgumentException("项目【" + sysProjectMapper.getProjName() + "】不存在sim项目的名字");
+			}
+			if (StringUtils.isBlank(sysProjectMapper.getProjOperator())) {
+				throw new IllegalArgumentException("项目【" + sysProjectMapper.getProjName() + "】对应的运营商不存在");
+			}
+		}
+
+		BulkRequest request = new BulkRequest();
+
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("projectName", sysProjectMapper.getProjSimName());
+		paramMap.put("netId", "1");// 先写死1
+		paramMap.put("projectLevel", "3");// 3是查询本市 2是查询全省的
+		paramMap.put("provinceName", sysProject.getProjCode());
+		paramMap.put("operator", sysProjectMapper.getProjOperator());
+		paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
+				"lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm");
+		// paramMap.put("limit", "1"); 不限制就是全部的
+
+		String token = AEStest.encrypt(JSONObject.toJSONString(paramMap), "zcto8k3i*a2c6");
+
+		Map<String, Object> param = new HashMap<>();
+		param.put("askJson", token);
+
+		String url = "http://61.132.73.61:8012/SIM/ihandle!getParamSync.action";
+		String responseResult = HttpUtil.sendPostRequest(url, param);
+		ResultModel resultModel = JSONObject.parseObject(responseResult, ResultModel.class);
+		List<List<String>> datas = resultModel.getData();
+
+		for (List<String> data : datas) {
+			CommonModel commonModel = CommonModel.changeStrToObj(data);
+			GcModel model = new GcModel(commonModel);
+			model.setCityId(sysProject.getId() == null ? "" : sysProject.getId().toString());
+
+			IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc",
+					model.getLte_city_name() + "_" + model.getLte_ci());
+			indexRequestOther.source(JSONObject.toJSONString(model), XContentType.JSON);
+			request.add(indexRequestOther);
+		}
+
+		/** 分批的添加进去 */
+		BulkResponse bulkResponse = transportClient.bulk(request).get();
+		if (bulkResponse.hasFailures()) {
+			throw new IllegalArgumentException("出现异常：");
+		}
+		return new JsonMsgUtil(true, "sim工参更新成功成功", "");
+	}
 }

@@ -32,13 +32,9 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.BucketOrder;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
-import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
-import org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Bucket;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.GeoDistanceSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
@@ -62,7 +58,6 @@ import com.boot.kaizen.business.es.model.logModel.MSignaBean;
 import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
 import com.boot.kaizen.business.es.model.sim.CommonModel;
 import com.boot.kaizen.business.es.model.sim.GcModel;
-import com.boot.kaizen.business.es.model.sim.GcModelList;
 import com.boot.kaizen.business.es.model.sim.ResultModel;
 import com.boot.kaizen.business.es.service.Esutil;
 import com.boot.kaizen.business.es.service.GcModelService;
@@ -70,7 +65,6 @@ import com.boot.kaizen.util.AEStest;
 import com.boot.kaizen.util.HttpUtil;
 import com.boot.kaizen.util.JsonMsgUtil;
 import com.boot.kaizen.util.MyUtil;
-import com.boot.kaizen.util.SpringUtil;
 import com.boot.kaizen.util.TableResultUtil;
 
 /**
@@ -561,9 +555,10 @@ public class EsController {
 		List<List<String>> datas = resultModel.getData();
 		for (List<String> data : datas) {
 			CommonModel commonModel = CommonModel.changeStrToObj(data);
-			System.out.println(JSONObject.toJSONString(commonModel));
+			GcModel model=new GcModel(commonModel);
+			model.setCityId("123");
+			
 		}
 	}
-	
-	
+
 }

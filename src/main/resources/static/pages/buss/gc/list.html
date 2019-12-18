@@ -22,18 +22,9 @@
 						<td>
 							<form class="form-inline" onsubmit="return false">
 								<div class="form-group">
-									运营商：
+									厂商：
 									<input id="operatorService" name="operatorService" type="text"  style="width: 120px;" autocomplete="off"  class="form-control" >&nbsp;&nbsp;&nbsp;&nbsp; 
-									城市：
-									<input id="city" name="city" type="text" autocomplete="off"  style="width: 120px;"   class="form-control" > &nbsp;&nbsp;&nbsp;&nbsp;
-									测试人员：
-									<input id="testPerson" name="testPerson" type="text"  style="width: 120px;"  autocomplete="off"  class="form-control" > &nbsp;&nbsp;&nbsp;&nbsp;
-									
-									时间：
-									<input type="text"  id="beginTime" class="form-control" autocomplete="off"   style="width: 120px;"  name="beginTime">
-									-
-									<input type="text"  id="endTime" class="form-control"  autocomplete="off"  style="width: 120px;"  name="endTime">
-									
+
 									<button id="searchBt" class="layui-btn layui-btn-sm">
 										<i class="layui-icon">&#xe615;</i>搜索
 									</button>
@@ -42,20 +33,15 @@
 										<i class="layui-icon layui-icon-delete" style="font-size: 30px; color: white-space;"></i>清空
 									</button>
 									
-									<button id="mapBt" title="数据轨迹呈现" class="layui-btn layui-btn-sm" style="margin-left: -1px;">
-										<i   class="layui-icon">&#xe715;</i>
-									</button>
 								</div>
 							</form>
 						</td>
+						
 						<td align="right">
-							<button id="deleteBtnModel" class="layui-btn layui-btn-sm  layui-btn-danger" style="margin-left: 1px;"  permission="lte:plan:del">
-								  <i class="layui-icon">&#xe640;</i>删除
+							<button id="freshBtnModel" class="layui-btn layui-btn-sm" style="margin-left: 1px;" >
+								  更新工参
 							</button>
 							
-							<button id="exportBtnModel"   class="layui-btn layui-btn-sm  layui-btn-normal" style="margin-left: 1px;"  >
-								  <i class="layui-icon layui-icon-next"></i>导出
-							</button>
 						</td>
 					</tr>
 				</table>
@@ -73,13 +59,6 @@
 	</div>
 </div>
 
-	
-	
-	<iframe src="about:blank" name="blankFrame" id="blankFrame" style="display: none;"></iframe>
-	<form id="myform" target="blankFrame" action="/es/buss/exportOneButtonTest" method="post">
-		<input id="ids"  name="ids" type="hidden"/>
-		<input id="token"  name="token" type="hidden"/>
-	</form> 
 
 </body>
 </html>
@@ -102,7 +81,7 @@
 	  var tableIns=table.render({
 	    elem: '#infolist'    
 	    ,id:'infolist'
-	    ,url:'/es/scrollQuery'  
+	    ,url:'/es/buss/querySimGc'  
 	    ,method:'post' 
 	    ,contentType:"application/json"
 	    ,where:{
@@ -111,35 +90,32 @@
 	    ,cols: [[        
 	      {field:'pk', width:'2%', title: 'ID', sort: true,type:'checkbox'}
 	      ,{title: '序号',width:100,templet: '#indexTpl',align:'center'}
-	      ,{field:'operatorService',   width:200, title: '运营商',align:'center'}
-	      ,{field:'netWorkType',  width:200, title: '网络类型',align:'center'}
-	      ,{field:'city',   width:200, title: '城市',align:'center'}
-	      ,{field:'county', width:200, title: '区县',align:'center'}
-	      ,{field:'testPerson', width:200, title: '测试人员',align:'center'}
-	      ,{field:'phoneType', width:200, title: '手机型号',align:'center'}
-	      ,{field:'phoneNo', width:200, title: '手机号码',align:'center'}
-	      ,{field:'imsi', width:200, title: 'IMSI',align:'center'}
-	      ,{field:'testTime', width:200, title: '测试时间',align:'center'}
-	      ,{field:'latitude', width:200, title: '纬度',align:'center'}
-	      ,{field:'longitude', width:200, title: '经度',align:'center'}
+	      ,{field:'lte_city_name',   width:200, title: '城市',align:'center'}
+	      ,{field:'lte_firm',   width:200, title: '厂商',align:'center'}
+	      ,{field:'lte_grid',  width:200, title: '网格归属',align:'center'}
+	      ,{field:'lte_azimuth', width:200, title: '方位角',align:'center'}
+	      ,{field:'lte_cell', width:200, title: 'Cell',align:'center'}
+	      ,{field:'lte_ci', width:200, title: 'CI',align:'center'}
+	      ,{field:'lte_earfcn', width:200, title: 'EARFCN',align:'center'}
+	      ,{field:'lte_ecgi', width:200, title: 'lte_ecgi',align:'center'}
+	      ,{field:'lte_electronic_downdip', width:200, title: '电子倾角',align:'center'}
+	      ,{field:'lte_enodebid', width:200, title: 'eNodeBID',align:'center'}
+	      ,{field:'lte_longitude2', width:200, title: '经度',align:'center'}
+	      ,{field:'lte_latitude2', width:200, title: '纬度',align:'center'}
+	      ,{field:'lte_mechanical_downdip', width:200, title: '机械下倾角',align:'center'}
 	      
+	      ,{field:'lte_net', width:200, title: '网络',align:'center'}
+	      ,{field:'lte_phycellid', width:200, title: 'PhyCellId',align:'center'}
+	      ,{field:'lte_site_tall', width:200, title: '站高',align:'center'}
+	      ,{field:'lte_site_type', width:200, title: '站型',align:'center'}
+	      ,{field:'lte_tac', width:200, title: 'TAC',align:'center'}
+	      ,{field:'lte_sys', width:200, title: '制式',align:'center'}
+	      ,{field:'lte_total_downdip', width:200, title: '总下倾角',align:'center'}
 	      
-	      ,{field:'testLocation', width:200, title: '测试位置',align:'center'}
-	      ,{field:'downRate', width:200, title: '下载速度',align:'center'}
-	      ,{field:'upRate', width:200, title: '上传速度',align:'center'}
-	      ,{field:'pingFlag', width:200, title: 'PING',align:'center'}
-	      ,{field:'httpFlag', width:200, title: 'HTTP',align:'center'}
-	      
-	      ,{field:'avgRsrp', width:200, title: '平均RSRP',align:'center'}
-	      ,{field:'avgSinr', width:200, title: '平均SINR',align:'center'}
-	      ,{field:'cellName', width:200, title: '小区名字',align:'center'}
-	      ,{field:'enodebid', width:200, title: '站号',align:'center'}
-	      ,{field:'ci', width:200, title: 'CI',align:'center'}
-	      ,{field:'frequencyBand', width:200, title: '频段',align:'center'}
-	      ,{field:'pci', width:200, title: 'PCI',align:'center'}
-	      ,{field:'tac', width:200, title: 'TAC',align:'center'}
-	      
-	      
+	      ,{field:'lte_sector_id', width:200, title: 'Sector ID',align:'center'}
+	      ,{field:'lte_derrick_type', width:200, title: '抱杆类型',align:'center'}
+	      ,{field:'lte_address', width:200, title: '详细地址',align:'center'}
+	      ,{field:'lte_scene', width:200, title: '场景归属',align:'center'}
 	    ]]
 	    ,page: true
 	    ,limit:10
@@ -176,69 +152,11 @@
 		  fresh();
 	  });
 	  
-	  //导出
-	  $("#exportBtnModel").click(function(){
-		  common.showLoadingTimeDialog(4000);
-		  var token = localStorage.getItem("token");
-		  if(checkArray.length==0){
-		    common.getMsgBlackDialog("正在导出全部的数据",3000);
-		  }else{
-		     common.getMsgBlackDialog("正在导出勾选的数据",3000);
-		  }
-		  $("#token").val(token);
-		  $("#ids").val(checkArray.join(","));
-		  $("#myform").submit();
+	  
+	  /**更新工参*/
+	  $("#freshBtnModel").click(function(){
+		  common.getConfirmDelDialog("确定要更新吗？",'更新数据加载时间可能较长，耐心等待',2,"/es/buss/freshSimGc",{},fresh);
 	  });
-	  
-	  
-	  //地图页面
-	  $("#mapBt").click(function(){
-		  
-		  var endTime=$("#endTime").val();
-		  var beginTime=$("#beginTime").val();
-		  var operatorService=$("#operatorService").val();
-		  var city=$("#city").val();
-		  var testPerson=$("#testPerson").val();
-		  
-		  var indexModel =parent.layer.open({
-				type: 2, 
-				title:false,
-				content: "pages/buss/onekeywordtest/main.html",
-				skin:"layui-layer-molv",
-				closeBtn :0,
-				area:['1200px',"600px"],
-				shade: [0.5, '#393D49'],
-				id:'checkCar',
-				maxmin :false,
-				fixed :true,
-				success: function(layero, index){
-					  var iframeWin = parent.window[layero.find('iframe')[0]['name']]; /**获得子的ifram对象*/
-					  iframeWin.setValMethod(beginTime,endTime,operatorService,city,testPerson);
-				},
-				btn: ['关闭'],
-				yes: function(index, layero){
-					parent.layer.close(indexModel);
-					return false;
-				}
-			});
-	  });
-	  
-	  
-	  /**多项删除*/
-	  $("#deleteBtnModel").click(function(){
-		  if(checkArray && checkArray.length>0){
-		  	  common.getConfirmDelDialog("确定要删除吗？",'共删除【'+checkArray.length+'】条记录',2,"/es/buss/delete",{"ids":checkArray.join(","),"type":"onebuttontest","index":"onebuttontest"},fresh);
-		  	if(checkArray){
-	   			checkArray.length=0
-	   		}
-		  }else{
-			  layer.msg('未选中要删除的记录');
-		  }
-	  });
-	 
-	 
-	  
-	
 	 
 	  
 	  //currData  checkArray  监听checkbox  选中取消事件
@@ -292,11 +210,7 @@
 	  
 	  /**清空*/
 	  $("#clearBt").click(function(){
-		  $("#endTime").val("");
-		  $("#beginTime").val("");
 		  $("#operatorService").val("");
-		  $("#city").val("");
-		  $("#testPerson").val("");
 		  fresh();
 	  });
 	  
@@ -304,34 +218,16 @@
 	  function fresh(){
 		  table.reload('infolist'
 				  ,{where:{
-				    	    "endTime":$("#endTime").val(),
-				    	    "beginTime":$("#beginTime").val(),
-				    	    "index":"onebuttontest",
-				    	    "type":"onebuttontest",
-				    	    "termMap":{"operatorService.keyword":$("#operatorService").val(),"city.keyword":$("#city").val(),"testPerson.keyword":$("#testPerson").val()}
+				    	    "index":"simgc",
+				    	    "type":"simgc",
+				    	    "termMap":{"lte_firm.keyword":$("#operatorService").val()}
 						   }
 				   ,page: {curr: 1}
 		           }
 		  );
 	  }
 	  
-	  laydate.render({
-		     elem: '#beginTime'
-		    ,theme: 'molv'
-		    ,type:'datetime'
-	   	    ,done: function(val, date, endDate){
-	   	    	
-	   		 }
-		  });
-	  
-	  laydate.render({
-		     elem: '#endTime'
-		    ,theme: 'molv'
-		    ,type:'datetime'
-	   	    ,done: function(val, date, endDate){
-	   	    	
-	   		 }
-		  });
+	 
 	  
 	  
 	  /**只删除行 无刷新*/
