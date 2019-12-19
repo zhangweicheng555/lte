@@ -41,6 +41,12 @@
 							<button id="freshBtnModel" class="layui-btn layui-btn-sm" style="margin-left: 1px;" >
 								  更新工参
 							</button>
+							<button id="chooseBtnModel" class="layui-btn layui-btn-sm layui-btn-danger" style="margin-left: 1px;" >
+								  勾选删出
+							</button>
+							<button id="deleteBatchBtnModel" class="layui-btn layui-btn-sm layui-btn-danger" style="margin-left: 1px;" >
+								  全部删出
+							</button>
 							
 						</td>
 					</tr>
@@ -71,13 +77,14 @@
 	<script type="text/javascript">
 	var currData;
 	var checkArray=new Array();
+	var table;
 	layui.use([ 'layer' ,'table','laydate','jquery','common'], function() {
 	  var layer = layui.layer;
 	  var laydate = layui.laydate;
 	  var $=layui.$;
 	  var common = layui.common;
 	  
-	  var table = layui.table;
+	  table = layui.table;
 	  var tableIns=table.render({
 	    elem: '#infolist'    
 	    ,id:'infolist'
@@ -155,7 +162,24 @@
 	  
 	  /**更新工参*/
 	  $("#freshBtnModel").click(function(){
-		  common.getConfirmDelDialog("确定要更新吗？",'更新数据加载时间可能较长，耐心等待',2,"/es/buss/freshSimGc",{},fresh);
+		  parent.layer.confirm('更新数据加载时间可能较长，耐心等待', {icon: 3, title:'确定要更新吗？'}, function(index){
+			  common.showLoadingDialog();
+			    $.ajax({
+					   type: "POST",url: "/es/buss/freshSimGc",data: {},dataType:"json",
+					   success: function(msg){
+						 console.info(msg);
+						 common.closeLoadingDialog();
+					     if(msg.success){
+					    	 parent.layer.msg(""+msg.message);
+					     }else{
+					    	 layer.msg('删出数据异常：'+msg.message);
+					     }
+					     fresh();
+					   }
+				});
+		      parent.layer.close(index);
+			});
+		  
 	  });
 	 
 	  
@@ -213,9 +237,37 @@
 		  $("#operatorService").val("");
 		  fresh();
 	  });
+	  //全部删出
+	  $("#deleteBatchBtnModel").click(function(){
+		  parent.layer.confirm('全部删出时间可能较长，耐心等待', {icon: 3, title:'确定删出?'}, function(index){
+			  common.showLoadingDialog();
+			    $.ajax({
+					   type: "POST",url: "/es/buss/deleteBatchByCity",data: '{"index":"simgc","type":"simgc"}',dataType:"json",contentType:"application/json",
+					   success: function(msg){
+						   common.closeLoadingDialog();
+					     if(msg.success){
+					    	 parent.layer.msg("success:"+msg.message);
+					    	 fresh();
+					     }else{
+					    	 layer.msg('删出数据异常：'+msg.message);
+					     }
+					     fresh();
+					   }
+				});
+		      parent.layer.close(index);
+			});
+	  });
 	  
+	  
+	  /**只删除行 无刷新*/
+	  function deleteRow(obj){
+		  obj.del();
+		  fresh();
+	  }
+});
+
 	
-	  function fresh(){
+	 function fresh(){
 		  table.reload('infolist'
 				  ,{where:{
 				    	    "index":"simgc",
@@ -226,17 +278,7 @@
 		           }
 		  );
 	  }
-	  
-	 
-	  
-	  
-	  /**只删除行 无刷新*/
-	  function deleteRow(obj){
-		  obj.del();
-		  fresh();
-	  }
-});
-
+	
 
 </script>
 

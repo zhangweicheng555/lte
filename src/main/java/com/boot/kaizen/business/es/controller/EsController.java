@@ -531,7 +531,7 @@ public class EsController {
 	 * @throws Exception
 	 * @date 2019年11月26日 下午2:32:03
 	 */
-	public static void main(String[] args) throws Exception {
+	/*public static void main1(String[] args) throws Exception {
 
 		Map<String, Object> paramMap = new HashMap<>();
 		paramMap.put("projectName", "上海联通");
@@ -559,6 +559,6 @@ public class EsController {
 			model.setCityId("123");
 			
 		}
-	}
+	}*/
 
 }

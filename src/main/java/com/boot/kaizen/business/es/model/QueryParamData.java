@@ -27,6 +27,7 @@ public class QueryParamData implements Serializable {
 	private Map<String, Object> matchMap;// 模糊匹配的map 全文检索的那种
 	private Map<String, Object> termMap; // 精确查询的map
 	private Map<String, Object> phraseMap; // 短语匹配
+	
 	private Map<String, List<GeoPoint>> geoMap; // 仅仅支持2个 多点图形查询(这个没有顺序之分)、对角查询（注意对角查询的时候 第一个是左上角  第二个是右下角）  key是字段
 
 	private Map<String, Map<GeoPoint, Double>> diatinceGeoMap; // k：经纬度字段的名字   GeoPoint  中心点  Double  是距离多少范围内  注意 这里的单位是 1万公里

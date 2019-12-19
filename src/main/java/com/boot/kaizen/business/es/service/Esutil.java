@@ -16,7 +16,6 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRespon
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
@@ -39,7 +38,8 @@ import org.elasticsearch.index.query.GeoDistanceQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.index.reindex.DeleteByQueryAction;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -229,65 +229,7 @@ public class Esutil {
 					}
 				}
 			} else {// 非or查询
-				Map<String, Object> matchMap = queryParamData.getMatchMap();
-				if (matchMap != null && matchMap.size() > 0) {
-					for (Entry<String, Object> entry : matchMap.entrySet()) {
-						MatchQueryBuilder matchQuery = QueryBuilders.matchQuery(entry.getKey(), entry.getValue());
-						boolQueryBuilder.must(matchQuery);
-					}
-				}
-
-				Map<String, Object> termMap = queryParamData.getTermMap();
-				if (termMap != null && termMap.size() > 0) {
-					for (Entry<String, Object> entry : termMap.entrySet()) {
-						boolQueryBuilder.must(QueryBuilders.termQuery(entry.getKey(), entry.getValue()));
-					}
-				}
-
-				Map<String, Object> phraseMap = queryParamData.getPhraseMap();
-				if (phraseMap != null && phraseMap.size() > 0) {
-					for (Entry<String, Object> entry : phraseMap.entrySet()) {
-						boolQueryBuilder.must(QueryBuilders.matchPhraseQuery(entry.getKey(), entry.getValue()));
-					}
-				}
-
-				Map<String, Object> filterMap = queryParamData.getFilterMap();
-				if (filterMap != null && filterMap.size() > 0) {
-					for (Entry<String, Object> entry : filterMap.entrySet()) {
-						boolFilterBuilder.must(QueryBuilders.termQuery(entry.getKey(), entry.getValue()));
-					}
-				}
-
-				// 注意 中心范围查询 通用版本仅仅支持 公里 为单位
-				Map<String, Map<GeoPoint, Double>> diatinceGeoMap = queryParamData.getDiatinceGeoMap();
-				if (diatinceGeoMap != null && diatinceGeoMap.size() > 0) {
-					for (Entry<String, Map<GeoPoint, Double>> entry : diatinceGeoMap.entrySet()) {
-						Map<GeoPoint, Double> value = entry.getValue();
-						if (value != null && value.size() > 0) {
-							for (Entry<GeoPoint, Double> model : value.entrySet()) {
-								GeoDistanceQueryBuilder geoDistance = QueryBuilders.geoDistanceQuery(entry.getKey())
-										.point(model.getKey()).distance(model.getValue(), DistanceUnit.KILOMETERS)
-										.geoDistance(GeoDistance.ARC);
-								boolFilterBuilder.must(geoDistance);
-							}
-						}
-					}
-				}
-
-				Map<String, List<GeoPoint>> geoMap = queryParamData.getGeoMap();
-				if (geoMap != null && geoMap.size() > 0) {
-					for (Entry<String, List<GeoPoint>> entry : geoMap.entrySet()) {
-						List<GeoPoint> value = entry.getValue();
-						if (value != null && value.size() == 2) {// 这个是 对角查询
-							boolFilterBuilder.must(QueryBuilders.geoBoundingBoxQuery(entry.getKey())
-									.setCorners(value.get(0), value.get(1)));
-						} else {
-							boolFilterBuilder.must(QueryBuilders.geoPolygonQuery(entry.getKey(), value));
-						}
-					}
-				}
-				// 范围过滤
-				handleRangeQuery(queryParamData, boolFilterBuilder);
+				createQueryBooleanBuilder(queryParamData, boolQueryBuilder, boolFilterBuilder);
 			}
 		}
 
@@ -338,6 +280,69 @@ public class Esutil {
 		return sourceBuilder;
 	}
 
+	private static void createQueryBooleanBuilder(QueryParamData queryParamData, BoolQueryBuilder boolQueryBuilder,
+			BoolQueryBuilder boolFilterBuilder) {
+		Map<String, Object> matchMap = queryParamData.getMatchMap();
+		if (matchMap != null && matchMap.size() > 0) {
+			for (Entry<String, Object> entry : matchMap.entrySet()) {
+				MatchQueryBuilder matchQuery = QueryBuilders.matchQuery(entry.getKey(), entry.getValue());
+				boolQueryBuilder.must(matchQuery);
+			}
+		}
+
+		Map<String, Object> termMap = queryParamData.getTermMap();
+		if (termMap != null && termMap.size() > 0) {
+			for (Entry<String, Object> entry : termMap.entrySet()) {
+				boolQueryBuilder.must(QueryBuilders.termQuery(entry.getKey(), entry.getValue()));
+			}
+		}
+
+		Map<String, Object> phraseMap = queryParamData.getPhraseMap();
+		if (phraseMap != null && phraseMap.size() > 0) {
+			for (Entry<String, Object> entry : phraseMap.entrySet()) {
+				boolQueryBuilder.must(QueryBuilders.matchPhraseQuery(entry.getKey(), entry.getValue()));
+			}
+		}
+
+		Map<String, Object> filterMap = queryParamData.getFilterMap();
+		if (filterMap != null && filterMap.size() > 0) {
+			for (Entry<String, Object> entry : filterMap.entrySet()) {
+				boolFilterBuilder.must(QueryBuilders.termQuery(entry.getKey(), entry.getValue()));
+			}
+		}
+
+		// 注意 中心范围查询 通用版本仅仅支持 公里 为单位
+		Map<String, Map<GeoPoint, Double>> diatinceGeoMap = queryParamData.getDiatinceGeoMap();
+		if (diatinceGeoMap != null && diatinceGeoMap.size() > 0) {
+			for (Entry<String, Map<GeoPoint, Double>> entry : diatinceGeoMap.entrySet()) {
+				Map<GeoPoint, Double> value = entry.getValue();
+				if (value != null && value.size() > 0) {
+					for (Entry<GeoPoint, Double> model : value.entrySet()) {
+						GeoDistanceQueryBuilder geoDistance = QueryBuilders.geoDistanceQuery(entry.getKey())
+								.point(model.getKey()).distance(model.getValue(), DistanceUnit.KILOMETERS)
+								.geoDistance(GeoDistance.ARC);
+						boolFilterBuilder.must(geoDistance);
+					}
+				}
+			}
+		}
+
+		Map<String, List<GeoPoint>> geoMap = queryParamData.getGeoMap();
+		if (geoMap != null && geoMap.size() > 0) {
+			for (Entry<String, List<GeoPoint>> entry : geoMap.entrySet()) {
+				List<GeoPoint> value = entry.getValue();
+				if (value != null && value.size() == 2) {// 这个是 对角查询
+					boolFilterBuilder.must(
+							QueryBuilders.geoBoundingBoxQuery(entry.getKey()).setCorners(value.get(0), value.get(1)));
+				} else {
+					boolFilterBuilder.must(QueryBuilders.geoPolygonQuery(entry.getKey(), value));
+				}
+			}
+		}
+		// 范围过滤
+		handleRangeQuery(queryParamData, boolFilterBuilder);
+	}
+
 	/**
 	 * 
 	 * @Description: 得到查询条件
@@ -371,65 +376,7 @@ public class Esutil {
 					}
 				}
 			} else {// 非or查询
-				Map<String, Object> matchMap = queryParamData.getMatchMap();
-				if (matchMap != null && matchMap.size() > 0) {
-					for (Entry<String, Object> entry : matchMap.entrySet()) {
-						MatchQueryBuilder matchQuery = QueryBuilders.matchQuery(entry.getKey(), entry.getValue());
-						boolQueryBuilder.must(matchQuery);
-					}
-				}
-
-				Map<String, Object> termMap = queryParamData.getTermMap();
-				if (termMap != null && termMap.size() > 0) {
-					for (Entry<String, Object> entry : termMap.entrySet()) {
-						boolQueryBuilder.must(QueryBuilders.termQuery(entry.getKey(), entry.getValue()));
-					}
-				}
-
-				Map<String, Object> phraseMap = queryParamData.getPhraseMap();
-				if (phraseMap != null && phraseMap.size() > 0) {
-					for (Entry<String, Object> entry : phraseMap.entrySet()) {
-						boolQueryBuilder.must(QueryBuilders.matchPhraseQuery(entry.getKey(), entry.getValue()));
-					}
-				}
-
-				Map<String, Object> filterMap = queryParamData.getFilterMap();
-				if (filterMap != null && filterMap.size() > 0) {
-					for (Entry<String, Object> entry : filterMap.entrySet()) {
-						boolQueryBuilder.must(QueryBuilders.termQuery(entry.getKey(), entry.getValue()));
-					}
-				}
-
-				// 注意 中心范围查询 通用版本仅仅支持 公里 为单位
-				Map<String, Map<GeoPoint, Double>> diatinceGeoMap = queryParamData.getDiatinceGeoMap();
-				if (diatinceGeoMap != null && diatinceGeoMap.size() > 0) {
-					for (Entry<String, Map<GeoPoint, Double>> entry : diatinceGeoMap.entrySet()) {
-						Map<GeoPoint, Double> value = entry.getValue();
-						if (value != null && value.size() > 0) {
-							for (Entry<GeoPoint, Double> model : value.entrySet()) {
-								GeoDistanceQueryBuilder geoDistance = QueryBuilders.geoDistanceQuery(entry.getKey())
-										.point(model.getKey()).distance(model.getValue(), DistanceUnit.KILOMETERS)
-										.geoDistance(GeoDistance.ARC);
-								boolQueryBuilder.must(geoDistance);
-							}
-						}
-					}
-				}
-
-				Map<String, List<GeoPoint>> geoMap = queryParamData.getGeoMap();
-				if (geoMap != null && geoMap.size() > 0) {
-					for (Entry<String, List<GeoPoint>> entry : geoMap.entrySet()) {
-						List<GeoPoint> value = entry.getValue();
-						if (value != null && value.size() == 2) {// 这个是 对角查询
-							boolQueryBuilder.must(QueryBuilders.geoBoundingBoxQuery(entry.getKey())
-									.setCorners(value.get(0), value.get(1)));
-						} else {
-							boolQueryBuilder.must(QueryBuilders.geoPolygonQuery(entry.getKey(), value));
-						}
-					}
-				}
-				// 范围过滤
-				handleRangeQuery(queryParamData, boolQueryBuilder);
+				createQueryBooleanBuilder(queryParamData, boolQueryBuilder, boolQueryBuilder);
 			}
 		}
 		return boolQueryBuilder;
@@ -752,6 +699,25 @@ public class Esutil {
 			}
 		}
 		return "success";
+	}
+
+	/**
+	 * 根据查询条件批量查询数据 matchMap;termMap; phraseMap; //目前仅仅支持这三种查询
+	 */
+	public static Long deleteBatchByCondition(QueryParamData queryParamData) {
+		BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+		BoolQueryBuilder boolFilterBuilder = QueryBuilders.boolQuery();
+
+		TransportClient transportClient = SpringUtil.getBean(TransportClient.class);
+
+		// 校验
+		queryParamData.verificationIndexType();
+		createQueryBooleanBuilder(queryParamData, boolQueryBuilder, null);
+
+		BulkByScrollResponse deleteBatchResponse = DeleteByQueryAction.INSTANCE.newRequestBuilder(transportClient)
+				.filter(boolFilterBuilder).source(queryParamData.getIndex()).get();
+		long deletedNum = deleteBatchResponse.getDeleted();
+		return deletedNum;
 	}
 
 }

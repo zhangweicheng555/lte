@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletResponse;
@@ -136,34 +137,6 @@ public class EsBusssController {
 		}
 		Esutil.insert("onebuttontest", "onebuttontest", JSONObject.toJSONString(oneButtonTest));
 		return new JsonMsgUtil(true, "添加成功", "");
-	}
-
-	/**
-	 * 根据es自己的主键删出
-	 * 
-	 * @Description: TODO
-	 * @author weichengz
-	 * @date 2019年11月13日 上午10:50:44
-	 */
-	@ResponseBody
-	@PostMapping(value = "/delete")
-	public JsonMsgUtil delete(@RequestParam("index") String index, @RequestParam("type") String type,
-			@RequestParam("ids") String ids) {
-		if (StringUtils.isNoneBlank(index) && StringUtils.isNoneBlank(type) && StringUtils.isNoneBlank(ids)) {
-			String[] idsArray = ids.trim().split(",");
-			for (String id : idsArray) {
-				Esutil.deleteByDocId(index, type, id);
-			}
-		} else {
-			return new JsonMsgUtil(false, "索引、类型、文档ids不能为空", "");
-		}
-
-		try {// 休息一秒 防止立马查询不起作用
-			Thread.sleep(800);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return new JsonMsgUtil(true, "删出成功", "");
 	}
 
 	/**
@@ -465,55 +438,155 @@ public class EsBusssController {
 		}
 
 		SysProjectMapper sysProjectMapper = projectMapperService.selectById(sysProject.getProjIntro());
+		String httpType = "http";
 		if (sysProjectMapper == null) {
 			throw new IllegalArgumentException("该用户不属于任何项目");
 		} else {
 			if (StringUtils.isBlank(sysProjectMapper.getProjSimName())) {
 				throw new IllegalArgumentException("项目【" + sysProjectMapper.getProjName() + "】不存在sim项目的名字");
 			}
+			if (StringUtils.isBlank(sysProjectMapper.getHostAp())) {
+				throw new IllegalArgumentException("项目【" + sysProjectMapper.getProjName() + "】不存在sim工参地址");
+			}else {
+				String hostAp = sysProjectMapper.getHostAp().toLowerCase();
+				if (hostAp.contains("https")) {
+					httpType = "https";
+				}
+			}
 			if (StringUtils.isBlank(sysProjectMapper.getProjOperator())) {
 				throw new IllegalArgumentException("项目【" + sysProjectMapper.getProjName() + "】对应的运营商不存在");
 			}
 		}
 
-		BulkRequest request = new BulkRequest();
 
-		Map<String, Object> paramMap = new HashMap<>();
-		paramMap.put("projectName", sysProjectMapper.getProjSimName());
-		paramMap.put("netId", "1");// 先写死1
-		paramMap.put("projectLevel", "3");// 3是查询本市 2是查询全省的
-		paramMap.put("provinceName", sysProject.getProjCode());
-		paramMap.put("operator", sysProjectMapper.getProjOperator());
-		paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
-				"lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm");
-		// paramMap.put("limit", "1"); 不限制就是全部的
+		/** for循环请求数据开始 **/
+		for (int i = 0; i < 100000000; i++) {	
+			System.out.println("-------------------------------------------");
 
-		String token = AEStest.encrypt(JSONObject.toJSONString(paramMap), "zcto8k3i*a2c6");
+			Integer limit=5000;//每次拿3000条数据
+			
+			BulkRequest request = new BulkRequest();
 
-		Map<String, Object> param = new HashMap<>();
-		param.put("askJson", token);
+			Map<String, Object> paramMap = new HashMap<>();
+			paramMap.put("projectName", sysProjectMapper.getProjSimName());
+			paramMap.put("netId", "1");// 先写死1
+			paramMap.put("projectLevel", "3");// 3是查询本市 2是查询全省的
+			paramMap.put("provinceName", sysProject.getProjCode());
+			paramMap.put("operator", sysProjectMapper.getProjOperator());
+			paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
+					"lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm");
 
-		String url = "http://61.132.73.61:8012/SIM/ihandle!getParamSync.action";
-		String responseResult = HttpUtil.sendPostRequest(url, param);
-		ResultModel resultModel = JSONObject.parseObject(responseResult, ResultModel.class);
-		List<List<String>> datas = resultModel.getData();
+			paramMap.put("limit", ""+i*limit+","+limit); // 不限制就是全部的
 
-		for (List<String> data : datas) {
-			CommonModel commonModel = CommonModel.changeStrToObj(data);
-			GcModel model = new GcModel(commonModel);
-			model.setCityId(sysProject.getId() == null ? "" : sysProject.getId().toString());
+			String token = AEStest.encrypt(JSONObject.toJSONString(paramMap), "zcto8k3i*a2c6");
 
-			IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc",
-					model.getLte_city_name() + "_" + model.getLte_ci());
-			indexRequestOther.source(JSONObject.toJSONString(model), XContentType.JSON);
-			request.add(indexRequestOther);
+			Map<String, Object> param = new HashMap<>();
+			param.put("askJson", token);
+			// https://218.65.240.119:8443/
+			
+			String url = sysProjectMapper.getHostAp() + "/SIM/ihandle!getParamSync.action";
+		   // String url = "https://218.65.240.119:8443/SIM/ihandle!getParamSync.action";
+			String responseResult = HttpUtil.sendPostRequest(url, param, httpType);
+			ResultModel resultModel = JSONObject.parseObject(responseResult, ResultModel.class);
+			if (("0").equals(resultModel.getFlag())) {// 如果查询失败了  这里不再弹出  而是直接退出
+				//throw new IllegalArgumentException("sim查询失败：" + resultModel.getMsg());
+				break;
+			}
+			List<List<String>> datas = resultModel.getData();
+			if (datas ==null) {
+				break;
+			}else if (datas.size()==0) {
+				break;
+			}
+			for (List<String> data : datas) {
+				CommonModel commonModel = CommonModel.changeStrToObj(data);
+				GcModel model = new GcModel(commonModel);
+				model.setCityId(sysProject.getId() == null ? "" : sysProject.getId().toString());
+
+				IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc",
+						model.getLte_city_name() + "_" + model.getLte_ci());
+				indexRequestOther.source(JSONObject.toJSONString(model), XContentType.JSON);
+				request.add(indexRequestOther);
+			}
+
+			/** 分批的添加进去 */
+			transportClient.bulk(request).get();
+			
+			try {// 休息一秒 防止立马查询不起作用
+				Thread.sleep(800);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		/** for循环请求数据结束 **/
+		return new JsonMsgUtil(true, "SIM工参更新成功", "");
+	}
+
+	
+	
+	
+	/**
+	 * 根据[地市]条件批量删出数据
+	 * 
+	 * @Description: 仅仅支持 matchMap;termMap; phraseMap;
+	 * @author weichengz
+	 * @date 2019年12月19日 上午10:25:53
+	 */
+	@ResponseBody
+	@PostMapping(value = "/deleteBatchByCity")
+	public JsonMsgUtil deleteBatchByCity(@RequestBody QueryParamData queryParamData) {
+
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
 		}
 
-		/** 分批的添加进去 */
-		BulkResponse bulkResponse = transportClient.bulk(request).get();
-		if (bulkResponse.hasFailures()) {
-			throw new IllegalArgumentException("出现异常：");
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
 		}
-		return new JsonMsgUtil(true, "sim工参更新成功成功", "");
+		if (queryParamData != null) {
+			Map<String, Object> termMap = queryParamData.getTermMap();
+			if (termMap == null) {
+				termMap = new HashMap<>();
+			}
+			termMap.put("cityId.keyword", sysProject.getId().toString());
+		}
+
+		Long deleteBatchNum = Esutil.deleteBatchByCondition(queryParamData);
+		try {// 休息一秒 防止立马查询不起作用
+			Thread.sleep(800);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return new JsonMsgUtil(true, "删出成功,共删出【" + deleteBatchNum + "】条数据", "");
+	}
+
+	/**
+	 * 根据es自己的主键删出
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年11月13日 上午10:50:44
+	 */
+	@ResponseBody
+	@PostMapping(value = "/delete")
+	public JsonMsgUtil delete(@RequestParam("index") String index, @RequestParam("type") String type,
+			@RequestParam("ids") String ids) {
+		if (StringUtils.isNoneBlank(index) && StringUtils.isNoneBlank(type) && StringUtils.isNoneBlank(ids)) {
+			String[] idsArray = ids.trim().split(",");
+			for (String id : idsArray) {
+				Esutil.deleteByDocId(index, type, id);
+			}
+		} else {
+			return new JsonMsgUtil(false, "索引、类型、文档ids不能为空", "");
+		}
+
+		try {// 休息一秒 防止立马查询不起作用
+			Thread.sleep(800);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return new JsonMsgUtil(true, "删出成功", "");
 	}
 }

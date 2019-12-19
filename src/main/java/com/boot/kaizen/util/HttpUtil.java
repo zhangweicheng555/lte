@@ -1,4 +1,5 @@
 package com.boot.kaizen.util;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -6,23 +7,41 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.security.cert.X509Certificate;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.AuthSchemes;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
@@ -38,17 +57,22 @@ import com.boot.kaizen.util.httpip.HttpIpDataInfo;
  */
 public class HttpUtil {
 
-	
 	/**
 	 * 返送post请求 返回效应的json传
-	 * 
+	 * httpType: https 、 http
 	 * @Description: TODO
 	 * @author weichengz
 	 * @date 2019年3月19日 上午10:05:25 "http://localhost:8082/test/test"
 	 */
-	public static String sendPostRequest(String httpUrl, Map<String, Object> paramMap) {
+	public static String sendPostRequest(String httpUrl, Map<String, Object> paramMap,String httpType) {
 		// 获取连接客户端工具
-		CloseableHttpClient httpClient = HttpClients.createDefault();
+		CloseableHttpClient httpClient=null;
+		if (("https").equals(httpType)) {
+			httpClient = HttpUtil.sslClient();
+		}else {
+			httpClient = HttpClients.createDefault();
+		}
+		 
 		String entityStr = null;
 		CloseableHttpResponse response = null;
 		try {
@@ -56,11 +80,11 @@ public class HttpUtil {
 			HttpPost httpPost = new HttpPost(httpUrl);
 			// 设置超时
 			RequestConfig config = RequestConfig.custom()//
-					.setConnectTimeout(60000)// 链接超时 1分钟     10秒=10000
+					.setConnectTimeout(60000)// 链接超时 1分钟 10秒=10000
 					.setConnectionRequestTimeout(300000)// 请求超时
 					.setSocketTimeout(300000)// 读取超时
 					.build();//
-			
+
 			httpPost.setConfig(config);
 			// 创建请求参数
 			List<NameValuePair> list = new LinkedList<>();
@@ -89,10 +113,10 @@ public class HttpUtil {
 			// 打印请求头的所有的信息
 			// System.out.println(Arrays.toString(response.getAllHeaders()));
 		} catch (ClientProtocolException e) {
-			throw new IllegalArgumentException("Http协议出现问题:"+e.getMessage());
+			throw new IllegalArgumentException("Http协议出现问题:" + e.getMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IllegalArgumentException("IO异常:"+e.getMessage());
+			throw new IllegalArgumentException("IO异常:" + e.getMessage());
 		} finally {
 			// 释放连接
 			if (null != response) {
@@ -100,14 +124,64 @@ public class HttpUtil {
 					response.close();
 					httpClient.close();
 				} catch (IOException e) {
-					System.out.println("释放连接出错:"+e.getMessage());// 这个地方不抛出异常
+					e.printStackTrace();
+					System.out.println("释放连接出错:" + e.getMessage());// 这个地方不抛出异常
 				}
 			}
 		}
 		return entityStr;
 	}
 
-	
+	/**
+	 * 
+	 * @Description: 创建处理HTTPs请求客户端
+	 * @author weichengz
+	 * @date 2019年12月19日 下午2:42:14
+	 */
+	public static CloseableHttpClient sslClient() {
+		try {
+			// 在调用SSL之前需要重写验证方法，取消检测SSL
+			X509TrustManager trustManager = new X509TrustManager() {
+				@Override
+				public void checkClientTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
+						throws CertificateException {
+
+				}
+				@Override
+				public void checkServerTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
+						throws CertificateException {
+
+				}
+				@Override
+				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+					return null;
+				}
+			};
+			
+			SSLContext ctx = SSLContext.getInstance(SSLConnectionSocketFactory.TLS);
+			ctx.init(null, new TrustManager[] { trustManager }, null);
+			SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(ctx,
+					NoopHostnameVerifier.INSTANCE);
+			// 创建Registry
+			RequestConfig requestConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD_STRICT)
+					.setExpectContinueEnabled(Boolean.TRUE)
+					.setTargetPreferredAuthSchemes(Arrays.asList(AuthSchemes.NTLM, AuthSchemes.DIGEST))
+					.setProxyPreferredAuthSchemes(Arrays.asList(AuthSchemes.BASIC)).build();
+			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+					.register("http", PlainConnectionSocketFactory.INSTANCE).register("https", socketFactory).build();
+			// 创建ConnectionManager，添加Connection配置信息
+			PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(
+					socketFactoryRegistry);
+			CloseableHttpClient closeableHttpClient = HttpClients.custom().setConnectionManager(connectionManager)
+					.setDefaultRequestConfig(requestConfig).build();
+			return closeableHttpClient;
+		} catch (KeyManagementException ex) {
+			throw new RuntimeException(ex);
+		} catch (NoSuchAlgorithmException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
 	/**
 	 * 获取ip地址
 	 * 
