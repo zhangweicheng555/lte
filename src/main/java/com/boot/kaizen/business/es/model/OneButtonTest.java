@@ -13,6 +13,9 @@ public class OneButtonTest implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String id;
+	//新增地市编号主键20191224
+	private String cityId;// 地市主键  就是原来项目主键   目前根据登陆得账户获取
+	
 	private String operatorService;// 运营商 无           【必须填写】
 	private String netWorkType;// 网络类型 netWorkType   就是我们的网络类型   1 LTE  2 WCDMA   3GSM  4 5G   5  CDMA
 	private String city;// 城市 无
@@ -42,6 +45,14 @@ public class OneButtonTest implements Serializable {
 	
 	
 	
+
+	public String getCityId() {
+		return cityId;
+	}
+
+	public void setCityId(String cityId) {
+		this.cityId = cityId;
+	}
 
 	public Long getTestTimeQuery() {
 		return testTimeQuery;

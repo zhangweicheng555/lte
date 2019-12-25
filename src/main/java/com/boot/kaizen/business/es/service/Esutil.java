@@ -3,6 +3,7 @@ package com.boot.kaizen.business.es.service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,10 +114,6 @@ public class Esutil {
 			TransportClient transportClient = SpringUtil.getBean(TransportClient.class);
 			MultiGetRequestBuilder multiGetRequestBuilder = transportClient.prepareMultiGet();
 			multiGetRequestBuilder.add(index, type, ids);
-			/*
-			 * for (String id : jsonResult) { multiGetRequestBuilder =
-			 * multiGetRequestBuilder.add(index, type, id); }
-			 */
 			MultiGetResponse multiGetItemResponses = multiGetRequestBuilder.get();
 			for (MultiGetItemResponse itemResponse : multiGetItemResponses) {
 				GetResponse response = itemResponse.getResponse();
@@ -133,7 +130,6 @@ public class Esutil {
 
 	@Cacheable(value = "queryPeopleNumByTimeRange")
 	public String testCache(String pid) {
-		System.out.println("--------------------------");
 		return "success";
 	}
 
@@ -282,6 +278,7 @@ public class Esutil {
 
 	private static void createQueryBooleanBuilder(QueryParamData queryParamData, BoolQueryBuilder boolQueryBuilder,
 			BoolQueryBuilder boolFilterBuilder) {
+
 		Map<String, Object> matchMap = queryParamData.getMatchMap();
 		if (matchMap != null && matchMap.size() > 0) {
 			for (Entry<String, Object> entry : matchMap.entrySet()) {
@@ -702,21 +699,86 @@ public class Esutil {
 	}
 
 	/**
-	 * 根据查询条件批量查询数据 matchMap;termMap; phraseMap; //目前仅仅支持这三种查询
+	 * 根据查询条件批量查询数据 matchMap;termMap; phraseMap;orMap
+	 * 目前仅仅支持这四种查询，注意orMap的时候仅仅支持termMap联合使用
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年12月24日 上午11:24:37
 	 */
 	public static Long deleteBatchByCondition(QueryParamData queryParamData) {
 		BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-		BoolQueryBuilder boolFilterBuilder = QueryBuilders.boolQuery();
-
 		TransportClient transportClient = SpringUtil.getBean(TransportClient.class);
+		long deletedNum = 0L;
 
+		deletedNum = delBatchByQueryData(boolQueryBuilder, transportClient, deletedNum,
+				queryParamData);
+
+		return deletedNum;
+	}
+
+	/**
+	 * 
+	 * @Description: 根据索引、类型、ids批量删出 ids格式:1,2,3,4,5,6,7
+	 * @author weichengz
+	 * @date 2019年12月24日 上午11:26:11
+	 */
+	public static Long deleteBatchByIds(String index, String type, String ids) {
+		BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+		TransportClient transportClient = SpringUtil.getBean(TransportClient.class);
+		long deletedNum = 0L;
+
+		QueryParamData queryParamData = new QueryParamData();
+		queryParamData.setIndex(index);
+		queryParamData.setType(type);
+
+		// 构造多个id查询的条件
+		Map<String, List<Object>> orMap = queryParamData.getOrMap();
+		if (orMap == null) {
+			orMap = new HashMap<>();
+		}
+		List<Object> asList = Arrays.asList(ids.trim().split(","));
+		orMap.put("_id", asList);
+		queryParamData.setOrMap(orMap);
+
+		deletedNum = delBatchByQueryData(boolQueryBuilder, transportClient, deletedNum,
+				queryParamData);
+		return deletedNum;
+	}
+
+	private static long delBatchByQueryData(BoolQueryBuilder boolQueryBuilder,TransportClient transportClient, long deletedNum, QueryParamData queryParamData) {
 		// 校验
-		queryParamData.verificationIndexType();
-		createQueryBooleanBuilder(queryParamData, boolQueryBuilder, null);
-
-		BulkByScrollResponse deleteBatchResponse = DeleteByQueryAction.INSTANCE.newRequestBuilder(transportClient)
-				.filter(boolFilterBuilder).source(queryParamData.getIndex()).get();
-		long deletedNum = deleteBatchResponse.getDeleted();
+		if (queryParamData != null) {
+			queryParamData.verificationIndexType();
+			Map<String, List<Object>> orMap = queryParamData.getOrMap();
+			if (orMap != null && !orMap.isEmpty()) {// or查询的时候 仅仅支持 termMap联合使用 其余的不支持
+				TermQueryBuilder orTermQuery = null;
+				for (Entry<String, List<Object>> entry : orMap.entrySet()) {
+					List<Object> kvs = entry.getValue();
+					if (kvs != null && kvs.size() > 0) {
+						for (Object object : kvs) {
+							BoolQueryBuilder bb = QueryBuilders.boolQuery();
+							orTermQuery = QueryBuilders.termQuery(entry.getKey(), object);
+							bb.must(orTermQuery);
+							// 处理term条件
+							Map<String, Object> termMapModel = queryParamData.getTermMap();
+							if (termMapModel != null && termMapModel.size() > 0) {
+								for (Entry<String, Object> entryModel : termMapModel.entrySet()) {
+									orTermQuery = QueryBuilders.termQuery(entryModel.getKey(), entryModel.getValue());
+									bb.must(orTermQuery);
+								}
+							}
+							boolQueryBuilder.should(bb);
+						}
+					}
+				}
+			} else {// 非or查询
+				createQueryBooleanBuilder(queryParamData, boolQueryBuilder, null);
+			}
+			BulkByScrollResponse deleteBatchResponse = DeleteByQueryAction.INSTANCE.newRequestBuilder(transportClient)
+					.filter(boolQueryBuilder).source(queryParamData.getIndex()).get();
+			deletedNum = deleteBatchResponse.getDeleted();
+		}
 		return deletedNum;
 	}
 

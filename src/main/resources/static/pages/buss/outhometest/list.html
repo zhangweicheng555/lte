@@ -23,16 +23,16 @@
 							<form class="form-inline" onsubmit="return false">
 								<div class="form-group">
 									运营商：
-									<input id="operatorService" name="operatorService" type="text"  style="width: 120px;" autocomplete="off"  class="form-control" >&nbsp;&nbsp;&nbsp;&nbsp; 
+									<input id="operatorService" name="operatorService" type="text"  style="width: 100px;" autocomplete="off"  class="form-control" >&nbsp;&nbsp;&nbsp;&nbsp; 
 									城市：
-									<input id="city" name="city" type="text" autocomplete="off"  style="width: 120px;"   class="form-control" > &nbsp;&nbsp;&nbsp;&nbsp;
+									<input id="city" name="city" type="text" autocomplete="off"  style="width: 100px;"   class="form-control" > &nbsp;&nbsp;&nbsp;&nbsp;
 									测试人员：
-									<input id="testPerson" name="testPerson" type="text"  style="width: 120px;"  autocomplete="off"  class="form-control" > &nbsp;&nbsp;&nbsp;&nbsp;
+									<input id="testPerson" name="testPerson" type="text"  style="width: 100px;"  autocomplete="off"  class="form-control" > &nbsp;&nbsp;&nbsp;&nbsp;
 									
 									时间：
-									<input type="text"  id="beginTime" class="form-control"  autocomplete="off"   style="width: 120px;"  name="beginTime">
+									<input type="text"  id="beginTime" class="form-control"  autocomplete="off"   style="width: 100px;"  name="beginTime">
 									-
-									<input type="text"  id="endTime" class="form-control"  autocomplete="off"  style="width: 120px;"  name="endTime">
+									<input type="text"  id="endTime" class="form-control"  autocomplete="off"  style="width: 100px;"  name="endTime">
 									
 									<button id="searchBt" class="layui-btn layui-btn-sm">
 										<i class="layui-icon">&#xe615;</i>搜索
@@ -45,13 +45,17 @@
 						</td>
 						<td align="right">
 							
-							<button id="deleteBtnModel" class="layui-btn layui-btn-sm  layui-btn-danger" style="margin-left: 1px;"  permission="lte:plan:del">
+							<button id="deleteBtnModel" class="layui-btn layui-btn-sm  layui-btn-danger" style="margin-left: 1px;">
 								  <i class="layui-icon">&#xe640;</i>删除
 							</button>
 							
 							<button id="exportBtnModel"   class="layui-btn layui-btn-sm  layui-btn-normal" style="margin-left: 1px;"  >
 								  <i class="layui-icon layui-icon-next"></i>导出
 							</button>
+							
+							<button id="importBtnModel"  onclick="location.href='/pages/buss/outhometest/import.html'" class="layui-btn layui-btn-sm  layui-btn-normal" style="margin-left: 1px;"  >
+								  上传LOG
+							</button> 
 							
 						</td>
 					</tr>
@@ -153,7 +157,7 @@
 	    }
         ,height:'full'
         ,cellMinWidth: 80
-		/* ,size: 'sm'  */
+	   ,size: 'sm'  
 	  });
 	  
 	  
@@ -178,11 +182,15 @@
 	    	parent.layer.msg("您点击了统计分析的模块");
 	        console.info(row);
 	    } else if(obj.event === 'edit'){//地图
+	    	var url="pages/buss/gis/noMessageEvent.html?id=";
+	        var isMsgEvent=row.isMsgEvent;
+	        if('1'==isMsgEvent){
+	        	url="pages/buss/gis/main.html?id=";
+	        }
 	    	var indexModel=parent.layer.open({
 				type: 2, 
 				title:false,
-				content: "pages/buss/gis/noMessageEvent.html?id="+row.id,
-				//content: "pages/buss/gis/main.html?id="+row.id,
+				content: url+row.id,
 				skin:"layui-layer-molv",
 				closeBtn :0,
 				area:["100%","100%"],

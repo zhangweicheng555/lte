@@ -1,5 +1,8 @@
 package com.boot.kaizen.business.es.controller;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -7,20 +10,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
-
+import java.util.UUID;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,10 +27,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSONObject;
+import com.boot.kaizen.business.es.model.MainLogModel;
 import com.boot.kaizen.business.es.model.OneButtonTest;
+import com.boot.kaizen.business.es.model.OtherLogModel;
 import com.boot.kaizen.business.es.model.OutHomeLogModel;
 import com.boot.kaizen.business.es.model.QueryParamData;
+import com.boot.kaizen.business.es.model.logModel.MSignaBean;
+import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
 import com.boot.kaizen.business.es.model.sim.CommonModel;
 import com.boot.kaizen.business.es.model.sim.GcModel;
 import com.boot.kaizen.business.es.model.sim.ResultModel;
@@ -43,6 +47,7 @@ import com.boot.kaizen.model.SysProjectMapper;
 import com.boot.kaizen.service.IProjectMapperService;
 import com.boot.kaizen.service.SysProjectService;
 import com.boot.kaizen.util.AEStest;
+import com.boot.kaizen.util.FileUtil;
 import com.boot.kaizen.util.HttpUtil;
 import com.boot.kaizen.util.JsonMsgUtil;
 import com.boot.kaizen.util.MyDateUtil;
@@ -68,6 +73,8 @@ public class EsBusssController {
 	private SysProjectService sysProjectService;
 	@Autowired
 	private IProjectMapperService projectMapperService;
+	@Value("${files.path}")
+	private String filesCommonPath;
 
 	/**
 	 * 
@@ -80,6 +87,22 @@ public class EsBusssController {
 	public TableResultUtil analyzeLteAllAndComplete(@RequestBody QueryParamData queryParamData) {
 
 		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
+		
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
+		} else {
+			if (StringUtils.isBlank(sysProject.getProjCode())) {
+				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的sim地市不存在");
+			}
+		}
+		clearMapEmptyVal.put("cityId.keyword", sysProject.getId()+"");
+		
 		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
 		queryParamData.handleFieldRange("beginTime", queryParamData.getBeginTime(), null);
 		queryParamData.handleFieldRange("endTime", null, queryParamData.getEndTime());
@@ -105,7 +128,7 @@ public class EsBusssController {
 			throw new IllegalArgumentException("该用户不属于当前项目");
 		}
 		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
-		// clearMapEmptyVal.put("lte_city_name.keyword", sysProject.getProjCode());
+		clearMapEmptyVal.put("cityId.keyword", sysProject.getId() + "");
 		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
 		QueryParamData paramData = Esutil.queryPage(queryParamData);
 		return new TableResultUtil(0L, "操作成功", paramData.getTotalNums(), paramData.getRows());
@@ -141,73 +164,54 @@ public class EsBusssController {
 
 	/**
 	 * 
-	 * @Description: 室外测试的删出 这个ids是 室外测试的id 非文档id
+	 * @Description: 室外测试的删出 这个ids是 室外测试的id 非文档id 仅仅支持单个删出
 	 * @author weichengz
-	 * @throws ExecutionException
-	 * @throws InterruptedException
 	 * @date 2019年11月13日 上午11:27:46
 	 */
-
 	@ResponseBody
 	@PostMapping(value = "/deleteOutHome")
-	public JsonMsgUtil deleteOutHome(@RequestParam("ids") String ids) throws InterruptedException, ExecutionException {
+	public JsonMsgUtil deleteOutHome(@RequestParam("ids") String ids) {
 		if (StringUtils.isNoneBlank(ids)) {
 			String[] idsArray = ids.trim().split(",");
-
-			BulkRequestBuilder request = transportClient.prepareBulk();
 			for (String id : idsArray) {
-				// 查询出主log的文档id
-				QueryParamData queryParamData = new QueryParamData("logouthome", "logouthome",
-						MyUtil.createHashMap("id.keyword~" + id), Arrays.asList("pk"), 1, 1);
+				QueryParamData queryParamData = new QueryParamData("logouthome", "logouthome",MyUtil.createHashMap("id.keyword~" + id), Arrays.asList("pk","filePath"), 1, 1);
 				List<Map<String, Object>> datas = Esutil.scrollQuery(queryParamData);
 				if (datas != null && datas.size() > 0) {
-					Map<String, Object> resultMap = datas.get(0);
+					Map<String, Object> resultMap = datas.get(0);// 查询出室外测试的主键ID
 					// 查询主日志
-					QueryParamData queryParamDataMsg = new QueryParamData("logmain", "logmain",
-							MyUtil.createHashMap("pid.keyword~" + id), Arrays.asList("pk"), 1000);
-					List<Map<String, Object>> datasMsg = Esutil.scrollQuery(queryParamDataMsg);
-					addDeleteRequest(request, datasMsg, "logmain", "logmain");
-
+					QueryParamData queryParamDataMsg = new QueryParamData("logmain", "logmain",MyUtil.createHashMap("pid.keyword~" + id), null, 1000);
+					Esutil.deleteBatchByCondition(queryParamDataMsg);
 					// 查询大信息字段
-					QueryParamData queryParamDataEvent = new QueryParamData("logmessage", "logmessage",
-							MyUtil.createHashMap("ppid.keyword~" + id), Arrays.asList("pk"), 1000);
-					List<Map<String, Object>> datasEvent = Esutil.scrollQuery(queryParamDataEvent);
-					addDeleteRequest(request, datasEvent, "logmessage", "logmessage");
-
+					QueryParamData queryParamDataEvent = new QueryParamData("logmessage", "logmessage",MyUtil.createHashMap("ppid.keyword~" + id), null, 1000);
+					Esutil.deleteBatchByCondition(queryParamDataEvent);
 					// 其他
-					QueryParamData queryParamDataOther = new QueryParamData("logother", "logother",
-							MyUtil.createHashMap("ppid.keyword~" + id), Arrays.asList("pk"), 1000);
-					List<Map<String, Object>> datasOther = Esutil.scrollQuery(queryParamDataOther);
-					addDeleteRequest(request, datasOther, "logother", "logother");
+					QueryParamData queryParamDataOther = new QueryParamData("logother", "logother",MyUtil.createHashMap("ppid.keyword~" + id), null, 1000);
+					Esutil.deleteBatchByCondition(queryParamDataOther);
+					//删出室外测试的log
+					String filePath = resultMap.get("filePath").toString();
+					File file=new File(filesCommonPath+filePath);
+					if (file.exists()) {
+						file.delete();
+					}
 					// 删出室外测试
 					Esutil.deleteByDocId("logouthome", "logouthome", resultMap.get("pk").toString());
 				}
 			}
-			request.get();// 执行
+			try {
+				Thread.sleep(800);// 休眠
+			} catch (InterruptedException e) {
+				
+			}
 		} else {
 			return new JsonMsgUtil(false, "索引、类型、文档ids不能为空", "");
 		}
 		return new JsonMsgUtil(true, "删出成功", "");
 	}
 
-	/**
-	 * 添加删出请求
-	 * 
-	 * @Description: TODO
-	 * @author weichengz
-	 * @date 2019年11月13日 下午12:01:45
-	 */
-	private void addDeleteRequest(BulkRequestBuilder request, List<Map<String, Object>> datasMsg, String index,
-			String type) {
-		if (datasMsg != null && datasMsg.size() > 0) {
-			for (Map<String, Object> map : datasMsg) {
-				request.add(transportClient.prepareDelete(index, type, map.get("pk").toString()).request());
-			}
-		}
-	}
 
 	/**
-	 *
+	 * 缺少地市过滤条件
+	 * 
 	 * @Description: 一键测试列表查询
 	 * @author weichengz
 	 * @date 2019年11月13日 上午9:59:12
@@ -316,7 +320,7 @@ public class EsBusssController {
 	}
 
 	/**
-	 * 主服务小区查询
+	 * 主服务小区查询   
 	 * 
 	 * @Description: TODO
 	 * @author weichengz
@@ -325,12 +329,27 @@ public class EsBusssController {
 	@ResponseBody
 	@PostMapping(value = "/queryMainService")
 	public List<Map<String, Object>> queryMainService(@RequestParam(value = "longitude") String longitude,
-			@RequestParam(value = "latitude") String latitude) {
+			@RequestParam(value = "latitude") String latitude,@RequestParam(value = "mainLogId") String mainLogId) {
 
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
+		} else {
+			if (StringUtils.isBlank(sysProject.getProjCode())) {
+				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的sim地市不存在");
+			}
+		}
+		
 		// 查询主log的 cELLID cI eNB
 		Map<String, Object> termMainMap = new HashMap<>();
 		termMainMap.put("longitude", longitude);
 		termMainMap.put("latitude", latitude);
+		termMainMap.put("pid", mainLogId);
 
 		QueryParamData queryMainParamData = new QueryParamData("logmain", "logmain", termMainMap,
 				Arrays.asList("cI", "cELLID", "eNB"), 1);
@@ -342,6 +361,7 @@ public class EsBusssController {
 			String enb = map.get("eNB").toString();
 
 			Map<String, Object> termMap = new HashMap<String, Object>();
+			termMap.put("cityId.keyword", sysProject.getId()+"");
 			termMap.put("lte_ecgi.keyword", cellId);
 			QueryParamData queryParamData = new QueryParamData("simgc", "simgc", termMap,
 					Arrays.asList("lte_longitude2", "lte_latitude2"), 1);
@@ -362,11 +382,25 @@ public class EsBusssController {
 	}
 
 	/**
-	 * 对角坐标查询
+	 * 对角坐标查询工参信息
 	 */
 	@ResponseBody
 	@PostMapping(value = "/boundingBoxQuery")
 	public List<Map<String, Object>> boundingBoxQuery(@RequestBody QueryParamData queryParamData) {
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
+		} else {
+			if (StringUtils.isBlank(sysProject.getProjCode())) {
+				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的sim地市不存在");
+			}
+		}
+		
 		// 处理一下对角坐标 这里面pid接收
 		String pid = queryParamData.getPid();
 		if (StringUtils.isNoneBlank(pid)) {
@@ -382,14 +416,24 @@ public class EsBusssController {
 				geoMap.put("location", points);
 				queryParamData.setGeoMap(geoMap);
 			}
-			return Esutil.scrollQuery(queryParamData);
+			
+			//处理本地是的查询条件
+			Map<String, Object> termMap = queryParamData.getTermMap();
+			if (termMap == null) {
+				termMap=new HashMap<>();
+			}
+			
+			termMap.put("cityId.keyword", sysProject.getId()+"");
+			queryParamData.setTermMap(termMap);
+			List<Map<String, Object>> scrollQueryList = Esutil.scrollQuery(queryParamData);
+			return scrollQueryList;
 		} else {
 			return new ArrayList<>();
 		}
 	}
 
 	/**
-	 * 
+	 * 查询邻区的拉线问题  只查询距离最近的一个
 	 * @Description: 查询距离某个最近的点 这里默认是 公里为单位 传入的是经纬度
 	 * @author weichengz
 	 * @date 2019年11月22日 下午2:37:43
@@ -397,6 +441,21 @@ public class EsBusssController {
 	@ResponseBody
 	@PostMapping(value = "/queryNearPoint")
 	public List<Map<String, Object>> queryNearPoint(@RequestBody QueryParamData queryParamData) {
+
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
+		} else {
+			if (StringUtils.isBlank(sysProject.getProjCode())) {
+				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的sim地市不存在");
+			}
+		}
+		
 		// 这里用pid接收 经纬度
 		String pid = queryParamData.getPid();
 		if (StringUtils.isNoneBlank(pid)) {
@@ -405,6 +464,15 @@ public class EsBusssController {
 				GeoPoint ceterPoint = new GeoPoint(Double.valueOf(pointArray[1]), Double.valueOf(pointArray[0]));
 				// 处理
 				queryParamData.dealGeoDiatanceBuss(ceterPoint, 10000D, "location");
+				
+				//处理该地市的查询条件
+				Map<String, Object> termMap = queryParamData.getTermMap();
+				if (termMap != null) {
+					termMap=new HashMap<>();
+				}
+				termMap.put("cityId.keyword", sysProject.getId()+"");
+				queryParamData.setTermMap(termMap);
+				
 				return Esutil.queryList(queryParamData);
 			}
 			return new ArrayList<>();
@@ -447,7 +515,7 @@ public class EsBusssController {
 			}
 			if (StringUtils.isBlank(sysProjectMapper.getHostAp())) {
 				throw new IllegalArgumentException("项目【" + sysProjectMapper.getProjName() + "】不存在sim工参地址");
-			}else {
+			} else {
 				String hostAp = sysProjectMapper.getHostAp().toLowerCase();
 				if (hostAp.contains("https")) {
 					httpType = "https";
@@ -458,13 +526,12 @@ public class EsBusssController {
 			}
 		}
 
-
 		/** for循环请求数据开始 **/
-		for (int i = 0; i < 100000000; i++) {	
-			System.out.println("-------------------------------------------");
+		for (int i = 0; i < 100000000; i++) {
+			System.out.println("----------------------第【" + i + "】批开始添加---------------------");
 
-			Integer limit=5000;//每次拿3000条数据
-			
+			Integer limit = 5000;// 每次拿3000条数据
+
 			BulkRequest request = new BulkRequest();
 
 			Map<String, Object> paramMap = new HashMap<>();
@@ -476,26 +543,26 @@ public class EsBusssController {
 			paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
 					"lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm");
 
-			paramMap.put("limit", ""+i*limit+","+limit); // 不限制就是全部的
+			paramMap.put("limit", "" + i * limit + "," + limit); // 不限制就是全部的
 
 			String token = AEStest.encrypt(JSONObject.toJSONString(paramMap), "zcto8k3i*a2c6");
 
 			Map<String, Object> param = new HashMap<>();
 			param.put("askJson", token);
 			// https://218.65.240.119:8443/
-			
+
 			String url = sysProjectMapper.getHostAp() + "/SIM/ihandle!getParamSync.action";
-		   // String url = "https://218.65.240.119:8443/SIM/ihandle!getParamSync.action";
+			// String url = "https://218.65.240.119:8443/SIM/ihandle!getParamSync.action";
 			String responseResult = HttpUtil.sendPostRequest(url, param, httpType);
 			ResultModel resultModel = JSONObject.parseObject(responseResult, ResultModel.class);
-			if (("0").equals(resultModel.getFlag())) {// 如果查询失败了  这里不再弹出  而是直接退出
-				//throw new IllegalArgumentException("sim查询失败：" + resultModel.getMsg());
+			if (("0").equals(resultModel.getFlag())) {// 如果查询失败了 这里不再弹出 而是直接退出
+				// throw new IllegalArgumentException("sim查询失败：" + resultModel.getMsg());
 				break;
 			}
 			List<List<String>> datas = resultModel.getData();
-			if (datas ==null) {
+			if (datas == null) {
 				break;
-			}else if (datas.size()==0) {
+			} else if (datas.size() == 0) {
 				break;
 			}
 			for (List<String> data : datas) {
@@ -504,14 +571,14 @@ public class EsBusssController {
 				model.setCityId(sysProject.getId() == null ? "" : sysProject.getId().toString());
 
 				IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc",
-						model.getLte_city_name() + "_" + model.getLte_ci());
+						sysProject.getId() + "_" + model.getLte_city_name() + "_" + model.getLte_ci());
 				indexRequestOther.source(JSONObject.toJSONString(model), XContentType.JSON);
 				request.add(indexRequestOther);
 			}
 
 			/** 分批的添加进去 */
 			transportClient.bulk(request).get();
-			
+
 			try {// 休息一秒 防止立马查询不起作用
 				Thread.sleep(800);
 			} catch (InterruptedException e) {
@@ -522,9 +589,6 @@ public class EsBusssController {
 		return new JsonMsgUtil(true, "SIM工参更新成功", "");
 	}
 
-	
-	
-	
 	/**
 	 * 根据[地市]条件批量删出数据
 	 * 
@@ -545,6 +609,7 @@ public class EsBusssController {
 		if (sysProject == null) {
 			throw new IllegalArgumentException("该用户不属于任何地市");
 		}
+
 		if (queryParamData != null) {
 			Map<String, Object> termMap = queryParamData.getTermMap();
 			if (termMap == null) {
@@ -589,4 +654,126 @@ public class EsBusssController {
 		}
 		return new JsonMsgUtil(true, "删出成功", "");
 	}
+
+	/**
+	 * 
+	 * @Description: 室外测试的文件导入
+	 * @author weichengz
+	 * @date 2019年11月5日 上午11:45:35
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/importOutHomeLog")
+	public JsonMsgUtil importOutHomeLog(@RequestParam(value = "file", required = false) MultipartFile file)
+			throws Exception {
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
+		}
+
+		if (file != null && StringUtils.isNoneBlank(file.getOriginalFilename()) && !file.isEmpty()) {
+			
+			String isMsgEvent="0";//是否具备信令 事件  0是不具备
+			
+			String outHomeTestId = MyUtil.getUuid();// 室外测试列表的id 后续所有的操作 都会以这个为索引主键
+			BufferedReader bufferedReader = null;
+			bufferedReader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+			BulkRequest request = new BulkRequest();
+			String str = null;// 文件里面一行记录
+			String beginTime = null;// 日志测试的开始事件
+			int num = 0;
+			SignalDataBean signalDataBeanFinal = null;// 记录最后一跳记录 室外测试
+			while ((str = bufferedReader.readLine()) != null) {
+				String id = MyUtil.getUuid();
+				SignalDataBean signalDataBean = JSONObject.parseObject(str, SignalDataBean.class);
+				if (num == 0) {// 用于记录第一条记录
+					beginTime = signalDataBean.getTestTime();
+					num++;
+				}
+				IndexRequest indexRequestMain = new IndexRequest("logmain", "logmain", id);
+				signalDataBean.setPid(outHomeTestId);// 室外测试的主键id
+				signalDataBean.setId(id);/** 赋值 注意这个很重要 一定要先赋值 */
+				// 信令 大字段信息表得 存储
+				String isMsgEventModel = handleMsgInfoField(signalDataBean, request,isMsgEvent);
+				if (("1").equals(isMsgEventModel)) {
+					isMsgEvent=isMsgEventModel;
+				}
+				// 主表信息转移
+				MainLogModel mainLogModel = new MainLogModel(signalDataBean);
+				indexRequestMain.source(JSONObject.toJSONString(mainLogModel), XContentType.JSON);
+				request.add(indexRequestMain);
+				// 其他信息直接存入 不做处理
+				IndexRequest indexRequestOther = new IndexRequest("logother", "logother");
+				OtherLogModel otherLogModel = new OtherLogModel(signalDataBean);
+				indexRequestOther.source(JSONObject.toJSONString(otherLogModel), XContentType.JSON);
+				request.add(indexRequestOther);
+				signalDataBeanFinal = signalDataBean;// 记录最后一条记录
+			}
+			// 存储文件
+			String fileStorePath = FileUtil.upFileNew(file, filesCommonPath, "outhomelog");
+			// 处理最后一条记录的 就是 室外测试 列表
+			handleOutHomeTest(signalDataBeanFinal, request, beginTime,
+					FileUtil.getFilenameByOriginal(file.getOriginalFilename()), fileStorePath, sysProject.getId() + "",isMsgEvent);
+			/** 分批的添加进去 */
+			transportClient.bulk(request).get();
+			if (bufferedReader != null) {
+				bufferedReader.close();
+			}
+		}
+		return new JsonMsgUtil(true, "导入成功", "");
+	}
+
+	/**
+	 *
+	 * @Description: 室外测试的列表添加记录 处理最后一条记录的
+	 * @author weichengz
+	 * @date 2019年11月11日 上午10:25:31
+	 */
+	private void handleOutHomeTest(SignalDataBean signalDataBeanFinal, BulkRequest request, String beginTime,
+			String fileName, String filePath, String cityId,String isMsgEvent) {
+		IndexRequest indexRequestOutHome = new IndexRequest("logouthome", "logouthome", signalDataBeanFinal.getPid());
+		OutHomeLogModel outHomeLogModel = new OutHomeLogModel(signalDataBeanFinal, beginTime);
+		outHomeLogModel.setCityId(cityId);
+		outHomeLogModel.setIsMsgEvent(isMsgEvent);
+		outHomeLogModel.setFileName(fileName);
+		outHomeLogModel.setFileUpTime(new Date().getTime());// 文件上传日期
+		outHomeLogModel.setFilePath(filePath);
+		indexRequestOutHome.source(JSONObject.toJSONString(outHomeLogModel), XContentType.JSON);
+		request.add(indexRequestOutHome);
+	}
+
+	/**
+	 * 处理信令里面得大字段信息存储
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年11月7日 下午4:23:50
+	 */
+	private String handleMsgInfoField(SignalDataBean signalDataBean, BulkRequest request,String isMsgEvent) {
+		ArrayList<MSignaBean> signaBeans = signalDataBean.getmSignaBean();
+		if (signaBeans !=null && signaBeans.size()>0) {
+			isMsgEvent="1";//设置具备信令事件日志
+		}
+		for (MSignaBean mSignaBean : signaBeans) {
+			String id = UUID.randomUUID().toString().replace("-", "");
+			String msg = mSignaBean.getmMeaasge();
+			IndexRequest indexRequestEvent = new IndexRequest("logmessage", "logmessage");
+			Map<String, Object> paramMap = new HashMap<>();
+			paramMap.put("id", id); // 单条信令得id
+			paramMap.put("ppid", signalDataBean.getPid()); // 室外测试列表的id
+			paramMap.put("pid", signalDataBean.getId()); // 主log得id
+			paramMap.put("message", msg);// 信令得信息 大字段信息
+			paramMap.put("latitude", signalDataBean.getLatitude()); // 主 纬度
+			paramMap.put("longitude", signalDataBean.getLongitude()); // 主经度
+			mSignaBean.setmMeaasge(id);
+			indexRequestEvent.source(JSONObject.toJSONString(paramMap), XContentType.JSON);
+			request.add(indexRequestEvent);
+		}
+		return isMsgEvent;
+	}
+
 }

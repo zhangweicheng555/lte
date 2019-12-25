@@ -35,6 +35,7 @@ public class QueryParamData implements Serializable {
 	private Map<String, GeoPoint> sortGeoMap; // 地理查询的时候的排序  仅仅支持ASC   key匹配的地理字段   v:中心点
 	private Map<String, Object> sortMap; // 排序字段  两个排序 一般最好选择 之一
 	
+	//这个ormap可以用于根据多个id查询数据
 	private Map<String, List<Object>> orMap; // or条件模式查询时用(or的时候 仅仅支持termMap联合使用)   注意 如果or中有过滤的条件 放在 termMap  里面  (a=b and c=d) or (a=b and f=e) 这个a就可以放在termMap里面
 	                                         // list  是key对应的值列表
 	
@@ -64,6 +65,11 @@ public class QueryParamData implements Serializable {
 	
 	
 	
+	public QueryParamData(String index, String type) {
+		super();
+		this.index = index;
+		this.type = type;
+	}
 	public List<String> getExcludeFields() {
 		return excludeFields;
 	}

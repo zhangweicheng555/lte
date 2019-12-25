@@ -3,7 +3,7 @@ package com.boot.kaizen.business.es.model.logModel;
 import java.util.ArrayList;
 
 /**
- * 主题序列化实体类
+ * 室外测试日志的格式 实体类
  * 
  * @author weichengz
  * @date 2019年11月4日 下午2:42:53

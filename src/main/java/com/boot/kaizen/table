@@ -1,0 +1,138 @@
+
+
+1. 工参simgc/simgc
+    private Map<String, Double> location;
+	private String cityId;// 地市主键  就是原来项目主键   目前根据登陆得账户获取
+	public String lte_azimuth;// 方位角
+	public String lte_cell;// Cell
+	public String lte_ci;// CI
+	public String lte_city_name;// 城市
+	public String lte_earfcn;// EARFCN
+	public String lte_ecgi;// lte_ecgi
+	public String lte_electronic_downdip;// 电子倾角
+	public String lte_enodebid;// eNodeBID
+	public String lte_firm;// 厂商
+	public String lte_grid;// 网格归属
+	public String lte_longitude2;// 经度 百度的
+	public String lte_latitude2;// 纬度 百度的
+	public String lte_longitude;
+	public String lte_latitude;
+	public String lte_mechanical_downdip;// 机械下倾角
+	public String lte_net;// 网络
+	public String lte_phycellid;// PhyCellId 这个就是PCI
+	public String lte_site_tall;// 站高
+	public String lte_site_type;// 站型
+	public String lte_tac;// TAC
+	public String lte_sys;// 制式
+	public String lte_total_downdip;// 总下倾角
+	public String lte_sector_id;// Sector ID
+	public String lte_derrick_type;// 抱杆类型
+	public String lte_address;// 详细地址
+	public String lte_scene;// 场景归属
+	
+2.一键测试onebuttontest/onebuttontest
+    private String id;
+	//新增地市编号主键20191224
+	private String cityId;// 地市主键  就是原来项目主键   目前根据登陆得账户获取
+	private String operatorService;// 运营商 无           【必须填写】
+	private String netWorkType;// 网络类型 netWorkType   就是我们的网络类型   1 LTE  2 WCDMA   3GSM  4 5G   5  CDMA
+	private String city;// 城市 无
+	private String county;// 区县 无
+	private String testPerson;// 测试人员 无
+	private String phoneType;// 手机型号 无
+	private String phoneNo;// 手机号码
+	private String imsi;// IMSI 无
+	private String testTime;// 测试时间
+	private String latitude;// 纬度
+	private String longitude;// 经度
+	private String testLocation;// 测试位置
+	private String downRate;// 下载速度
+	private String upRate;// 上传速度
+	private String pingFlag;// PIng
+	private String httpFlag;// http
+	private String avgRsrp;// 平均RSRP
+	private String avgSinr;// 平均SINR
+	private String cellName;// 小区名字
+	private String enodebid;// 站号
+	private String ci;// CI
+	private String frequencyBand;// 频段
+	private String pci;// PCI
+	private String tac;// TAC
+	private Long testTimeQuery;// 测试时间查询字段使用
+	
+3.室外测试的列表logouthome/logouthome
+    private String id;// 主键   
+	private String fileName;// 文件名
+	private Long fileUpTime;// 文件上传日期
+	private String filePath;// 文件路径 这个不导出
+	private String operatorService;// 运营商 无 【这个必须填写】
+	private String netWorkType;// 网络类型 netWorkType 【 这个必须填写 这个目前数据的LTE】
+	private String city;// 城市 无
+	private String county;// 地市 无
+	private String testPerson;// 测试人员 无
+	private String phoneType;// 手机型号 无
+	private String imsi;// IMSI 无
+	private String testTime;// 测试时长 cssc
+	private Long beginTime;// 开始时间 应该是 当前时间testTime
+	private Long endTime;// 结束时间 应该是最后一条记录的当前时间
+	private String totalMileage;// 总里程 最后一条记录的zlc
+	private String coverPersent;// 覆盖率（RSRP>= -） SINR >=-3 fgl 最后一条记录的覆盖率
+	private String avgRsrp;// 平均RSRP rsrpp
+	private String avgSinr;// 平均SINR sinrp
+	private String avgDownRate;// 下载平均速率 downloadAvg
+	private String avgUpRate;// 上传平均速率 uploadAvg
+	// 新增20191224
+	private String cityId;// 新增地市id
+	
+4.单独信令表 logmessage/logmessage
+			paramMap.put("id", id); // 这个id是主log表里面信令字段中Meaasge的值
+			paramMap.put("ppid", signalDataBean.getPid()); // 室外测试列表的id
+			paramMap.put("pid", signalDataBean.getId()); // 主log得id
+			paramMap.put("message", msg);// 信令得信息 大字段信息
+			paramMap.put("latitude", signalDataBean.getLatitude()); // 主 纬度
+			paramMap.put("longitude", signalDataBean.getLongitude()); // 主经度
+
+5.主log信息 logmain/logmain
+    
+    private String pid;// 室外测试的id
+	private String id;// 自定义编号ID 注意这个非log上传信息 注意这个id一定要在log值转换之前的时候 付给原来的log日志的信息
+	private String latitude;// 纬度
+	private String longitude;// 经度
+	private String sinr;
+	private String rsrp;
+	private String CellName;
+	private String CI;
+	private String CELLID;
+	private String NetWorkType;
+	private String TAC;
+	private String ENB;
+	private String SPEED;
+	private String downLoadSpeed;
+	private String upLoadSpeed;
+	private String normalEventType;// 业务事件正常类型
+	private String abNormalEventType;// 业务事件异常类型
+	private int eventType;// 事件，0没有，1http失败，2ping失败，3ftp连接失败，4ftp掉线，5语音未接通，6语音掉线
+	private String siteLat;
+	private String siteLng;
+	private int angle;// 角度
+	private String pci;
+	private String earfcn;
+	private Long testTime;
+	/* 0:上传和下载 1:上传 2:下载 */
+	private int ftpType = -1;
+	private OurDoorDataInfoBean doorDataInfoBeans;
+	private ArrayList<MSignaEventBean> mSignaEventBean;// 一秒钟事件
+	private ArrayList<MSignaBean> mSignaBean;// 一秒钟信令
+	
+6.其他信息 这里不做处理logother/logother	
+    
+    private String ppid;// 室外测试信息的id
+	private String pid;// 主日志信息的id
+	private PingzbBean pingzbBean;
+	private HttpzbBean httpzbBean;
+	private FtpzbBean ftpzbBean;
+	private YyzbBean Yyzbbean;
+	private WxzbBean wxzbBean;
+	private PowerBean powerBean;
+	private ZbBean zbBean;// 指标参数
+	private ProIndicators proIndicators;// 专业指标

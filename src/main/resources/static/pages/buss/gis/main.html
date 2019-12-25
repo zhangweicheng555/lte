@@ -267,7 +267,7 @@
 		   }
 		
 	  $.ajax({
-		   type:"POST",url:"/es/buss/queryMainService",dataType: "json",data:{"longitude":lng,"latitude":lat}
+		   type:"POST",url:"/es/buss/queryMainService",dataType: "json",data:{"longitude":lng,"latitude":lat,"mainLogId":mainLogId}
 		   ,success: function(msg){
 			   if(msg && msg.length>0){
 				   overlayArray=[];
@@ -394,7 +394,7 @@
 					   common.closeLoadingDialog();
 					  if(msg !=null && msg.length>0){
 						  for(var i=0;i<msg.length;i++){
-							  var model=msg[i];
+							        var model=msg[i];
 							        //地图渲染点 并且移动--这个地图后期是拉线得问题
 							        lnglatSetMapPoint(model.longitude, model.latitude);
 							        //加载左下角得数据
@@ -403,7 +403,7 @@
 							        upEventInfo(model.longitude, model.latitude);
 							        //主服务器拉线
 							        //加载主的邻区信息
-							       	 dealMainCellInfo(longitude,latitude);
+							       	dealMainCellInfo(longitude,latitude);
 							        
 						  }
 					  }
@@ -576,10 +576,11 @@
 			    //加载地图sim平台的地图坐标信息  右上、左下
 			    if(mapZoom >=17){
 			    	//只有回访结束的时候  这个才起作用
-					    loadSimMarker(bssw.lng,bsne.lat,bsne.lng,bssw.lat);
+					   
 			    	/* if(playEnd){
 			    	} */
 			    }
+			    loadSimMarker(bssw.lng,bsne.lat,bsne.lng,bssw.lat);
 		 });
 		
 		 /***地图部分结束  */
@@ -601,7 +602,7 @@
 			   ,url: "/es/buss/boundingBoxQuery"
 			   ,dataType: "json"
 			   ,contentType:"application/json;charset=utf-8"
-			   ,data: '{"type":"simgc","pid":"'+strModel+'","index":"simgc","limit":1000,"termMap":{"lte_city_name.keyword":"南宁"},"revelFields":["lte_azimuth","lte_ci","lte_longitude2","lte_latitude2"],"revelPk":"false"}'
+			   ,data: '{"type":"simgc","pid":"'+strModel+'","index":"simgc","limit":1000,"termMap":{},"revelFields":["lte_azimuth","lte_ci","lte_longitude2","lte_latitude2"],"revelPk":"false"}'
 			   ,success: function(msg){
 				  if(msg && msg.length>0){
 					  simGcModel=msg;
@@ -613,9 +614,10 @@
 			});	
 	}
 
-	var markersArray = [];//存储sim工参的标记
+	var markersArray = [];//存储sim工参的marker标记
 	//循环处理sim工参
 	function cycleSimGc(){
+		
 		//先清空之前的标记
 		if(markersArray != null  && markersArray.length>0){
 			for(var i=0;i<markersArray.length;i++){
@@ -625,13 +627,21 @@
 		}
 		
 		if(simGcModel && simGcModel.length>0){
+			var simNodeLength= simGcModel.length;
+			console.info(simNodeLength);
+			var markersBigArray = [];
 			for(var i=0;i<simGcModel.length;i++){
-				if(i<400){
-					var obj=simGcModel[i];
-					addRotationMarker(obj.lte_longitude2,obj.lte_latitude2,obj.lte_azimuth,markersArray);
+				var obj=simGcModel[i];
+				var lonModelEx=obj.lte_longitude2;
+				var latModelEx=obj.lte_latitude2;
+				if(lonModelEx && latModelEx){
+					addRotationMarker(lonModelEx,latModelEx,obj.lte_azimuth,markersArray,simNodeLength);
 				}
 			}
-		//	var markerClusterer = new BMapLib.MarkerClusterer(map, {markers:markersArray});
+			
+			if(markersArray.length>0 && simNodeLength>=500){
+				var markerClusterer = new BMapLib.MarkerClusterer(map, {markers:markersArray});
+			}
 		}
 	}
 
@@ -646,7 +656,6 @@
 			    fillOpacity: 0.8
 			  })
 			});
-		//zhangweicheng
 		map.addOverlay(vectorFCArrow);//添加覆盖物
 		markersArray.push(vectorFCArrow);
 	}
@@ -801,7 +810,7 @@ function queryButtonDta(longitudeModel,latitudeModel){//dealLine  是否处理  
 		   ,dataType: "json"
 		   , async: false
 		   ,contentType:"application/json;charset=utf-8"
-		   ,data: '{"type":"logmain","index":"logmain","limit":1,"termMap":{"longitude":"'+longitudeModel+'","latitude":"'+latitudeModel+'"},"sortMap":{"testTime":"ASC"},"revelFields":["id","longitude","latitude","cellName","sinr","rsrp","cI","tAC","pci","cELLID","eNB","earfcn","doorDataInfoBeans","testTime"]}'
+		   ,data: '{"type":"logmain","index":"logmain","limit":1,"termMap":{"longitude.keyword":"'+longitudeModel+'","latitude.keyword":"'+latitudeModel+'","pid.keyword":"'+mainLogId+'"},"sortMap":{"testTime":"ASC"},"revelFields":["id","longitude","latitude","cellName","sinr","rsrp","cI","tAC","pci","cELLID","eNB","earfcn","doorDataInfoBeans","testTime"]}'
 		   ,success: function(msg){
 			  if(msg && msg.length>0){
 				  var lteLayoutLhtml="";
@@ -876,7 +885,7 @@ function lqLineOperate(longitudeModel,latitudeModel,linquPci,overlayLqArray){
 		   ,url: "/es/buss/queryNearPoint"
 		   ,dataType: "json"
 		   ,contentType:"application/json;charset=utf-8"
-		   ,data: '{"type":"simgc","index":"simgc","limit":1,"pid":"'+longitudeModel+"_"+latitudeModel+'","termMap":{"lte_phycellid.keyword":"'+linquPci+'","lte_city_name.keyword":"南宁"}}'
+		   ,data: '{"type":"simgc","index":"simgc","limit":1,"pid":"'+longitudeModel+"_"+latitudeModel+'","termMap":{"lte_phycellid.keyword":"'+linquPci+'"}}'
 		   ,success: function(msg){
 			  if(msg && msg.length>0){
 				  for(var i=0;i<msg.length;i++){
@@ -893,7 +902,7 @@ function lqLineOperate(longitudeModel,latitudeModel,linquPci,overlayLqArray){
 
 
 
-//格式化 时间戳
+//格式化时间戳
 function formatMyTime(timestamp){
 	if(timestamp){
 	    var date = new Date(timestamp);
