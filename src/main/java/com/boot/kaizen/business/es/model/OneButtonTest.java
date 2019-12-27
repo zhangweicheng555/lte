@@ -2,6 +2,10 @@ package com.boot.kaizen.business.es.model;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.boot.kaizen.util.LngLatUtil;
+
 /**
  * 一键测试  onebuttontest
  * 
@@ -25,8 +29,8 @@ public class OneButtonTest implements Serializable {
 	private String phoneNo;// 手机号码
 	private String imsi;// IMSI 无
 	private String testTime;// 测试时间
-	private String latitude;// 纬度
-	private String longitude;// 经度
+	private String latitude;// 纬度   百度
+	private String longitude;// 经度  百度
 	private String testLocation;// 测试位置
 	private String downRate;// 下载速度
 	private String upRate;// 上传速度
@@ -46,6 +50,25 @@ public class OneButtonTest implements Serializable {
 	
 	
 
+	/**
+	 * 
+	 * @Description: 将百度地图转为wgs84
+	 * @author weichengz
+	 * @date 2019年12月27日 下午4:44:28
+	 */
+	public void dealLngLatBdToWgs84() {
+		if (StringUtils.isNotBlank(latitude) && StringUtils.isNotBlank(longitude)) {
+			String bd2wgs84 = LngLatUtil.bd2wgs84(Double.valueOf(longitude), Double.valueOf(latitude));
+			if (bd2wgs84 != null) {
+				String[] split = bd2wgs84.split("_");
+				if (split != null && split.length == 2) {
+					latitude = split[1];
+					longitude = split[0];
+				}
+			}
+		}
+	}
+	
 	public String getCityId() {
 		return cityId;
 	}

@@ -8,15 +8,12 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-
 import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -49,16 +46,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.boot.kaizen.business.es.model.MainLogModel;
 import com.boot.kaizen.business.es.model.OneButtonTest;
-import com.boot.kaizen.business.es.model.OtherLogModel;
-import com.boot.kaizen.business.es.model.OutHomeLogModel;
 import com.boot.kaizen.business.es.model.QueryParamData;
-import com.boot.kaizen.business.es.model.logModel.MSignaBean;
-import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
-import com.boot.kaizen.business.es.model.sim.GcModel;
 import com.boot.kaizen.business.es.service.Esutil;
-import com.boot.kaizen.business.es.service.GcModelService;
 import com.boot.kaizen.util.JsonMsgUtil;
 import com.boot.kaizen.util.MyUtil;
 import com.boot.kaizen.util.TableResultUtil;
@@ -183,8 +173,6 @@ public class EsController {
 		return "success";
 	}
 
-	
-
 	/**
 	 * 一键测试数据的导入
 	 * 
@@ -217,9 +205,6 @@ public class EsController {
 		transportClient.bulk(request).get();
 		return "success";
 	}
-
-	
-
 
 	/**
 	 * es地理坐标查询 矩形坐标查询

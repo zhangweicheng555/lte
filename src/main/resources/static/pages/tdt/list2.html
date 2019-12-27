@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>天地图验证测试</title>
+
+</head>
+<body style="margin-top: 10px;" onLoad="onLoad()">
+
+	  <div id="mapDiv" style="position:absolute;width:500px; height:400px"></div>
+
+</body>
+</html>
+
+
+
+<script src="http://api.tianditu.gov.cn/api?v=4.0&tk=51adac0f9aa6ef4f59616ca9c53f87f2" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+
+var common;
+var treetable;
+
+var map;
+var zoom = 12;//地图级别
+
+function onLoad() {		
+	//初始化地图对象
+	map = new T.Map('mapDiv');
+	//设置显示地图的中心点和级别  	
+	map.centerAndZoom(new T.LngLat(116.40969, 39.89945), zoom);	
+}
+	
+
+
+
+</script>

@@ -2,6 +2,10 @@ package com.boot.kaizen.business.es.model.logModel;
 
 import java.util.ArrayList;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.boot.kaizen.util.LngLatUtil;
+
 /**
  * 室外测试日志的格式 实体类
  * 
@@ -382,6 +386,19 @@ public class SignalDataBean {
 		this.powerBean = powerBean;
 		this.zbBean = zbBean;
 		this.proIndicators = proIndicators;
+	}
+
+	public void dealLngLatBdToWgs84() {
+		if (StringUtils.isNotBlank(latitude) && StringUtils.isNotBlank(longitude)) {
+			String bd2wgs84 = LngLatUtil.bd2wgs84(Double.valueOf(longitude), Double.valueOf(latitude));
+			if (bd2wgs84 != null) {
+				String[] split = bd2wgs84.split("_");
+				if (split != null && split.length == 2) {
+					latitude = split[1];
+					longitude = split[0];
+				}
+			}
+		}
 	}
 
 }

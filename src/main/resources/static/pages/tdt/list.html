@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>天地图验证测试</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" href="../../css/treetable/jquery.treetable.css" />
+<link rel="stylesheet" href="../../css/treetable/jquery.treetable.theme.default.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="../../layui/css/layui.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/font-awesome/css/font-awesome.css">
+
+<script src="http://api.tianditu.gov.cn/api?v=4.0&tk=748d6261dd4c59c93d6f029524906da4" type="text/javascript"></script>
+
+
+</head>
+<body style="margin-top: 10px;">
+		
+	  <input type="button" id="getLngLon" value="获取地图的范围" />
+	  <input type="button" id="deleteOverLay" value="删出覆盖物" />
+	  <div id="mapDiv" style="position:absolute;width:100%; height:100%;"></div>
+
+</body>
+</html>
+
+<script type="text/javascript" src="../../js/libs/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../layui/layui.js"></script>
+<script src="../../js/libs/jquery.treetable.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+
+
+
+<script type="text/javascript">
+
+
+var common;
+var treetable;
+
+var map;
+var zoom = 12;//地图级别
+
+layui.use(['layer','jquery','common'], function(){
+    	var layer = layui.layer;
+    	var $=layui.$;
+   	    common = layui.common;
+    
+   	   
+   	    //天地图测试开始
+   	    map = new T.Map('mapDiv');
+        map.centerAndZoom(new T.LngLat(116.31868111803816,39.89038313428557), zoom);//centerAndZoom  这个是初始化操作   地图必须经过初始化才可以执行其他操作。
+        //禁止地图双击放大   默认允许
+        map.disableDoubleClickZoom();
+        //禁止鼠标拖动后 惯性移动一段距离  默认允许
+        map.disableInertia();
+        
+        
+        //添加标注
+        var marker = new T.Marker(new T.LngLat(116.31868111803816,39.89038313428557));
+        //向地图上添加标注
+        map.addOverLay(marker);
+        
+        
+        //自定义图标标注
+          //创建图片对象
+            var icon = new T.Icon({
+                iconUrl: "http://api.tianditu.gov.cn/img/map/markerA.png",
+                iconSize: new T.Point(19, 27),
+                iconAnchor: new T.Point(10, 25)
+            });
+            //向地图上添加自定义标注,
+            var marker = new T.Marker(new T.LngLat(113.971207, 22.958852), {icon: icon});
+            map.addOverLay(marker);
+        
+        //设置最大最小缩放比例
+        //map.setMinZoom(Levels[0]);
+        //map.setMaxZoom(Levels[1]);
+        
+        //地图当前的中心点
+        //alert("当前地图中心点：" + map.getCenter().getLng() + "," + map.getCenter().getLat());
+        
+        //获取地图的缩放级别
+        //console.info(map.getZoom());
+        
+       //创建地图类型控件对象
+    //   var ctrl = new T.Control.MapType();
+       //添加控件
+     //  map.addControl(ctrl);
+        
+       
+       /**右键菜单功能开始*/
+       
+       var menu = new T.ContextMenu({width: 140});
+            //添加右键菜单
+            var txtMenuItem = [
+                {
+                    text: '放大',
+                    callback: function () {
+                        map.zoomIn()
+                    }
+                },
+                {
+                    text: '缩小',
+                    callback: function () {
+                        map.zoomOut()
+                    }
+                },
+                {
+                    text: '放置到最大级',
+                    callback: function () {
+                        map.setZoom(18)
+                    }
+                },
+                {
+                    text: '查看全国',
+                    callback: function () {
+                        map.setZoom(4)
+                    }
+                },
+                {
+                    text: '获得右键点击处坐标',
+                    isDisable: false,
+                    callback: function (lnglat) {
+                      console.info(lnglat);
+                        console.info(lnglat.getLng() + "," + lnglat.getLat());
+                    }
+                }
+            ];
+            
+            for (var i = 0; i < txtMenuItem.length; i++) {
+
+                //添加菜单项
+                var item = new T.MenuItem(txtMenuItem[i].text, txtMenuItem[i].callback);
+                //item.disable();
+                menu.addItem(item);
+                if (i == 1 || i == 3) {
+                    //添加分割线
+                    menu.addSeparator();
+                }
+            }
+            map.addContextMenu(menu);
+       
+       /**右键菜单功能结束*/
+       
+        /**获取地图的范围*/
+        $("#getLngLon").click(function(){
+        	 var bs = map.getBounds();   //获取可视区域
+             var bssw = bs.getSouthWest();   //可视区域左下角
+             var bsne = bs.getNorthEast();   //可视区域右上角
+             console.info("当前地图可视范围是：" + bssw.lng + "," + bssw.lat + "到" + bsne.lng + "," + bsne.lat);
+        	
+        	 map.panTo(new T.LngLat(bssw.lng, bssw.lat));
+        });
+   	
+      /**删出覆盖物*/
+      $("#deleteOverLay").click(function(){
+    	  map.clearOverLays();
+      });
+});
+
+
+
+</script>
