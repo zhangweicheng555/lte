@@ -1,5 +1,4 @@
 package com.boot.kaizen.business.es.model.logModel;
-
 import java.io.Serializable;
 
 public class MSignaEventBean implements Serializable {
@@ -15,9 +14,15 @@ public class MSignaEventBean implements Serializable {
 	private String mEvent;
 	private double mLongitude;
 	private double mLatitude;
+	
+	//private String formatTimestamp;//格式化得日期  自定义
+	
 
 	
 	
+	
+
+
 	public MSignaEventBean(String pid, long mTimestamp, String mSignaTimestamp, int ci, String mEventType,
 			String mEvent, double mLongitude, double mLatitude) {
 		super();

@@ -1,13 +1,16 @@
 package com.boot.kaizen.business.es.model.logModel;
 
 import java.io.Serializable;
+import java.util.Date;
+
+import com.boot.kaizen.util.MyDateUtil;
 
 public class MSignaBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	private String pid;// 主日志信息的id
-	
+
 	private long mTimestamp;
 	private String mSignaTimestamp;
 	private String mSingaType;
@@ -18,7 +21,14 @@ public class MSignaBean implements Serializable {
 	private double mLongitude;
 	private double mLatitude;
 
+	//private String formatTimestamp;// 格式化得日期 自定义
+
 	
+
+	
+
+	
+
 	public MSignaBean(String pid, long mTimestamp, String mSignaTimestamp, String mSingaType, String mMessageType,
 			int ci, String mChannelType, String mMeaasge, double mLongitude, double mLatitude) {
 		super();

@@ -24,13 +24,13 @@ public class MainLogModel {
 	private String longitude;// 经度
 	private String sinr;
 	private String rsrp;
-	private String CellName;
-	private String CI;
-	private String CELLID;
-	private String NetWorkType;
-	private String TAC;
-	private String ENB;
-	private String SPEED;
+	private String cellName;
+	private String cI;
+	private String cELLID;
+	private String netWorkType;
+	private String tAC;
+	private String eNB;
+	private String sPEED;
 	private String downLoadSpeed;
 	private String upLoadSpeed;
 	private String normalEventType;// 业务事件正常类型
@@ -50,9 +50,60 @@ public class MainLogModel {
 	private ArrayList<MSignaEventBean> mSignaEventBean;// 一秒钟事件
 	private ArrayList<MSignaBean> mSignaBean;// 一秒钟信令
 
+	private String formatTimestamp;// 格式化得日期 自定义
 	
+	
+	public String getFormatTimestamp() {
+		return formatTimestamp;
+	}
+
+	public void setFormatTimestamp(String formatTimestamp) {
+		this.formatTimestamp = formatTimestamp;
+	}
+
+	
+
 	public String getPid() {
 		return pid;
+	}
+
+	
+	public MainLogModel(String pid, String id, String latitude, String longitude, String sinr, String rsrp,
+			String cellName, String cI, String cELLID, String netWorkType, String tAC, String eNB, String sPEED,
+			String downLoadSpeed, String upLoadSpeed, String normalEventType, String abNormalEventType, int eventType,
+			String siteLat, String siteLng, int angle, String pci, String earfcn, Long testTime, int ftpType,
+			OurDoorDataInfoBean doorDataInfoBeans, ArrayList<MSignaEventBean> mSignaEventBean,
+			ArrayList<MSignaBean> mSignaBean, String formatTimestamp) {
+		super();
+		this.pid = pid;
+		this.id = id;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.sinr = sinr;
+		this.rsrp = rsrp;
+		this.cellName = cellName;
+		this.cI = cI;
+		this.cELLID = cELLID;
+		this.netWorkType = netWorkType;
+		this.tAC = tAC;
+		this.eNB = eNB;
+		this.sPEED = sPEED;
+		this.downLoadSpeed = downLoadSpeed;
+		this.upLoadSpeed = upLoadSpeed;
+		this.normalEventType = normalEventType;
+		this.abNormalEventType = abNormalEventType;
+		this.eventType = eventType;
+		this.siteLat = siteLat;
+		this.siteLng = siteLng;
+		this.angle = angle;
+		this.pci = pci;
+		this.earfcn = earfcn;
+		this.testTime = testTime;
+		this.ftpType = ftpType;
+		this.doorDataInfoBeans = doorDataInfoBeans;
+		this.mSignaEventBean = mSignaEventBean;
+		this.mSignaBean = mSignaBean;
+		this.formatTimestamp = formatTimestamp;
 	}
 
 	public void setPid(String pid) {
@@ -76,7 +127,18 @@ public class MainLogModel {
 	}
 
 	public MainLogModel(SignalDataBean signalDataBean) {
-		this.mSignaBean = signalDataBean.getmSignaBean();
+		this.formatTimestamp=signalDataBean.getTestTime();
+		ArrayList<MSignaBean> getmSignaBean = signalDataBean.getmSignaBean();
+		// 处理事件格式化得问题
+		this.mSignaBean = getmSignaBean;
+
+		this.formatTimestamp=signalDataBean.getTestTime();
+		
+		// 处理事件
+		ArrayList<MSignaEventBean> getmSignaEventBean = signalDataBean.getmSignaEventBean();
+		
+		this.mSignaEventBean = getmSignaEventBean;
+
 		Long timeFormat = null;
 		Date date = MyDateUtil.stringToDate(signalDataBean.getTestTime(), "yyyy-MM-dd HH:mm:ss");
 		if (date != null) {
@@ -86,16 +148,15 @@ public class MainLogModel {
 		this.id = signalDataBean.getId();
 		this.latitude = signalDataBean.getLatitude();
 		this.longitude = signalDataBean.getLongitude();
-		this.mSignaEventBean = signalDataBean.getmSignaEventBean();
 		this.sinr = signalDataBean.getSinr();
 		this.rsrp = signalDataBean.getRsrp();
-		CellName = signalDataBean.getCellName();
-		CI = signalDataBean.getCI();
-		CELLID = signalDataBean.getCELLID();
-		NetWorkType = signalDataBean.getNetWorkType();
-		TAC = signalDataBean.getTAC();
-		ENB = signalDataBean.getENB();
-		SPEED = signalDataBean.getSPEED();
+		this.cellName = signalDataBean.getCellName();
+		this.cI = signalDataBean.getcI();
+		this.cELLID = signalDataBean.getcELLID();
+		this.netWorkType = signalDataBean.getNetWorkType();
+		this.tAC = signalDataBean.gettAC();
+		this.eNB = signalDataBean.geteNB();
+		this.sPEED = signalDataBean.getsPEED();
 		this.downLoadSpeed = signalDataBean.getDownLoadSpeed();
 		this.upLoadSpeed = signalDataBean.getUpLoadSpeed();
 		this.normalEventType = signalDataBean.getNormalEventType();
@@ -151,60 +212,62 @@ public class MainLogModel {
 		this.rsrp = rsrp;
 	}
 
+	
+
 	public String getCellName() {
-		return CellName;
+		return cellName;
 	}
 
 	public void setCellName(String cellName) {
-		CellName = cellName;
+		this.cellName = cellName;
 	}
 
-	public String getCI() {
-		return CI;
+	
+	public String getcI() {
+		return cI;
 	}
 
-	public void setCI(String cI) {
-		CI = cI;
+	public void setcI(String cI) {
+		this.cI = cI;
 	}
 
-	public String getCELLID() {
-		return CELLID;
+	
+
+	public String getcELLID() {
+		return cELLID;
 	}
 
-	public void setCELLID(String cELLID) {
-		CELLID = cELLID;
+	public void setcELLID(String cELLID) {
+		this.cELLID = cELLID;
 	}
 
-	public String getNetWorkType() {
-		return NetWorkType;
+	public String geteNB() {
+		return eNB;
 	}
 
-	public void setNetWorkType(String netWorkType) {
-		NetWorkType = netWorkType;
+	public void seteNB(String eNB) {
+		this.eNB = eNB;
 	}
 
-	public String getTAC() {
-		return TAC;
+
+
+	public String gettAC() {
+		return tAC;
 	}
 
-	public void setTAC(String tAC) {
-		TAC = tAC;
+	public void settAC(String tAC) {
+		this.tAC = tAC;
 	}
 
-	public String getENB() {
-		return ENB;
+	
+
+
+	public String getsPEED() {
+		return sPEED;
 	}
 
-	public void setENB(String eNB) {
-		ENB = eNB;
-	}
-
-	public String getSPEED() {
-		return SPEED;
-	}
-
-	public void setSPEED(String sPEED) {
-		SPEED = sPEED;
+	public void setsPEED(String sPEED) {
+		this.sPEED = sPEED;
 	}
 
 	public String getDownLoadSpeed() {
@@ -314,13 +377,13 @@ public class MainLogModel {
 		this.longitude = longitude;
 		this.sinr = sinr;
 		this.rsrp = rsrp;
-		CellName = cellName;
-		CI = cI;
-		CELLID = cELLID;
-		NetWorkType = netWorkType;
-		TAC = tAC;
-		ENB = eNB;
-		SPEED = sPEED;
+		this.cellName = cellName;
+		this.cI = cI;
+		this.cELLID = cELLID;
+		this.netWorkType = netWorkType;
+		this.tAC = tAC;
+		this.eNB = eNB;
+		this.sPEED = sPEED;
 		this.downLoadSpeed = downLoadSpeed;
 		this.upLoadSpeed = upLoadSpeed;
 		this.normalEventType = normalEventType;
@@ -336,6 +399,44 @@ public class MainLogModel {
 		this.doorDataInfoBeans = doorDataInfoBeans;
 	}
 
+	
+	public MainLogModel(String pid, String id, String latitude, String longitude, String sinr, String rsrp,
+			String cellName, String cI, String cELLID, String netWorkType, String tAC, String eNB, String sPEED,
+			String downLoadSpeed, String upLoadSpeed, String normalEventType, String abNormalEventType, int eventType,
+			String siteLat, String siteLng, int angle, String pci, String earfcn, Long testTime, int ftpType,
+			OurDoorDataInfoBean doorDataInfoBeans, ArrayList<MSignaEventBean> mSignaEventBean,
+			ArrayList<MSignaBean> mSignaBean) {
+		super();
+		this.pid = pid;
+		this.id = id;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.sinr = sinr;
+		this.rsrp = rsrp;
+		this.cellName = cellName;
+		this.cI = cI;
+		this.cELLID = cELLID;
+		this.netWorkType = netWorkType;
+		this.tAC = tAC;
+		this.eNB = eNB;
+		this.sPEED = sPEED;
+		this.downLoadSpeed = downLoadSpeed;
+		this.upLoadSpeed = upLoadSpeed;
+		this.normalEventType = normalEventType;
+		this.abNormalEventType = abNormalEventType;
+		this.eventType = eventType;
+		this.siteLat = siteLat;
+		this.siteLng = siteLng;
+		this.angle = angle;
+		this.pci = pci;
+		this.earfcn = earfcn;
+		this.testTime = testTime;
+		this.ftpType = ftpType;
+		this.doorDataInfoBeans = doorDataInfoBeans;
+		this.mSignaEventBean = mSignaEventBean;
+		this.mSignaBean = mSignaBean;
+	}
+
 	public Long getTestTime() {
 		return testTime;
 	}
@@ -347,5 +448,15 @@ public class MainLogModel {
 	public MainLogModel() {
 		super();
 	}
+
+	public String getNetWorkType() {
+		return netWorkType;
+	}
+
+	public void setNetWorkType(String netWorkType) {
+		this.netWorkType = netWorkType;
+	}
+
+
 
 }

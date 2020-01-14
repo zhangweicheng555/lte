@@ -44,6 +44,35 @@ public class OutHomeLogModel {
 	private String isMsgEvent="0";// 是否存在信令、事件  默认是0不存在
 
 	
+	public OutHomeLogModel(String id, String fileName, Long fileUpTime, String filePath, String operatorService,
+			String netWorkType, String city, String county, String testPerson, String phoneType, String imsi,
+			String testTime, Long beginTime, Long endTime, String totalMileage, String coverPersent, String avgRsrp,
+			String avgSinr, String avgDownRate, String avgUpRate, String cityId, String isMsgEvent) {
+		super();
+		this.id = id;
+		this.fileName = fileName;
+		this.fileUpTime = fileUpTime;
+		this.filePath = filePath;
+		this.operatorService = operatorService;
+		this.netWorkType = netWorkType;
+		this.city = city;
+		this.county = county;
+		this.testPerson = testPerson;
+		this.phoneType = phoneType;
+		this.imsi = imsi;
+		this.testTime = testTime;
+		this.beginTime = beginTime;
+		this.endTime = endTime;
+		this.totalMileage = totalMileage;
+		this.coverPersent = coverPersent;
+		this.avgRsrp = avgRsrp;
+		this.avgSinr = avgSinr;
+		this.avgDownRate = avgDownRate;
+		this.avgUpRate = avgUpRate;
+		this.cityId = cityId;
+		this.isMsgEvent = isMsgEvent;
+	}
+
 	public String getIsMsgEvent() {
 		return isMsgEvent;
 	}

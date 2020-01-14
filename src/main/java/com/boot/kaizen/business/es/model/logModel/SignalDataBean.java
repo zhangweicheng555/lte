@@ -20,13 +20,13 @@ public class SignalDataBean {
 	private String longitude;// 经度
 	private String sinr;
 	private String rsrp;
-	private String CellName;
-	private String CI;
-	private String CELLID;
-	private String NetWorkType;
-	private String TAC;
-	private String ENB;
-	private String SPEED;
+	private String cellName;
+	private String cI;
+	private String cELLID;
+	private String netWorkType;
+	private String tAC;
+	private String eNB;
+	private String sPEED;
 	private String downLoadSpeed;
 	private String upLoadSpeed;
 	private String normalEventType;// 业务事件正常类型
@@ -238,36 +238,44 @@ public class SignalDataBean {
 		this.eventType = eventType;
 	}
 
+	
+
 	public String getCellName() {
-		return CellName;
+		return cellName;
 	}
 
 	public void setCellName(String cellName) {
-		CellName = cellName;
+		this.cellName = cellName;
 	}
 
-	public String getCI() {
-		return CI;
+	
+
+	public String getcI() {
+		return cI;
 	}
 
-	public void setCI(String CI) {
-		this.CI = CI;
+	public void setcI(String cI) {
+		this.cI = cI;
 	}
 
-	public String getCELLID() {
-		return CELLID;
+	
+
+
+
+	public String getcELLID() {
+		return cELLID;
 	}
 
-	public void setCELLID(String CELLID) {
-		this.CELLID = CELLID;
+	public void setcELLID(String cELLID) {
+		this.cELLID = cELLID;
 	}
 
 	public String getNetWorkType() {
-		return NetWorkType;
+		return netWorkType;
 	}
 
 	public void setNetWorkType(String netWorkType) {
-		NetWorkType = netWorkType;
+		this.netWorkType = netWorkType;
 	}
 
 	public String getSinr() {
@@ -302,28 +310,32 @@ public class SignalDataBean {
 		this.longitude = longitude;
 	}
 
-	public String getTAC() {
-		return TAC;
+	
+
+	public String gettAC() {
+		return tAC;
 	}
 
-	public void setTAC(String TAC) {
-		this.TAC = TAC;
+	public void settAC(String tAC) {
+		this.tAC = tAC;
 	}
 
-	public String getENB() {
-		return ENB;
+	
+
+	public String geteNB() {
+		return eNB;
 	}
 
-	public void setENB(String ENB) {
-		this.ENB = ENB;
+	public void seteNB(String eNB) {
+		this.eNB = eNB;
 	}
 
-	public String getSPEED() {
-		return SPEED;
+	public String getsPEED() {
+		return sPEED;
 	}
 
-	public void setSPEED(String SPEED) {
-		this.SPEED = SPEED;
+	public void setsPEED(String sPEED) {
+		this.sPEED = sPEED;
 	}
 
 	public String getSiteLat() {
@@ -356,13 +368,13 @@ public class SignalDataBean {
 		this.longitude = longitude;
 		this.sinr = sinr;
 		this.rsrp = rsrp;
-		CellName = cellName;
-		CI = cI;
-		CELLID = cELLID;
-		NetWorkType = netWorkType;
-		TAC = tAC;
-		ENB = eNB;
-		SPEED = sPEED;
+		this.cellName = cellName;
+		this.cI = cI;
+		this.cELLID = cELLID;
+		this.netWorkType = netWorkType;
+		this.tAC = tAC;
+		this.eNB = eNB;
+		this.sPEED = sPEED;
 		this.downLoadSpeed = downLoadSpeed;
 		this.upLoadSpeed = upLoadSpeed;
 		this.normalEventType = normalEventType;

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- 下面我们添加一个meta标签，以便使您的页面更好的在移动平台上展示。 -->
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<title>gis部分的主体部分</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../../layui/css/layui.css">
+
+	<!-- 处理easyui -->
+    <link rel="stylesheet" type="text/css" href="../../../js/easyui/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../../../js/easyui/themes/icon.css">
+	<link rel="stylesheet" href="../../../css/font-awesome/css/font-awesome.css" media="all" />
+	
+	<!-- 引入天地图 -->
+	<link rel="stylesheet" type="text/css" href="../../../js/tdt/leaflet.css">
+	<script type="text/javascript" src="../../../js/tdt/leaflet.js"></script>
+	<script type="text/javascript" src="../../../js/tdt/leaflet.ChineseTmsProviders.js"></script>
+
+<style type="text/css">
+ .anchorBL{display: none;}
+</style>
+
+</head>
+
+<body  class="easyui-layout"  >
+	
+	
+	    
+	    <div data-options="region:'center',border:false" id="center" style="margin-top: -1px;">
+	    	<div class="easyui-layout" data-options="fit:true,border:false">
+			    <div data-options="region:'center'" style="height: 80%;">
+			    	<div class="easyui-panel" title="L3 MESSAGE1" style="height: 100%;" data-options="tools:'#tt'">
+								<!--  创建地图的容器 -->
+				    			<div id="container" style="width: 100%;height: 100%;"></div> 
+					</div>
+			    </div>
+			    <div data-options="region:'south',title:'LTE Serving+Neighboring Cells',collapsible:true" style="height: 25%;">
+						<table class="layui-table" lay-size="sm" style="margin-top: 0px;">
+						  <colgroup><col width="150"><col><col><col><col><col><col><col></colgroup>
+						  <thead>
+						  	<tr><th style="text-align: center;">Type</th><th style="text-align: center;">cellName</th><th style="text-align: center;">SINR</th><th style="text-align: center;">RSRP</th><th style="text-align: center;">CI</th><th style="text-align: center;">TAC</th><th style="text-align: center;">PCI</th><th style="text-align: center;">earfcn</th></tr>
+						  </thead>
+						  
+						  <tbody id="lteLayout">
+						  	 <!-- 注意  type  第一个值是PCell  其余的是NCell  -->
+						     <!-- <tr><td style="text-align: center;font-weight: bold;">PCell</td><td style="text-align: center;font-weight: bold;">2016-11-29</td><td style="text-align: center;font-weight: bold;">人生</td><td style="text-align: center;font-weight: bold;">贤心</td><td style="text-align: center;font-weight: bold;">2016-11-29</td><td>贤心</td><td style="text-align: center;font-weight: bold;">2016-11-29</td><td style="text-align: center;font-weight: bold;">2016-11-29</td></tr> -->
+						  </tbody>
+						  
+					   </table>			    
+			    </div>
+	   		</div>
+	    </div>
+	
+	
+	    <div data-options="region:'east',border:false" style="width:600px;margin-top: 0px;" >
+	    	<div class="easyui-layout" data-options="fit:true,border:false">
+			    <div data-options="region:'center',border:false"   style="height:50%;padding: 0px;">
+			    
+			    	<div class="easyui-panel" title="L3 MESSAGE1" style="height: 100%;" data-options="tools:'#tt1'">
+								<!-- 信令 -->
+							   <table class="layui-table" id="msgTableModel" lay-size="sm" style="margin-top: 0px;">
+								  <colgroup><col width="50"><col><col><col></colgroup>
+								  <thead>
+								  	<tr><th style="text-align: center;">singaType</th><th style="text-align: center;">messageType</th><th style="text-align: center;">timestamp</th><th style="text-align: center;">channelType</th></tr>
+								  </thead>
+								  
+								  <tbody  id="msgLayout" class="msgTble">
+								  	
+								  </tbody>
+								  
+							   </table>	
+					</div>
+	
+			    
+			    </div>
+			    
+			    
+			    <div data-options="region:'south',title:'Event',collapsible:true,border:false" style="height:50%;">
+			    	<!-- 事件 -->
+			    	<table class="layui-table" lay-size="sm" id="eventTableModel"   style="margin-top: 0px;">
+						  <colgroup><col width="150"><col><col><col><col><col><col><col></colgroup>
+						  <thead>
+						  	<tr><th style="text-align: center;">mEventType</th><th style="text-align: center;">mEvent</th><th style="text-align: center;">mTimestamp</th></tr>
+						  </thead>
+						  
+						  <tbody  id="eventLayout" class="eventTble">
+						  	
+						  </tbody>
+						  
+					   </table>	
+			    </div>
+	   		</div>
+	   		
+	    </div>
+	
+	<!-- 工具条 -->
+	<div id="tt">
+		<a  class="icon-add" style="margin-right: 8px;" title="开始回放" onclick="addTest();"></a>
+		<a  class="icon-add" style="margin-right: 8px;" title="结束回放" onclick="addClose();"></a>
+		<a  class="icon-edit"  style="margin-right: 8px;" onclick="javascript:alert('edit')"></a>
+		<a  class="icon-cut"  style="margin-right: 8px;" onclick="javascript:alert('cut')"></a>
+		<a  class="icon-help"  style="margin-right: 8px;" onclick="javascript:alert('help')"></a>
+	</div>
+	
+	<div id="tt1" > 
+		   <a  class="icon-search" style="margin-right: 8px;" onclick="msgSearch()"></a>
+	</div>
+	
+</body>
+</html>
+
+	<script type="text/javascript" src="../../../js/libs/jquery-2.1.1.min.js" ></script>
+	<script type="text/javascript" src="../../../js/easyui/jquery.easyui.min.js"></script>
+	
+	<script type="text/javascript" src="../../../layui/layui.js" ></script>
+	<script type="text/javascript" src="../../../js/jq.js"></script>
+	<script type="text/javascript" src="../../../js/common.js" charset="UTF-8"></script>
+
+
+	<script type="text/javascript">
+	
+	
+	
+	var map;   //百度地图对象
+	 var common;
+	 var layer;
+	 var mainLogId;
+	 var points = [];  // 添加海量点数据  里面是一下 new map point对象
+	layui.use([ 'layer' ,'table','jquery','common'], function() {
+	   layer = layui.layer;
+	  var $=layui.$;
+	  common = layui.common;
+	  var table = layui.table;
+	  
+	
+	 // var mymap = L.map('container').setView([51.505, -0.09], 13);
+	 
+	 // initialize the map on the "map" div with a given center and zoom
+	  var map = L.map("container", {
+	    center: [32.03956857467441, 118.63768386683661]
+	    ,zoom: 13
+	    ,inertia:false  //禁掉平移
+	    });
+	  L.tileLayer.chinaProvider("TianDiTu.Normal.Map", {
+	      maxZoom: 18,
+	      minZoom: 6,
+	      key: "650887dd02999ce19f403b5a805d2605"
+	    }).addTo(map);
+	  L.tileLayer.chinaProvider("TianDiTu.Normal.Annotion", {
+	      maxZoom: 18,
+	      minZoom: 6,
+	      key: "650887dd02999ce19f403b5a805d2605"
+	  }).addTo(map);
+	  
+	  //地图中心停止时触发  这个时可以触发拖拽效果的  这个注意  加载完之后  直接移动到第一个点  就可以实现
+	  map.on('moveend', function(ev) {
+		   console.info(ev);
+		});
+	  
+	  
+	  //该bindPopup方法将带有指定HTML内容的弹出窗口附加到您的标记，因此当您单击对象时弹出窗口会出现，并且该openPopup方法（仅用于标记）会立即打开附加的弹出窗口
+	  var marker = L.marker([32.03956857467441, 118.63768386683661],{title:"这是鼠标放上去的提示信息",riseOnHover:'true'}) .bindPopup('12').openPopup().addTo(map);
+	  marker.on('click', function(ev) {
+		   console.info(ev);
+		});
+	  //这个也行  鼠标悬浮的时候现在信息
+	  marker.bindTooltip("my tooltip text");
+	  
+	  var circle = L.circle([32.03956857467441, 118.63768386683661], {
+		    color: 'red',
+		    fillColor: '#f03',
+		    fillOpacity: 0.5,
+		    radius: 20
+		}).addTo(map);
+	  
+	  var popup = L.popup()
+	    .setLatLng([32.03956857467441, 118.63768386683661])
+	    .setContent("I am a standalone popup.")
+	    .openOn(map);
+	 
+	  //这个时点击地图的时候 我们设置一个click时间 然后 弹框提示一下
+	  var popup = L.popup();
+	  function onMapClick(e) {
+		  console.info(e);
+		    popup
+		        .setLatLng(e.latlng)
+		        .setContent("You clicked the map at " + e.latlng.toString())
+		        .openOn(map);
+		    //map.panTo([32.03956857467450, 118.63768386683650]);
+		}
+	console.info(map.getBounds());  //西南  东北
+	  map.on('click', onMapClick);
+	  
+	  var greenIcon = L.icon({
+		    iconUrl: '/js/tdt/images/marker-icon.png',
+		    shadowUrl: '/js/tdt/images/marker-icon.png',
+
+		    iconSize:     [20, 20], // size of the icon
+		    shadowSize:   [50, 64], // size of the shadow
+		    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+		    shadowAnchor: [4, 62],  // the same for the shadow
+		    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+		});
+	
+	//一次性将弹出窗口绑定到所有的对象上   轨迹情况是可以考虑这个的
+     var marker1= L.marker([32.12341, 118.1283651], {icon: greenIcon});
+	 var marker2= L.marker([40.5678, 120.19683661], {icon: greenIcon});
+	 var marker3= L.marker([50.8908, 122.30683671], {icon: greenIcon});
+	 
+	L.featureGroup([marker1, marker2, marker3])
+    .bindPopup('Hello world!')
+    .on('click', function(e) { console.info('-------------------------------');console.info(e); })
+    .addTo(map); 
+	
+	  
+	/* getCenter()	LatLng	
+	返回边界的中心点。
+
+	getSouthWest()	LatLng	
+	返回范围的西南点。
+
+	getNorthEast()	LatLng	
+	返回边界的东北点。
+
+	getNorthWest()	LatLng	
+	返回边界的西北点。
+
+	getSouthEast()	LatLng	
+	返回边界的东南点。 */
+	  
+	  
+	  L.marker([32.03956857467441, 118.63768386683661], {icon: greenIcon}).addTo(map);
+});
+
+	
+
+	
+</script>
+
+
+

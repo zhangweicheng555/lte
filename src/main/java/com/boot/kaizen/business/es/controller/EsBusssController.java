@@ -15,9 +15,16 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -135,6 +142,94 @@ public class EsBusssController {
 	}
 
 	/**
+	 * 查询工参里面得去重经纬度信息
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/distinctGcLonLat")
+	public List<Map<String, Object>> distinctGcLonLat(@RequestBody QueryParamData queryParamData) {
+		
+		List<Map<String, Object>> results = new ArrayList<>();// 查询返回得结果
+		// 校验
+		queryParamData.verificationIndexType();
+		
+		LoginUser loginUser = UserUtil.getLoginUser();
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于当前项目");
+		}
+		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
+		clearMapEmptyVal.put("cityId.keyword", sysProject.getId() + "");
+		queryParamData.setTermMap(clearMapEmptyVal);
+		
+		SearchRequestBuilder searchRequestBuilder = transportClient.prepareSearch(queryParamData.getIndex())
+				.setTypes(queryParamData.getType());
+		// 查询条件
+		BoolQueryBuilder boolQueryBuilder = Esutil.getBoolQueryBuilder(queryParamData);
+
+		SearchResponse searchResponse = searchRequestBuilder
+				.setQuery(boolQueryBuilder).addAggregation(AggregationBuilders//
+						.terms("lte_longitude2")//
+						.field("lte_longitude2.keyword")//
+						.order(BucketOrder.key(true))//
+						.subAggregation(AggregationBuilders.terms("lte_latitude2").field("lte_latitude2.keyword")
+								.size(1000000000))// 一亿
+						.size(1000000000))// 一亿
+				.get();
+
+		Aggregations aggregations = searchResponse.getAggregations();
+		StringTerms aggTerms = aggregations.get("lte_longitude2");
+
+		List<org.elasticsearch.search.aggregations.bucket.terms.StringTerms.Bucket> buckets = aggTerms.getBuckets();
+
+		for (org.elasticsearch.search.aggregations.bucket.terms.StringTerms.Bucket bucket : buckets) {
+			String lonKey = bucket.getKey().toString();
+			if (StringUtils.isNoneBlank(lonKey)) {
+				StringTerms latTerms = bucket.getAggregations().get("lte_latitude2");
+				if (latTerms != null) {
+					List<org.elasticsearch.search.aggregations.bucket.terms.StringTerms.Bucket> buckets2 = latTerms.getBuckets();
+					if (buckets2 != null && buckets2.size() > 0) {
+						for (org.elasticsearch.search.aggregations.bucket.terms.StringTerms.Bucket bucket2 : buckets2) {
+							String latKey = bucket2.getKey().toString();
+							if (StringUtils.isNotBlank(latKey)) {
+								Map<String, Object> latLonMap = new HashMap<>();
+								latLonMap.put("lte_longitude2", lonKey);
+								latLonMap.put("lte_latitude2", latKey);
+								results.add(latLonMap);
+							}
+						}
+					}
+				}
+			}
+		}
+		return results;
+	}
+
+	
+
+	/**
+	 * 滚动查询sim工参
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2020年1月7日 上午9:44:02
+	 */
+	@ResponseBody
+	@PostMapping(value = "/scrollQuerySimGc")
+	public List<Map<String, Object>> scrollQuerySimGc(@RequestBody QueryParamData queryParamData) {
+
+		LoginUser loginUser = UserUtil.getLoginUser();
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于当前项目");
+		}
+		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
+		clearMapEmptyVal.put("cityId.keyword", sysProject.getId() + "");
+		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
+		List<Map<String, Object>> scrollQuery = Esutil.scrollQuery(queryParamData);
+		return scrollQuery;
+	}
+
+	/**
 	 * 地图页面加载全部的数据
 	 * 
 	 * @Description: TODO
@@ -205,7 +300,7 @@ public class EsBusssController {
 			try {
 				Thread.sleep(800);// 休眠
 			} catch (InterruptedException e) {
-
+				return new JsonMsgUtil(false, "error:"+e.getMessage(), "");
 			}
 		} else {
 			return new JsonMsgUtil(false, "索引、类型、文档ids不能为空", "");
@@ -421,7 +516,7 @@ public class EsBusssController {
 				queryParamData.setGeoMap(geoMap);
 			}
 
-			// 处理本地是的查询条件
+			// 处理本地市的查询条件
 			Map<String, Object> termMap = queryParamData.getTermMap();
 			if (termMap == null) {
 				termMap = new HashMap<>();
@@ -696,10 +791,10 @@ public class EsBusssController {
 			while ((str = bufferedReader.readLine()) != null) {
 				String id = MyUtil.getUuid();
 				SignalDataBean signalDataBean = JSONObject.parseObject(str, SignalDataBean.class);
-				
-				//先将百度经纬度转为wgs84
+
+				// 先将百度经纬度转为wgs84
 				signalDataBean.dealLngLatBdToWgs84();
-				
+
 				if (num == 0) {// 用于记录第一条记录
 					beginTime = signalDataBean.getTestTime();
 					num++;

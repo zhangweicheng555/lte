@@ -713,6 +713,8 @@
 						   ,contentType:"application/json;charset=utf-8"
 						   ,data: '{"type":"logmain","index":"logmain","pid":"'+mainLogId+'","termMap":{"pid.keyword":"'+mainLogId+'"},"limit":1000,"sortMap":{"testTime":"ASC"},"revelFields":["longitude","latitude","testTime","id","cellName","sinr","rsrp","cI","tAC","pci","earfcn","mSignaBean","mSignaEventBean","doorDataInfoBeans"],"revelPk":"false"}'
 						   ,success: function(msg){
+							   console.info('-------------------------------');
+							   console.info(msg);
 							   loadData=false;//禁止数据得变化
 							   common.closeLoadingDialog();
 							  if(msg && msg.length>0){
@@ -871,7 +873,6 @@ function loadLteHtml(obj){
 
 //处理邻区小区拉线
 function dealLqCellInfo(lng,lat,overlayLqArray,tarLng,tarLat){
-	console.info(lng+"_"+lat+"_"+tarLng+"_"+tarLat);
 	   var polyline = new BMap.Polyline([new BMap.Point(lng, lat),new BMap.Point(tarLng,tarLat)], {strokeColor:"blue", strokeWeight:1.5, strokeOpacity:0.8});  
 	   map.addOverlay(polyline); 
 	   overlayLqArray.push(polyline);
@@ -890,7 +891,6 @@ function lqLineOperate(longitudeModel,latitudeModel,linquPci,overlayLqArray){
 			  if(msg && msg.length>0){
 				  for(var i=0;i<msg.length;i++){
 					  var obj=msg[i];
-					  console.info(obj);
 					  dealLqCellInfo(longitudeModel,latitudeModel,overlayLqArray,obj.lte_longitude2,obj.lte_latitude2);
 				   }
 			  }else{

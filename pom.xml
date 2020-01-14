@@ -36,7 +36,7 @@
 	<dependencies>
 
 		
-		<!-- 微服务 -->
+		<!-- 微服务 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -49,6 +49,7 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency> 
+        -->
         
         <!-- redis配置 -->
 		<!-- spring boot redis 缓存引入 -->
