@@ -10,7 +10,7 @@ import com.boot.kaizen.config.SuperEntity;
  * @author weichengz
  * @date 2020年1月14日 下午4:23:14
  */
-@TableName("test_config")
+@TableName("buss_test_config")
 public class TestConfig extends SuperEntity<TestConfig> {
 
 	private static final long serialVersionUID = 1L;

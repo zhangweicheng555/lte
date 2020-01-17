@@ -36,19 +36,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.boot.kaizen.business.buss.model.LogAnaLyze;
+import com.boot.kaizen.business.buss.service.ILogAnaLyzeService;
 import com.boot.kaizen.business.es.model.MainLogModel;
 import com.boot.kaizen.business.es.model.OneButtonTest;
 import com.boot.kaizen.business.es.model.OtherLogModel;
 import com.boot.kaizen.business.es.model.OutHomeLogModel;
 import com.boot.kaizen.business.es.model.QueryParamData;
+import com.boot.kaizen.business.es.model.logModel.HttpzbBean;
 import com.boot.kaizen.business.es.model.logModel.MSignaBean;
+import com.boot.kaizen.business.es.model.logModel.PingzbBean;
 import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
+import com.boot.kaizen.business.es.model.logModel.YyzbBean;
 import com.boot.kaizen.business.es.model.sim.CommonModel;
 import com.boot.kaizen.business.es.model.sim.GcModel;
 import com.boot.kaizen.business.es.model.sim.ResultModel;
 import com.boot.kaizen.business.es.service.Esutil;
 import com.boot.kaizen.business.es.service.IEsBussService;
 import com.boot.kaizen.entity.LoginUser;
+import com.boot.kaizen.entity.RequestParamEntity;
 import com.boot.kaizen.model.SysProject;
 import com.boot.kaizen.model.SysProjectMapper;
 import com.boot.kaizen.service.IProjectMapperService;
@@ -82,6 +89,9 @@ public class EsBusssController {
 	private IProjectMapperService projectMapperService;
 	@Value("${files.path}")
 	private String filesCommonPath;
+
+	@Autowired
+	private ILogAnaLyzeService logAnaLyzeService;
 
 	/**
 	 * 
@@ -147,11 +157,11 @@ public class EsBusssController {
 	@ResponseBody
 	@RequestMapping(value = "/distinctGcLonLat")
 	public List<Map<String, Object>> distinctGcLonLat(@RequestBody QueryParamData queryParamData) {
-		
+
 		List<Map<String, Object>> results = new ArrayList<>();// 查询返回得结果
 		// 校验
 		queryParamData.verificationIndexType();
-		
+
 		LoginUser loginUser = UserUtil.getLoginUser();
 		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
 		if (sysProject == null) {
@@ -160,7 +170,7 @@ public class EsBusssController {
 		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
 		clearMapEmptyVal.put("cityId.keyword", sysProject.getId() + "");
 		queryParamData.setTermMap(clearMapEmptyVal);
-		
+
 		SearchRequestBuilder searchRequestBuilder = transportClient.prepareSearch(queryParamData.getIndex())
 				.setTypes(queryParamData.getType());
 		// 查询条件
@@ -186,7 +196,8 @@ public class EsBusssController {
 			if (StringUtils.isNoneBlank(lonKey)) {
 				StringTerms latTerms = bucket.getAggregations().get("lte_latitude2");
 				if (latTerms != null) {
-					List<org.elasticsearch.search.aggregations.bucket.terms.StringTerms.Bucket> buckets2 = latTerms.getBuckets();
+					List<org.elasticsearch.search.aggregations.bucket.terms.StringTerms.Bucket> buckets2 = latTerms
+							.getBuckets();
 					if (buckets2 != null && buckets2.size() > 0) {
 						for (org.elasticsearch.search.aggregations.bucket.terms.StringTerms.Bucket bucket2 : buckets2) {
 							String latKey = bucket2.getKey().toString();
@@ -203,8 +214,6 @@ public class EsBusssController {
 		}
 		return results;
 	}
-
-	
 
 	/**
 	 * 滚动查询sim工参
@@ -295,12 +304,18 @@ public class EsBusssController {
 					}
 					// 删出室外测试
 					Esutil.deleteByDocId("logouthome", "logouthome", resultMap.get("pk").toString());
+
+					// 删除室外测试测统计分析的数据
+					RequestParamEntity param = new RequestParamEntity();
+					param.setMapAnd(MyUtil.createHashMap("pid~" + id));
+					EntityWrapper<LogAnaLyze> entityWrapper = MyUtil.createQueryPlus(param);
+					logAnaLyzeService.delete(entityWrapper);
 				}
 			}
 			try {
 				Thread.sleep(800);// 休眠
 			} catch (InterruptedException e) {
-				return new JsonMsgUtil(false, "error:"+e.getMessage(), "");
+				return new JsonMsgUtil(false, "error:" + e.getMessage(), "");
 			}
 		} else {
 			return new JsonMsgUtil(false, "索引、类型、文档ids不能为空", "");
@@ -788,6 +803,9 @@ public class EsBusssController {
 			String beginTime = null;// 日志测试的开始事件
 			int num = 0;
 			SignalDataBean signalDataBeanFinal = null;// 记录最后一跳记录 室外测试
+
+			List<LogAnaLyze> logAnaLyzes = new ArrayList<>();// 存储Log分析信息
+
 			while ((str = bufferedReader.readLine()) != null) {
 				String id = MyUtil.getUuid();
 				SignalDataBean signalDataBean = JSONObject.parseObject(str, SignalDataBean.class);
@@ -802,6 +820,10 @@ public class EsBusssController {
 				IndexRequest indexRequestMain = new IndexRequest("logmain", "logmain", id);
 				signalDataBean.setPid(outHomeTestId);// 室外测试的主键id
 				signalDataBean.setId(id);/** 赋值 注意这个很重要 一定要先赋值 */
+
+				// 添加日志分析信息
+				addLogAnalyzeInfo(logAnaLyzes, signalDataBean);
+
 				// 信令 大字段信息表得 存储
 				String isMsgEventModel = handleMsgInfoField(signalDataBean, request, isMsgEvent);
 				if (("1").equals(isMsgEventModel)) {
@@ -826,11 +848,92 @@ public class EsBusssController {
 					isMsgEvent);
 			/** 分批的添加进去 */
 			transportClient.bulk(request).get();
+
+			// 最后处理统计分析的数据信息
+			finalAnalyzeLogData(logAnaLyzes, signalDataBeanFinal);
+
+			// 批量保存logAnaLyzes
+			logAnaLyzeService.insertBatch(logAnaLyzes, 500);
+
 			if (bufferedReader != null) {
 				bufferedReader.close();
 			}
 		}
 		return new JsonMsgUtil(true, "导入成功", "");
+	}
+
+	/**
+	 * 添加要统计的信息
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2020年1月16日 下午5:28:07
+	 */
+	private void addLogAnalyzeInfo(List<LogAnaLyze> logAnaLyzes, SignalDataBean signalDataBean) {
+		LogAnaLyze model = new LogAnaLyze();
+		model.setPid(signalDataBean.getPid());
+		model.setSinr(formatStringToDouble(signalDataBean.getSinr()));
+		model.setRsrp(formatStringToDouble(signalDataBean.getRsrp()));
+
+		model.setDownLoadSpeed(formatStringToDouble(signalDataBean.getDownLoadSpeed()));
+		model.setUpLoadSpeed(formatStringToDouble(signalDataBean.getUpLoadSpeed()));
+
+		model.setCreateTime(new Date());
+		model.setPid(signalDataBean.getPid());
+
+		logAnaLyzes.add(model);
+	}
+
+	private Double formatStringToDouble(String sinr) {
+		if (StringUtils.isNotBlank(sinr)) {
+			try {
+				if (Double.valueOf(sinr) != null) {
+					return Double.valueOf(sinr);
+				}
+			} catch (Exception e) {
+				return 0D;
+			}
+		} else {
+			return 0D;
+		}
+		return 0D;
+	}
+
+	/**
+	 * 
+	 * @Description: 处理最后的统计信息
+	 * @author weichengz
+	 * @date 2020年1月16日 下午5:27:36
+	 */
+	private void finalAnalyzeLogData(List<LogAnaLyze> logAnaLyzes, SignalDataBean signalDataBeanFinal) {
+		if (logAnaLyzes != null && logAnaLyzes.size() > 0) {
+			LogAnaLyze logAnaLyze = logAnaLyzes.get(0);
+			if (signalDataBeanFinal != null) {
+				logAnaLyze.setUniqueRecord(MyUtil.getUuid());// UUID
+
+				YyzbBean yyzbbean = signalDataBeanFinal.getYyzbbean();
+				if (yyzbbean != null) {
+					logAnaLyze.setZjcs(formatStringToDouble(yyzbbean.getZjcs()));
+					logAnaLyze.setWjtcs(formatStringToDouble(yyzbbean.getWjtcs()));
+					logAnaLyze.setDhcs(formatStringToDouble(yyzbbean.getDhcs()));
+					logAnaLyze.setZhcs(logAnaLyze.getZjcs() - logAnaLyze.getWjtcs() - logAnaLyze.getDhcs());
+				}
+
+				PingzbBean pingzbBean = signalDataBeanFinal.getPingzbBean();
+				if (pingzbBean != null) {
+					logAnaLyze.setPingQqcs(formatStringToDouble(pingzbBean.getQqcs()));
+					logAnaLyze.setPingCgch(formatStringToDouble(pingzbBean.getCgcs()));
+					logAnaLyze.setPingSbch(logAnaLyze.getPingQqcs() - logAnaLyze.getPingCgch());
+				}
+
+				HttpzbBean httpzbBean = signalDataBeanFinal.getHttpzbBean();
+				if (httpzbBean != null) {
+					logAnaLyze.setHttpQqcs(formatStringToDouble(httpzbBean.getQqcs()));
+					logAnaLyze.setHttpCgch(formatStringToDouble(httpzbBean.getCgcs()));
+					logAnaLyze.setHttpSbch(logAnaLyze.getHttpQqcs() - logAnaLyze.getHttpCgch());
+				}
+			}
+		}
 	}
 
 	/**
@@ -882,4 +985,42 @@ public class EsBusssController {
 		return isMsgEvent;
 	}
 
+	/**
+	 * 统计分析接口
+	 */
+	@ResponseBody
+	@PostMapping(value = "/queryAnalyzeData")
+	public JsonMsgUtil queryAnalyzeData(@RequestParam("id") String id) {
+		return new JsonMsgUtil(true, "删出成功,共删出12条数据", "");
+	}
+	
+	/**
+		 
+		select count(1)
+		from buss_es_log_analyze p 
+		where p.pid='226267ed482643cf92300526c5155cd1'
+		and p.sinr between 20 and 100;
+		
+		select count(1)
+		from buss_es_log_analyze p 
+		where p.pid='226267ed482643cf92300526c5155cd1'
+		and p.rsrp between -100 and 100;
+		
+		select count(1)
+		from buss_es_log_analyze p 
+		where p.pid='226267ed482643cf92300526c5155cd1'
+		and p.downLoadSpeed between -100 and 100;
+		
+		select count(1)
+		from buss_es_log_analyze p 
+		where p.pid='226267ed482643cf92300526c5155cd1'
+		and p.upLoadSpeed between -100 and 100;
+		
+		select p.pingCgch,p.pingSbch,p.httpCgch,p.httpSbch,p.wjtcs,p.dhcs,p.zhcs
+		from buss_es_log_analyze p 
+		where p.uniqueRecord is not null;
+		 
+	 
+	 */
+	
 }

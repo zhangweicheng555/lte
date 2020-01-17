@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -20,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.boot.kaizen.entity.LoginUser;
+import com.boot.kaizen.entity.RequestParamEntity;
 import com.boot.kaizen.enump.Constant;
 
 /**
@@ -71,6 +74,141 @@ public class MyUtil {
 			String conditionSymple) {
 		EntityWrapper<T> qryWrapper = new EntityWrapper<>();
 		qryWrapper.orderDesc(Arrays.asList(defultFiledDesc));
+		if (conditionLikeMap != null && !conditionLikeMap.isEmpty()) {
+			Set<Entry<String, Object>> entrySet = conditionLikeMap.entrySet();
+			for (Entry<String, Object> entry : entrySet) {
+				if (("AND").equals(conditionSymple)) {
+					qryWrapper.and(entry.getKey() + "={0}", entry.getValue());
+				} else {
+					qryWrapper.like(entry.getKey(), entry.getValue().toString());
+				}
+			}
+		}
+		return qryWrapper;
+	}
+
+	/**
+	 *
+	 * @Description: 针对mybatis plus构造查询器 这个对map 参数 不处理 不包含这个参数
+	 * @author weichengz
+	 * @date 2019年12月6日 下午2:05:56
+	 */
+	public static <T> EntityWrapper<T> createQueryPlus(RequestParamEntity param) {
+		EntityWrapper<T> qryWrapper = new EntityWrapper<>();
+		// 对等值查询条件进行过滤 "" null的 全部移除
+		Map<String, Object> mapAnd = param.getMapAnd();
+		for (Iterator<Map.Entry<String, Object>> it = mapAnd.entrySet().iterator(); it.hasNext();) {
+			Map.Entry<String, Object> item = it.next();
+			String key = item.getKey();
+			Object value = item.getValue();
+			if (StringUtils.isNotBlank(key)) {
+				if (value != null) {
+					if (StringUtils.isNotBlank(value.toString().trim())) {// 添加查询的条件
+						qryWrapper.and(key + "={0}", value);
+					}
+				}
+			}
+		}
+		// 不等于判断
+		Map<String, Object> mapNo = param.getMapNo();
+		for (Iterator<Map.Entry<String, Object>> it = mapNo.entrySet().iterator(); it.hasNext();) {
+			Map.Entry<String, Object> item = it.next();
+			String key = item.getKey();
+			Object value = item.getValue();
+			if (StringUtils.isNotBlank(key)) {
+				if (value != null) {
+					if (StringUtils.isNotBlank(value.toString().trim())) {// 添加查询的条件
+						qryWrapper.ne(key, value.toString());
+					}
+				}
+			}
+		}
+		// 对模糊条件进行过滤 "" null的 全部移除
+		Map<String, Object> mapLike = param.getMapLike();
+		for (Iterator<Map.Entry<String, Object>> it = mapLike.entrySet().iterator(); it.hasNext();) {
+			Map.Entry<String, Object> item = it.next();
+			String key = item.getKey();
+			Object value = item.getValue();
+			if (StringUtils.isNotBlank(key)) {
+				if (value != null) {
+					if (StringUtils.isNotBlank(value.toString().trim())) {// 添加查询的条件
+						qryWrapper.like(key, value.toString().trim());
+					}
+				}
+			}
+		}
+		
+		// 对范围条件进行处理 仅仅支持LTE GTE 范围只有一个 那么就是大于或者小于查询 范围两个就是范围的查询
+		Map<String, Map<String, Object>> mapRange = param.getMapRange();
+		for (Iterator<Map.Entry<String, Map<String, Object>>> it = mapRange.entrySet().iterator(); it.hasNext();) {
+			Map.Entry<String, Map<String, Object>> item = it.next();
+			String key = item.getKey();
+			Map<String, Object> valueMap = item.getValue();
+
+			if (StringUtils.isBlank(key)) {
+				if (valueMap != null && !valueMap.isEmpty()) {
+					if (valueMap.size() == 2) {// 这个是范围的查询
+						Set<Entry<String, Object>> entrySet = valueMap.entrySet();
+						String minVal = null;
+						String maxVal = null;
+						for (Entry<String, Object> entry : entrySet) {
+							String key2 = entry.getKey();
+							Object value = entry.getValue();
+							if (StringUtils.isNotBlank(key2)) {
+								if (value != null) {
+									if (StringUtils.isNotBlank(value.toString())) {
+										if (("LTE").equals(key2)) {
+											maxVal = value.toString();
+										}
+										if (("GTE").equals(key2)) {
+											minVal = value.toString();
+										}
+									}
+								}
+							}
+						}
+						if (StringUtils.isNotBlank(minVal) && StringUtils.isNotBlank(maxVal)) {// 范围查询
+							qryWrapper.between(key, minVal, maxVal);
+						}
+					}
+					if (valueMap.size() == 1) {// 这个是大于小于的查询
+						Set<Entry<String, Object>> entrySet = valueMap.entrySet();
+						for (Entry<String, Object> entry : entrySet) {
+							String key2 = entry.getKey();
+							Object value = entry.getValue();
+							if (StringUtils.isNotBlank(key2)) {
+								if (value != null) {
+									if (StringUtils.isNotBlank(value.toString())) {
+										if (("LTE").equals(key2)) {
+											qryWrapper.le(key, value.toString());
+										}
+										if (("GTE").equals(key2)) {
+											qryWrapper.ge(key, value.toString());
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		List<String> orders = param.getOrders();
+		if (orders != null && orders.size() > 0) {// 这里处理排序
+			qryWrapper.orderDesc(orders);
+		}
+		return qryWrapper;
+	}
+
+	public static <T> EntityWrapper<T> createEntityWrapperDeep(Map<String, Object> conditionLikeMap,
+			List<String> orderFields, String order, String conditionSymple) {
+		EntityWrapper<T> qryWrapper = new EntityWrapper<>();
+		if (("ASC").equals(order)) {
+			qryWrapper.orderAsc(orderFields);
+		} else {
+			qryWrapper.orderDesc(orderFields);
+		}
 		if (conditionLikeMap != null && !conditionLikeMap.isEmpty()) {
 			Set<Entry<String, Object>> entrySet = conditionLikeMap.entrySet();
 			for (Entry<String, Object> entry : entrySet) {
