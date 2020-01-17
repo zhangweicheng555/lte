@@ -109,6 +109,26 @@ public class MyUtil {
 				}
 			}
 		}
+		//between  and
+		Map<String, Object> mapBetween = param.getMapBetween();
+		for (Iterator<Map.Entry<String, Object>> it = mapBetween.entrySet().iterator(); it.hasNext();) {
+			Map.Entry<String, Object> item = it.next();
+			String key = item.getKey();
+			Object value = item.getValue();
+			if (StringUtils.isNotBlank(key)) {
+				if (value != null) {
+					String val = value.toString().trim();
+					if (StringUtils.isNotBlank(val)) {// 添加查询的条件
+						String[] splitData = val.split("_");
+						if (splitData !=null && splitData.length==2) {
+							qryWrapper.between(key, splitData[0], splitData[1]);
+						}
+					}
+				}
+			}
+		}
+		
+		
 		// 不等于判断
 		Map<String, Object> mapNo = param.getMapNo();
 		for (Iterator<Map.Entry<String, Object>> it = mapNo.entrySet().iterator(); it.hasNext();) {

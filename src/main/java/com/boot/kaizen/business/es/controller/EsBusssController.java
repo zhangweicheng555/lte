@@ -985,42 +985,5 @@ public class EsBusssController {
 		return isMsgEvent;
 	}
 
-	/**
-	 * 统计分析接口
-	 */
-	@ResponseBody
-	@PostMapping(value = "/queryAnalyzeData")
-	public JsonMsgUtil queryAnalyzeData(@RequestParam("id") String id) {
-		return new JsonMsgUtil(true, "删出成功,共删出12条数据", "");
-	}
-	
-	/**
-		 
-		select count(1)
-		from buss_es_log_analyze p 
-		where p.pid='226267ed482643cf92300526c5155cd1'
-		and p.sinr between 20 and 100;
-		
-		select count(1)
-		from buss_es_log_analyze p 
-		where p.pid='226267ed482643cf92300526c5155cd1'
-		and p.rsrp between -100 and 100;
-		
-		select count(1)
-		from buss_es_log_analyze p 
-		where p.pid='226267ed482643cf92300526c5155cd1'
-		and p.downLoadSpeed between -100 and 100;
-		
-		select count(1)
-		from buss_es_log_analyze p 
-		where p.pid='226267ed482643cf92300526c5155cd1'
-		and p.upLoadSpeed between -100 and 100;
-		
-		select p.pingCgch,p.pingSbch,p.httpCgch,p.httpSbch,p.wjtcs,p.dhcs,p.zhcs
-		from buss_es_log_analyze p 
-		where p.uniqueRecord is not null;
-		 
-	 
-	 */
 	
 }

@@ -1,9 +1,6 @@
 package com.boot.kaizen.business.es.model.logModel;
 
 import java.io.Serializable;
-import java.util.Date;
-
-import com.boot.kaizen.util.MyDateUtil;
 
 public class MSignaBean implements Serializable {
 

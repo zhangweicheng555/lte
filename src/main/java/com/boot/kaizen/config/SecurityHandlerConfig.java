@@ -102,7 +102,7 @@ public class SecurityHandlerConfig {
 					
 				}
 				
-				JsonMsgUtil j = new JsonMsgUtil(HttpStatus.UNAUTHORIZED.value(), msg, 0, msg);
+				JsonMsgUtil j = new JsonMsgUtil(HttpStatus.UNAUTHORIZED.value(), msg);
 				ResponseUtil.responseJson(response, HttpStatus.UNAUTHORIZED.value(), j);
 			}
 		};
@@ -121,8 +121,7 @@ public class SecurityHandlerConfig {
 			@Override
 			public void commence(HttpServletRequest request, HttpServletResponse response,
 					AuthenticationException authException) throws IOException, ServletException {
-				JsonMsgUtil j = new JsonMsgUtil(HttpStatus.UNAUTHORIZED.value(), "请先登录",
-						HttpStatus.UNAUTHORIZED.value(), "请先登录");
+				JsonMsgUtil j = new JsonMsgUtil(HttpStatus.UNAUTHORIZED.value(), "请先登录");
 				ResponseUtil.responseJson(response, HttpStatus.UNAUTHORIZED.value(), j);
 			}
 		};
@@ -140,7 +139,7 @@ public class SecurityHandlerConfig {
 			@Override
 			public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
 					Authentication authentication) throws IOException, ServletException {
-				JsonMsgUtil j = new JsonMsgUtil(HttpStatus.OK.value(), "退出成功", HttpStatus.OK.value(), "退出成功");
+				JsonMsgUtil j = new JsonMsgUtil(HttpStatus.OK.value(), "退出成功");
 				String token = TokenFilter.getToken(request);
 				tokenService.deleteToken(token);
 				ResponseUtil.responseJson(response, HttpStatus.OK.value(), j);
