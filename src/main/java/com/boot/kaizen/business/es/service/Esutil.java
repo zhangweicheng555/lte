@@ -128,10 +128,7 @@ public class Esutil {
 		return jsonResult;
 	}
 
-	@Cacheable(value = "queryPeopleNumByTimeRange")
-	public String testCache(String pid) {
-		return "success";
-	}
+	
 
 	/**
 	 * 滚动查询 注意在一次性查询很多数据的时候 采用这种方式

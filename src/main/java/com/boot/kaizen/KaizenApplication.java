@@ -9,8 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /**
  * 启动类
  */
-//@EnableEurekaClient
-//@EnableFeignClients
+// @EnableEurekaClient
+// @EnableFeignClients
 @SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
 @EnableScheduling
 @EnableCaching

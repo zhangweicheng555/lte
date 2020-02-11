@@ -138,7 +138,6 @@ public class EsBusssController {
 	@ResponseBody
 	@PostMapping(value = "/querySimGc")
 	public TableResultUtil querySimGc(@RequestBody QueryParamData queryParamData) {
-
 		LoginUser loginUser = UserUtil.getLoginUser();
 		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
 		if (sysProject == null) {
@@ -232,8 +231,10 @@ public class EsBusssController {
 			throw new IllegalArgumentException("该用户不属于当前项目");
 		}
 		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
-		clearMapEmptyVal.put("cityId.keyword", sysProject.getId() + "");
+		
+	//	clearMapEmptyVal.put("cityId.keyword", sysProject.getId() + "");  这个是查询全国的
 		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
+		
 		List<Map<String, Object>> scrollQuery = Esutil.scrollQuery(queryParamData);
 		return scrollQuery;
 	}
@@ -475,7 +476,8 @@ public class EsBusssController {
 			String enb = map.get("eNB").toString();
 
 			Map<String, Object> termMap = new HashMap<String, Object>();
-			termMap.put("cityId.keyword", sysProject.getId() + "");
+//			termMap.put("cityId.keyword", sysProject.getId() + "");
+			termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
 			termMap.put("lte_ecgi.keyword", cellId);
 			QueryParamData queryParamData = new QueryParamData("simgc", "simgc", termMap,
 					Arrays.asList("lte_longitude2", "lte_latitude2"), 1);
@@ -537,7 +539,7 @@ public class EsBusssController {
 				termMap = new HashMap<>();
 			}
 
-			termMap.put("cityId.keyword", sysProject.getId() + "");
+			//termMap.put("cityId.keyword", sysProject.getId() + "");   也是全国的
 			queryParamData.setTermMap(termMap);
 			List<Map<String, Object>> scrollQueryList = Esutil.scrollQuery(queryParamData);
 			return scrollQueryList;
@@ -585,7 +587,8 @@ public class EsBusssController {
 				if (termMap != null) {
 					termMap = new HashMap<>();
 				}
-				termMap.put("cityId.keyword", sysProject.getId() + "");
+//				termMap.put("cityId.keyword", sysProject.getId() + "");
+				termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
 				queryParamData.setTermMap(termMap);
 
 				return Esutil.queryList(queryParamData);
@@ -686,8 +689,12 @@ public class EsBusssController {
 				// 将经纬度处理为WGS84
 				model.dealLngLatBdToWgs84();
 				model.setCityId(sysProject.getId() == null ? "" : sysProject.getId().toString());
-				IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc",
+				/*IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc",
 						sysProject.getId() + "_" + model.getLte_city_name() + "_" + model.getLte_ci());
+				*/
+				
+				//以地市和ci为主键
+				IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc", model.getLte_city_name() + "_" + model.getLte_ci());
 				indexRequestOther.source(JSONObject.toJSONString(model), XContentType.JSON);
 				request.add(indexRequestOther);
 			}

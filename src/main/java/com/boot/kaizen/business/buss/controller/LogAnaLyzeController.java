@@ -121,6 +121,8 @@ public class LogAnaLyzeController {
 	
 	/**
 		 
+		 查询的sql语句：
+		 
 		select count(1)
 		from buss_es_log_analyze p 
 		where p.pid='226267ed482643cf92300526c5155cd1'
