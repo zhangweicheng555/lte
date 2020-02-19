@@ -38,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.boot.kaizen.business.buss.model.LogAnaLyze;
+import com.boot.kaizen.business.buss.model.OneButtonTestParam;
 import com.boot.kaizen.business.buss.service.ILogAnaLyzeService;
 import com.boot.kaizen.business.es.model.MainLogModel;
 import com.boot.kaizen.business.es.model.OneButtonTest;
@@ -274,7 +275,6 @@ public class EsBusssController {
 
 	/**
 	 * 一键测试 添加
-	 */
 	@ResponseBody
 	@PostMapping(value = "/oneButtonTestAdd")
 	public JsonMsgUtil oneButtonTestAdd(OneButtonTest oneButtonTest) {
@@ -285,6 +285,40 @@ public class EsBusssController {
 		}
 		oneButtonTest.dealLngLatBdToWgs84();
 		Esutil.insert("onebuttontest", "onebuttontest", JSONObject.toJSONString(oneButtonTest));
+		return new JsonMsgUtil(true, "添加成功", "");
+	} */
+	
+	
+	/**
+	 * 一键测试 app上传添加
+	 */
+	@ResponseBody
+	@PostMapping(value = "/addOneButtonTest")
+	public JsonMsgUtil oneButtonTestAdd(@RequestBody OneButtonTestParam oneButtonTestParam) {
+		
+		if (oneButtonTestParam ==null) {
+			throw new IllegalArgumentException("接收的数据为空");
+		}
+		String projId = oneButtonTestParam.getProjId();
+		if (StringUtils.isBlank(projId)) {
+			throw new IllegalArgumentException("未传入项目号项目");
+		}
+		
+		List<OneButtonTest> datas = oneButtonTestParam.getDatas();
+		if (datas==null || datas.size()==0) {
+			throw new IllegalArgumentException("上传的数据为空");
+		}
+		
+		for (OneButtonTest oneButtonTest : datas) {
+			oneButtonTest.setId(MyUtil.getUuid());
+			oneButtonTest.setCityId(projId);
+			Date date = MyDateUtil.stringToDate(oneButtonTest.getTestTime(), "yyyy-MM-dd HH:mm:ss");
+			if (date != null) {
+				oneButtonTest.setTestTimeQuery(date.getTime());
+			}
+			oneButtonTest.dealLngLatBdToWgs84();
+			Esutil.insert("onebuttontest", "onebuttontest", JSONObject.toJSONString(oneButtonTest));
+		}
 		return new JsonMsgUtil(true, "添加成功", "");
 	}
 
@@ -355,6 +389,15 @@ public class EsBusssController {
 	@PostMapping(value = "/queryOneButtonTest")
 	public TableResultUtil queryOneButtonTest(@RequestBody QueryParamData queryParamData) {
 		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
+		
+		//将地市条件录入
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+		
+		clearMapEmptyVal.put("cityId.keyword", loginUser.getProjId().toString());
+		
 		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
 		queryParamData.handleFieldRange("testTimeQuery", queryParamData.getBeginTime(), null);
 		queryParamData.handleFieldRange("testTimeQuery", null, queryParamData.getEndTime());

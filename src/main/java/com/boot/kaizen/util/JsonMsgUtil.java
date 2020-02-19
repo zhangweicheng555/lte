@@ -88,13 +88,6 @@ public class JsonMsgUtil {
 		this.success = success;
 	}
 
-	public String getMsg() {
-		return message;
-	}
-
-	public void setMsg(String msg) {
-		this.message = msg;
-	}
 
 	public Object getObject() {
 		return object;

@@ -62,7 +62,7 @@ public class PermissionServiceImpl implements PermissionService {
 			j = new JsonMsgUtil(true, "操作成功", "");
 		} catch (Exception e) {
 			log.info("异常："+e);
-			j.setMsg("删除操作失败");
+			j.setMessage("删除操作失败");
 		}
 		return j;
 	}
@@ -97,7 +97,7 @@ public class PermissionServiceImpl implements PermissionService {
 			}
 		} catch (Exception e) {
 			log.info("异常："+e);
-			j.setMsg("添加操作失败");
+			j.setMessage("添加操作失败");
 		}
 		return j;
 	}

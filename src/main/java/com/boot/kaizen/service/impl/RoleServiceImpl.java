@@ -116,7 +116,7 @@ public class RoleServiceImpl implements RoleService {
 			j = new JsonMsgUtil(true, "操作成功", null);
 		} catch (Exception e) {
 			//e.printStackTrace();
-			j.setMsg("操作失败");
+			j.setMessage("操作失败");
 		}
 
 		return j;
@@ -143,7 +143,7 @@ public class RoleServiceImpl implements RoleService {
 			sysRoleDao.delete(id);
 			j = new JsonMsgUtil(true, "删除操作成功", "");
 		} catch (Exception e) {
-			j.setMsg("删除操作失败");
+			j.setMessage("删除操作失败");
 			//e.printStackTrace();
 		}
 		return j;

@@ -153,7 +153,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			j = new JsonMsgUtil(true, "操作成功", userDao.getById(id));
 		} catch (Exception e) {
-			j.setMsg("操作失败");
+			j.setMessage("操作失败");
 			//e.printStackTrace();
 		}
 		return j;
