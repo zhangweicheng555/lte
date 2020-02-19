@@ -405,5 +405,6 @@ public class MyUtil {
 	public static String dealEmptyStr(String str, String replaceStrIfEmpty) {
 		return StringUtils.isBlank(str) ? replaceStrIfEmpty : str;
 	}
-
+	
+	
 }

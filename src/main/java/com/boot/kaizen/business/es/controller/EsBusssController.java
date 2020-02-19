@@ -87,6 +87,13 @@ public class EsBusssController {
 	private SysProjectService sysProjectService;
 	@Autowired
 	private IProjectMapperService projectMapperService;
+	
+	@Value("${sim.gcCityPermission}")
+	private String gcCityPermission;
+	@Value("${sim.gcAllPermission}")
+	private String gcAllPermission;
+	
+	
 	@Value("${files.path}")
 	private String filesCommonPath;
 
@@ -128,6 +135,9 @@ public class EsBusssController {
 		return new TableResultUtil(0L, "操作成功", paramData.getTotalNums(), paramData.getRows());
 	}
 
+	
+	
+	
 	/**
 	 * sim工参查询
 	 * 
@@ -144,7 +154,17 @@ public class EsBusssController {
 			throw new IllegalArgumentException("该用户不属于当前项目");
 		}
 		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
-		clearMapEmptyVal.put("cityId.keyword", sysProject.getId() + "");
+		
+		boolean hasPermission = UserUtil.hasPermission(gcAllPermission);
+		if (hasPermission) {
+			if (StringUtils.isBlank(sysProject.getId().toString())) {
+				throw new IllegalArgumentException("该用户不属于任何地市");
+			}
+			clearMapEmptyVal.put("cityId.keyword", sysProject.getId() + "");
+		}else {
+			clearMapEmptyVal.put("lte_city_name.keyword", sysProject.getProjCode() + "");
+		}
+		
 		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
 		QueryParamData paramData = Esutil.queryPage(queryParamData);
 		return new TableResultUtil(0L, "操作成功", paramData.getTotalNums(), paramData.getRows());
@@ -613,13 +633,16 @@ public class EsBusssController {
 		if (loginUser == null) {
 			throw new IllegalArgumentException("当前登陆用户失效");
 		}
-
+		
 		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
 		if (sysProject == null) {
 			throw new IllegalArgumentException("该用户不属于任何地市");
 		} else {
 			if (StringUtils.isBlank(sysProject.getProjCode())) {
 				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的sim地市不存在");
+			}
+			if (StringUtils.isBlank(sysProject.getProProvice())) {
+				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的地市省份不存在");
 			}
 		}
 
@@ -629,7 +652,7 @@ public class EsBusssController {
 			throw new IllegalArgumentException("该用户不属于任何项目");
 		} else {
 			if (StringUtils.isBlank(sysProjectMapper.getProjSimName())) {
-				throw new IllegalArgumentException("项目【" + sysProjectMapper.getProjName() + "】不存在sim项目的名字");
+				throw new IllegalArgumentException("项目【" + sysProjectMapper.getProjName() + "】不存在SIM ProjectName名称");
 			}
 			if (StringUtils.isBlank(sysProjectMapper.getHostAp())) {
 				throw new IllegalArgumentException("项目【" + sysProjectMapper.getProjName() + "】不存在sim工参地址");
@@ -643,6 +666,16 @@ public class EsBusssController {
 				throw new IllegalArgumentException("项目【" + sysProjectMapper.getProjName() + "】对应的运营商不存在");
 			}
 		}
+		
+		String projectLevelFlag="3";//默认是查询地市级别的工参
+		boolean hasPermission = UserUtil.hasPermission(gcAllPermission);
+		if (hasPermission) {
+			if (StringUtils.isBlank(sysProject.getProjIntro())) {
+				throw new IllegalArgumentException("该用户不属于任何项目");
+			}
+			projectLevelFlag="2";
+		}
+		
 
 		/** for循环请求数据开始 **/
 		for (int i = 0; i < 100000000; i++) {
@@ -655,8 +688,8 @@ public class EsBusssController {
 			Map<String, Object> paramMap = new HashMap<>();
 			paramMap.put("projectName", sysProjectMapper.getProjSimName());
 			paramMap.put("netId", "1");// 先写死1
-			paramMap.put("projectLevel", "3");// 3是查询本市 2是查询全省的
-			paramMap.put("provinceName", sysProject.getProjCode());
+			paramMap.put("projectLevel", projectLevelFlag);// 3是查询本市 2是查询全省的
+			paramMap.put("provinceName", sysProject.getProProvice());
 			paramMap.put("operator", sysProjectMapper.getProjOperator());
 			paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
 					"lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm");
@@ -738,7 +771,17 @@ public class EsBusssController {
 			if (termMap == null) {
 				termMap = new HashMap<>();
 			}
-			termMap.put("cityId.keyword", sysProject.getId().toString());
+			
+			boolean hasPermission = UserUtil.hasPermission(gcAllPermission);
+			if (hasPermission) {
+				if (StringUtils.isBlank(sysProject.getProjIntro())) {
+					throw new IllegalArgumentException("该用户不属于任何项目");
+				}
+				termMap.put("cityId.keyword", sysProject.getId().toString());
+			}else {
+				termMap.put("lte_city_name.keyword", sysProject.getProjCode().toString());
+			}
+			queryParamData.setTermMap(termMap);
 		}
 
 		Long deleteBatchNum = Esutil.deleteBatchByCondition(queryParamData);

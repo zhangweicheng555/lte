@@ -22,7 +22,7 @@ public class GcModel extends CommonModel implements Serializable {
 	 * 工参定义得额外信息在这里配置
 	 */
 	private Map<String, Double> location;
-	private String cityId;// 地市主键 就是原来项目主键 目前根据登陆得账户获取
+	private String cityId;// 地市主键 就是原来项目主键    这个改为项目主键20200215    用于项目管理员登陆的时候看到全省的数据
 
 	public Map<String, Double> getLocation() {
 		return location;

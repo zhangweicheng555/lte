@@ -30,15 +30,17 @@ public interface SysProjectDao {
 
 	Integer delete(@Param("idsArray") Long[] array);
 
-	@Insert("insert into sys_project(proj_name,proj_code,proj_intro,sort,createTime) values(#{projName},#{projCode},#{projIntro},#{sort},#{createTime})")
+	@Insert("insert into sys_project(proj_name,proj_code,proj_intro,sort,createTime,proj_province) values(#{projName},#{projCode},#{projIntro},#{sort},#{createTime},#{proProvice})")
 	void insert(SysProject sysProject);
 
-	@Update("update sys_project set proj_name=#{projName},proj_code=#{projCode},proj_intro=#{projIntro},sort=#{sort},updateTime=#{updateTime} where id=#{id}")
+	@Update("update sys_project set proj_name=#{projName},proj_code=#{projCode},proj_intro=#{projIntro},sort=#{sort},updateTime=#{updateTime},proj_province=#{proProvice} where id=#{id}")
 	void update(SysProject sysProject);
 
 	@Select("select * from sys_project where id=#{id}")
 	SysProject findById(@Param("id") Long id);
 
+	SysProject selectById(@Param("id") Long id);
+	
 	Long findRandomProj(@Param("username") String username);
 
 	/**

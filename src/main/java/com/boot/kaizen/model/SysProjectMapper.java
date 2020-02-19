@@ -20,7 +20,7 @@ public class SysProjectMapper extends SuperEntity<SysProjectMapper> {
 	private String id;
 	private String projName; // 项目名字
 	private String hostAp; // SIM工参地址
-	private String projSimName;// sim 项目名字 目前手动填写
+	private String projSimName;//SIM ProjectName名称
 	private String projOperator;// sim项目 运行商 手动填写
 	private String sort; // 排序
 	/** 创建时间 */

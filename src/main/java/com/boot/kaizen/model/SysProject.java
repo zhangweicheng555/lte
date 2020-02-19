@@ -13,19 +13,25 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class SysProject extends BaseEntity<Long> {
 
 	private static final long serialVersionUID = 1L;
-	private String projectMapperName;  //所属项目名称    这个一般是自己查询显示用的
-	private String projIntro;      //所属项目编号    新增    
-	
-	private String projName;//地市名字 
-	private String projCode;//SIM地市的名字
+	private String projectMapperName; // 所属项目名称 这个一般是自己查询显示用的
+	private String projIntro; // 所属项目编号 新增
+
+	private String projName;// 地市名字
+	private String projCode;// SIM地市的名字
+	private String proProvice;// SIM地市省份
 	private String sort;
 	@JsonIgnore
 	private List<SysRole> roles;
 	private String roleNames;
 	private String roleIds;
 
-	
-	
+	public String getProProvice() {
+		return proProvice;
+	}
+
+	public void setProProvice(String proProvice) {
+		this.proProvice = proProvice;
+	}
 
 	public String getProjectMapperName() {
 		return projectMapperName;
@@ -89,6 +95,24 @@ public class SysProject extends BaseEntity<Long> {
 
 	public void setProjIntro(String projIntro) {
 		this.projIntro = projIntro;
+	}
+
+	public SysProject(String projectMapperName, String projIntro, String projName, String projCode, String proProvice,
+			String sort, List<SysRole> roles, String roleNames, String roleIds) {
+		super();
+		this.projectMapperName = projectMapperName;
+		this.projIntro = projIntro;
+		this.projName = projName;
+		this.projCode = projCode;
+		this.proProvice = proProvice;
+		this.sort = sort;
+		this.roles = roles;
+		this.roleNames = roleNames;
+		this.roleIds = roleIds;
+	}
+
+	public SysProject() {
+		super();
 	}
 
 }

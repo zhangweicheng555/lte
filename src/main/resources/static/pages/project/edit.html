@@ -44,6 +44,15 @@
 		     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*务必同SIM一致</span></div>
 		  </div>
 		  
+		   <div class="layui-form-item">
+		    <label class="layui-form-label" style="width: 150px;">SIM地市省份</label>
+		    <div class="layui-input-inline" style="width: 400px;">
+		      <input type="text" name="proProvice" id="proProvice"  required  lay-verify="required"  autocomplete="off" class="layui-input">
+		    </div>
+		     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*务必同SIM省份一致</span></div>
+		  </div>
+		  
+		  
 		  <div class="layui-form-item">
 		    <label class="layui-form-label" style="width: 150px;">排序码</label>
 		    <div class="layui-input-inline" style="width: 400px;">
@@ -118,6 +127,7 @@
 				   success: function(msg){
 				     if(msg.success){
 				    	var obj=msg.object;
+				    	console.info(obj);
 				 		form.val("formDemo", obj);
 				     }else{
 				    	 layer.msg('返回修改数据信息异常');

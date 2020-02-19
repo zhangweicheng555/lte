@@ -138,24 +138,7 @@ server:
   port: 8081 
 
 
-   
-ribbon: 
-  eureka: 
-    enabled: true
-
-
-eureka:
-  instance:
-    prefer-ip-address: true  
-    instanceId: ${spring.application.name}:${server.port}    #这个地方可以改为任何其他的变量   只是为了显示
-    lease-renewal-interval-in-seconds: 5                     #没5秒想注册中心发送心跳  证明自己活着
-    lease-expiration-duration-in-seconds: 15                  #8秒内 没有发送  说明我已经死掉
-    status-page-url-path: http://140.206.187.251:50020/login.html   #statue的链接配置
-  client: 
-    service-url: 
-      defaultZone: http://ihandle.huanuo-nsb.com/eureka/
   
-
 
   
 gis: 
@@ -167,8 +150,14 @@ gis:
 #日志分析系统额外配置
 logsystem: 
   projid: 526  
+ 
 
   
 sim:
   key: zcto8k3i*a2c6
   url: http://61.132.73.61:8012/SIM/iHandle!getParamSync.action
+  gcAllPermission: fresh_all_gc  #此标记代表可拉取全省的工参
+  gcCityPermission: fresh_city_gc  #此标记代表可拉取地市的工参
+  
+  
+  

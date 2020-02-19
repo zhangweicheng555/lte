@@ -58,7 +58,7 @@ $(function(){
 	 initMenu();
 	 
 	 //显示当前在线人数
-	 $.ajax({  
+	/* $.ajax({  
 		 url:"/redis/queryLoginPersonNum",  
 		 type:"POST",  
 		 async:false,
@@ -68,7 +68,7 @@ $(function(){
 				 $('#nowLoginPersonDiv').show();
 			 }
 		 }
-	 });
+	 });*/
 	 
 	 
 	  

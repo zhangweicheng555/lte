@@ -75,7 +75,7 @@
 	
 	<select id="find" resultMap="SysProjectFMap">
 		 select 
-		 sp.id,sp.proj_name,sp.proj_code,sp.proj_intro,sp.sort,sp.createTime,sp.updateTime,spm.projName as "project_mapper_name"
+		 sp.id,sp.proj_name,sp.proj_code,sp.proj_intro,sp.sort,sp.createTime,sp.updateTime,spm.projName as "project_mapper_name",sp.proj_province 
 		 ,group_concat(distinct sr.id separator '、')  as roleIds
 		 ,group_concat(distinct sr.name separator '、')   as roleNames
 		 from 
@@ -124,11 +124,22 @@
 	</select>
 	
 	
+	<select id="selectById" parameterType="java.lang.Long" resultMap="SysProjectQMap">
+		 select * 
+		 from  
+		 sys_project sp 
+		 where  id=#{id}
+	</select>
+	
+	
+	
+	
 	<resultMap type="com.boot.kaizen.model.SysProject" id="SysProjectQMap">
 		<id property="id" column="id" />
 		<result property="projName" column="proj_name" />
 		<result property="projCode" column="proj_code" />
 		<result property="projIntro" column="proj_intro" />
+		<result property="proProvice" column="proj_province" />
 		<result property="sort" column="sort" />
 		<result property="createTime" column="createTime" />
 		<result property="updateTime" column="updateTime" />
@@ -139,6 +150,7 @@
 		<id property="id" column="id" />
 		<result property="projName" column="proj_name" />
 		<result property="projCode" column="proj_code" />
+		<result property="proProvice" column="proj_province" />
 		<result property="projIntro" column="proj_intro" />
 		<result property="projectMapperName" column="project_mapper_name" />
 		<result property="sort" column="sort" />

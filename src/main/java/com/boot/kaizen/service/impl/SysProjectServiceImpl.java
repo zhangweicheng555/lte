@@ -124,7 +124,8 @@ public class SysProjectServiceImpl implements SysProjectService {
 	public JsonMsgUtil findById(Long id) {
 		JsonMsgUtil j = new JsonMsgUtil(false);
 		if (id != null) {
-			SysProject sysProject = projectDao.findById(id);
+			//SysProject sysProject = projectDao.selectById(id);
+			SysProject sysProject = projectDao.selectById(id);
 			if (sysProject != null) {
 				j = new JsonMsgUtil(true, "操作成功", sysProject);
 			}
@@ -184,7 +185,7 @@ public class SysProjectServiceImpl implements SysProjectService {
 
 	@Override
 	public SysProject selectById(Long id) {
-		return projectDao.findById(id);
+		return projectDao.selectById(id);
 	}
 
 }
