@@ -30,10 +30,10 @@ public interface SysProjectDao {
 
 	Integer delete(@Param("idsArray") Long[] array);
 
-	@Insert("insert into sys_project(proj_name,proj_code,proj_intro,sort,createTime,proj_province) values(#{projName},#{projCode},#{projIntro},#{sort},#{createTime},#{proProvice})")
+	@Insert("insert into sys_project(proj_name,proj_code,proj_intro,sort,createTime,proj_province,hostAp,projSimName,projOperator) values(#{projName},#{projCode},#{projIntro},#{sort},#{createTime},#{proProvice},#{hostAp},#{projSimName},#{projOperator})")
 	void insert(SysProject sysProject);
 
-	@Update("update sys_project set proj_name=#{projName},proj_code=#{projCode},proj_intro=#{projIntro},sort=#{sort},updateTime=#{updateTime},proj_province=#{proProvice} where id=#{id}")
+	@Update("update sys_project set proj_name=#{projName},proj_code=#{projCode},proj_intro=#{projIntro},sort=#{sort},updateTime=#{updateTime},proj_province=#{proProvice},hostAp=#{hostAp},projSimName=#{projSimName},projOperator=#{projOperator} where id=#{id}")
 	void update(SysProject sysProject);
 
 	@Select("select * from sys_project where id=#{id}")

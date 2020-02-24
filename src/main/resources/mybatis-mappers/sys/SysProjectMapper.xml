@@ -71,11 +71,13 @@
         </foreach>
 	</delete>
 	
-	
+
 	
 	<select id="find" resultMap="SysProjectFMap">
 		 select 
-		 sp.id,sp.proj_name,sp.proj_code,sp.proj_intro,sp.sort,sp.createTime,sp.updateTime,spm.projName as "project_mapper_name",sp.proj_province 
+		 sp.id,sp.proj_name,sp.proj_code,sp.proj_intro,sp.sort,sp.createTime,sp.updateTime,sp.proj_province
+		 ,sp.hostAp,sp.projSimName,sp.projOperator
+		 
 		 ,group_concat(distinct sr.id separator '、')  as roleIds
 		 ,group_concat(distinct sr.name separator '、')   as roleNames
 		 from 
@@ -85,8 +87,7 @@
 		 left join sys_role sr
 		 on sr.id=prr.role_id
 		 
-		 left join sys_project_mapper spm
-		 on spm.id=sp.proj_intro
+		 
 		 
 		 where 1=1 
 		 <if test="map.projId != null and map.projId != ''">
@@ -107,7 +108,7 @@
             and ( sp.proj_code = #{map.projCodeModel} or   sp.proj_name = #{map.projNameModel} )
         </if>
 		
-		 group by sp.id,sp.proj_name,sp.proj_code,sp.proj_intro,sp.sort,sp.createTime,sp.updateTime,spm.projName
+		 group by sp.id,sp.proj_name,sp.proj_code,sp.proj_intro,sp.sort,sp.createTime,sp.updateTime,sp.proj_province,sp.hostAp,sp.projSimName,sp.projOperator
 		 order by sp.sort
 	</select>
 	
@@ -140,6 +141,12 @@
 		<result property="projCode" column="proj_code" />
 		<result property="projIntro" column="proj_intro" />
 		<result property="proProvice" column="proj_province" />
+		
+		<result property="hostAp" column="hostAp" />
+		<result property="projSimName" column="projSimName" />
+		<result property="projOperator" column="projOperator" />
+		
+		
 		<result property="sort" column="sort" />
 		<result property="createTime" column="createTime" />
 		<result property="updateTime" column="updateTime" />
@@ -151,6 +158,12 @@
 		<result property="projName" column="proj_name" />
 		<result property="projCode" column="proj_code" />
 		<result property="proProvice" column="proj_province" />
+		
+		
+		<result property="hostAp" column="hostAp" />
+		<result property="projSimName" column="projSimName" />
+		<result property="projOperator" column="projOperator" />
+		
 		<result property="projIntro" column="proj_intro" />
 		<result property="projectMapperName" column="project_mapper_name" />
 		<result property="sort" column="sort" />

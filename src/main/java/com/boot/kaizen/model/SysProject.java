@@ -14,16 +14,66 @@ public class SysProject extends BaseEntity<Long> {
 
 	private static final long serialVersionUID = 1L;
 	private String projectMapperName; // 所属项目名称 这个一般是自己查询显示用的
-	private String projIntro; // 所属项目编号 新增
+	
+	private String projIntro; // 所属项目编号 新增  这个废弃20200224
 
 	private String projName;// 地市名字
 	private String projCode;// SIM地市的名字
 	private String proProvice;// SIM地市省份
+
+	// 20200224新增
+	private String hostAp; // SIM工参地址
+	private String projSimName;// SIM ProjectName名称
+	private String projOperator;// sim项目 运行商 手动填写
+
 	private String sort;
 	@JsonIgnore
 	private List<SysRole> roles;
 	private String roleNames;
 	private String roleIds;
+
+	
+	public SysProject(String projectMapperName, String projIntro, String projName, String projCode, String proProvice,
+			String hostAp, String projSimName, String projOperator, String sort, List<SysRole> roles, String roleNames,
+			String roleIds) {
+		super();
+		this.projectMapperName = projectMapperName;
+		this.projIntro = projIntro;
+		this.projName = projName;
+		this.projCode = projCode;
+		this.proProvice = proProvice;
+		this.hostAp = hostAp;
+		this.projSimName = projSimName;
+		this.projOperator = projOperator;
+		this.sort = sort;
+		this.roles = roles;
+		this.roleNames = roleNames;
+		this.roleIds = roleIds;
+	}
+
+	public String getHostAp() {
+		return hostAp;
+	}
+
+	public void setHostAp(String hostAp) {
+		this.hostAp = hostAp;
+	}
+
+	public String getProjSimName() {
+		return projSimName;
+	}
+
+	public void setProjSimName(String projSimName) {
+		this.projSimName = projSimName;
+	}
+
+	public String getProjOperator() {
+		return projOperator;
+	}
+
+	public void setProjOperator(String projOperator) {
+		this.projOperator = projOperator;
+	}
 
 	public String getProProvice() {
 		return proProvice;

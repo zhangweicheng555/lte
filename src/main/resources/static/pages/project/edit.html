@@ -13,53 +13,56 @@
 	<form class="layui-form"  lay-filter="formDemo" id="formDemo" style="margin-top: 20px;">
 	    <input  type="hidden" name="id" value="id" />
 	  
+		 <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">地市名称</label>
+	    <div class="layui-input-inline" style="width: 200px;">
+	      <input type="text" name="projName" id="projName"   required  lay-verify="required"  autocomplete="off" class="layui-input">
+	    </div>
+	    
+	    
+	    <label class="layui-form-label" style="width: 150px;">SIM地市名称</label>
+	    <div class="layui-input-inline" style="width: 200px;">
+	      <input type="text" name="projCode" id="projCode"  required  lay-verify="required"  placeholder="*务必同SIM城市一致" autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
 	  
-		   <div class="layui-form-item">
-		    <label class="layui-form-label" style="width: 150px;">项目名称</label>
-		    <div class="layui-input-inline" style="width: 400px;">
-		      <select name="projIntro"  id="projIntro" lay-verify="required">
-		        <option value="0">北京</option>
-		        <option value="1">上海</option>
-		        <option value="2">广州</option>
-		        <option value="3">深圳</option>
-		        <option value="4">杭州</option>
-		      </select>
-		    </div>
-		     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*</span></div>
-		  </div>
-		  
-		  <div class="layui-form-item">
-		    <label class="layui-form-label" style="width: 150px;">地市名称</label>
-		    <div class="layui-input-inline" style="width: 400px;">
-		      <input type="text" name="projName" id="projName"   required  lay-verify="required"  autocomplete="off" class="layui-input">
-		    </div>
-		     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*</span></div>
-		  </div>
-		  
-		  <div class="layui-form-item">
-		    <label class="layui-form-label" style="width: 150px;">SIM地市名称</label>
-		    <div class="layui-input-inline" style="width: 400px;">
-		      <input type="text" name="projCode" id="projCode"  required  lay-verify="required"  autocomplete="off" class="layui-input">
-		    </div>
-		     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*务必同SIM一致</span></div>
-		  </div>
-		  
-		   <div class="layui-form-item">
-		    <label class="layui-form-label" style="width: 150px;">SIM地市省份</label>
-		    <div class="layui-input-inline" style="width: 400px;">
-		      <input type="text" name="proProvice" id="proProvice"  required  lay-verify="required"  autocomplete="off" class="layui-input">
-		    </div>
-		     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*务必同SIM省份一致</span></div>
-		  </div>
-		  
-		  
-		  <div class="layui-form-item">
-		    <label class="layui-form-label" style="width: 150px;">排序码</label>
-		    <div class="layui-input-inline" style="width: 400px;">
-		      <input type="text" name="sort" id="sort"  placeholder="建议数字" required  lay-verify="required"  autocomplete="off" class="layui-input">
-		    </div>
-		     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*</span></div>
-		  </div>
+	 
+	  
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">SIM地市省份</label>
+	    <div class="layui-input-inline" style="width: 200px;">
+	      <input type="text" name="proProvice" id="proProvice"  required  lay-verify="required"  placeholder="*务必同SIM省份一致"   autocomplete="off" class="layui-input">
+	    </div>
+	    
+	    <label class="layui-form-label" style="width: 150px;">SIM工参地址</label>
+	    <div class="layui-input-inline" style="width: 200px;">
+	      <input type="text" name="hostAp" id="hostAp"  required  value="http://61.132.73.61:8012"  placeholder="*务必同SIM工参地址一致"   lay-verify="required" placeholder="http://ip:port or https//ip:port"  autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	  
+	  
+	  
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">SIM ProjectName名称</label>
+	    <div class="layui-input-inline" style="width: 200px;">
+	      <input type="text" name="projSimName" id="projSimName"  required  lay-verify="required"   placeholder="*务必同SIM ProjectName一致"   autocomplete="off" class="layui-input">
+	    </div>
+	    
+	    <label class="layui-form-label" style="width: 150px;">SIM项目运营商</label>
+	    <div class="layui-input-inline" style="width: 200px;">
+	      <input type="text" name="projOperator" id="projOperator"  required   lay-verify="required" placeholder="*务必同SIM运营商一致"  autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	  
+	  
+	  
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">排序码</label>
+	    <div class="layui-input-inline" style="width: 200px;">
+	      <input type="text" name="sort" id="sort"  placeholder="建议数字" required  lay-verify="required"  autocomplete="off" class="layui-input">
+	    </div>
+	     <div class="layui-form-mid layui-word-aux"><span style="color: red;">*</span></div>
+	  </div>
 	  
 		<button class="layui-btn" id="formDemoBtn" style="display: none;" lay-submit lay-filter="formDemo">立即提交</button>
 	</form>
@@ -97,30 +100,6 @@
 				layer.msg('获取数据ID异常');
 				return;
 			}
-			
-			
-			//加载项目得选项
-			  $.ajax({
-				   type: "POST",url: "/projectmapper/findNowList",data: {},dataType:"json", async:false,
-				   success: function(msg){
-					 $("#projIntro").empty();
-				     if(msg.success){
-				    	var obj=msg.object;
-				    	if(obj && obj.length>0){
-				    		var html="";
-				    		for(var i=0;i<obj.length;i++){
-				    			var model=obj[i];
-				    			html +='<option value="'+model.id+'">'+model.projName+'</option>';
-				    		}
-				    		$("#projIntro").append(html);
-				    		form.render(); //更新全部
-				    	}
-				     }else{
-				    	 layer.msg('查询项目信息不存在');
-				     }
-				   }
-			});
-			
 			
 			$.ajax({
 				   type: "POST",url: "/project/findById",data: {"id":id},dataType:"json", async:false,

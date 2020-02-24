@@ -58,8 +58,6 @@ import com.boot.kaizen.business.es.service.IEsBussService;
 import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.entity.RequestParamEntity;
 import com.boot.kaizen.model.SysProject;
-import com.boot.kaizen.model.SysProjectMapper;
-import com.boot.kaizen.service.IProjectMapperService;
 import com.boot.kaizen.service.SysProjectService;
 import com.boot.kaizen.util.AEStest;
 import com.boot.kaizen.util.FileUtil;
@@ -86,15 +84,12 @@ public class EsBusssController {
 	private TransportClient transportClient;
 	@Autowired
 	private SysProjectService sysProjectService;
-	@Autowired
-	private IProjectMapperService projectMapperService;
-	
+
 	@Value("${sim.gcCityPermission}")
 	private String gcCityPermission;
 	@Value("${sim.gcAllPermission}")
 	private String gcAllPermission;
-	
-	
+
 	@Value("${files.path}")
 	private String filesCommonPath;
 
@@ -136,9 +131,6 @@ public class EsBusssController {
 		return new TableResultUtil(0L, "操作成功", paramData.getTotalNums(), paramData.getRows());
 	}
 
-	
-	
-	
 	/**
 	 * sim工参查询
 	 * 
@@ -155,17 +147,17 @@ public class EsBusssController {
 			throw new IllegalArgumentException("该用户不属于当前项目");
 		}
 		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
-		
+
 		boolean hasPermission = UserUtil.hasPermission(gcAllPermission);
 		if (hasPermission) {
 			if (StringUtils.isBlank(sysProject.getId().toString())) {
 				throw new IllegalArgumentException("该用户不属于任何地市");
 			}
 			clearMapEmptyVal.put("cityId.keyword", sysProject.getId() + "");
-		}else {
+		} else {
 			clearMapEmptyVal.put("lte_city_name.keyword", sysProject.getProjCode() + "");
 		}
-		
+
 		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
 		QueryParamData paramData = Esutil.queryPage(queryParamData);
 		return new TableResultUtil(0L, "操作成功", paramData.getTotalNums(), paramData.getRows());
@@ -252,10 +244,10 @@ public class EsBusssController {
 			throw new IllegalArgumentException("该用户不属于当前项目");
 		}
 		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
-		
-	//	clearMapEmptyVal.put("cityId.keyword", sysProject.getId() + "");  这个是查询全国的
+
+		// clearMapEmptyVal.put("cityId.keyword", sysProject.getId() + ""); 这个是查询全国的
 		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
-		
+
 		List<Map<String, Object>> scrollQuery = Esutil.scrollQuery(queryParamData);
 		return scrollQuery;
 	}
@@ -275,40 +267,40 @@ public class EsBusssController {
 
 	/**
 	 * 一键测试 添加
-	@ResponseBody
-	@PostMapping(value = "/oneButtonTestAdd")
-	public JsonMsgUtil oneButtonTestAdd(OneButtonTest oneButtonTest) {
-		oneButtonTest.setId(MyUtil.getUuid());
-		Date date = MyDateUtil.stringToDate(oneButtonTest.getTestTime(), "yyyy-MM-dd HH:mm:ss");
-		if (date != null) {
-			oneButtonTest.setTestTimeQuery(date.getTime());
-		}
-		oneButtonTest.dealLngLatBdToWgs84();
-		Esutil.insert("onebuttontest", "onebuttontest", JSONObject.toJSONString(oneButtonTest));
-		return new JsonMsgUtil(true, "添加成功", "");
-	} */
-	
-	
+	 * 
+	 * @ResponseBody
+	 * @PostMapping(value = "/oneButtonTestAdd") public JsonMsgUtil
+	 *                    oneButtonTestAdd(OneButtonTest oneButtonTest) {
+	 *                    oneButtonTest.setId(MyUtil.getUuid()); Date date =
+	 *                    MyDateUtil.stringToDate(oneButtonTest.getTestTime(),
+	 *                    "yyyy-MM-dd HH:mm:ss"); if (date != null) {
+	 *                    oneButtonTest.setTestTimeQuery(date.getTime()); }
+	 *                    oneButtonTest.dealLngLatBdToWgs84();
+	 *                    Esutil.insert("onebuttontest", "onebuttontest",
+	 *                    JSONObject.toJSONString(oneButtonTest)); return new
+	 *                    JsonMsgUtil(true, "添加成功", ""); }
+	 */
+
 	/**
 	 * 一键测试 app上传添加
 	 */
 	@ResponseBody
 	@PostMapping(value = "/addOneButtonTest")
 	public JsonMsgUtil oneButtonTestAdd(@RequestBody OneButtonTestParam oneButtonTestParam) {
-		
-		if (oneButtonTestParam ==null) {
+
+		if (oneButtonTestParam == null) {
 			throw new IllegalArgumentException("接收的数据为空");
 		}
 		String projId = oneButtonTestParam.getProjId();
 		if (StringUtils.isBlank(projId)) {
 			throw new IllegalArgumentException("未传入项目号项目");
 		}
-		
+
 		List<OneButtonTest> datas = oneButtonTestParam.getDatas();
-		if (datas==null || datas.size()==0) {
+		if (datas == null || datas.size() == 0) {
 			throw new IllegalArgumentException("上传的数据为空");
 		}
-		
+
 		for (OneButtonTest oneButtonTest : datas) {
 			oneButtonTest.setId(MyUtil.getUuid());
 			oneButtonTest.setCityId(projId);
@@ -389,15 +381,15 @@ public class EsBusssController {
 	@PostMapping(value = "/queryOneButtonTest")
 	public TableResultUtil queryOneButtonTest(@RequestBody QueryParamData queryParamData) {
 		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
-		
-		//将地市条件录入
+
+		// 将地市条件录入
 		LoginUser loginUser = UserUtil.getLoginUser();
 		if (loginUser == null) {
 			throw new IllegalArgumentException("当前登陆用户失效");
 		}
-		
+
 		clearMapEmptyVal.put("cityId.keyword", loginUser.getProjId().toString());
-		
+
 		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
 		queryParamData.handleFieldRange("testTimeQuery", queryParamData.getBeginTime(), null);
 		queryParamData.handleFieldRange("testTimeQuery", null, queryParamData.getEndTime());
@@ -539,7 +531,7 @@ public class EsBusssController {
 			String enb = map.get("eNB").toString();
 
 			Map<String, Object> termMap = new HashMap<String, Object>();
-//			termMap.put("cityId.keyword", sysProject.getId() + "");
+			// termMap.put("cityId.keyword", sysProject.getId() + "");
 			termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
 			termMap.put("lte_ecgi.keyword", cellId);
 			QueryParamData queryParamData = new QueryParamData("simgc", "simgc", termMap,
@@ -602,7 +594,7 @@ public class EsBusssController {
 				termMap = new HashMap<>();
 			}
 
-			//termMap.put("cityId.keyword", sysProject.getId() + "");   也是全国的
+			// termMap.put("cityId.keyword", sysProject.getId() + ""); 也是全国的
 			queryParamData.setTermMap(termMap);
 			List<Map<String, Object>> scrollQueryList = Esutil.scrollQuery(queryParamData);
 			return scrollQueryList;
@@ -650,7 +642,7 @@ public class EsBusssController {
 				if (termMap != null) {
 					termMap = new HashMap<>();
 				}
-//				termMap.put("cityId.keyword", sysProject.getId() + "");
+				// termMap.put("cityId.keyword", sysProject.getId() + "");
 				termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
 				queryParamData.setTermMap(termMap);
 
@@ -676,8 +668,9 @@ public class EsBusssController {
 		if (loginUser == null) {
 			throw new IllegalArgumentException("当前登陆用户失效");
 		}
-		
+
 		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		String httpType = "http";
 		if (sysProject == null) {
 			throw new IllegalArgumentException("该用户不属于任何地市");
 		} else {
@@ -687,38 +680,28 @@ public class EsBusssController {
 			if (StringUtils.isBlank(sysProject.getProProvice())) {
 				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的地市省份不存在");
 			}
-		}
 
-		SysProjectMapper sysProjectMapper = projectMapperService.selectById(sysProject.getProjIntro());
-		String httpType = "http";
-		if (sysProjectMapper == null) {
-			throw new IllegalArgumentException("该用户不属于任何项目");
-		} else {
-			if (StringUtils.isBlank(sysProjectMapper.getProjSimName())) {
-				throw new IllegalArgumentException("项目【" + sysProjectMapper.getProjName() + "】不存在SIM ProjectName名称");
+			if (StringUtils.isBlank(sysProject.getProjSimName())) {
+				throw new IllegalArgumentException("项目【" + sysProject.getProjName() + "】不存在SIM ProjectName名称");
 			}
-			if (StringUtils.isBlank(sysProjectMapper.getHostAp())) {
-				throw new IllegalArgumentException("项目【" + sysProjectMapper.getProjName() + "】不存在sim工参地址");
+			if (StringUtils.isBlank(sysProject.getHostAp())) {
+				throw new IllegalArgumentException("项目【" + sysProject.getProjName() + "】不存在sim工参地址");
 			} else {
-				String hostAp = sysProjectMapper.getHostAp().toLowerCase();
+				String hostAp = sysProject.getHostAp().toLowerCase();
 				if (hostAp.contains("https")) {
 					httpType = "https";
 				}
 			}
-			if (StringUtils.isBlank(sysProjectMapper.getProjOperator())) {
-				throw new IllegalArgumentException("项目【" + sysProjectMapper.getProjName() + "】对应的运营商不存在");
+			if (StringUtils.isBlank(sysProject.getProjOperator())) {
+				throw new IllegalArgumentException("项目【" + sysProject.getProjName() + "】对应的运营商不存在");
 			}
 		}
-		
-		String projectLevelFlag="3";//默认是查询地市级别的工参
+
+		String projectLevelFlag = "3";// 默认是查询地市级别的工参
 		boolean hasPermission = UserUtil.hasPermission(gcAllPermission);
 		if (hasPermission) {
-			if (StringUtils.isBlank(sysProject.getProjIntro())) {
-				throw new IllegalArgumentException("该用户不属于任何项目");
-			}
-			projectLevelFlag="2";
+			projectLevelFlag = "2";
 		}
-		
 
 		/** for循环请求数据开始 **/
 		for (int i = 0; i < 100000000; i++) {
@@ -729,11 +712,11 @@ public class EsBusssController {
 			BulkRequest request = new BulkRequest();
 
 			Map<String, Object> paramMap = new HashMap<>();
-			paramMap.put("projectName", sysProjectMapper.getProjSimName());
+			paramMap.put("projectName", sysProject.getProjSimName());
 			paramMap.put("netId", "1");// 先写死1
 			paramMap.put("projectLevel", projectLevelFlag);// 3是查询本市 2是查询全省的
 			paramMap.put("provinceName", sysProject.getProProvice());
-			paramMap.put("operator", sysProjectMapper.getProjOperator());
+			paramMap.put("operator", sysProject.getProjOperator());
 			paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
 					"lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm");
 
@@ -745,7 +728,7 @@ public class EsBusssController {
 			param.put("askJson", token);
 			// https://218.65.240.119:8443/
 
-			String url = sysProjectMapper.getHostAp() + "/SIM/ihandle!getParamSync.action";
+			String url = sysProject.getHostAp() + "/SIM/ihandle!getParamSync.action";
 			// String url = "https://218.65.240.119:8443/SIM/ihandle!getParamSync.action";
 			String responseResult = HttpUtil.sendPostRequest(url, param, httpType);
 			ResultModel resultModel = JSONObject.parseObject(responseResult, ResultModel.class);
@@ -765,12 +748,15 @@ public class EsBusssController {
 				// 将经纬度处理为WGS84
 				model.dealLngLatBdToWgs84();
 				model.setCityId(sysProject.getId() == null ? "" : sysProject.getId().toString());
-				/*IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc",
-						sysProject.getId() + "_" + model.getLte_city_name() + "_" + model.getLte_ci());
-				*/
-				
-				//以地市和ci为主键
-				IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc", model.getLte_city_name() + "_" + model.getLte_ci());
+				/*
+				 * IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc",
+				 * sysProject.getId() + "_" + model.getLte_city_name() + "_" +
+				 * model.getLte_ci());
+				 */
+
+				// 以地市和ci为主键
+				IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc",
+						model.getLte_city_name() + "_" + model.getLte_ci());
 				indexRequestOther.source(JSONObject.toJSONString(model), XContentType.JSON);
 				request.add(indexRequestOther);
 			}
@@ -808,20 +794,22 @@ public class EsBusssController {
 		if (sysProject == null) {
 			throw new IllegalArgumentException("该用户不属于任何地市");
 		}
+		
+		
 
 		if (queryParamData != null) {
 			Map<String, Object> termMap = queryParamData.getTermMap();
 			if (termMap == null) {
 				termMap = new HashMap<>();
 			}
-			
+
 			boolean hasPermission = UserUtil.hasPermission(gcAllPermission);
 			if (hasPermission) {
-				if (StringUtils.isBlank(sysProject.getProjIntro())) {
-					throw new IllegalArgumentException("该用户不属于任何项目");
+				if (StringUtils.isBlank(sysProject.getId().toString())) {
+					throw new IllegalArgumentException("该用户不属于任何地市");
 				}
 				termMap.put("cityId.keyword", sysProject.getId().toString());
-			}else {
+			} else {
 				termMap.put("lte_city_name.keyword", sysProject.getProjCode().toString());
 			}
 			queryParamData.setTermMap(termMap);
@@ -1078,5 +1066,4 @@ public class EsBusssController {
 		return isMsgEvent;
 	}
 
-	
 }
