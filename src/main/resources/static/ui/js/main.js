@@ -99,7 +99,7 @@ $(function(){
 					},
 					success : function(data) {
 						if(data.success){
-							 location.href = "/index.html";
+							 location.href = "/main.html";
 						}else{
 							layer.msg("系统异常！");
 						}

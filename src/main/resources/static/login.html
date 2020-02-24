@@ -78,7 +78,7 @@
 				data : $("#login-form").serialize(),
 				success : function(data) {
 					localStorage.setItem("token", data.token);
- 				    location.href = '/index.html';   
+ 				    location.href = '/main.html';   
 				},
 				error : function(xhr, textStatus, errorThrown) {
 					var msg = xhr.responseText;

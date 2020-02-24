@@ -66,15 +66,14 @@ public class TestConfigController {
 					if (data != null) {
 						testConfigService.insertOrUpdate(data);
 					}
-					return new JsonMsgUtil(true, "编辑成功", jsonStr);
 				} else {
 					return new JsonMsgUtil(false, "编辑失败:请求体接收参数为空", "");
 				}
 			}
+			return new JsonMsgUtil(true, "编辑成功", "");
 		} else {
 			return new JsonMsgUtil(true, "编辑失败，保存数据为空", "");
 		}
-		return new JsonMsgUtil(true, "编辑失败，保存数据为空", "");
 	}
 
 	
@@ -94,14 +93,14 @@ public class TestConfigController {
 		Integer projId = Integer.valueOf(UserUtil.getLoginUser().getProjId().toString());
 
 		Map<String, Object> paramMap = new HashMap<>();
-		paramMap.put("projId", 1);
+		paramMap.put("projId", projId);
 		if (StringUtils.isNotBlank(item)) {
 			paramMap.put("item", item);
 		}
 
 		List<TestConfig> testConfigs = testConfigService.selectByMap(paramMap);
 		if (testConfigs == null || testConfigs.size() ==0) {//返回默认
-			paramMap.put("projId", projId);
+			paramMap.put("projId", "1111111");
 			testConfigs = testConfigService.selectByMap(paramMap);
 		} 
 		

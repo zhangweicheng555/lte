@@ -120,6 +120,7 @@ public class ProjectController {
 	@ResponseBody
 	@RequestMapping(value = "/changeProject", method = RequestMethod.POST)
 	public JsonMsgUtil changeProject() {
+		System.out.println("----------------------");
 		return new JsonMsgUtil(true);
 	}
 

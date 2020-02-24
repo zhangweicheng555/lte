@@ -40,19 +40,7 @@ function initMenu(){
 	     }
 	 });
 	 
-	 //显示当前在线人数
-	 /*$.ajax({  
-		 url:"/redis/queryLoginPersonNum",  
-		 type:"POST",  
-		 async:false,
-		 success:function(data){
-			 console.info(data);
-			 if(data.success){
-				 $("#nowLoginPerson").html("系统在线人数: "+data.object);
-				 $('#nowLoginPersonDiv').show();
-			 }
-		 }
-	 });*/
+	
 }
 
 function setChild(parentElement, child){
@@ -245,7 +233,7 @@ layui.use(['layer', 'element'], function() {
 						$("#childDl").empty();
 						for(var i=0;i<listProjects.length;i++){
 							var project=listProjects[i];
-							$("#childDl").append("<dd><a href='javascript:;' class='clsProj'  id='"+project.id+"'>"+project.projName+"</a></dd>");
+							$("#childDl").append("<dd><a  href='wwww.baidu.com' class='clsProj'  id='"+project.id+"'>"+project.projName+"</a></dd>");
 						}
 					}
 				}else{
@@ -253,26 +241,32 @@ layui.use(['layer', 'element'], function() {
 				}
 			}
 		});
-	  //监听下拉菜单
-	  $(".clsProj").click(function(){
-		  var proj=$(this).attr("id");
-		  $.ajax({
-				type : 'post',
-				url : '/project/changeProject',
-				async : false,
-				dataType: "json",
-				data:{
-					"proj":proj,
-					"username":username
-				},
-				success : function(data) {
-					if(data.success){
-						 location.href = "/index.html";
-					}else{
-						layer.msg("系统异常！");
+	    
+	    
+	    //监听下拉菜单
+		  $(".clsProj").click(function(){
+			 // location.href = "/main1.html";
+			/* var proj=$(this).attr("id");
+			 console.info(proj);
+			  $.ajax({
+					type : 'post',
+					url : '/project/changeProject',
+					async : false,
+					dataType: "json",
+					data:{
+						"proj":proj,
+						"username":username
+					},
+					success : function(data) {
+						if(data.success){
+							alert('123');
+							 location.href = "/main1.html";
+						}else{
+							layer.msg("系统异常！");
+						}
 					}
-				}
-			});
-		 
-	  });
+				}); */
+			 
+		  });
+	 
 });
