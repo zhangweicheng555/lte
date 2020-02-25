@@ -1,0 +1,206 @@
+.ant-tabs-nav-wrap{
+  text-align: left;
+}
+.ant-tabs-bar{
+  margin: 0px;
+}
+.ant-card-body{
+  padding:5px;
+}
+.ant-spin.ant-spin-show-text .ant-spin-text{
+  font-size:12px;
+}
+.ant-select-dropdown-menu-item-group-title{
+  font-weight: bold;
+  font-size:14px;
+}
+
+.ant-form label{
+  font-weight: bold;
+}
+/*.ant-table-thead > tr > th, .ant-table-tbody > tr > td{*/
+  /*text-align: center;*/
+/*}*/
+.ant-tabs.ant-tabs-card .ant-tabs-card-bar .ant-tabs-tab-active {
+  background: rgb(123,107,181)!important;
+  border-color: #e8e8e8!important;
+  color: #fff!important;
+  padding-bottom: 1px;
+}
+.ant-tabs.ant-tabs-card .ant-tabs-card-bar .ant-tabs-tab .ant-tabs-close-x{
+  color: white!important;
+}
+.ant-tabs-tab{
+  background: rgb(101,103,116)!important;
+  color: #cccccc!important;
+}
+.ant-modal-header{
+  background-color: #69747c!important;
+}
+.ant-modal-title,.ant-modal-close{
+  color:white!important;
+}
+.ant-table-thead > tr > th{
+  white-space:nowrap;
+  background: rgba(255, 255, 255, 0) !important;
+  color:#202569!important;
+}
+
+.ant-table-thead{
+  border-bottom: 2px solid #dde2e6;
+}
+
+.ant-table-tbody > tr > td{
+  color:#333333!important;
+}
+
+
+.ant-table-row td{
+  white-space:nowrap;
+}
+.ant-table-body{
+  overflow: auto;
+}
+.ant-card-head{
+  background: #69747c!important;
+  color:white!important;
+  font-weight: bold;
+  max-height: 48px!important;
+}
+.ant-card-head-wrapper{
+  max-height: 48px!important;
+}
+.ant-card-head-title{
+  text-align: left!important;
+  white-space:normal;  /*正常换行*/
+}
+
+.leaflet-popup-close-button {
+  display: none;
+}
+.ant-checkbox-checked .ant-checkbox-inner{
+  background-color:#7a6ebc!important;
+}
+.ant-dropdown-menu-item span{
+  color: #707070;
+}
+
+
+.marker {
+  width: 5px;
+  height: 5px;
+  border: 1px solid #088;
+  border-radius: 100px;
+  background-color: black;
+  display: inline-block;
+  margin-left: 2px;
+}
+.shallow_gray{
+  background: rgb(250,250,250);
+}
+.shallow_yellow{
+  background: rgb(254, 255, 42);
+}
+.shallow_connect{
+  background: #ffe8c1;
+}
+.shallow_notconnect{
+  background: #00de8a;
+}
+
+
+.leaflet-select {
+  position: absolute;
+  z-index: 999;
+  right: 40px;
+  top: 20px;
+  background: #fff;
+  padding: 10px 10px;
+  box-shadow: 0px 5px 5px #dddddd;
+}
+.ant-table-small > .ant-table-content > .ant-table-body{
+  margin: 0px!important;
+}
+.ant-btn-primary{
+  border-color:transparent!important;
+}
+.ant-btn-default{
+  border-color:transparent!important;
+}
+/*.ant-btn:after{*/
+  /*background: #ff8300;*/
+  /*opacity:0;*/
+  /*transition: all 1s;*/
+/*}*/
+/*.ant-btn:hover{*/
+  /*background: #ff9d00;*/
+  /*box-shadow: 0px 13px 9px 0px rgba(255,131,0,0.59);*/
+/*}*/
+/*.ant-btn:active{*/
+  /*background: #ff8300;*/
+  /*box-shadow: 0px 3px 9px 0px rgba(255,131,0,0.35);*/
+/*}*/
+/*.ant-btn:active:after{*/
+  /*opacity: 1;*/
+  /*transition-duration: 1s;*/
+/*}*/
+
+.tuli{
+  font-size: 10px;
+}
+
+/*地图部分样式*/
+.top {
+  background-color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid lightsteelblue;
+  padding: 5px 10px;
+  margin-bottom: 10px;
+  box-shadow: 0px 5px 5px #f0f0f0;
+  font-size: 12px;
+}
+
+.topSearch{
+  text-align: left;
+  padding: 10px 2px;
+}
+.topQuery{
+  text-align: left;
+  padding: 5px 10px;
+  border: 1px solid lightsteelblue;
+  margin-bottom: 10px;
+  box-shadow: 0px 5px 5px #f0f0f0;
+}
+
+.ant-select{
+  /*font-size: 12px!important;*/
+}
+
+.topSearch span{
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+.topQuery span{
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.top span{
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.topSearch button{
+  margin-left: 5px;
+}
+
+.topQuery button{
+  margin-left: 5px;
+}
+
+.top button{
+  margin-left: 5px;
+}

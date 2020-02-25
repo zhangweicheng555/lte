@@ -2,6 +2,8 @@ package com.boot.kaizen.business.es.controller;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,8 +13,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.util.StringUtil;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -46,7 +53,9 @@ import com.boot.kaizen.business.es.model.OtherLogModel;
 import com.boot.kaizen.business.es.model.OutHomeLogModel;
 import com.boot.kaizen.business.es.model.QueryParamData;
 import com.boot.kaizen.business.es.model.logModel.HttpzbBean;
+import com.boot.kaizen.business.es.model.logModel.MLteNeighborhoodInfo;
 import com.boot.kaizen.business.es.model.logModel.MSignaBean;
+import com.boot.kaizen.business.es.model.logModel.OurDoorDataInfoBean;
 import com.boot.kaizen.business.es.model.logModel.PingzbBean;
 import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
 import com.boot.kaizen.business.es.model.logModel.YyzbBean;
@@ -60,6 +69,8 @@ import com.boot.kaizen.entity.RequestParamEntity;
 import com.boot.kaizen.model.SysProject;
 import com.boot.kaizen.service.SysProjectService;
 import com.boot.kaizen.util.AEStest;
+import com.boot.kaizen.util.CollectionUtil;
+import com.boot.kaizen.util.CsvUtils;
 import com.boot.kaizen.util.FileUtil;
 import com.boot.kaizen.util.HttpUtil;
 import com.boot.kaizen.util.JsonMsgUtil;
@@ -67,6 +78,8 @@ import com.boot.kaizen.util.MyDateUtil;
 import com.boot.kaizen.util.MyUtil;
 import com.boot.kaizen.util.TableResultUtil;
 import com.boot.kaizen.util.UserUtil;
+
+import cn.hutool.core.util.URLUtil;
 
 /**
  * ES 业务控制层
@@ -129,6 +142,163 @@ public class EsBusssController {
 
 		QueryParamData paramData = Esutil.queryPage(queryParamData);
 		return new TableResultUtil(0L, "操作成功", paramData.getTotalNums(), paramData.getRows());
+	}
+
+	/**
+	 * 
+	 * @Description: 室外测试导出csv
+	 * @author weichengz
+	 * @throws IOException
+	 * @date 2020年2月25日 下午2:48:10
+	 */
+	@ResponseBody
+	@PostMapping(value = "/exportOutHomeCsv")
+	public void exportOutHomeCsv(HttpServletResponse response, @RequestParam(value = "id") String id)
+			throws IOException {
+
+		if (StringUtils.isBlank(id)) {
+			throw new IllegalArgumentException("室外测试的id不能为空");
+		}
+		Map<String, Object> outHomeMap = Esutil.queryById("logouthome", "logouthome", id);
+		if (outHomeMap == null || outHomeMap.isEmpty()) {
+			throw new IllegalArgumentException("室外测试信息不存在");
+		}
+		Object filePath = outHomeMap.get("filePath");
+		if (filePath == null) {
+			throw new IllegalArgumentException("filePath参数不存在");
+		}
+		String outHomePath = filePath.toString();
+		File file = new File(filesCommonPath + outHomePath);
+
+		if (file != null && file.exists() && file.length() > 0) {
+			String fileName = MyDateUtil.formatDate(new Date(), "yyyyMMddHHmmss");
+			// csv处理代码
+			ServletOutputStream csvResult = response.getOutputStream();
+			response.setContentType("multipart/form-data");
+			response.setCharacterEncoding("utf-8");
+			response.setHeader("Content-disposition",
+					"attachment;filename=" + URLUtil.encode(fileName, StringUtil.UTF8) + ".csv");
+			String[] head = new String[] { "时间", "手机型号", "运营商", "MCC", "MNC", "网络类型", "经度", "纬度", "速度", "高度", "应用层事件",
+					"上行速率", "下行速率", "Ping时延", "Http时延"//
+					, "CGI", "基站号", "小区中文名", "小区号", "TAC", "频点", "PCI", "RSRQ", "RSRP", "SINR"//
+					, "邻区1频点", "邻区1PCI", "邻区1RSRQ", "邻区1RSRP"//
+					, "邻区2频点", "邻区2PCI", "邻区2RSRQ", "邻区2RSRP"//
+					, "邻区3频点", "邻区3PCI", "邻区3RSRQ", "邻区3RSRP"//
+					, "邻区4频点", "邻区4PCI", "邻区4RSRQ", "邻区4RSRP"//
+					, "邻区5频点", "邻区5PCI", "邻区5RSRQ", "邻区5RSRP"//
+					, "邻区6频点", "邻区6PCI", "邻区6RSRQ", "邻区6RSRP"//
+			};
+			List<Object[]> result = new ArrayList<>();
+
+			BufferedReader bufferedReader = null;
+			bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+			String str = null;// 文件里面一行记录
+			while ((str = bufferedReader.readLine()) != null) {
+				SignalDataBean signalDataBean = JSONObject.parseObject(str, SignalDataBean.class);
+				// 先将百度经纬度转为wgs84
+				signalDataBean.dealLngLatBdToWgs84();
+				Object[] objects = new Object[8];// 参考这个类SignalCsvLogBean
+				objects[0] = MyUtil.nullToEmpty(signalDataBean.getTestTime());
+				objects[1] = MyUtil.nullToEmpty(null);
+				objects[2] = MyUtil.nullToEmpty(null);
+				objects[3] = MyUtil.nullToEmpty(null);
+				objects[4] = MyUtil.nullToEmpty(null);
+				objects[5] = MyUtil.nullToEmpty(signalDataBean.getNetWorkType());
+				objects[6] = MyUtil.nullToEmpty(signalDataBean.getLongitude());
+				objects[7] = MyUtil.nullToEmpty(signalDataBean.getLatitude());
+				objects[8] = MyUtil.nullToEmpty(signalDataBean.getsPEED());
+				objects[9] = MyUtil.nullToEmpty(null);
+				objects[10] = MyUtil.nullToEmpty(signalDataBean.getNormalEventType()) + "/"
+						+ MyUtil.nullToEmpty(signalDataBean.getAbNormalEventType());
+
+				objects[11] = MyUtil.nullToEmpty(signalDataBean.getUpLoadSpeed());
+				objects[12] = MyUtil.nullToEmpty(signalDataBean.getDownLoadSpeed());
+				objects[13] = MyUtil.nullToEmpty(null);// 先设置为""
+				PingzbBean pingzbBean = signalDataBean.getPingzbBean();
+				if (pingzbBean != null) {
+					String pjsy = pingzbBean.getPjsy();
+					objects[13] = MyUtil.nullToEmpty(pjsy);// 先设置为""
+				}
+				objects[14] = MyUtil.nullToEmpty(null);
+				HttpzbBean httpzbBean = signalDataBean.getHttpzbBean();
+				if (httpzbBean != null) {
+					String pjsy = httpzbBean.getPjsy();
+					objects[14] = MyUtil.nullToEmpty(pjsy);
+				}
+				objects[15] = MyUtil.nullToEmpty(signalDataBean.getcI());
+				objects[16] = MyUtil.nullToEmpty(signalDataBean.geteNB());
+				objects[17] = MyUtil.nullToEmpty(signalDataBean.getCellName());
+				objects[18] = MyUtil.nullToEmpty(signalDataBean.getcELLID());
+				objects[19] = MyUtil.nullToEmpty(signalDataBean.gettAC());
+				objects[20] = MyUtil.nullToEmpty(signalDataBean.getEarfcn());
+				objects[21] = MyUtil.nullToEmpty(signalDataBean.getPci());
+
+				objects[22] = MyUtil.nullToEmpty(null);
+				objects[23] = MyUtil.nullToEmpty(null);
+				objects[24] = MyUtil.nullToEmpty(null);
+
+				objects[25] = MyUtil.nullToEmpty(null);
+				objects[26] = MyUtil.nullToEmpty(null);
+				objects[27] = MyUtil.nullToEmpty(null);
+				objects[28] = MyUtil.nullToEmpty(null);
+
+				objects[29] = MyUtil.nullToEmpty(null);
+				objects[30] = MyUtil.nullToEmpty(null);
+				objects[31] = MyUtil.nullToEmpty(null);
+				objects[32] = MyUtil.nullToEmpty(null);
+
+				objects[33] = MyUtil.nullToEmpty(null);
+				objects[34] = MyUtil.nullToEmpty(null);
+				objects[35] = MyUtil.nullToEmpty(null);
+				objects[36] = MyUtil.nullToEmpty(null);
+
+				objects[37] = MyUtil.nullToEmpty(null);
+				objects[38] = MyUtil.nullToEmpty(null);
+				objects[39] = MyUtil.nullToEmpty(null);
+				objects[40] = MyUtil.nullToEmpty(null);
+
+				objects[41] = MyUtil.nullToEmpty(null);
+				objects[42] = MyUtil.nullToEmpty(null);
+				objects[43] = MyUtil.nullToEmpty(null);
+				objects[44] = MyUtil.nullToEmpty(null);
+
+				objects[45] = MyUtil.nullToEmpty(null);
+				objects[46] = MyUtil.nullToEmpty(null);
+				objects[47] = MyUtil.nullToEmpty(null);
+				objects[48] = MyUtil.nullToEmpty(null);
+
+				OurDoorDataInfoBean doorDataInfoBeans = signalDataBean.getDoorDataInfoBeans();
+				if (doorDataInfoBeans != null) {
+					String rsrq = doorDataInfoBeans.getRsrq();
+					objects[22] = MyUtil.nullToEmpty(rsrq);
+					String rsrp = doorDataInfoBeans.getRsrp();
+					objects[23] = MyUtil.nullToEmpty(rsrp);
+					int sinr = doorDataInfoBeans.getSinr();
+					objects[24] = MyUtil.nullToEmpty((sinr + "").toString());
+
+					ArrayList<MLteNeighborhoodInfo> getmLteNeighborhoodInfos = doorDataInfoBeans
+							.getmLteNeighborhoodInfos();
+					if (getmLteNeighborhoodInfos != null && getmLteNeighborhoodInfos.size() > 0) {
+						int num = 25;
+						for (int i = 0; i < getmLteNeighborhoodInfos.size(); i++) {
+							MLteNeighborhoodInfo model = getmLteNeighborhoodInfos.get(i);
+							if (i <= 5) {
+								objects[num] = MyUtil.nullToEmpty(model.getmLteNeighborhoodEarfcn());
+								objects[num + 1] = MyUtil.nullToEmpty(model.getMLteNeighborhoodPCI());
+								objects[num + 2] = MyUtil.nullToEmpty(model.getMLteNeighborhoodRsrq());
+								objects[num + 3] = MyUtil.nullToEmpty(model.getmLteNeighborhoodRSRPOrSINR());
+								num = num + 4;
+							}
+						}
+					}
+				}
+				result.add(objects);
+			}
+			if (bufferedReader != null) {
+				bufferedReader.close();
+			}
+			CsvUtils.simpleExport(true, "\n", head, result, fileName, csvResult);
+		}
 	}
 
 	/**
@@ -794,8 +964,6 @@ public class EsBusssController {
 		if (sysProject == null) {
 			throw new IllegalArgumentException("该用户不属于任何地市");
 		}
-		
-		
 
 		if (queryParamData != null) {
 			Map<String, Object> termMap = queryParamData.getTermMap();
