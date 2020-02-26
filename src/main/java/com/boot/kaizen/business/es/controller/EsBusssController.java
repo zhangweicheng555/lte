@@ -16,8 +16,6 @@ import java.util.UUID;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.util.StringUtil;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -69,7 +67,6 @@ import com.boot.kaizen.entity.RequestParamEntity;
 import com.boot.kaizen.model.SysProject;
 import com.boot.kaizen.service.SysProjectService;
 import com.boot.kaizen.util.AEStest;
-import com.boot.kaizen.util.CollectionUtil;
 import com.boot.kaizen.util.CsvUtils;
 import com.boot.kaizen.util.FileUtil;
 import com.boot.kaizen.util.HttpUtil;
