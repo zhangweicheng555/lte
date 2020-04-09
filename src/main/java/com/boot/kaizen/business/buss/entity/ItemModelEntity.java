@@ -14,6 +14,23 @@ public class ItemModelEntity implements Serializable {
 	private String minVal;
 	private String maxVal;
 	private Integer num;
+	private String colorVal;
+
+	public ItemModelEntity(String minVal, String maxVal, Integer num, String colorVal) {
+		super();
+		this.minVal = minVal;
+		this.maxVal = maxVal;
+		this.num = num;
+		this.colorVal = colorVal;
+	}
+
+	public String getColorVal() {
+		return colorVal;
+	}
+
+	public void setColorVal(String colorVal) {
+		this.colorVal = colorVal;
+	}
 
 	public String getMinVal() {
 		return minVal;

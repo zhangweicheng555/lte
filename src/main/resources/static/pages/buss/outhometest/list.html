@@ -77,8 +77,8 @@
 	
 	
 	<iframe src="about:blank" name="blankFrame" id="blankFrame" style="display: none;"></iframe>
-	<form id="myform" target="blankFrame" action="/es/buss/exportOutHomeTest" method="post">
-		<input id="ids"  name="ids" type="hidden"/>
+	<form id="myform" target="blankFrame" action="/es/buss/exportOutHomeCsv" method="post">
+		<input id="id"  name="id" type="hidden"/>
 		<input id="token"  name="token" type="hidden"/>
 	</form> 
 
@@ -170,8 +170,8 @@
 		  }else{
 		     common.getMsgBlackDialog("正在导出勾选的数据",3000);
 		  }
-		  $("#token").val(token);
-		  $("#ids").val(checkArray.join(","));
+		  $("#token").val("eyJhbGciOiJIUzI1NiJ9.eyJMT0dJTl9VU0VSX0tFWSI6IjgyYzExN2M0LTdkZTktNDAzOS04NjI1LWNmZmNmMjVkMjI1YiJ9.Wwd-D9TbDpg_DefrrdwxN5GDiZIw-n4pxAhC-DtOd68");
+		  $("#id").val("850b81254b1b4686bc36ed5ade9f9f39");
 		  $("#myform").submit();
 	  });
 	  

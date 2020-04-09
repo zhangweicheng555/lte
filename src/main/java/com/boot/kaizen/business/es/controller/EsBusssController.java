@@ -10,8 +10,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.ServletOutputStream;
@@ -69,6 +71,7 @@ import com.boot.kaizen.service.SysProjectService;
 import com.boot.kaizen.util.AEStest;
 import com.boot.kaizen.util.CsvUtils;
 import com.boot.kaizen.util.FileUtil;
+import com.boot.kaizen.util.GeoLngLatUtil;
 import com.boot.kaizen.util.HttpUtil;
 import com.boot.kaizen.util.JsonMsgUtil;
 import com.boot.kaizen.util.MyDateUtil;
@@ -105,6 +108,8 @@ public class EsBusssController {
 
 	@Autowired
 	private ILogAnaLyzeService logAnaLyzeService;
+
+	private static final double MINT_UNIT = 0.001;// 千米
 
 	/**
 	 * 
@@ -161,7 +166,7 @@ public class EsBusssController {
 			throw new IllegalArgumentException("室外测试信息不存在");
 		}
 		Object filePath = outHomeMap.get("filePath");
-		if (filePath == null) {
+		if (filePath == null) {// /outhomelog/20200114110619_d41fbf38-98b4-427f-ba18-2ca1903e85d1.txt
 			throw new IllegalArgumentException("filePath参数不存在");
 		}
 		String outHomePath = filePath.toString();
@@ -194,7 +199,7 @@ public class EsBusssController {
 				SignalDataBean signalDataBean = JSONObject.parseObject(str, SignalDataBean.class);
 				// 先将百度经纬度转为wgs84
 				signalDataBean.dealLngLatBdToWgs84();
-				Object[] objects = new Object[8];// 参考这个类SignalCsvLogBean
+				Object[] objects = new Object[49];// 参考这个类SignalCsvLogBean
 				objects[0] = MyUtil.nullToEmpty(signalDataBean.getTestTime());
 				objects[1] = MyUtil.nullToEmpty(null);
 				objects[2] = MyUtil.nullToEmpty(null);
@@ -498,25 +503,25 @@ public class EsBusssController {
 				List<Map<String, Object>> datas = Esutil.scrollQuery(queryParamData);
 				if (datas != null && datas.size() > 0) {
 					Map<String, Object> resultMap = datas.get(0);// 查询出室外测试的主键ID
-					// 查询主日志
+					// 删除主日志
 					QueryParamData queryParamDataMsg = new QueryParamData("logmain", "logmain",
 							MyUtil.createHashMap("pid.keyword~" + id), null, 1000);
 					Esutil.deleteBatchByCondition(queryParamDataMsg);
-					// 查询大信息字段
+					// 删除大信息字段
 					QueryParamData queryParamDataEvent = new QueryParamData("logmessage", "logmessage",
 							MyUtil.createHashMap("ppid.keyword~" + id), null, 1000);
 					Esutil.deleteBatchByCondition(queryParamDataEvent);
-					// 其他
-					QueryParamData queryParamDataOther = new QueryParamData("logother", "logother",
-							MyUtil.createHashMap("ppid.keyword~" + id), null, 1000);
-					Esutil.deleteBatchByCondition(queryParamDataOther);
-					// 删出室外测试的log
+
+					// 删除室外测试的log文件
 					String filePath = resultMap.get("filePath").toString();
-					File file = new File(filesCommonPath + filePath);
-					if (file.exists()) {
-						file.delete();
+					if (StringUtils.isNotBlank(filePath)) {
+						File file = new File(filesCommonPath + filePath);
+						if (file.exists()) {
+							file.delete();
+						}
 					}
-					// 删出室外测试
+					
+					// 删出室外测试记录
 					Esutil.deleteByDocId("logouthome", "logouthome", resultMap.get("pk").toString());
 
 					// 删除室外测试测统计分析的数据
@@ -657,7 +662,7 @@ public class EsBusssController {
 	}
 
 	/**
-	 * 主服务小区查询
+	 * 主服务小区查询 注意返回的经纬度 是根据方位角偏移后的经纬度
 	 * 
 	 * @Description: TODO
 	 * @author weichengz
@@ -688,35 +693,58 @@ public class EsBusssController {
 		termMainMap.put("latitude", latitude);
 		termMainMap.put("pid", mainLogId);
 
-		QueryParamData queryMainParamData = new QueryParamData("logmain", "logmain", termMainMap,
-				Arrays.asList("cI", "cELLID", "eNB"), 1);
+		QueryParamData queryMainParamData = new QueryParamData("logmain", "logmain", termMainMap, null, 1);
 		List<Map<String, Object>> queryList = Esutil.queryList(queryMainParamData);
 		if (queryList != null && queryList.size() > 0) {
+
 			Map<String, Object> map = queryList.get(0);
-			String ci = map.get("cI").toString();
-			String cellId = map.get("cELLID").toString();
-			String enb = map.get("eNB").toString();
+			String ci = hanleMapParamToString(map, "cI");
 
 			Map<String, Object> termMap = new HashMap<String, Object>();
-			// termMap.put("cityId.keyword", sysProject.getId() + "");
 			termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
-			termMap.put("lte_ecgi.keyword", cellId);
+			termMap.put("lte_ecgi.keyword", ci);
 			QueryParamData queryParamData = new QueryParamData("simgc", "simgc", termMap,
-					Arrays.asList("lte_longitude2", "lte_latitude2"), 1);
+					Arrays.asList("lte_longitude2", "lte_latitude2", "lte_azimuth"), 1);
 			List<Map<String, Object>> datas = Esutil.queryList(queryParamData);
 			if (datas != null && datas.size() > 0) {
+				for (Map<String, Object> map2 : datas) {
+					Object lte_longitude2 = map2.get("lte_longitude2");
+					Object lte_latitude2 = map2.get("lte_latitude2");
+					Object lte_azimuth = map2.get("lte_azimuth");
+					try {
+						if (lte_longitude2 != null && lte_latitude2 != null && lte_azimuth != null) {
+							String convertDistanceToLogLat = GeoLngLatUtil.ConvertDistanceToLogLat(
+									Double.valueOf(lte_longitude2.toString()), Double.valueOf(lte_latitude2.toString()),
+									MINT_UNIT, Double.valueOf(lte_azimuth.toString()));
+							if (convertDistanceToLogLat != null) {
+								String[] split = convertDistanceToLogLat.split(",");
+								if (split != null && split.length == 2) {
+									map2.put("lte_longitude2", split[0]);
+									map2.put("lte_latitude2", split[1]);
+								}
+							}
+						}
+					} catch (Exception e) {
+						continue;
+					}
+				}
 				return datas;
 			} else {
-				termMap.remove("lte_ecgi.keyword");
-				termMap.put("lte_ci.keyword", enb + ci);
-				QueryParamData queryParamDataOne = new QueryParamData("simgc", "simgc", termMap,
-						Arrays.asList("lte_longitude2", "lte_latitude2"), 1);
-				List<Map<String, Object>> dataSecond = Esutil.queryList(queryParamDataOne);
-				return dataSecond;
+				return new ArrayList<>();
 			}
 		} else {
 			return new ArrayList<>();
 		}
+	}
+
+	private String hanleMapParamToString(Map<String, Object> dataMap, String key) {
+		if (StringUtils.isNotBlank(key)) {
+			Object object = dataMap.get(key);
+			if (object != null) {
+				return object.toString();
+			}
+		}
+		return "";
 	}
 
 	/**
@@ -761,7 +789,8 @@ public class EsBusssController {
 				termMap = new HashMap<>();
 			}
 
-			// termMap.put("cityId.keyword", sysProject.getId() + ""); 也是全国的
+			termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");// 加地市过滤的条件
+
 			queryParamData.setTermMap(termMap);
 			List<Map<String, Object>> scrollQueryList = Esutil.scrollQuery(queryParamData);
 			return scrollQueryList;
@@ -771,7 +800,109 @@ public class EsBusssController {
 	}
 
 	/**
-	 * 查询邻区的拉线问题 只查询距离最近的一个
+	 * 先找出这个可视化内的100个经纬度
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2020年3月27日 下午3:13:27
+	 */
+	@ResponseBody
+	@PostMapping(value = "/boundingBoxQueryNew")
+	public List<Map<String, Object>> boundingBoxQueryNew(@RequestBody QueryParamData queryParamData) {
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
+		} else {
+			if (StringUtils.isBlank(sysProject.getProjCode())) {
+				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的sim地市不存在");
+			}
+		}
+
+		// 处理一下对角坐标 这里面pid接收
+		String pid = queryParamData.getPid();
+		if (StringUtils.isNoneBlank(pid)) {
+			String[] pointArray = pid.trim().split("_");// pid接收
+			if (pointArray != null && pointArray.length == 4) {
+				List<GeoPoint> points = new ArrayList<>();
+				GeoPoint topLeft = new GeoPoint(Double.valueOf(pointArray[1]), Double.valueOf(pointArray[0]));
+				GeoPoint bottomRight = new GeoPoint(Double.valueOf(pointArray[3]), Double.valueOf(pointArray[2]));
+				points.add(topLeft);
+				points.add(bottomRight);// 注意这个顺序
+
+				Map<String, List<GeoPoint>> geoMap = new HashMap<>();
+				geoMap.put("location", points);
+				queryParamData.setGeoMap(geoMap);
+			}
+
+			// 处理本地市的查询条件
+			Map<String, Object> termMap = queryParamData.getTermMap();
+			if (termMap == null) {
+				termMap = new HashMap<>();
+			}
+
+			termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");// 加地市过滤的条件
+			queryParamData.setTermMap(termMap);
+
+			queryParamData.setLimit(400);
+			List<Map<String, Object>> scrollQueryList = Esutil.queryList(queryParamData);
+			if (scrollQueryList != null && scrollQueryList.size() > 0) {
+				Set<String> sets = new HashSet<>();
+				for (Map<String, Object> map : scrollQueryList) {
+					Object lte_longitude2 = map.get("lte_longitude2");
+					Object lte_latitude2 = map.get("lte_latitude2");
+					if (lte_longitude2 != null && lte_latitude2 != null) {
+						sets.add(lte_longitude2.toString() + "-" + lte_latitude2.toString());
+					}
+				}
+				if (sets != null && sets.size() > 0) {
+					List<Map<String, Object>> dataResult = new ArrayList<>();
+
+					// 根据经纬度去查询共餐信息表
+					QueryParamData queryParamData2Model = new QueryParamData(queryParamData.getIndex(),
+							queryParamData.getType());
+					queryParamData2Model.setRevelFields(queryParamData.getRevelFields());
+					queryParamData2Model.setRevelPk(queryParamData.isRevelPk());
+					queryParamData2Model.setLimit(20);
+
+					Integer numFlag = 0;
+					for (String logLat : sets) {
+						if (numFlag > 21) {
+							break;
+						}
+
+						String[] split = logLat.toString().split("-");
+						Map<String, Object> termMapModel = termMap = new HashMap<>();
+						;
+						termMapModel.put("lte_city_name.keyword", sysProject.getProjCode() + "");// 加地市过滤的条件
+						termMapModel.put("lte_longitude2.keyword", split[0]);
+						termMapModel.put("lte_latitude2.keyword", split[1]);
+						queryParamData2Model.setTermMap(termMapModel);
+
+						List<Map<String, Object>> queryList = Esutil.queryList(queryParamData2Model);
+						if (queryList != null && queryList.size() > 0) {
+							dataResult.addAll(queryList);
+						}
+
+						numFlag++;
+					}
+					return dataResult;
+				}
+				return new ArrayList<>();
+
+			}
+			return new ArrayList<>();
+		} else {
+			return new ArrayList<>();
+		}
+	}
+
+	/**
+	 * 查询邻区的拉线问题 只查询距离最近的一个 如果一个站点 有多个邻区 那么就会有多个线
 	 * 
 	 * @Description: 查询距离某个最近的点 这里默认是 公里为单位 传入的是经纬度
 	 * @author weichengz
@@ -804,16 +935,80 @@ public class EsBusssController {
 				// 处理
 				queryParamData.dealGeoDiatanceBuss(ceterPoint, 10000D, "location");
 
-				// 处理该地市的查询条件
-				Map<String, Object> termMap = queryParamData.getTermMap();
-				if (termMap != null) {
-					termMap = new HashMap<>();
-				}
-				// termMap.put("cityId.keyword", sysProject.getId() + "");
-				termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
-				queryParamData.setTermMap(termMap);
+				// 根据经纬度 查询本log对应的pci
+				QueryParamData qpdModel = new QueryParamData("logmain", "logmain");
+				Map<String, Object> resultMap = new HashMap<>();
+				resultMap.put("latitude", Double.valueOf(pointArray[1]));
+				resultMap.put("longitude", Double.valueOf(pointArray[0]));
+				qpdModel.setTermMap(resultMap);
+				List<Map<String, Object>> queryList = Esutil.queryList(qpdModel);
+				if (queryList != null && queryList.size() > 0) {
+					Map<String, Object> datasPci = queryList.get(0);
 
-				return Esutil.queryList(queryParamData);
+					SignalDataBean signalDataBean = JSONObject.parseObject(JSONObject.toJSONString(datasPci),
+							SignalDataBean.class);
+					if (signalDataBean != null) {
+						OurDoorDataInfoBean doorDataInfoBeans = signalDataBean.getDoorDataInfoBeans();
+						if (doorDataInfoBeans != null) {
+							ArrayList<MLteNeighborhoodInfo> getmLteNeighborhoodInfos = doorDataInfoBeans
+									.getmLteNeighborhoodInfos();
+							List<Map<String, Object>> resultDataMap = new ArrayList<>();
+							if (getmLteNeighborhoodInfos != null && getmLteNeighborhoodInfos.size() > 0) {
+								for (MLteNeighborhoodInfo mLteNeighborhoodInfo : getmLteNeighborhoodInfos) {
+									String mLteNeighborhoodPCI = mLteNeighborhoodInfo.getMLteNeighborhoodPCI();
+									if (StringUtils.isNotBlank(mLteNeighborhoodPCI)) {
+										// 处理该地市的查询条件
+										Map<String, Object> termMap = queryParamData.getTermMap();
+										if (termMap == null) {
+											termMap = new HashMap<>();
+										}
+										termMap.put("lte_phycellid.keyword", mLteNeighborhoodPCI);
+										termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
+										queryParamData.setTermMap(termMap);
+										List<Map<String, Object>> queryList2 = Esutil.queryList(queryParamData);
+										if (queryList2 != null && queryList2.size() > 0) {
+											Map<String, Object> map = queryList2.get(0);
+											Object lte_latitude2 = map.get("lte_latitude2");
+											Object lte_longitude2 = map.get("lte_longitude2");
+											Object lte_azimuth = map.get("lte_azimuth");
+											if (lte_latitude2 != null && lte_longitude2 != null
+													&& lte_azimuth != null) {
+
+												try {
+													Map<String, Object> latLon = new HashMap<>();
+
+													String convertDistanceToLogLat = GeoLngLatUtil
+															.ConvertDistanceToLogLat(
+																	Double.valueOf(lte_longitude2.toString()),
+																	Double.valueOf(lte_latitude2.toString()), MINT_UNIT,
+																	Double.valueOf(lte_azimuth.toString()));
+													if (convertDistanceToLogLat != null) {
+														String[] split = convertDistanceToLogLat.split(",");
+														if (split != null && split.length == 2) {
+															latLon.put("lte_longitude2", split[0]);
+															latLon.put("lte_latitude2", split[1]);
+															latLon.put("lte_azimuth", lte_azimuth);
+															resultDataMap.add(latLon);
+														}
+													}
+												} catch (Exception e) {
+													continue;
+												}
+											}
+										}
+									}
+								}
+							}
+							return resultDataMap;
+						} else {
+							return new ArrayList<>();
+						}
+					}
+
+					return new ArrayList<>();
+				} else {
+					return new ArrayList<>();
+				}
 			}
 			return new ArrayList<>();
 		} else {
@@ -1077,13 +1272,9 @@ public class EsBusssController {
 				}
 				// 主表信息转移
 				MainLogModel mainLogModel = new MainLogModel(signalDataBean);
+
 				indexRequestMain.source(JSONObject.toJSONString(mainLogModel), XContentType.JSON);
 				request.add(indexRequestMain);
-				// 其他信息直接存入 不做处理
-				IndexRequest indexRequestOther = new IndexRequest("logother", "logother");
-				OtherLogModel otherLogModel = new OtherLogModel(signalDataBean);
-				indexRequestOther.source(JSONObject.toJSONString(otherLogModel), XContentType.JSON);
-				request.add(indexRequestOther);
 				signalDataBeanFinal = signalDataBean;// 记录最后一条记录
 			}
 			// 存储文件
@@ -1155,7 +1346,9 @@ public class EsBusssController {
 		if (logAnaLyzes != null && logAnaLyzes.size() > 0) {
 			LogAnaLyze logAnaLyze = logAnaLyzes.get(0);
 			if (signalDataBeanFinal != null) {
+
 				logAnaLyze.setUniqueRecord(MyUtil.getUuid());// UUID
+				logAnaLyze.setFinalLogData(JSONObject.toJSONString(signalDataBeanFinal));
 
 				YyzbBean yyzbbean = signalDataBeanFinal.getYyzbbean();
 				if (yyzbbean != null) {
@@ -1212,21 +1405,22 @@ public class EsBusssController {
 		ArrayList<MSignaBean> signaBeans = signalDataBean.getmSignaBean();
 		if (signaBeans != null && signaBeans.size() > 0) {
 			isMsgEvent = "1";// 设置具备信令事件日志
-		}
-		for (MSignaBean mSignaBean : signaBeans) {
-			String id = UUID.randomUUID().toString().replace("-", "");
-			String msg = mSignaBean.getmMeaasge();
-			IndexRequest indexRequestEvent = new IndexRequest("logmessage", "logmessage");
-			Map<String, Object> paramMap = new HashMap<>();
-			paramMap.put("id", id); // 单条信令得id
-			paramMap.put("ppid", signalDataBean.getPid()); // 室外测试列表的id
-			paramMap.put("pid", signalDataBean.getId()); // 主log得id
-			paramMap.put("message", msg);// 信令得信息 大字段信息
-			paramMap.put("latitude", signalDataBean.getLatitude()); // 主 纬度
-			paramMap.put("longitude", signalDataBean.getLongitude()); // 主经度
-			mSignaBean.setmMeaasge(id);
-			indexRequestEvent.source(JSONObject.toJSONString(paramMap), XContentType.JSON);
-			request.add(indexRequestEvent);
+
+			for (MSignaBean mSignaBean : signaBeans) {
+				String id = UUID.randomUUID().toString().replace("-", "");
+				String msg = mSignaBean.getmMeaasge();
+				IndexRequest indexRequestEvent = new IndexRequest("logmessage", "logmessage");
+				Map<String, Object> paramMap = new HashMap<>();
+				paramMap.put("id", id); // 单条信令得id
+				paramMap.put("ppid", signalDataBean.getPid()); // 室外测试列表的id
+				paramMap.put("pid", signalDataBean.getId()); // 主log得id
+				paramMap.put("message", msg);// 信令得信息 大字段信息
+				paramMap.put("latitude", signalDataBean.getLatitude()); // 主 纬度
+				paramMap.put("longitude", signalDataBean.getLongitude()); // 主经度
+				mSignaBean.setmMeaasge(id);
+				indexRequestEvent.source(JSONObject.toJSONString(paramMap), XContentType.JSON);
+				request.add(indexRequestEvent);
+			}
 		}
 		return isMsgEvent;
 	}

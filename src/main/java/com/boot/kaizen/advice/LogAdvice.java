@@ -40,7 +40,6 @@ public class LogAdvice {
 				// packageName, methodName,args, new Date(), entityName,
 				// JSONObject.toJSONString(loginUser));
 				// operateLogService.save(operateLog);
-
 			Object object = joinPoint.proceed();// 执行拦截的方法
 			return object;
 		} catch (Exception e) {

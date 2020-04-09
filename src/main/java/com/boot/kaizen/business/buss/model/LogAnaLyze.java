@@ -24,24 +24,26 @@ public class LogAnaLyze extends SuperEntity<LogAnaLyze> {
 	private Double downLoadSpeed;// 下载速率
 	private Double upLoadSpeed;// 上传速率
 
-	// 一下就一个  语音指标【对象】
+	// 一下就一个 语音指标【对象】
 	private String uniqueRecord;// 不为空就是唯一的记录
-	
+
+	private String finalLogData;// 室外测试最后一条记录的原始数据 ，存在于uniqueRecord 不为空的那条记录里面
+
 	// 统计：未接通、掉话次数、主-两个=正常次数
 	private Double zjcs;// 主叫次数
 	private Double wjtcs;// 未接通次数
 	private Double dhcs;// 掉话次数
-	private Double zhcs;// 正常次数   计算的
+	private Double zhcs;// 正常次数 计算的
 
 	// ping
 	private Double pingQqcs;// Ping请求次数
 	private Double pingCgch;// Ping成功次数
-	private Double pingSbch;// Ping失败次数  计算的
+	private Double pingSbch;// Ping失败次数 计算的
 
 	// http
 	private Double httpQqcs;// Http请求次数
 	private Double httpCgch;// Http成功次数
-	private Double httpSbch;// Http失败次数   计算的
+	private Double httpSbch;// Http失败次数 计算的
 
 	private Date createTime;
 
@@ -49,7 +51,14 @@ public class LogAnaLyze extends SuperEntity<LogAnaLyze> {
 		return zhcs;
 	}
 
-	
+	public String getFinalLogData() {
+		return finalLogData;
+	}
+
+	public void setFinalLogData(String finalLogData) {
+		this.finalLogData = finalLogData;
+	}
+
 	public LogAnaLyze(String pid, Double sinr, Double rsrp, Double downLoadSpeed, Double upLoadSpeed,
 			String uniqueRecord, Double zjcs, Double wjtcs, Double dhcs, Double zhcs, Double pingQqcs, Double pingCgch,
 			Double pingSbch, Double httpQqcs, Double httpCgch, Double httpSbch, Date createTime) {
@@ -73,16 +82,13 @@ public class LogAnaLyze extends SuperEntity<LogAnaLyze> {
 		this.createTime = createTime;
 	}
 
-
 	public String getUniqueRecord() {
 		return uniqueRecord;
 	}
 
-
 	public void setUniqueRecord(String uniqueRecord) {
 		this.uniqueRecord = uniqueRecord;
 	}
-
 
 	public LogAnaLyze(String pid, Double sinr, Double rsrp, Double downLoadSpeed, Double upLoadSpeed, Double zjcs,
 			Double wjtcs, Double dhcs, Double zhcs, Double pingQqcs, Double pingCgch, Double pingSbch, Double httpQqcs,

@@ -22,6 +22,9 @@ public class SignalDataBean {
 	private String rsrp;
 	private String cellName;
 	private String cI;
+	
+	private String eCI; // 新增
+
 	private String cELLID;
 	private String netWorkType;
 	private String tAC;
@@ -45,14 +48,15 @@ public class SignalDataBean {
 	private ArrayList<MSignaEventBean> mSignaEventBean;// 一秒钟事件 logevent
 	private ArrayList<MSignaBean> mSignaBean;// 一秒钟信令 logmsg
 
-	private PingzbBean pingzbBean; // logother
-	private HttpzbBean httpzbBean;
-	private FtpzbBean ftpzbBean;
-	private YyzbBean Yyzbbean;
-	private WxzbBean wxzbBean;
-	private PowerBean powerBean;
-	private ZbBean zbBean;// 指标参数
-	private ProIndicators proIndicators;// 专业指标
+	private PingzbBean pingzbBean; // ping指标4
+	private HttpzbBean httpzbBean;   //http指标4
+	
+	private FtpzbBean ftpzbBean;   //ftp指标2
+	private YyzbBean yyzbbean;  //语音指标  3
+	private WxzbBean wxzbBean;//无限指标  1
+	private PowerBean powerBean;//专业指标  1
+	private ZbBean zbBean;// 指标参数  1
+	private ProIndicators proIndicators;// 
 
 	public String getPid() {
 		return pid;
@@ -64,6 +68,14 @@ public class SignalDataBean {
 
 	public String getId() {
 		return id;
+	}
+
+	public String geteCI() {
+		return eCI;
+	}
+
+	public void seteCI(String eCI) {
+		this.eCI = eCI;
 	}
 
 	public void setId(String id) {
@@ -182,12 +194,13 @@ public class SignalDataBean {
 		this.ftpzbBean = ftpzbBean;
 	}
 
+	
 	public YyzbBean getYyzbbean() {
-		return Yyzbbean;
+		return yyzbbean;
 	}
 
 	public void setYyzbbean(YyzbBean yyzbbean) {
-		Yyzbbean = yyzbbean;
+		this.yyzbbean = yyzbbean;
 	}
 
 	public WxzbBean getWxzbBean() {
@@ -238,8 +251,6 @@ public class SignalDataBean {
 		this.eventType = eventType;
 	}
 
-	
-
 	public String getCellName() {
 		return cellName;
 	}
@@ -248,8 +259,6 @@ public class SignalDataBean {
 		this.cellName = cellName;
 	}
 
-	
-
 	public String getcI() {
 		return cI;
 	}
@@ -257,10 +266,6 @@ public class SignalDataBean {
 	public void setcI(String cI) {
 		this.cI = cI;
 	}
-
-	
-
-
 
 	public String getcELLID() {
 		return cELLID;
@@ -310,8 +315,6 @@ public class SignalDataBean {
 		this.longitude = longitude;
 	}
 
-	
-
 	public String gettAC() {
 		return tAC;
 	}
@@ -319,8 +322,6 @@ public class SignalDataBean {
 	public void settAC(String tAC) {
 		this.tAC = tAC;
 	}
-
-	
 
 	public String geteNB() {
 		return eNB;
@@ -393,7 +394,54 @@ public class SignalDataBean {
 		this.pingzbBean = pingzbBean;
 		this.httpzbBean = httpzbBean;
 		this.ftpzbBean = ftpzbBean;
-		Yyzbbean = yyzbbean;
+		this.yyzbbean = yyzbbean;
+		this.wxzbBean = wxzbBean;
+		this.powerBean = powerBean;
+		this.zbBean = zbBean;
+		this.proIndicators = proIndicators;
+	}
+
+	public SignalDataBean(String pid, String id, String latitude, String longitude, String sinr, String rsrp,
+			String cellName, String cI, String eCI, String cELLID, String netWorkType, String tAC, String eNB,
+			String sPEED, String downLoadSpeed, String upLoadSpeed, String normalEventType, String abNormalEventType,
+			int eventType, String siteLat, String siteLng, int angle, String pci, String earfcn, String testTime,
+			int ftpType, OurDoorDataInfoBean doorDataInfoBeans, ArrayList<MSignaEventBean> mSignaEventBean,
+			ArrayList<MSignaBean> mSignaBean, PingzbBean pingzbBean, HttpzbBean httpzbBean, FtpzbBean ftpzbBean,
+			YyzbBean yyzbbean, WxzbBean wxzbBean, PowerBean powerBean, ZbBean zbBean, ProIndicators proIndicators) {
+		super();
+		this.pid = pid;
+		this.id = id;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.sinr = sinr;
+		this.rsrp = rsrp;
+		this.cellName = cellName;
+		this.cI = cI;
+		this.eCI = eCI;
+		this.cELLID = cELLID;
+		this.netWorkType = netWorkType;
+		this.tAC = tAC;
+		this.eNB = eNB;
+		this.sPEED = sPEED;
+		this.downLoadSpeed = downLoadSpeed;
+		this.upLoadSpeed = upLoadSpeed;
+		this.normalEventType = normalEventType;
+		this.abNormalEventType = abNormalEventType;
+		this.eventType = eventType;
+		this.siteLat = siteLat;
+		this.siteLng = siteLng;
+		this.angle = angle;
+		this.pci = pci;
+		this.earfcn = earfcn;
+		this.testTime = testTime;
+		this.ftpType = ftpType;
+		this.doorDataInfoBeans = doorDataInfoBeans;
+		this.mSignaEventBean = mSignaEventBean;
+		this.mSignaBean = mSignaBean;
+		this.pingzbBean = pingzbBean;
+		this.httpzbBean = httpzbBean;
+		this.ftpzbBean = ftpzbBean;
+		this.yyzbbean = yyzbbean;
 		this.wxzbBean = wxzbBean;
 		this.powerBean = powerBean;
 		this.zbBean = zbBean;

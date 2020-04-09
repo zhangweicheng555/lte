@@ -12,7 +12,7 @@ import com.boot.kaizen.business.es.model.logModel.ZbBean;
 
 /**
  * 日志模块的其余字段信息 这些信息是暂时存储下来 但是目前没使用到这些数据 logother
- * 
+ *  删除20200409
  * @author weichengz
  * @date 2019年11月5日 下午1:45:49
  */

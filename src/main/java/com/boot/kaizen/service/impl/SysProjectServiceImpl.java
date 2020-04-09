@@ -87,7 +87,8 @@ public class SysProjectServiceImpl implements SysProjectService {
 			Map<String, Object> paramMap=new HashMap<>();
 			paramMap.put("projNameModel", sysProject.getProjName());
 			paramMap.put("projCodeModel", sysProject.getProjCode());
-			paramMap.put("projIntroModel", sysProject.getProjIntro());
+//			paramMap.put("projIntroModel", sysProject.getProjIntro());
+			paramMap.put("projSimNameModel", sysProject.getProjSimName());
 			List<SysProject> sysProjects = find(paramMap);
 			
 			// add

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSONObject;
 import com.boot.kaizen.business.buss.entity.ItemModelEntity;
 import com.boot.kaizen.business.buss.entity.RequestParamConfigEntity;
 import com.boot.kaizen.business.buss.model.ItemModel;
@@ -22,6 +23,7 @@ import com.boot.kaizen.business.buss.model.LogAnaLyze;
 import com.boot.kaizen.business.buss.model.RequestParamConfig;
 import com.boot.kaizen.business.buss.service.ILogAnaLyzeService;
 import com.boot.kaizen.business.buss.service.ITestConfigService;
+import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
 import com.boot.kaizen.entity.RequestParamEntity;
 import com.boot.kaizen.util.JsonMsgUtil;
 import com.boot.kaizen.util.MyUtil;
@@ -114,12 +116,12 @@ public class LogAnaLyzeController {
 		mapAnd.put("pid", pid);
 		requestParamEntity.setMapAnd(mapAnd);
 		
-		Map<String, Object> mapBetween = new HashMap<String, Object>();//查询rsrp的范围
 		
 		List<RequestParamConfigEntity> requestParamConfigEntities=new ArrayList<>();
 		
 		//这是无限指标的  统计rsrp  sinr在图里范围内的数量
 		for (RequestParamConfig requestParamConfig : datasConfigs) {
+			Map<String, Object> mapBetween = new HashMap<String, Object>();//查询rsrp的范围
 			String item = requestParamConfig.getItem();
 			List<ItemModel> content = requestParamConfig.getContent();
 			if (("RSRP").equals(item)) {
@@ -129,7 +131,7 @@ public class LogAnaLyzeController {
 					mapBetween.put("rsrp", itemModel.getMinVal()+"_"+itemModel.getMaxVal());
 					requestParamEntity.setMapBetween(mapBetween);
 					int selectCount = logAnaLyzeService.selectCount(MyUtil.createQueryPlus(requestParamEntity));
-					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount));
+					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount,itemModel.getColorVal()));
 				}
 				model.setContent(itemModelEntities);
 				requestParamConfigEntities.add(model);
@@ -141,7 +143,7 @@ public class LogAnaLyzeController {
 					mapBetween.put("sinr", itemModel.getMinVal()+"_"+itemModel.getMaxVal());
 					requestParamEntity.setMapBetween(mapBetween);
 					int selectCount = logAnaLyzeService.selectCount(MyUtil.createQueryPlus(requestParamEntity));
-					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount));
+					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount,itemModel.getColorVal()));
 				}
 				model.setContent(itemModelEntities);
 				requestParamConfigEntities.add(model);
@@ -154,7 +156,7 @@ public class LogAnaLyzeController {
 					mapBetween.put("upLoadSpeed", itemModel.getMinVal()+"_"+itemModel.getMaxVal());
 					requestParamEntity.setMapBetween(mapBetween);
 					int selectCount = logAnaLyzeService.selectCount(MyUtil.createQueryPlus(requestParamEntity));
-					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount));
+					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount,itemModel.getColorVal()));
 				}
 				model.setContent(itemModelEntities);
 				requestParamConfigEntities.add(model);
@@ -166,7 +168,7 @@ public class LogAnaLyzeController {
 					mapBetween.put("downLoadSpeed", itemModel.getMinVal()+"_"+itemModel.getMaxVal());
 					requestParamEntity.setMapBetween(mapBetween);
 					int selectCount = logAnaLyzeService.selectCount(MyUtil.createQueryPlus(requestParamEntity));
-					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount));
+					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount,itemModel.getColorVal()));
 				}
 				model.setContent(itemModelEntities);
 				requestParamConfigEntities.add(model);
@@ -176,8 +178,8 @@ public class LogAnaLyzeController {
 		resultMap.put("range", requestParamConfigEntities);//将范围的注入
 		
 		//查询独立的模块  包括
-		requestParamEntity.setMapBetween(null);
-		mapBetween.remove("downLoadSpeed");
+		Map<String, Object> mapBetween = new HashMap<String, Object>();//查询rsrp的范围
+		//mapBetween.remove("downLoadSpeed");
 		mapBetween.put("uniqueRecord", "0");
 		requestParamEntity.setMapBetween(new HashMap<>());
 		requestParamEntity.setMapNo(mapBetween);
@@ -195,7 +197,25 @@ public class LogAnaLyzeController {
 			//处理http成功率
 			resultMap.put("HTTPSUCC", logAnaLyze.getHttpCgch());
 			resultMap.put("HTTPFAIL", logAnaLyze.getHttpSbch());
+			
+			//将数据显示信息存入
+			String finalLogData = logAnaLyze.getFinalLogData();
+			if (StringUtils.isNotBlank(finalLogData)) {
+				SignalDataBean signalDataBean = JSONObject.parseObject(finalLogData, SignalDataBean.class);
+				resultMap.put("zbBean",signalDataBean.getZbBean());
+				resultMap.put("powerBean",signalDataBean.getPowerBean());
+				resultMap.put("wxzbBean",signalDataBean.getWxzbBean());
+				resultMap.put("yyzbbean",signalDataBean.getYyzbbean());
+				resultMap.put("ftpzbBean",signalDataBean.getFtpzbBean());
+				resultMap.put("httpzbBean",signalDataBean.getHttpzbBean());
+				resultMap.put("pingzbBean",signalDataBean.getPingzbBean());
+			}
+			
 		}
+		
+		
+		
+		
 		return new JsonMsgUtil(true, "查询成功", resultMap);
 	}
 	

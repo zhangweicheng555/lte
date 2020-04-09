@@ -104,6 +104,11 @@
             and sp.proj_intro = #{map.projIntroModel}
         </if>
         
+        
+		 <if test="map.projSimNameModel != null and map.projSimNameModel != ''">
+            and sp.projSimName = #{map.projSimNameModel}
+        </if>
+        
 		 <if test="map.projCodeModel != null and map.projNameModel != ''">
             and ( sp.proj_code = #{map.projCodeModel} or   sp.proj_name = #{map.projNameModel} )
         </if>

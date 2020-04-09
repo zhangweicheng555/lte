@@ -12,6 +12,8 @@ import com.boot.kaizen.util.MyDateUtil;
 /**
  * 室外测试列表的实体类
  * 
+ * 室外测试列表实体类
+ * 
  * @author weichengz
  * @date 2019年11月11日 上午9:48:20
  */
@@ -41,9 +43,8 @@ public class OutHomeLogModel {
 
 	// 新增20191224
 	private String cityId;// 新增地市id
-	private String isMsgEvent="0";// 是否存在信令、事件  默认是0不存在
+	private String isMsgEvent = "0";// 是否存在信令、事件 默认是0不存在
 
-	
 	public OutHomeLogModel(String id, String fileName, Long fileUpTime, String filePath, String operatorService,
 			String netWorkType, String city, String county, String testPerson, String phoneType, String imsi,
 			String testTime, Long beginTime, Long endTime, String totalMileage, String coverPersent, String avgRsrp,

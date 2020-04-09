@@ -25,7 +25,9 @@ public class MainLogModel {
 	private String sinr;
 	private String rsrp;
 	private String cellName;
-	private String cI;
+	
+	private String cI;//这个代替日志里面的eCI
+	
 	private String cELLID;
 	private String netWorkType;
 	private String tAC;
@@ -33,9 +35,13 @@ public class MainLogModel {
 	private String sPEED;
 	private String downLoadSpeed;
 	private String upLoadSpeed;
+	
 	private String normalEventType;// 业务事件正常类型
 	private String abNormalEventType;// 业务事件异常类型
+	
+	//这个删除了
 	private int eventType;// 事件，0没有，1http失败，2ping失败，3ftp连接失败，4ftp掉线，5语音未接通，6语音掉线
+	
 	private String siteLat;
 	private String siteLng;
 	private int angle;// 角度
@@ -67,7 +73,6 @@ public class MainLogModel {
 		return pid;
 	}
 
-	
 	public MainLogModel(String pid, String id, String latitude, String longitude, String sinr, String rsrp,
 			String cellName, String cI, String cELLID, String netWorkType, String tAC, String eNB, String sPEED,
 			String downLoadSpeed, String upLoadSpeed, String normalEventType, String abNormalEventType, int eventType,
@@ -151,7 +156,7 @@ public class MainLogModel {
 		this.sinr = signalDataBean.getSinr();
 		this.rsrp = signalDataBean.getRsrp();
 		this.cellName = signalDataBean.getCellName();
-		this.cI = signalDataBean.getcI();
+		this.cI = signalDataBean.geteCI();
 		this.cELLID = signalDataBean.getcELLID();
 		this.netWorkType = signalDataBean.getNetWorkType();
 		this.tAC = signalDataBean.gettAC();
