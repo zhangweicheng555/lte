@@ -13,33 +13,46 @@ public class CommonModel implements Serializable {
 
 	public static final long serialVersionUID = 1L;
 	
-	public String lte_azimuth;// 方位角
-	public String lte_cell;// Cell
-	public String lte_ci;// CI
-	public String lte_city_name;// 城市
-	public String lte_earfcn;// EARFCN
-	public String lte_ecgi;// lte_ecgi
-	public String lte_electronic_downdip;// 电子倾角
-	public String lte_enodebid;// eNodeBID
-	public String lte_firm;// 厂商
-	public String lte_grid;// 网格归属
+	public String lte_azimuth;// 方位角    
+	public String lte_cell;// Cell           
+	public String lte_ci;// CI         
+	public String lte_city_name;// 城市   
+	public String lte_earfcn;// EARFCN     不可检索
+	public String lte_ecgi;// lte_ecgi  
+	public String lte_electronic_downdip;// 电子倾角   不可检索
+	public String lte_enodebid;// eNodeBID  
+	public String lte_firm;// 厂商   
+	public String lte_grid;// 网格归属       
 	public String lte_longitude2;// 经度 百度的
 	public String lte_latitude2;// 纬度 百度的
-	public String lte_longitude;
-	public String lte_latitude;
-	public String lte_mechanical_downdip;// 机械下倾角
+	public String lte_longitude;             //不可检索
+	public String lte_latitude;              //不可检索
+	public String lte_mechanical_downdip;// 机械下倾角    //不可检索
 	public String lte_net;// 网络
-	public String lte_phycellid;// PhyCellId 这个就是PCI
-	public String lte_site_tall;// 站高
-	public String lte_site_type;// 站型
-	public String lte_tac;// TAC
-	public String lte_sys;// 制式
-	public String lte_total_downdip;// 总下倾角
+	public String lte_phycellid;// PhyCellId 这个就是PCI     
+	public String lte_site_tall;// 站高            //不可检索
+	public String lte_site_type;// 站型           //不可检索
+	public String lte_tac;// TAC              //不可检索
+	public String lte_sys;// 制式                       //不可检索
+	public String lte_total_downdip;// 总下倾角     //不可检索
 	
-	public String lte_sector_id;// Sector ID
-	public String lte_derrick_type;// 抱杆类型
-	public String lte_address;// 详细地址
-	public String lte_scene;// 场景归属
+	public String lte_sector_id;// Sector ID    //不可检索
+	public String lte_derrick_type;// 抱杆类型    //不可检索
+	public String lte_address;// 详细地址        //不可检索
+	public String lte_scene;// 场景归属        //不可检索
+	
+	public String lte_site_name;// 小区名字20200428添加
+	
+
+	
+	
+	public String getLte_site_name() {
+		return lte_site_name;
+	}
+
+	public void setLte_site_name(String lte_site_name) {
+		this.lte_site_name = lte_site_name;
+	}
 
 	public String getLte_city_name() {
 		return lte_city_name;
@@ -283,6 +296,43 @@ public class CommonModel implements Serializable {
 		this.lte_grid = lte_grid;
 		this.lte_firm = lte_firm;
 	}
+	
+	
+	public CommonModel(String lte_city_name, String lte_net, String lte_enodebid, String lte_sector_id, String lte_cell,
+			String lte_ci, String lte_ecgi, String lte_phycellid, String lte_longitude2, String lte_latitude2,
+			String lte_longitude, String lte_latitude, String lte_site_tall, String lte_azimuth,
+			String lte_mechanical_downdip, String lte_electronic_downdip, String lte_total_downdip, String lte_tac,
+			String lte_sys, String lte_site_type, String lte_earfcn, String lte_derrick_type, String lte_address,
+			String lte_scene, String lte_grid, String lte_firm,String lte_site_name) {
+		super();
+		this.lte_city_name = lte_city_name;
+		this.lte_net = lte_net;
+		this.lte_enodebid = lte_enodebid;
+		this.lte_sector_id = lte_sector_id;
+		this.lte_cell = lte_cell;
+		this.lte_ci = lte_ci;
+		this.lte_ecgi = lte_ecgi;
+		this.lte_phycellid = lte_phycellid;
+		this.lte_longitude2 = lte_longitude2;
+		this.lte_latitude2 = lte_latitude2;
+		this.lte_longitude = lte_longitude;
+		this.lte_latitude = lte_latitude;
+		this.lte_site_tall = lte_site_tall;
+		this.lte_azimuth = lte_azimuth;
+		this.lte_mechanical_downdip = lte_mechanical_downdip;
+		this.lte_electronic_downdip = lte_electronic_downdip;
+		this.lte_total_downdip = lte_total_downdip;
+		this.lte_tac = lte_tac;
+		this.lte_sys = lte_sys;
+		this.lte_site_type = lte_site_type;
+		this.lte_earfcn = lte_earfcn;
+		this.lte_derrick_type = lte_derrick_type;
+		this.lte_address = lte_address;
+		this.lte_scene = lte_scene;
+		this.lte_grid = lte_grid;
+		this.lte_firm = lte_firm;
+		this.lte_site_name = lte_site_name;
+	}
 
 	public CommonModel() {
 		super();
@@ -296,7 +346,7 @@ public class CommonModel implements Serializable {
 	 * @date 2019年11月27日 上午11:19:54
 	 */
 	public static CommonModel changeStrToObj(List<String> data) {
-		if (data != null && data.size() == 26) {
+		if (data != null && data.size() == 27) {
 			return createCommonModel(data);
 		}
 		return null;
@@ -328,7 +378,8 @@ public class CommonModel implements Serializable {
 				array.get(22), //
 				array.get(23), //
 				array.get(24), //
-				array.get(25));//
+				array.get(25),//
+		       array.get(26));//
 		return model;
 	}
 

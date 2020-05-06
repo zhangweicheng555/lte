@@ -4,23 +4,25 @@ import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.baomidou.mybatisplus.annotations.TableName;
 import com.boot.kaizen.business.es.model.logModel.FtpzbBean;
 import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
 import com.boot.kaizen.business.es.model.logModel.WxzbBean;
+import com.boot.kaizen.config.SuperEntity;
 import com.boot.kaizen.util.MyDateUtil;
 
 /**
  * 室外测试列表的实体类
  * 
- * 室外测试列表实体类
- * 
  * @author weichengz
  * @date 2019年11月11日 上午9:48:20
  */
-public class OutHomeLogModel {
-
+@TableName("buss_es_log_outhome")
+public class OutHomeLogModel   extends SuperEntity<OutHomeLogModel> {
+	private static final long serialVersionUID = 1L;
+	
 	// 注意室外测试的id pk 是一样的
-	private String id;// 主键
+	//private String id;// 主键
 	private String fileName;// 文件名
 	private Long fileUpTime;// 文件上传日期
 	private String filePath;// 文件路径 这个不导出
@@ -137,13 +139,13 @@ public class OutHomeLogModel {
 		}
 	}
 
-	public String getId() {
+/*	public String getId() {
 		return id;
 	}
 
 	public void setId(String id) {
 		this.id = id;
-	}
+	}*/
 
 	public String getFileName() {
 		return fileName;

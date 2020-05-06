@@ -61,6 +61,33 @@ public class MyUtil {
 		}
 		return resultMap;
 	}
+	
+	
+	/**
+	 * map去掉空的key   将.keyword传参 去掉
+	* @Description: TODO
+	* @author weichengz
+	* @date 2020年4月10日 上午10:22:44
+	 */
+	public static Map<String, Object> clearMapEmptyValRemoveKeyword(Map<String, Object> map) {
+		Map<String, Object> resultMap = new HashMap<>();
+		if (map != null && !map.isEmpty()) {
+			Set<Entry<String, Object>> entrySet = map.entrySet();
+			for (Entry<String, Object> entry : entrySet) {
+				String key = entry.getKey();
+				Object value = entry.getValue();
+				if (StringUtils.isNoneBlank(key)) {
+					if (value != null) {
+						String val = value.toString();
+						if (StringUtils.isNotBlank(val)) {
+							resultMap.put(key.replaceAll(".keyword", ""), value);
+						}
+					}
+				}
+			}
+		}
+		return resultMap;
+	}
 
 	/**
 	 * 创建EntityWrapper 条件构造器（针对mybatis-plus） conditionSymple:目前仅支持 LIKE,AND这两个条件
@@ -165,7 +192,7 @@ public class MyUtil {
 			String key = item.getKey();
 			Map<String, Object> valueMap = item.getValue();
 
-			if (StringUtils.isBlank(key)) {
+			if (StringUtils.isNotBlank(key)) {
 				if (valueMap != null && !valueMap.isEmpty()) {
 					if (valueMap.size() == 2) {// 这个是范围的查询
 						Set<Entry<String, Object>> entrySet = valueMap.entrySet();

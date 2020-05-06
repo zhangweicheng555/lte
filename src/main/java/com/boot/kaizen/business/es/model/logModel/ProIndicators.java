@@ -2,42 +2,63 @@ package com.boot.kaizen.business.es.model.logModel;
 
 /** 专业指标 */
 public class ProIndicators {
+	//一下显示 start
+	private String servingCellPccTac;
+	private String servingCellPccFreqDl;
+	private String servingCellPccEnodebId;
+	private String servingCellPccSiteEci;
+	private String servingCellPccRsrp;
+	private String servingCellPccRsrq;
+	private String servingCellPccWidebandCqi;
+	private String servingCellPccPucchTxpower;
+	private String servingCellPccULBLER;
+	private String servingCellPccBandIndex;
+	private String servingCellPccEarfcnDl;
+	private String servingCellPccCellId;
+	private String servingCellPccPci;
+	private String servingCellPccSinr;
+	private String servingCellPccRssi;
+	private String servingCellPccRankIndex;
+	private String servingCellPccPuschTxpower;
+	private String servingCellPccDLBLER;
+	//stop
+	
+	//start  DL
+	private String throughputPccPdcpDl;
+	private String throughputPccRlcDl;
+	private String throughputPccMacDl;
+	private String throughputPccPhyDl;
+	
+	//start UL
+	private String throughputPccPdcpUl;
+	private String throughputPccRlcUl;
+	private String throughputPccMacUl;
+	private String throughputPccPhyUl;
+	
+	
+	
+	
+	
+	private String servingCellPccBwDl;
 	private String servingCellPcc;
 	private String servingCellScc;
 	private String servingCellPccDuplexMode;
 	private String servingCellPccPaDb;
 	private String servingCellPccMcc;
-	private String servingCellPccBandIndex;
 	private String servingCellPccMnc;
 	private String servingCellPccRsrpAnt0;
-	private String servingCellPccTac;
 	private String servingCellPccRsrpAnt1;
-	private String servingCellPccSiteEci;
 	private String servingCellPccRsrqAnt0;
-	private String servingCellPccEnodebId;
 	private String servingCellPccRsrqAnt1;
-	private String servingCellPccCellId;
 	private String servingCellPccSinrAnt0;
-	private String servingCellPccRsrp;
 	private String servingCellPccSinrAnt1;
-	private String servingCellPccRsrq;
 	private String servingCellPccRssiAnt0;
-	private String servingCellPccSinr;
 	private String servingCellPccRssiAnt1;
-	private String servingCellPccRssi;
-	private String servingCellPccPuschTxpower;
-	private String servingCellPccPci;
-	private String servingCellPccPucchTxpower;
 	private String servingCellPccCpType;
-	private String servingCellPccRankIndex;
 	private String servingCellPccBwUl;
 	private String servingCellPccTransMode;
-	private String servingCellPccBwDl;
-	private String servingCellPccWidebandCqi;
 	private String servingCellPccEarfcnUl;
-	private String servingCellPccEarfcnDl;
 	private String servingCellPccFreqUl;
-	private String servingCellPccFreqDl;
 	private String servingCellPccPathloss;
 	private String servingCellSccPci;
 	private String servingCellSccActiveStatus;
@@ -60,14 +81,14 @@ public class ProIndicators {
 
 	private String throughputPccAppUl;
 	private String throughputPccAppDl;
-	private String throughputPccPdcpUl;
-	private String throughputPccPdcpDl;
-	private String throughputPccRlcUl;
-	private String throughputPccRlcDl;
-	private String throughputPccMacUl;
-	private String throughputPccMacDl;
-	private String throughputPccPhyUl;
-	private String throughputPccPhyDl;
+	
+	
+	
+	
+	
+	
+	
+	
 	private String throughputSccPhyDl;
 
 	private String modulationPcc16qam;
@@ -96,8 +117,8 @@ public class ProIndicators {
 	private String modulationPccQPSKUl;
 	private String modulationPccQPSKDl;
 
-	private String servingCellPccULBLER;
-	private String servingCellPccDLBLER;
+	
+	
 
 	private String band;
 

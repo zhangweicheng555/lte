@@ -1,5 +1,6 @@
 package com.boot.kaizen.business.es.controller;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,6 +12,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,9 +49,10 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.boot.kaizen.business.buss.model.LogAnaLyze;
 import com.boot.kaizen.business.buss.model.OneButtonTestParam;
 import com.boot.kaizen.business.buss.service.ILogAnaLyzeService;
+import com.boot.kaizen.business.buss.service.IOneButtonTestService;
+import com.boot.kaizen.business.buss.service.IOutHomeService;
 import com.boot.kaizen.business.es.model.MainLogModel;
 import com.boot.kaizen.business.es.model.OneButtonTest;
-import com.boot.kaizen.business.es.model.OtherLogModel;
 import com.boot.kaizen.business.es.model.OutHomeLogModel;
 import com.boot.kaizen.business.es.model.QueryParamData;
 import com.boot.kaizen.business.es.model.logModel.HttpzbBean;
@@ -57,6 +60,7 @@ import com.boot.kaizen.business.es.model.logModel.MLteNeighborhoodInfo;
 import com.boot.kaizen.business.es.model.logModel.MSignaBean;
 import com.boot.kaizen.business.es.model.logModel.OurDoorDataInfoBean;
 import com.boot.kaizen.business.es.model.logModel.PingzbBean;
+import com.boot.kaizen.business.es.model.logModel.ProIndicatorsSimple;
 import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
 import com.boot.kaizen.business.es.model.logModel.YyzbBean;
 import com.boot.kaizen.business.es.model.sim.CommonModel;
@@ -64,6 +68,7 @@ import com.boot.kaizen.business.es.model.sim.GcModel;
 import com.boot.kaizen.business.es.model.sim.ResultModel;
 import com.boot.kaizen.business.es.service.Esutil;
 import com.boot.kaizen.business.es.service.IEsBussService;
+import com.boot.kaizen.business.student.model.UserManager;
 import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.entity.RequestParamEntity;
 import com.boot.kaizen.model.SysProject;
@@ -78,7 +83,9 @@ import com.boot.kaizen.util.MyDateUtil;
 import com.boot.kaizen.util.MyUtil;
 import com.boot.kaizen.util.TableResultUtil;
 import com.boot.kaizen.util.UserUtil;
-
+import com.github.pagehelper.ISelect;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import cn.hutool.core.util.URLUtil;
 
 /**
@@ -98,6 +105,9 @@ public class EsBusssController {
 	@Autowired
 	private SysProjectService sysProjectService;
 
+	@Autowired
+	private IOutHomeService outHomeService;
+
 	@Value("${sim.gcCityPermission}")
 	private String gcCityPermission;
 	@Value("${sim.gcAllPermission}")
@@ -108,12 +118,17 @@ public class EsBusssController {
 
 	@Autowired
 	private ILogAnaLyzeService logAnaLyzeService;
+	@Autowired
+	private IOneButtonTestService oneButtonTestService;
 
-	private static final double MINT_UNIT = 0.001;// 千米
+	private static final double MINT_UNIT = 0.01;// 千米
 
 	/**
 	 * 
-	 * @Description: 室外测试查询
+	 * page: 1 limit: 10 endTime: "" beginTime: "" index: "logouthome" type:
+	 * "logouthome" + termMap
+	 * 
+	 * @Description: 室外测试查询20220410调整为mysql数据库版本
 	 * @author weichengz
 	 * @date 2019年11月11日 上午11:21:32
 	 */
@@ -121,7 +136,58 @@ public class EsBusssController {
 	@PostMapping(value = "/queryOutHome")
 	public TableResultUtil analyzeLteAllAndComplete(@RequestBody QueryParamData queryParamData) {
 
-		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
+		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyValRemoveKeyword(queryParamData.getTermMap());
+
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
+		} else {
+			if (StringUtils.isBlank(sysProject.getProjCode())) {
+				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的sim地市不存在");
+			}
+		}
+		clearMapEmptyVal.put("cityId", sysProject.getId() + "");
+		// 处理精确查询的问题
+		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
+
+		// 处理时间范围的字段
+		String beginTime = queryParamData.getBeginTime();
+		String endTime = queryParamData.getEndTime();
+		Map<String, Map<String, Object>> mapRange = new HashMap<>();
+		if (StringUtils.isNotBlank(beginTime)) {
+			mapRange.put("beginTime",
+					MyUtil.createHashMap("GTE~" + MyDateUtil.stringToDate(beginTime, null).getTime()));
+		}
+		if (StringUtils.isNotBlank(endTime)) {
+			mapRange.put("endTime", MyUtil.createHashMap("LTE~" + MyDateUtil.stringToDate(endTime, null).getTime()));
+		}
+		// 将查询条件给查询参数
+		PageInfo<UserManager> pageInfo = PageHelper.startPage(queryParamData.getPage(), queryParamData.getLimit())
+				.doSelectPageInfo(new ISelect() {
+					@Override
+					public void doSelect() {
+						RequestParamEntity requestParamEntity = new RequestParamEntity();
+						requestParamEntity.setMapAnd(clearMapEmptyVal);
+						requestParamEntity.setMapRange(mapRange);
+						outHomeService.selectList(MyUtil.createQueryPlus(requestParamEntity));
+					}
+				});
+		return new TableResultUtil(0L, "操作成功", pageInfo.getTotal(), pageInfo.getList());
+	}
+
+	/**
+	 * 
+	 * @Description: 左下角邻区信息查询，这里将邻区的小区名字也做返回，注意只返回唯一 这个地方必须要传递经度、纬度
+	 * @author weichengz
+	 * @date 2020年4月28日 上午10:18:17
+	 */
+	@ResponseBody
+	@PostMapping(value = "/queryList")
+	public Object queryList(@RequestBody QueryParamData queryParamData) {
 
 		LoginUser loginUser = UserUtil.getLoginUser();
 		if (loginUser == null) {
@@ -136,22 +202,80 @@ public class EsBusssController {
 				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的sim地市不存在");
 			}
 		}
-		clearMapEmptyVal.put("cityId.keyword", sysProject.getId() + "");
 
-		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
-		queryParamData.handleFieldRange("beginTime", queryParamData.getBeginTime(), null);
-		queryParamData.handleFieldRange("endTime", null, queryParamData.getEndTime());
+		List<String> revelFields = queryParamData.getRevelFields();
+		if (revelFields == null || revelFields.size() == 0) {
+			throw new IllegalArgumentException("要显示的字段不能为空");
+		}
 
-		QueryParamData paramData = Esutil.queryPage(queryParamData);
-		return new TableResultUtil(0L, "操作成功", paramData.getTotalNums(), paramData.getRows());
+		if (!revelFields.contains("longitude") || !revelFields.contains("latitude")
+				|| !revelFields.contains("doorDataInfoBeans")) {
+			throw new IllegalArgumentException("查询的字段(longitude、latitude、doorDataInfoBeans)不能为空");
+		}
+
+		if (queryParamData != null) {
+			queryParamData.setLimit(1);//
+			List<Map<String, Object>> queryList = Esutil.queryList(queryParamData);
+			if (queryList != null && queryList.size() > 0) {
+				List<Map<String, Object>> result = new ArrayList<>();// 返回的结果
+
+				Map<String, Object> map = queryList.get(0);
+				MainLogModel mainLogModel = JSONObject.parseObject(JSONObject.toJSONString(map), MainLogModel.class);
+				Object doorDataInfoBeans = map.get("doorDataInfoBeans");
+				if (doorDataInfoBeans != null) {
+					OurDoorDataInfoBean ourDoorDataInfoBean = JSONObject
+							.parseObject(JSONObject.toJSONString(doorDataInfoBeans), OurDoorDataInfoBean.class);
+					if (ourDoorDataInfoBean != null) {
+						ArrayList<MLteNeighborhoodInfo> mLteNeighborhoodInfos = ourDoorDataInfoBean
+								.getmLteNeighborhoodInfos();
+						if (mLteNeighborhoodInfos != null && mLteNeighborhoodInfos.size() > 0) {
+							QueryParamData queryParamData2 = new QueryParamData("simgc", "simgc");
+							queryParamData2.setLimit(1);
+							// 处理 这个经纬度的问题
+							GeoPoint ceterPoint = new GeoPoint(Double.valueOf(mainLogModel.getLatitude()),
+									Double.valueOf(mainLogModel.getLatitude()));
+							queryParamData2.dealGeoDiatanceBuss(ceterPoint, 10000D, "location");
+
+							for (MLteNeighborhoodInfo mLteNeighborhoodInfo : mLteNeighborhoodInfos) {
+								String mLteNeighborhoodPCI = mLteNeighborhoodInfo.getMLteNeighborhoodPCI();
+								if (StringUtils.isNotBlank(mLteNeighborhoodPCI)) {
+									// 处理该地市的查询条件
+									Map<String, Object> termMap = queryParamData2.getTermMap();
+									if (termMap == null) {
+										termMap = new HashMap<>();
+									}
+									termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
+									termMap.put("lte_phycellid.keyword", mLteNeighborhoodPCI);
+									queryParamData2.setTermMap(termMap);
+
+									List<Map<String, Object>> queryList2 = Esutil.queryList(queryParamData2);
+									if (queryList2 != null && queryList2.size() > 0) {
+										Map<String, Object> cellMap = queryList2.get(0);
+										Object lte_site_name = cellMap.get("lte_site_name");
+										mLteNeighborhoodInfo.setSiteName("");
+										if (lte_site_name != null) {
+											mLteNeighborhoodInfo.setSiteName(lte_site_name.toString());
+										}
+									}
+								}
+							}
+						}
+					}
+					map.put("doorDataInfoBeans", ourDoorDataInfoBean);
+				}
+				result.add(map);
+				return result;
+			}
+		}
+		return new ArrayList<>();
 	}
 
 	/**
+	 * 室外测试导出csv
 	 * 
-	 * @Description: 室外测试导出csv
+	 * @Description: 20200410导出csv
 	 * @author weichengz
-	 * @throws IOException
-	 * @date 2020年2月25日 下午2:48:10
+	 * @date 2020年4月10日 上午11:03:25
 	 */
 	@ResponseBody
 	@PostMapping(value = "/exportOutHomeCsv")
@@ -161,12 +285,13 @@ public class EsBusssController {
 		if (StringUtils.isBlank(id)) {
 			throw new IllegalArgumentException("室外测试的id不能为空");
 		}
-		Map<String, Object> outHomeMap = Esutil.queryById("logouthome", "logouthome", id);
-		if (outHomeMap == null || outHomeMap.isEmpty()) {
+		OutHomeLogModel outHomeLogModel = outHomeService.selectById(id);
+
+		if (outHomeLogModel == null) {
 			throw new IllegalArgumentException("室外测试信息不存在");
 		}
-		Object filePath = outHomeMap.get("filePath");
-		if (filePath == null) {// /outhomelog/20200114110619_d41fbf38-98b4-427f-ba18-2ca1903e85d1.txt
+		String filePath = outHomeLogModel.getFilePath();
+		if (StringUtils.isBlank(filePath)) {// /outhomelog/20200114110619_d41fbf38-98b4-427f-ba18-2ca1903e85d1.txt
 			throw new IllegalArgumentException("filePath参数不存在");
 		}
 		String outHomePath = filePath.toString();
@@ -438,22 +563,6 @@ public class EsBusssController {
 	}
 
 	/**
-	 * 一键测试 添加
-	 * 
-	 * @ResponseBody
-	 * @PostMapping(value = "/oneButtonTestAdd") public JsonMsgUtil
-	 *                    oneButtonTestAdd(OneButtonTest oneButtonTest) {
-	 *                    oneButtonTest.setId(MyUtil.getUuid()); Date date =
-	 *                    MyDateUtil.stringToDate(oneButtonTest.getTestTime(),
-	 *                    "yyyy-MM-dd HH:mm:ss"); if (date != null) {
-	 *                    oneButtonTest.setTestTimeQuery(date.getTime()); }
-	 *                    oneButtonTest.dealLngLatBdToWgs84();
-	 *                    Esutil.insert("onebuttontest", "onebuttontest",
-	 *                    JSONObject.toJSONString(oneButtonTest)); return new
-	 *                    JsonMsgUtil(true, "添加成功", ""); }
-	 */
-
-	/**
 	 * 一键测试 app上传添加
 	 */
 	@ResponseBody
@@ -463,6 +572,7 @@ public class EsBusssController {
 		if (oneButtonTestParam == null) {
 			throw new IllegalArgumentException("接收的数据为空");
 		}
+
 		String projId = oneButtonTestParam.getProjId();
 		if (StringUtils.isBlank(projId)) {
 			throw new IllegalArgumentException("未传入项目号项目");
@@ -481,8 +591,12 @@ public class EsBusssController {
 				oneButtonTest.setTestTimeQuery(date.getTime());
 			}
 			oneButtonTest.dealLngLatBdToWgs84();
-			Esutil.insert("onebuttontest", "onebuttontest", JSONObject.toJSONString(oneButtonTest));
+			oneButtonTestService.insert(oneButtonTest);
+			// Esutil.insert("onebuttontest", "onebuttontest",
+			// JSONObject.toJSONString(oneButtonTest));
 		}
+		// oneButtonTestService.insertBatch(datas, 50);
+
 		return new JsonMsgUtil(true, "添加成功", "");
 	}
 
@@ -498,31 +612,31 @@ public class EsBusssController {
 		if (StringUtils.isNoneBlank(ids)) {
 			String[] idsArray = ids.trim().split(",");
 			for (String id : idsArray) {
-				QueryParamData queryParamData = new QueryParamData("logouthome", "logouthome",
-						MyUtil.createHashMap("id.keyword~" + id), Arrays.asList("pk", "filePath"), 1, 1);
-				List<Map<String, Object>> datas = Esutil.scrollQuery(queryParamData);
-				if (datas != null && datas.size() > 0) {
-					Map<String, Object> resultMap = datas.get(0);// 查询出室外测试的主键ID
+
+				OutHomeLogModel outHomeLogModel = outHomeService.selectById(id);
+
+				if (outHomeLogModel != null) {
 					// 删除主日志
 					QueryParamData queryParamDataMsg = new QueryParamData("logmain", "logmain",
 							MyUtil.createHashMap("pid.keyword~" + id), null, 1000);
 					Esutil.deleteBatchByCondition(queryParamDataMsg);
+
 					// 删除大信息字段
 					QueryParamData queryParamDataEvent = new QueryParamData("logmessage", "logmessage",
 							MyUtil.createHashMap("ppid.keyword~" + id), null, 1000);
 					Esutil.deleteBatchByCondition(queryParamDataEvent);
 
 					// 删除室外测试的log文件
-					String filePath = resultMap.get("filePath").toString();
+					String filePath = outHomeLogModel.getFilePath();
 					if (StringUtils.isNotBlank(filePath)) {
 						File file = new File(filesCommonPath + filePath);
 						if (file.exists()) {
 							file.delete();
 						}
 					}
-					
+
 					// 删出室外测试记录
-					Esutil.deleteByDocId("logouthome", "logouthome", resultMap.get("pk").toString());
+					outHomeService.deleteById(id);
 
 					// 删除室外测试测统计分析的数据
 					RequestParamEntity param = new RequestParamEntity();
@@ -543,7 +657,12 @@ public class EsBusssController {
 	}
 
 	/**
-	 * 缺少地市过滤条件
+	 * 
+	 * age: 1 limit: 10 endTime: "" beginTime: "2020-04-06 00:00:00" index:
+	 * "onebuttontest" type: "onebuttontest"
+	 * 
+	 * termMap: {operatorService.keyword: "", city.keyword: "", testPerson.keyword:
+	 * ""} operatorService.keyword: "" city.keyword: "" testPerson.keyword: ""
 	 * 
 	 * @Description: 一键测试列表查询
 	 * @author weichengz
@@ -552,21 +671,45 @@ public class EsBusssController {
 	@ResponseBody
 	@PostMapping(value = "/queryOneButtonTest")
 	public TableResultUtil queryOneButtonTest(@RequestBody QueryParamData queryParamData) {
-		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyVal(queryParamData.getTermMap());
-
-		// 将地市条件录入
+		// 模糊查询
+		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyValRemoveKeyword(queryParamData.getTermMap());
 		LoginUser loginUser = UserUtil.getLoginUser();
 		if (loginUser == null) {
 			throw new IllegalArgumentException("当前登陆用户失效");
 		}
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
+		}
 
-		clearMapEmptyVal.put("cityId.keyword", loginUser.getProjId().toString());
+		// 精确查询
+		Map<String, Object> mapCity = new HashMap<>();
+		mapCity.put("cityId", sysProject.getId() + "");
 
-		queryParamData.setTermMap(clearMapEmptyVal);// 精确查询
-		queryParamData.handleFieldRange("testTimeQuery", queryParamData.getBeginTime(), null);
-		queryParamData.handleFieldRange("testTimeQuery", null, queryParamData.getEndTime());
-		QueryParamData paramData = Esutil.queryPage(queryParamData);
-		return new TableResultUtil(0L, "操作成功", paramData.getTotalNums(), paramData.getRows());
+		// 处理时间范围的字段
+		String beginTime = queryParamData.getBeginTime();
+		String endTime = queryParamData.getEndTime();
+		Map<String, Map<String, Object>> mapRange = new HashMap<>();
+		if (StringUtils.isNotBlank(beginTime)) {
+			mapRange.put("testTime", MyUtil.createHashMap("GTE~" + beginTime));
+		}
+		if (StringUtils.isNotBlank(endTime)) {
+			mapRange.put("testTime", MyUtil.createHashMap("LTE~" + endTime));
+		}
+
+		// 将查询条件给查询参数
+		PageInfo<OneButtonTest> pageInfo = PageHelper.startPage(queryParamData.getPage(), queryParamData.getLimit())
+				.doSelectPageInfo(new ISelect() {
+					@Override
+					public void doSelect() {
+						RequestParamEntity requestParamEntity = new RequestParamEntity();
+						requestParamEntity.setMapAnd(mapCity);
+						requestParamEntity.setMapLike(clearMapEmptyVal);
+						requestParamEntity.setMapRange(mapRange);
+						oneButtonTestService.selectList(MyUtil.createQueryPlus(requestParamEntity));
+					}
+				});
+		return new TableResultUtil(0L, "操作成功", pageInfo.getTotal(), pageInfo.getList());
 	}
 
 	/**
@@ -596,23 +739,30 @@ public class EsBusssController {
 	public void exportOneButtonTest(HttpServletResponse response,
 			@RequestParam(value = "ids", required = false) String ids) throws Exception {
 
-		List<String> datas = new ArrayList<>();
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
+		}
+
+		// 精确查询
+		Map<String, Object> mapCity = new HashMap<>();
+		mapCity.put("cityId", sysProject.getId() + "");
+
+		List<OneButtonTest> datas = new ArrayList<>();
 		if (StringUtils.isBlank(ids)) {// 查询全部
-			QueryParamData queryParamData = new QueryParamData("onebuttontest", "onebuttontest", false, 1000);
-			List<Map<String, Object>> dataMaps = Esutil.scrollQuery(queryParamData);
-			if (dataMaps != null && dataMaps.size() > 0) {
-				for (Map<String, Object> map : dataMaps) {
-					datas.add(JSONObject.toJSONString(map));
-				}
-			}
+			datas = oneButtonTestService.selectByMap(mapCity);
 		} else {
-			datas = Esutil.queryBatchByIds("onebuttontest", "onebuttontest", ids.split(","));
+			datas = oneButtonTestService.selectBatchIds(Arrays.asList(ids.trim().split(",")));
 		}
 
 		Collection<OneButtonTest> collection = new ArrayList<OneButtonTest>();
 		if (datas != null && datas.size() > 0) {
-			for (String jsonStr : datas) {
-				collection.add(JSONObject.parseObject(jsonStr, OneButtonTest.class));
+			for (OneButtonTest jsonStr : datas) {
+				collection.add(jsonStr);
 			}
 		}
 
@@ -634,24 +784,17 @@ public class EsBusssController {
 	public void exportOutHomeTest(HttpServletResponse response,
 			@RequestParam(value = "ids", required = false) String ids) throws Exception {
 
-		List<String> datas = new ArrayList<>();
+		List<OutHomeLogModel> outHomeLogModels = new ArrayList<>();
+
 		if (StringUtils.isBlank(ids)) {// 查询全部
-			QueryParamData queryParamData = new QueryParamData("logouthome", "logouthome", false, 1000);
-			List<Map<String, Object>> dataMaps = Esutil.scrollQuery(queryParamData);
-			if (dataMaps != null && dataMaps.size() > 0) {
-				for (Map<String, Object> map : dataMaps) {
-					datas.add(JSONObject.toJSONString(map));
-				}
-			}
+			outHomeLogModels = outHomeService.selectByMap(new HashMap<>());
 		} else {
-			datas = Esutil.queryBatchByIds("logouthome", "logouthome", ids.split(","));
+			outHomeLogModels = outHomeService.selectBatchIds(Arrays.asList(ids.trim().split(",")));
 		}
 
 		Collection<OutHomeLogModel> collection = new ArrayList<OutHomeLogModel>();
-		if (datas != null && datas.size() > 0) {
-			for (String jsonStr : datas) {
-				collection.add(JSONObject.parseObject(jsonStr, OutHomeLogModel.class));
-			}
+		if (outHomeLogModels != null && outHomeLogModels.size() > 0) {
+			collection.addAll(outHomeLogModels);
 		}
 
 		// 存入 变
@@ -735,6 +878,98 @@ public class EsBusssController {
 		} else {
 			return new ArrayList<>();
 		}
+	}
+
+	/**
+	 * LTE Info、LTE Throughput 查询方法
+	 * 
+	 * @Description: mainLogId 室外测试的log ID
+	 * @author weichengz
+	 * @date 2020年4月28日 下午3:21:38
+	 */
+	@ResponseBody
+	@PostMapping(value = "/queryLteInfoThrput")
+	public Map<String, Object> queryLteInfoThrput(@RequestParam(value = "longitude") String longitude,
+			@RequestParam(value = "latitude") String latitude, @RequestParam(value = "mainLogId") String mainLogId) {
+
+		Map<String, Object> termMainMap = new HashMap<>();
+		termMainMap.put("longitude", longitude);
+		termMainMap.put("latitude", latitude);
+		termMainMap.put("pid", mainLogId);
+
+		QueryParamData queryMainParamData = new QueryParamData("logmain", "logmain", termMainMap, null, 1);
+
+		List<Map<String, Object>> queryList = Esutil.queryList(queryMainParamData);
+		Map<String, Object> resultMap = new HashMap<>();
+		// 先赋值LTE Info、LTE Throughput
+		resultMap.put("lteInfo", "");
+		resultMap.put("lteThroughput", "");
+
+		if (queryList != null && queryList.size() > 0) {
+			Map<String, Object> map = queryList.get(0);
+			MainLogModel mainLogModel = JSONObject.parseObject(JSONObject.toJSONString(map), MainLogModel.class);
+			if (mainLogModel != null) {
+				ProIndicatorsSimple proIndicators = mainLogModel.getProIndicators();
+				String rootSupport = mainLogModel.getRootSupport();
+				LinkedHashMap<Object, Object> lteInfo = new LinkedHashMap<>();
+				if (("1").equals(rootSupport)) {// root的
+					if (proIndicators != null) {
+						lteInfo.put("Cell Name", mainLogModel.getCellName());
+						lteInfo.put("TAC", proIndicators.getServingCellPccTac());
+						lteInfo.put("Fequency DL", proIndicators.getServingCellPccFreqDl());
+						lteInfo.put("eNodeBID", proIndicators.getServingCellPccEnodebId());
+						lteInfo.put("ECI", proIndicators.getServingCellPccSiteEci());
+						lteInfo.put("RSRP", proIndicators.getServingCellPccRsrp());
+						lteInfo.put("RSRQ", proIndicators.getServingCellPccRsrq());
+						lteInfo.put("CQI", proIndicators.getServingCellPccWidebandCqi());
+						lteInfo.put("PUCCH TxPower", proIndicators.getServingCellPccPucchTxpower());
+						lteInfo.put("PUSCH BLER", proIndicators.getServingCellPccULBLER());
+						lteInfo.put("Band", proIndicators.getServingCellPccBandIndex());
+						lteInfo.put("EARFCN", proIndicators.getServingCellPccEarfcnDl());
+						lteInfo.put("CI", proIndicators.getServingCellPccCellId());
+						lteInfo.put("PCI", proIndicators.getServingCellPccPci());
+						lteInfo.put("SINR", proIndicators.getServingCellPccSinr());
+						lteInfo.put("RSSI", proIndicators.getServingCellPccRssi());
+						lteInfo.put("RI Num DL", proIndicators.getServingCellPccRankIndex());
+						lteInfo.put("PUSCH TxPower", proIndicators.getServingCellPccPuschTxpower());
+						lteInfo.put("PDSCH BLER", proIndicators.getServingCellPccDLBLER());
+					}
+				} else {// 非root的
+					lteInfo.put("Cell Name", mainLogModel.getCellName());
+					lteInfo.put("EARFCN", mainLogModel.getEarfcn());
+					lteInfo.put("TAC", mainLogModel.gettAC());
+					lteInfo.put("ECI", mainLogModel.getcI());
+					lteInfo.put("eNodeB ID", "");
+					lteInfo.put("CI", mainLogModel.getcELLID());
+					lteInfo.put("PCI", mainLogModel.getPci());
+					lteInfo.put("RSRP", mainLogModel.getRsrp());
+					lteInfo.put("SINR", mainLogModel.getSinr());
+					lteInfo.put("RSRQ", "");
+					OurDoorDataInfoBean doorDataInfoBeans = mainLogModel.getDoorDataInfoBeans();
+					if (doorDataInfoBeans != null) {
+						lteInfo.put("RSRQ", doorDataInfoBeans.getRsrq());
+					}
+				}
+				resultMap.put("lteInfo", lteInfo);
+
+				LinkedHashMap<Object, Object> lteThroughput = new LinkedHashMap<>();
+				if (proIndicators != null) {
+					lteThroughput.put("APP", mainLogModel.getDownLoadSpeed() + " ~ " + mainLogModel.getUpLoadSpeed());
+					lteThroughput.put("PDCP",
+							proIndicators.getThroughputPccPdcpDl() + " ~ " + proIndicators.getThroughputPccPdcpUl());
+					lteThroughput.put("RLC",
+							proIndicators.getThroughputPccRlcDl() + " ~ " + proIndicators.getThroughputPccRlcUl());
+					lteThroughput.put("MAC",
+							proIndicators.getThroughputPccMacDl() + " ~ " + proIndicators.getThroughputPccMacUl());
+					lteThroughput.put("PHY",
+							proIndicators.getThroughputPccPhyDl() + " ~ " + proIndicators.getThroughputPccPhyUl());
+				}
+
+				resultMap.put("lteThroughput", lteThroughput);
+			}
+			return resultMap;
+		}
+		return new HashMap<>();
 	}
 
 	private String hanleMapParamToString(Map<String, Object> dataMap, String key) {
@@ -1080,7 +1315,7 @@ public class EsBusssController {
 			paramMap.put("provinceName", sysProject.getProProvice());
 			paramMap.put("operator", sysProject.getProjOperator());
 			paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
-					"lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm");
+					"lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm,lte_site_name");
 
 			paramMap.put("limit", "" + i * limit + "," + limit); // 不限制就是全部的
 
@@ -1238,7 +1473,7 @@ public class EsBusssController {
 
 			String outHomeTestId = MyUtil.getUuid();// 室外测试列表的id 后续所有的操作 都会以这个为索引主键
 			BufferedReader bufferedReader = null;
-			bufferedReader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+			bufferedReader = new BufferedReader(new InputStreamReader(file.getInputStream(),"UTF-8"));
 			BulkRequest request = new BulkRequest();
 			String str = null;// 文件里面一行记录
 			String beginTime = null;// 日志测试的开始事件
@@ -1277,12 +1512,6 @@ public class EsBusssController {
 				request.add(indexRequestMain);
 				signalDataBeanFinal = signalDataBean;// 记录最后一条记录
 			}
-			// 存储文件
-			String fileStorePath = FileUtil.upFileNew(file, filesCommonPath, "outhomelog");
-			// 处理最后一条记录的 就是 室外测试 列表
-			handleOutHomeTest(signalDataBeanFinal, request, beginTime,
-					FileUtil.getFilenameByOriginal(file.getOriginalFilename()), fileStorePath, sysProject.getId() + "",
-					isMsgEvent);
 			/** 分批的添加进去 */
 			transportClient.bulk(request).get();
 
@@ -1292,12 +1521,21 @@ public class EsBusssController {
 			// 批量保存logAnaLyzes
 			logAnaLyzeService.insertBatch(logAnaLyzes, 500);
 
+			// 存储文件
+			String fileStorePath = FileUtil.upFileNew(file, filesCommonPath, "outhomelog");
+			// 处理最后一条记录的 就是 室外测试 列表
+			handleOutHomeTest(signalDataBeanFinal, request, beginTime,
+					FileUtil.getFilenameByOriginal(file.getOriginalFilename()), fileStorePath, sysProject.getId() + "",
+					isMsgEvent);
+
 			if (bufferedReader != null) {
 				bufferedReader.close();
 			}
 		}
 		return new JsonMsgUtil(true, "导入成功", "");
 	}
+
+	
 
 	/**
 	 * 添加要统计的信息
@@ -1383,15 +1621,14 @@ public class EsBusssController {
 	 */
 	private void handleOutHomeTest(SignalDataBean signalDataBeanFinal, BulkRequest request, String beginTime,
 			String fileName, String filePath, String cityId, String isMsgEvent) {
-		IndexRequest indexRequestOutHome = new IndexRequest("logouthome", "logouthome", signalDataBeanFinal.getPid());
 		OutHomeLogModel outHomeLogModel = new OutHomeLogModel(signalDataBeanFinal, beginTime);
 		outHomeLogModel.setCityId(cityId);
 		outHomeLogModel.setIsMsgEvent(isMsgEvent);
 		outHomeLogModel.setFileName(fileName);
 		outHomeLogModel.setFileUpTime(new Date().getTime());// 文件上传日期
 		outHomeLogModel.setFilePath(filePath);
-		indexRequestOutHome.source(JSONObject.toJSONString(outHomeLogModel), XContentType.JSON);
-		request.add(indexRequestOutHome);
+		// 存储室外测试列表
+		outHomeService.insert(outHomeLogModel);
 	}
 
 	/**

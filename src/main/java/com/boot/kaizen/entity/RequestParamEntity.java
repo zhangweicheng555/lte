@@ -23,7 +23,7 @@ public class RequestParamEntity implements Serializable {
 	private Map<String, Object> mapAnd = new HashMap<String, Object>();/**非模糊匹配的字段*/
 	private Map<String, Object> mapNo = new HashMap<String, Object>();/**匹配不等于的字段*/
 	private List<String> orders = new ArrayList<String>();/**排序字段多个按顺序*/
-	private Map<String, Map<String, Object>> mapRange = new HashMap<>();/**  仅仅支持 LTE  GTE  范围排序的字段   key  是数据库字段   key是符号 va是值*/
+	private Map<String, Map<String, Object>> mapRange = new HashMap<>();/**  仅仅支持 LTE  GTE  范围排序的字段   第一个key  是数据库字段     第二个key是LTE GTE符号 val是值*/
 	private Map<String, Object> mapBetween = new HashMap<String, Object>();/**between and   key是field   val 是 begin_end*/
 	
 	

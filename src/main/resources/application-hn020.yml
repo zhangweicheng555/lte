@@ -5,7 +5,7 @@ spring:
       config: classpath:ehcache.xml
   datasource: 
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://172.16.207.85:3306/kaizen?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8
+    url: jdbc:mysql://192.168.0.20:3306/kaizenlog?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8
     username: root
     password: 123456
     druid:
@@ -49,7 +49,7 @@ spring:
  
  
   application:
-    name: kaizenLog1
+    name: kaizenLogTemp
 
    
   redis: 
@@ -92,22 +92,7 @@ pagehelper:
       
 files:
 #  path: ${file-path:d:/kaizen/doc}     #所有文件存储的根路径
-  path: ${file-path:/kaizen/doc}     #所有文件存储的根路径
-  pathKzDoc: ${file-path:/kaizen/doc/kzDoc}     #勘站报告的生成文件目录   这个目前存储的是  5G勘站的报告、广西电信的word
-  staticsPath: http://ihandle.huanuo-nsb.com/statics    #所有请求静态文件的前缀
-  
-  lteExcel: /kaizen/doc/excelModel/lteExcelModel.xls
-  lteFddExcel: /kaizen/doc/excelModel/lteFddModel.xls
-  
-  fivecheckHong: /kaizen/doc/excelModel/fivegdanyanhongstation.xls  #5g宏站单验
-  
-  guangxiExcel: /kaizen/doc/excelModel/globalTelecomTemplate.xls
-  lteFddHzExcel: /kaizen/doc/excelModel/lteFddHzMode.xls
-  checkTestDocExcel: /kaizen/doc/excelModel/checkTestDocModel.xls
-  checkTestDocGxExcel: /kaizen/doc/excelModel/checkTestDocModelGc.xls
-  shangHaiLianTongFivecheck: /kaizen/doc/excelModel/shanghailiantong5gdanyancheckdoc.xls
-  nobitDocExcel: /kaizen/doc/excelModel/shanghaiAppEcportModel.xls
-  defaultApk: /kaizen/doc/apk/apk.txt
+  path: ${file-path:D:/ihandlesoft/kaizen/doc}     #所有文件存储的根路径
   
 
 logging:
@@ -118,8 +103,8 @@ log:
   level:
     root: info
     my: debug
-  file: /kaizen/logs_log/admin-server.log
-  dayfile: /kaizen/logs_log/day.log
+  file: D:/ihandlesoft/kaizen/doc/logs/admin-server.log
+  dayfile: D:/ihandlesoft/kaizen/doc/logs/day.log
   maxsize: 1024MB
   
 
@@ -133,7 +118,7 @@ token:
   
 
 server: 
-  port: 8081
+  port: 8080
 
 
 
@@ -153,3 +138,11 @@ logsystem:
 sim:
   key: zcto8k3i*a2c6
   url: http://61.132.73.61:8012/SIM/iHandle!getParamSync.action
+
+
+
+#常量配置  
+commonval: 
+  nokiaes: false
+  hnes: false
+  hn20es: true

@@ -81,6 +81,7 @@ public class EsController {
 		System.out.println(Esutil.typeIfExists(index, type));
 		return new JsonMsgUtil(true);
 	}
+	
 
 	@SuppressWarnings("unchecked")
 	@ResponseBody
@@ -113,6 +114,7 @@ public class EsController {
 		return Esutil.scrollQuery(queryParamData);
 	}
 
+	
 	@ResponseBody
 	@PostMapping(value = "/queryList")
 	public List<Map<String, Object>> queryList(@RequestBody QueryParamData queryParamData) {
@@ -137,36 +139,7 @@ public class EsController {
 		}
 		return new TableResultUtil(1L, "查询失败", 0L, new ArrayList<>());
 	}
-/*
-	@ResponseBody
-	@PostMapping(value = "/updateById")
-	public Object updateById(@RequestParam("index") String index, @RequestParam("id") String id,
-			@RequestParam("type") String type, @RequestParam("jsonStr") String jsonStr) {
-		@SuppressWarnings("unchecked")
-		Map<String, Object> parseObject = JSON.parseObject(jsonStr, Map.class);
-		Esutil.updateById(index, type, id, parseObject);
-		return "success";
-	}
 
-	@ResponseBody
-	@PostMapping(value = "/deleteIndex")
-	public Object deleteIndex(@RequestParam("index") String index) {
-		Boolean indexIfExists = Esutil.indexIfExists(index);
-		if (indexIfExists) {
-			Esutil.deleteIndex(index);
-		} else {
-			return "索引不存在";
-		}
-		return "success";
-	}
-
-	@ResponseBody
-	@PostMapping(value = "/deleteByDocId")
-	public Object deleteByDocId(@RequestParam("index") String index, @RequestParam("id") String id,
-			@RequestParam("type") String type) {
-		Esutil.deleteByDocId(index, type, id);
-		return "success";
-	}*/
 
 	/**
 	 * 一键测试数据的导入

@@ -26,33 +26,28 @@ public class MyDateUtil {
 	private static double EARTH_RADIUS = 6378.137;
 
 	/**
-	 * String to Date
+	 * 将字符串日期传为时间date,默认是yyyy-MM-dd HH:mm:ss
+	* @Description: TODO
+	* @author weichengz
+	* @date 2020年4月10日 上午10:27:38
 	 */
-	public static Date stringToDate(String date) {
-		SimpleDateFormat format = new SimpleDateFormat(dateFormatMinute);
-		try {
-			return format.parse(date);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	/**
-	 * String to Date
-	 */
-	public static Date stringToDate(String date, String formatType) {
-		if (StringUtils.isNoneBlank(date)) {
-			SimpleDateFormat format = new SimpleDateFormat(formatType);
+	public static Date stringToDate(String date,String format) {
+		
+		if (StringUtils.isNotBlank(date)) {
+			if (StringUtils.isBlank(format)) {
+				format = timeFormat;
+			}
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
 			try {
-				Date date2 = format.parse(date);
-				return date2;
+				return simpleDateFormat.parse(date);
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
 		}
 		return null;
 	}
+
+	
 
 	/**
 	 * 将日期格式化为指定的字符串格式

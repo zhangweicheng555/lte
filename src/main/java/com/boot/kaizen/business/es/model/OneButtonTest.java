@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.baomidou.mybatisplus.annotations.TableName;
 import com.boot.kaizen.util.LngLatUtil;
 
 /**
@@ -12,6 +13,7 @@ import com.boot.kaizen.util.LngLatUtil;
  * @author weichengz
  * @date 2019年11月13日 上午9:23:36
  */
+@TableName("buss_es_log_onebuttontest")
 public class OneButtonTest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -45,7 +47,7 @@ public class OneButtonTest implements Serializable {
 	private String pci;// PCI
 	private String tac;// TAC
 
-	private Long testTimeQuery;// 测试时间查询字段使用
+	private Long testTimeQuery;// 测试时间查询字段使用  20200416暂时用不到
 	
 	
 	

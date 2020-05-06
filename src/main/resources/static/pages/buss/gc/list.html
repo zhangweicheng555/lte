@@ -23,7 +23,9 @@
 							<form class="form-inline" onsubmit="return false">
 								<div class="form-group">
 									厂商：
-									<input id="operatorService" name="operatorService" type="text"  style="width: 120px;" autocomplete="off"  class="form-control" >&nbsp;&nbsp;&nbsp;&nbsp; 
+									<input id="lte_firm" name="lte_firm" type="text"  style="width: 120px;" autocomplete="off"  class="form-control" >&nbsp;&nbsp;&nbsp;&nbsp; 
+									lte_ecgi:
+									<input id="lte_ecgi" name="lte_ecgi" type="text"  style="width: 120px;" autocomplete="off"  class="form-control" >&nbsp;&nbsp;&nbsp;&nbsp; 
 
 									<button id="searchBt" class="layui-btn layui-btn-sm">
 										<i class="layui-icon">&#xe615;</i>搜索
@@ -98,6 +100,7 @@
 	      {field:'pk', width:'2%', title: 'ID', sort: true,type:'checkbox'}
 	      ,{title: '序号',width:100,templet: '#indexTpl',align:'center'}
 	      ,{field:'lte_city_name',   width:200, title: '城市',align:'center'}
+	      ,{field:'lte_site_name',   width:200, title: '小区名',align:'center'}
 	      ,{field:'lte_firm',   width:200, title: '厂商',align:'center'}
 	      ,{field:'lte_grid',  width:200, title: '网格归属',align:'center'}
 	      ,{field:'lte_azimuth', width:200, title: '方位角',align:'center'}
@@ -266,13 +269,14 @@
 	  }
 });
 
+
 	
 	 function fresh(){
 		  table.reload('infolist'
 				  ,{where:{
 				    	    "index":"simgc",
 				    	    "type":"simgc",
-				    	    "termMap":{"lte_firm.keyword":$("#operatorService").val()}
+				    	    "termMap":{"lte_firm.keyword":$("#lte_firm").val(),"lte_ecgi.keyword":$("#lte_ecgi").val()}
 						   }
 				   ,page: {curr: 1}
 		           }

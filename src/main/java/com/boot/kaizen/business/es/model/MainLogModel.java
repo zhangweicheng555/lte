@@ -1,11 +1,10 @@
 package com.boot.kaizen.business.es.model;
-
 import java.util.ArrayList;
 import java.util.Date;
-
 import com.boot.kaizen.business.es.model.logModel.MSignaBean;
 import com.boot.kaizen.business.es.model.logModel.MSignaEventBean;
 import com.boot.kaizen.business.es.model.logModel.OurDoorDataInfoBean;
+import com.boot.kaizen.business.es.model.logModel.ProIndicatorsSimple;
 import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
 import com.boot.kaizen.util.MyDateUtil;
 
@@ -25,9 +24,9 @@ public class MainLogModel {
 	private String sinr;
 	private String rsrp;
 	private String cellName;
-	
-	private String cI;//这个代替日志里面的eCI
-	
+
+	private String cI;// 这个代替日志里面的eCI
+
 	private String cELLID;
 	private String netWorkType;
 	private String tAC;
@@ -35,13 +34,13 @@ public class MainLogModel {
 	private String sPEED;
 	private String downLoadSpeed;
 	private String upLoadSpeed;
-	
+
 	private String normalEventType;// 业务事件正常类型
 	private String abNormalEventType;// 业务事件异常类型
-	
-	//这个删除了
+
+	// 这个删除了
 	private int eventType;// 事件，0没有，1http失败，2ping失败，3ftp连接失败，4ftp掉线，5语音未接通，6语音掉线
-	
+
 	private String siteLat;
 	private String siteLng;
 	private int angle;// 角度
@@ -57,8 +56,28 @@ public class MainLogModel {
 	private ArrayList<MSignaBean> mSignaBean;// 一秒钟信令
 
 	private String formatTimestamp;// 格式化得日期 自定义
+
+	private String rootSupport;// 是否root
 	
+	private ProIndicatorsSimple proIndicators;//
 	
+
+	public ProIndicatorsSimple getProIndicators() {
+		return proIndicators;
+	}
+
+	public void setProIndicators(ProIndicatorsSimple proIndicators) {
+		this.proIndicators = proIndicators;
+	}
+
+	public String getRootSupport() {
+		return rootSupport;
+	}
+
+	public void setRootSupport(String rootSupport) {
+		this.rootSupport = rootSupport;
+	}
+
 	public String getFormatTimestamp() {
 		return formatTimestamp;
 	}
@@ -66,8 +85,6 @@ public class MainLogModel {
 	public void setFormatTimestamp(String formatTimestamp) {
 		this.formatTimestamp = formatTimestamp;
 	}
-
-	
 
 	public String getPid() {
 		return pid;
@@ -132,16 +149,16 @@ public class MainLogModel {
 	}
 
 	public MainLogModel(SignalDataBean signalDataBean) {
-		this.formatTimestamp=signalDataBean.getTestTime();
+		this.formatTimestamp = signalDataBean.getTestTime();
 		ArrayList<MSignaBean> getmSignaBean = signalDataBean.getmSignaBean();
 		// 处理事件格式化得问题
 		this.mSignaBean = getmSignaBean;
 
-		this.formatTimestamp=signalDataBean.getTestTime();
-		
+		this.formatTimestamp = signalDataBean.getTestTime();
+
 		// 处理事件
 		ArrayList<MSignaEventBean> getmSignaEventBean = signalDataBean.getmSignaEventBean();
-		
+
 		this.mSignaEventBean = getmSignaEventBean;
 
 		Long timeFormat = null;
@@ -175,6 +192,9 @@ public class MainLogModel {
 		this.testTime = timeFormat;
 		this.ftpType = signalDataBean.getFtpType();
 		this.doorDataInfoBeans = signalDataBean.getDoorDataInfoBeans();
+
+		this.rootSupport = signalDataBean.getRootSupport() + "";// 新增是否root字段
+		this.proIndicators=new ProIndicatorsSimple(signalDataBean.getProIndicators());
 	}
 
 	public String getId() {
@@ -217,8 +237,6 @@ public class MainLogModel {
 		this.rsrp = rsrp;
 	}
 
-	
-
 	public String getCellName() {
 		return cellName;
 	}
@@ -227,7 +245,6 @@ public class MainLogModel {
 		this.cellName = cellName;
 	}
 
-	
 	public String getcI() {
 		return cI;
 	}
@@ -235,8 +252,6 @@ public class MainLogModel {
 	public void setcI(String cI) {
 		this.cI = cI;
 	}
-
-	
 
 	public String getcELLID() {
 		return cELLID;
@@ -254,8 +269,6 @@ public class MainLogModel {
 		this.eNB = eNB;
 	}
 
-
-
 	public String gettAC() {
 		return tAC;
 	}
@@ -263,9 +276,6 @@ public class MainLogModel {
 	public void settAC(String tAC) {
 		this.tAC = tAC;
 	}
-
-	
-
 
 	public String getsPEED() {
 		return sPEED;
@@ -404,7 +414,6 @@ public class MainLogModel {
 		this.doorDataInfoBeans = doorDataInfoBeans;
 	}
 
-	
 	public MainLogModel(String pid, String id, String latitude, String longitude, String sinr, String rsrp,
 			String cellName, String cI, String cELLID, String netWorkType, String tAC, String eNB, String sPEED,
 			String downLoadSpeed, String upLoadSpeed, String normalEventType, String abNormalEventType, int eventType,
@@ -461,7 +470,5 @@ public class MainLogModel {
 	public void setNetWorkType(String netWorkType) {
 		this.netWorkType = netWorkType;
 	}
-
-
 
 }

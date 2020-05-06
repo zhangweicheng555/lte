@@ -92,7 +92,7 @@ public class GcModel extends CommonModel implements Serializable {
 				commonModel.getLte_electronic_downdip(), commonModel.getLte_total_downdip(), commonModel.getLte_tac(),
 				commonModel.getLte_sys(), commonModel.getLte_site_type(), commonModel.getLte_earfcn(),
 				commonModel.getLte_derrick_type(), commonModel.getLte_address(), commonModel.getLte_scene(),
-				commonModel.getLte_grid(), commonModel.getLte_firm());
+				commonModel.getLte_grid(), commonModel.getLte_firm(),commonModel.getLte_site_name());
 		// this.location = location;
 		// this.cityId = cityId;
 		dealLocation();// 处理经纬度

@@ -295,12 +295,14 @@
 				
 				
 		<dependency>
-    <groupId>org.locationtech.proj4j</groupId>
-    <artifactId>proj4j</artifactId>
-    <version>1.1.0</version>
-</dependency>
+		    <groupId>org.locationtech.proj4j</groupId>
+		    <artifactId>proj4j</artifactId>
+		    <version>1.1.0</version>
+		</dependency>
 
-						
+					
+					
+											
 		
 	</dependencies>
 

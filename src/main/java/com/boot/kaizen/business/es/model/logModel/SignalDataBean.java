@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.boot.kaizen.util.LngLatUtil;
 
 /**
- * 室外测试日志的格式 实体类
+ * 室外测试日志的格式 实体类 /这个只接受不存储
  * 
  * @author weichengz
  * @date 2019年11月4日 下午2:42:53
@@ -57,6 +57,18 @@ public class SignalDataBean {
 	private PowerBean powerBean;//专业指标  1
 	private ZbBean zbBean;// 指标参数  1
 	private ProIndicators proIndicators;// 
+	
+	private int rootSupport=0;// 是否root  默认是0
+	
+	
+	
+	public int getRootSupport() {
+		return rootSupport;
+	}
+
+	public void setRootSupport(int rootSupport) {
+		this.rootSupport = rootSupport;
+	}
 
 	public String getPid() {
 		return pid;
@@ -407,7 +419,8 @@ public class SignalDataBean {
 			int eventType, String siteLat, String siteLng, int angle, String pci, String earfcn, String testTime,
 			int ftpType, OurDoorDataInfoBean doorDataInfoBeans, ArrayList<MSignaEventBean> mSignaEventBean,
 			ArrayList<MSignaBean> mSignaBean, PingzbBean pingzbBean, HttpzbBean httpzbBean, FtpzbBean ftpzbBean,
-			YyzbBean yyzbbean, WxzbBean wxzbBean, PowerBean powerBean, ZbBean zbBean, ProIndicators proIndicators) {
+			YyzbBean yyzbbean, WxzbBean wxzbBean, PowerBean powerBean, ZbBean zbBean, ProIndicators proIndicators,
+			int rootSupport) {
 		super();
 		this.pid = pid;
 		this.id = id;
@@ -446,6 +459,7 @@ public class SignalDataBean {
 		this.powerBean = powerBean;
 		this.zbBean = zbBean;
 		this.proIndicators = proIndicators;
+		this.rootSupport = rootSupport;
 	}
 
 	public void dealLngLatBdToWgs84() {

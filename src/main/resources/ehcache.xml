@@ -30,8 +30,8 @@
      <!-- 接口2使用 -->
     <cache name="queryPeopleNumByTimeRange"
            eternal="false"
-           timeToIdleSeconds="3600"
-           timeToLiveSeconds="3600"
+           timeToIdleSeconds="1200"
+           timeToLiveSeconds="1200"
            maxEntriesLocalHeap="10000"
            maxEntriesLocalDisk="1000"
            diskSpoolBufferSizeMB="30"
