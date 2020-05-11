@@ -1,12 +1,6 @@
-package com.boot.kaizen.business.es.model.fiveg;
+package com.boot.kaizen.business.buss.model.fiveg;
 
 import java.io.Serializable;
-import com.boot.kaizen.business.es.model.fiveg.model.FootFtpzbBean;
-import com.boot.kaizen.business.es.model.fiveg.model.FootHttpzbBean;
-import com.boot.kaizen.business.es.model.fiveg.model.FootLtewxzbBean;
-import com.boot.kaizen.business.es.model.fiveg.model.FootNrwxzbBean;
-import com.boot.kaizen.business.es.model.fiveg.model.FootPingzbBean;
-import com.boot.kaizen.business.es.model.fiveg.model.FootYyzbBean;
 
 /**
  * log底部信息

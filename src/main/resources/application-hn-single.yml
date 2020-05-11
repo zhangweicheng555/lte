@@ -5,7 +5,7 @@ spring:
       config: classpath:ehcache.xml
   datasource: 
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://172.16.207.85:3306/kaizenlog?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8
+    url: jdbc:mysql://172.16.207.83:3306/kaizenlog?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8
     username: root
     password: 123456
     druid:
@@ -91,8 +91,8 @@ pagehelper:
   
       
 files:
-#  path: ${file-path:d:/kaizen/doc}     #所有文件存储的根路径
-  path: ${file-path:/kaizen/doc}     #所有文件存储的根路径
+  path: ${file-path:d:/kaizen/doc}     #所有文件存储的根路径
+#  path: ${file-path:/kaizen/doc}     #所有文件存储的根路径
   
 
 logging:

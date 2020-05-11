@@ -41,7 +41,6 @@ public class EsBussService implements IEsBussService {
 	@Cacheable(value = "queryPeopleNumByTimeRange", key = "#pid")
 	@Override
 	public List<Map<String, Object>> queryMainLog(String pid, QueryParamData queryParamData) {
-		System.out.println("-----------------------------加载数据开始-----------------------------------");
 		return Esutil.scrollQuery(queryParamData);
 	}
 

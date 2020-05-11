@@ -1,6 +1,4 @@
 package com.boot.kaizen.business.es.controller;
-
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -137,6 +135,7 @@ public class EsBusssController {
 	public TableResultUtil analyzeLteAllAndComplete(@RequestBody QueryParamData queryParamData) {
 
 		Map<String, Object> clearMapEmptyVal = MyUtil.clearMapEmptyValRemoveKeyword(queryParamData.getTermMap());
+		clearMapEmptyVal.put("logType", "0");
 
 		LoginUser loginUser = UserUtil.getLoginUser();
 		if (loginUser == null) {
@@ -302,7 +301,7 @@ public class EsBusssController {
 			// csv处理代码
 			ServletOutputStream csvResult = response.getOutputStream();
 			response.setContentType("multipart/form-data");
-			response.setCharacterEncoding("utf-8");
+			//response.setCharacterEncoding("utf-8");
 			response.setHeader("Content-disposition",
 					"attachment;filename=" + URLUtil.encode(fileName, StringUtil.UTF8) + ".csv");
 			String[] head = new String[] { "时间", "手机型号", "运营商", "MCC", "MNC", "网络类型", "经度", "纬度", "速度", "高度", "应用层事件",
@@ -787,7 +786,9 @@ public class EsBusssController {
 		List<OutHomeLogModel> outHomeLogModels = new ArrayList<>();
 
 		if (StringUtils.isBlank(ids)) {// 查询全部
-			outHomeLogModels = outHomeService.selectByMap(new HashMap<>());
+			Map<String, Object> paramMap=new HashMap<>();
+			paramMap.put("logType", "0");
+			outHomeLogModels = outHomeService.selectByMap(paramMap);
 		} else {
 			outHomeLogModels = outHomeService.selectBatchIds(Arrays.asList(ids.trim().split(",")));
 		}
@@ -1419,33 +1420,7 @@ public class EsBusssController {
 		return new JsonMsgUtil(true, "删出成功,共删出【" + deleteBatchNum + "】条数据", "");
 	}
 
-	/**
-	 * 根据es自己的主键删出
-	 * 
-	 * @Description: TODO
-	 * @author weichengz
-	 * @date 2019年11月13日 上午10:50:44
-	 */
-	@ResponseBody
-	@PostMapping(value = "/delete")
-	public JsonMsgUtil delete(@RequestParam("index") String index, @RequestParam("type") String type,
-			@RequestParam("ids") String ids) {
-		if (StringUtils.isNoneBlank(index) && StringUtils.isNoneBlank(type) && StringUtils.isNoneBlank(ids)) {
-			String[] idsArray = ids.trim().split(",");
-			for (String id : idsArray) {
-				Esutil.deleteByDocId(index, type, id);
-			}
-		} else {
-			return new JsonMsgUtil(false, "索引、类型、文档ids不能为空", "");
-		}
-
-		try {// 休息一秒 防止立马查询不起作用
-			Thread.sleep(800);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return new JsonMsgUtil(true, "删出成功", "");
-	}
+	
 
 	/**
 	 * 
@@ -1623,10 +1598,15 @@ public class EsBusssController {
 			String fileName, String filePath, String cityId, String isMsgEvent) {
 		OutHomeLogModel outHomeLogModel = new OutHomeLogModel(signalDataBeanFinal, beginTime);
 		outHomeLogModel.setCityId(cityId);
+		String netWorkType = outHomeLogModel.getNetWorkType();
+		if (StringUtils.isBlank(netWorkType)) {//默认是4G
+			outHomeLogModel.setNetWorkType("LTE");
+		}
 		outHomeLogModel.setIsMsgEvent(isMsgEvent);
 		outHomeLogModel.setFileName(fileName);
 		outHomeLogModel.setFileUpTime(new Date().getTime());// 文件上传日期
 		outHomeLogModel.setFilePath(filePath);
+		outHomeLogModel.setLogType("0");//原来4G的log模型
 		// 存储室外测试列表
 		outHomeService.insert(outHomeLogModel);
 	}
@@ -1662,4 +1642,34 @@ public class EsBusssController {
 		return isMsgEvent;
 	}
 
+	
+	
+	/**
+	 * 根据es自己的主键删出
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2019年11月13日 上午10:50:44
+	 */
+	@ResponseBody
+	@PostMapping(value = "/delete")
+	public JsonMsgUtil delete(@RequestParam("index") String index, @RequestParam("type") String type,
+			@RequestParam("ids") String ids) {
+		if (StringUtils.isNoneBlank(index) && StringUtils.isNoneBlank(type) && StringUtils.isNoneBlank(ids)) {
+			String[] idsArray = ids.trim().split(",");
+			for (String id : idsArray) {
+				Esutil.deleteByDocId(index, type, id);
+			}
+		} else {
+			return new JsonMsgUtil(false, "索引、类型、文档ids不能为空", "");
+		}
+
+		try {// 休息一秒 防止立马查询不起作用
+			Thread.sleep(800);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return new JsonMsgUtil(true, "删出成功", "");
+	}
+	
 }

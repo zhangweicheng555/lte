@@ -1,4 +1,4 @@
 spring:  
   profiles:
-    active: nokia
+    active: hn-single
   

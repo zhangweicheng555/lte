@@ -1,14 +1,14 @@
-package com.boot.kaizen.business.es.model.fiveg.model;
+package com.boot.kaizen.business.buss.model.fiveg;
 
 import java.io.Serializable;
 
 /**
- * http指标【对象】
+ * ping指标【对象】
  * 
  * @author weichengz
- * @date 2020年4月26日 上午10:17:42
+ * @date 2020年4月26日 上午10:16:16
  */
-public class FootHttpzbBean implements Serializable {
+public class FootPingzbBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -67,7 +67,7 @@ public class FootHttpzbBean implements Serializable {
 		this.pjsy = pjsy;
 	}
 
-	public FootHttpzbBean(String qqcs, String cgcs, String cgl, String zdsy, String zxsy, String pjsy) {
+	public FootPingzbBean(String qqcs, String cgcs, String cgl, String zdsy, String zxsy, String pjsy) {
 		super();
 		this.qqcs = qqcs;
 		this.cgcs = cgcs;
@@ -77,7 +77,7 @@ public class FootHttpzbBean implements Serializable {
 		this.pjsy = pjsy;
 	}
 
-	public FootHttpzbBean() {
+	public FootPingzbBean() {
 		super();
 	}
 

@@ -5,6 +5,8 @@ import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 
 import com.baomidou.mybatisplus.annotations.TableName;
+import com.boot.kaizen.business.buss.model.fiveg.FootLtewxzbBean;
+import com.boot.kaizen.business.buss.model.fiveg.LogFoot;
 import com.boot.kaizen.business.es.model.logModel.FtpzbBean;
 import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
 import com.boot.kaizen.business.es.model.logModel.WxzbBean;
@@ -27,7 +29,7 @@ public class OutHomeLogModel   extends SuperEntity<OutHomeLogModel> {
 	private Long fileUpTime;// 文件上传日期
 	private String filePath;// 文件路径 这个不导出
 	private String operatorService;// 运营商 无 【这个必须填写】
-	private String netWorkType;// 网络类型 netWorkType 【 这个必须填写 这个目前数据的LTE】
+	private String netWorkType="LTE";// 网络类型 netWorkType 【 这个必须填写 这个目前数据的LTE】/默认数LTE的    5G的则填写NR5G NSA
 	private String city;// 城市 无
 	private String county;// 地市 无
 	private String testPerson;// 测试人员 无
@@ -46,6 +48,75 @@ public class OutHomeLogModel   extends SuperEntity<OutHomeLogModel> {
 	// 新增20191224
 	private String cityId;// 新增地市id
 	private String isMsgEvent = "0";// 是否存在信令、事件 默认是0不存在
+	
+	private String logType="0";//默认是0   0的意思就是原来的4G分析的log   /  1是我们现在5G分析的log
+	
+
+	
+	public String getLogType() {
+		return logType;
+	}
+
+	public void setLogType(String logType) {
+		this.logType = logType;
+	}
+
+	public OutHomeLogModel(String fileName, Long fileUpTime, String filePath, String operatorService,
+			String netWorkType, String city, String county, String testPerson, String phoneType, String imsi,
+			String testTime, Long beginTime, Long endTime, String totalMileage, String coverPersent, String avgRsrp,
+			String avgSinr, String avgDownRate, String avgUpRate, String cityId, String isMsgEvent, String logType) {
+		super();
+		this.fileName = fileName;
+		this.fileUpTime = fileUpTime;
+		this.filePath = filePath;
+		this.operatorService = operatorService;
+		this.netWorkType = netWorkType;
+		this.city = city;
+		this.county = county;
+		this.testPerson = testPerson;
+		this.phoneType = phoneType;
+		this.imsi = imsi;
+		this.testTime = testTime;
+		this.beginTime = beginTime;
+		this.endTime = endTime;
+		this.totalMileage = totalMileage;
+		this.coverPersent = coverPersent;
+		this.avgRsrp = avgRsrp;
+		this.avgSinr = avgSinr;
+		this.avgDownRate = avgDownRate;
+		this.avgUpRate = avgUpRate;
+		this.cityId = cityId;
+		this.isMsgEvent = isMsgEvent;
+		this.logType = logType;
+	}
+
+	public OutHomeLogModel(String fileName, Long fileUpTime, String filePath, String operatorService,
+			String netWorkType, String city, String county, String testPerson, String phoneType, String imsi,
+			String testTime, Long beginTime, Long endTime, String totalMileage, String coverPersent, String avgRsrp,
+			String avgSinr, String avgDownRate, String avgUpRate, String cityId, String isMsgEvent) {
+		super();
+		this.fileName = fileName;
+		this.fileUpTime = fileUpTime;
+		this.filePath = filePath;
+		this.operatorService = operatorService;
+		this.netWorkType = netWorkType;
+		this.city = city;
+		this.county = county;
+		this.testPerson = testPerson;
+		this.phoneType = phoneType;
+		this.imsi = imsi;
+		this.testTime = testTime;
+		this.beginTime = beginTime;
+		this.endTime = endTime;
+		this.totalMileage = totalMileage;
+		this.coverPersent = coverPersent;
+		this.avgRsrp = avgRsrp;
+		this.avgSinr = avgSinr;
+		this.avgDownRate = avgDownRate;
+		this.avgUpRate = avgUpRate;
+		this.cityId = cityId;
+		this.isMsgEvent = isMsgEvent;
+	}
 
 	public OutHomeLogModel(String id, String fileName, Long fileUpTime, String filePath, String operatorService,
 			String netWorkType, String city, String county, String testPerson, String phoneType, String imsi,
@@ -139,13 +210,7 @@ public class OutHomeLogModel   extends SuperEntity<OutHomeLogModel> {
 		}
 	}
 
-/*	public String getId() {
-		return id;
-	}
 
-	public void setId(String id) {
-		this.id = id;
-	}*/
 
 	public String getFileName() {
 		return fileName;
@@ -319,6 +384,36 @@ public class OutHomeLogModel   extends SuperEntity<OutHomeLogModel> {
 
 	public OutHomeLogModel() {
 		super();
+	}
+
+	public OutHomeLogModel(LogFoot logFoot, String beginTime2,String endTime2) {
+		
+		
+		this.city = "";
+		this.county = "";
+		this.testPerson = "";
+		this.phoneType = "";
+		this.imsi = "";
+		
+		
+		if (StringUtils.isNoneBlank(beginTime2)) {
+			Date date = MyDateUtil.stringToDate(beginTime2, "yyyy-MM-dd HH:mm:ss");
+			this.beginTime = date.getTime();
+		}
+		if (StringUtils.isNoneBlank(endTime2)) {
+			Date date = MyDateUtil.stringToDate(endTime2, "yyyy-MM-dd HH:mm:ss");
+			this.endTime = date.getTime();
+		}
+		
+		if (logFoot !=null) {
+			FootLtewxzbBean ltewxzbBean = logFoot.getLtewxzbBean();
+			if (ltewxzbBean !=null) {
+				String cssc = ltewxzbBean.getCssc();
+				this.testTime = cssc;
+				this.totalMileage = ltewxzbBean.getZlc();
+				this.coverPersent = ltewxzbBean.getLcfgl();
+			}
+		}
 	}
 
 }

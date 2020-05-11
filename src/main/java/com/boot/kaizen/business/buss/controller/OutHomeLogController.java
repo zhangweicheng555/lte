@@ -13,4 +13,5 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/buss/outhome")
 public class OutHomeLogController {
 
+	
 }

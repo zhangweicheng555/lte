@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>工参管理</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../../layui/css/layui.css">
+<link rel="stylesheet" href="../../../css/font-awesome/css/font-awesome.css" media="all" />
+	
+</head>
+<body   style="margin-top: 10px;">
+<div>
+
+ 
+
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<!-- 搜索功能区域 -->
+		<header style="height: 100%">
+			<div align="left">
+				<table style="width: 100%">
+					<tr>
+						<td>
+							<form class="form-inline" onsubmit="return false">
+								<div class="form-group">
+									厂商：
+									<input id="lte_firm" name="lte_firm" type="text"  style="width: 120px;" autocomplete="off"  class="form-control" >&nbsp;&nbsp;&nbsp;&nbsp; 
+									lte_ecgi:
+									<input id="lte_ecgi" name="lte_ecgi" type="text"  style="width: 120px;" autocomplete="off"  class="form-control" >&nbsp;&nbsp;&nbsp;&nbsp; 
+
+									<button id="searchBt" class="layui-btn layui-btn-sm">
+										<i class="layui-icon">&#xe615;</i>搜索
+									</button>
+									
+									<button id="clearBt" class="layui-btn layui-btn-sm  layui-btn-danger" style="margin-left: 1px;">
+										<i class="layui-icon layui-icon-delete" style="font-size: 30px; color: white-space;"></i>清空
+									</button>
+									
+								</div>
+							</form>
+						</td>
+						
+						<td align="right">
+							<button id="freshBtnModel" class="layui-btn layui-btn-sm" style="margin-left: 1px;" >
+								  更新工参
+							</button>
+							<!-- <button id="chooseBtnModel" class="layui-btn layui-btn-sm layui-btn-danger" style="margin-left: 1px;" >
+								  勾选删出
+							</button> -->
+							<button id="deleteBatchBtnModel" class="layui-btn layui-btn-sm layui-btn-danger" style="margin-left: 1px;" >
+								  全部删出
+							</button>
+							
+						</td>
+					</tr>
+				</table>
+			</div>
+		</header>
+
+		<div>
+			<div class="widget-body no-padding">
+				<!-- 列表展示区域 -->
+				<table class="layui-hide" id="infolist" lay-filter="infolist"></table>
+			</div>
+		</div>
+		
+		
+	</div>
+</div>
+
+
+</body>
+</html>
+
+	<script type="text/javascript" src="../../../js/libs/jquery-2.1.1.min.js" ></script>
+	<script type="text/javascript" src="../../../layui/layui.js" ></script>
+	<script type="text/javascript" src="../../../js/jq.js"></script>
+	<script type="text/javascript" src="../../../js/common.js" charset="UTF-8"></script>
+
+	<script type="text/javascript">
+	var currData;
+	var checkArray=new Array();
+	var table;
+	layui.use([ 'layer' ,'table','laydate','jquery','common'], function() {
+	  var layer = layui.layer;
+	  var laydate = layui.laydate;
+	  var $=layui.$;
+	  var common = layui.common;
+	  
+	  table = layui.table;
+	  var tableIns=table.render({
+	    elem: '#infolist'    
+	    ,id:'infolist'
+	    ,url:'/es/buss/5g/querySimGc'  
+	    ,method:'post' 
+	    ,contentType:"application/json"
+	    ,where:{
+	    	"index":"simgc5g","type":"simgc5g"
+			   }
+	    ,cols: [[        
+	      {field:'pk', width:'2%', title: 'ID', sort: true,type:'checkbox'}
+	      ,{title: '序号',width:100,templet: '#indexTpl',align:'center'}
+	      ,{field:'lte_city_name',   width:200, title: '城市',align:'center'}
+	      ,{field:'lte_site_name',   width:200, title: '小区名',align:'center'}
+	      ,{field:'lte_firm',   width:200, title: '厂商',align:'center'}
+	      ,{field:'lte_grid',  width:200, title: '网格归属',align:'center'}
+	      ,{field:'lte_azimuth', width:200, title: '方位角',align:'center'}
+	      ,{field:'lte_cell', width:200, title: 'Cell',align:'center'}
+	      ,{field:'lte_ci', width:200, title: 'CI',align:'center'}
+	      ,{field:'lte_earfcn', width:200, title: 'EARFCN',align:'center'}
+	      ,{field:'lte_ecgi', width:200, title: 'lte_ecgi',align:'center'}
+	      ,{field:'lte_electronic_downdip', width:200, title: '电子倾角',align:'center'}
+	      ,{field:'lte_enodebid', width:200, title: 'eNodeBID',align:'center'}
+	      ,{field:'lte_longitude2', width:200, title: '经度',align:'center'}
+	      ,{field:'lte_latitude2', width:200, title: '纬度',align:'center'}
+	      ,{field:'lte_mechanical_downdip', width:200, title: '机械下倾角',align:'center'}
+	      
+	      ,{field:'lte_net', width:200, title: '网络',align:'center'}
+	      ,{field:'lte_phycellid', width:200, title: 'PhyCellId',align:'center'}
+	      ,{field:'lte_site_tall', width:200, title: '站高',align:'center'}
+	      ,{field:'lte_site_type', width:200, title: '站型',align:'center'}
+	      ,{field:'lte_tac', width:200, title: 'TAC',align:'center'}
+	      ,{field:'lte_sys', width:200, title: '制式',align:'center'}
+	      ,{field:'lte_total_downdip', width:200, title: '总下倾角',align:'center'}
+	      
+	      ,{field:'lte_sector_id', width:200, title: 'Sector ID',align:'center'}
+	      ,{field:'lte_derrick_type', width:200, title: '抱杆类型',align:'center'}
+	      ,{field:'lte_address', width:200, title: '详细地址',align:'center'}
+	      ,{field:'lte_scene', width:200, title: '场景归属',align:'center'}
+	    ]]
+	    ,page: true
+	    ,limit:10
+	    ,limits:[10,20,50,100,200,500,1000,2000,20000] 
+        ,loading:true
+        ,text: {
+            none: '无数据' 
+        }
+	    ,done: function(res, curr, count){
+	    	//layer.tips('搜索条件改变之后务必重新搜索', '#clearBt',{time:5000});
+	    	currData=res.data;
+	    	
+	    	//记忆选中的checkbox
+	    	for(var i=0;i<res.data.length;i++){
+                for(var j=0;j<checkArray.length;j++){
+                    if(res.data[i].pk==checkArray[j]){
+                        res.data[i]["LAY_CHECKED"]='true';
+                        var index= res.data[i]['LAY_TABLE_INDEX'];
+                        $('.layui-table tr[data-index=' + index + '] input[type="checkbox"]').prop('checked', true);
+                        $('.layui-table tr[data-index=' + index + '] input[type="checkbox"]').next().addClass('layui-form-checked');
+                    }
+                }
+            };
+	    }
+        ,height:'full'
+        ,cellMinWidth: 80
+		,size: 'sm'   
+	  });
+	  
+	  
+	  
+	  /**搜索*/
+	  $("#searchBt").click(function(){
+		  fresh();
+	  });
+	  
+	  
+	  /**更新工参*/
+	  $("#freshBtnModel").click(function(){
+		  parent.layer.confirm('更新数据加载时间可能较长，耐心等待', {icon: 3, title:'确定要更新吗？'}, function(index){
+			  common.showLoadingDialog();
+			    $.ajax({
+					   type: "POST",url: "/es/buss/5g/freshSimGc",data: {"index":"simgc5g","type":"simgc5g","netId":"4"},dataType:"json",
+					   success: function(msg){
+						 console.info(msg);
+						 common.closeLoadingDialog();
+					     if(msg.success){
+					    	 parent.layer.msg(""+msg.message);
+					     }else{
+					    	 layer.msg('删出数据异常：'+msg.message);
+					     }
+					     fresh();
+					   }
+				});
+		      parent.layer.close(index);
+			});
+		  
+	  });
+	 
+	  
+	  //currData  checkArray  监听checkbox  选中取消事件
+	  table.on('checkbox', function(obj){
+		 var checkStatus = table.checkStatus('infolist');
+		 var rows=checkStatus.data;
+		  if(obj.checked==true){//选中事件
+			  var nowCheckArray=new Array();
+			  for(var i=0;i<rows.length;i++){//处理选中
+	 				 if($.inArray(rows[i].pk,checkArray)<0){
+	 					checkArray.push(rows[i].pk);
+	 				 }
+	 				nowCheckArray.push(rows[i].pk);
+				  }
+	 			 if(currData.length>0){//处理当前页的所有数据
+	 				for(var i=0;i<currData.length;i++){
+	 					if($.inArray(currData[i].pk,nowCheckArray)<0){
+	 						if($.inArray(currData[i].pk,checkArray)>=0){
+	 							checkArray.splice($.inArray(currData[i].pk,checkArray), 1);
+	 	 	 				 }
+	 	 				 }
+	 				}
+	 			 }
+		  }else{//删除事件
+			  if(rows.length==0){
+				  for(var i=0;i<currData.length;i++){
+ 						if($.inArray(currData[i].pk,checkArray)>=0){
+ 							checkArray.splice($.inArray(currData[i].pk,checkArray), 1);
+ 	 	 				 }
+	 				}
+			  }else{
+				  var nowCheckArray=new Array();
+				  for(var i=0;i<rows.length;i++){//处理选中
+		 				 if($.inArray(rows[i].pk,checkArray)<0){
+		 					checkArray.push(rows[i].pk);
+		 				 }
+		 				nowCheckArray.push(rows[i].pk);
+					  }
+		 			 if(currData.length>0){//处理当前页的所有数据
+		 				for(var i=0;i<currData.length;i++){
+		 					if($.inArray(currData[i].pk,nowCheckArray)<0){
+		 						if($.inArray(currData[i].pk,checkArray)>=0){
+		 							checkArray.splice($.inArray(currData[i].pk,checkArray), 1);
+		 	 	 				 }
+		 	 				 }
+		 				}
+		 			 }
+			  }
+		  }
+	});
+	  
+	  /**清空*/
+	  $("#clearBt").click(function(){
+		  $("#operatorService").val("");
+		  fresh();
+	  });
+	  //全部删出
+	  $("#deleteBatchBtnModel").click(function(){
+		  parent.layer.confirm('全部删出时间可能较长，耐心等待', {icon: 3, title:'确定删出?'}, function(index){
+			  common.showLoadingDialog();
+			    $.ajax({
+					   type: "POST",url: "/es/buss/deleteBatchByCity",data: '{"index":"simgc5g","type":"simgc5g"}',dataType:"json",contentType:"application/json",
+					   success: function(msg){
+						   common.closeLoadingDialog();
+					     if(msg.success){
+					    	 parent.layer.msg("success:"+msg.message);
+					    	 fresh();
+					     }else{
+					    	 layer.msg('删出数据异常：'+msg.message);
+					     }
+					     fresh();
+					   }
+				});
+		      parent.layer.close(index);
+			});
+	  });
+	  
+	  
+	  /**只删除行 无刷新*/
+	  function deleteRow(obj){
+		  obj.del();
+		  fresh();
+	  }
+});
+
+
+	
+	 function fresh(){
+		  table.reload('infolist'
+				  ,{where:{
+				    	    "index":"simgc5g",
+				    	    "type":"simgc5g",
+				    	    "termMap":{"lte_firm.keyword":$("#lte_firm").val(),"lte_ecgi.keyword":$("#lte_ecgi").val()}
+						   }
+				   ,page: {curr: 1}
+		           }
+		  );
+	  }
+	
+
+</script>
+
+
+
+
+
+<script type="text/html" id="indexTpl">
+    {{d.LAY_TABLE_INDEX+1}}
+</script>

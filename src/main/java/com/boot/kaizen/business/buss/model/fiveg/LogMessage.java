@@ -1,4 +1,4 @@
-package com.boot.kaizen.business.es.model.fiveg;
+package com.boot.kaizen.business.buss.model.fiveg;
 
 import java.io.Serializable;
 
