@@ -277,7 +277,7 @@ public class EsBusssController {
 	 * @date 2020年4月10日 上午11:03:25
 	 */
 	@ResponseBody
-	@PostMapping(value = "/exportOutHomeCsv")
+	@RequestMapping(value = "/exportOutHomeCsv",method= {RequestMethod.GET,RequestMethod.POST})
 	public void exportOutHomeCsv(HttpServletResponse response, @RequestParam(value = "id") String id)
 			throws IOException {
 
@@ -317,7 +317,7 @@ public class EsBusssController {
 			List<Object[]> result = new ArrayList<>();
 
 			BufferedReader bufferedReader = null;
-			bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+			bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file),"UTF-8"));
 			String str = null;// 文件里面一行记录
 			while ((str = bufferedReader.readLine()) != null) {
 				SignalDataBean signalDataBean = JSONObject.parseObject(str, SignalDataBean.class);

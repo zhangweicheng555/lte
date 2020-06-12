@@ -134,7 +134,7 @@
 	    ,done: function(res){//上传完毕回调  返回的json格式  如果上传后，出现文件下载框（一般为ie下），那么你需要在服务端对response的header设置 Content-Type: text/html
 	    	parent.layer.closeAll('loading'); //关闭loading
 	    	if(res.success){
-	    		location.href = "/pages/buss/outhometest/list.html";
+	    		location.href = "/pages/buss/outhometest/list5g.html";
 	    		 $("#uploadBackMsg").text("上传成功");
 	    		 parent.layer.msg("上传成功");
 	    	}else{

@@ -1,6 +1,7 @@
 package com.boot.kaizen.business.buss.model.fiveg;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import com.boot.kaizen.business.buss.model.fiveg.model.LteDataInfoBean;
 import com.boot.kaizen.business.buss.model.fiveg.model.NrDataInfoBean;
@@ -10,6 +11,7 @@ import com.boot.kaizen.business.buss.model.fiveg.model.ProLteDataInfoBean;
 import com.boot.kaizen.business.buss.model.fiveg.model.ProNrDataInfoBean;
 import com.boot.kaizen.business.buss.model.fiveg.model.SignalBean;
 import com.boot.kaizen.business.buss.model.fiveg.model.SignalEventBean;
+import com.boot.kaizen.util.MyDateUtil;
 
 /**
  * 写入es的5G LOG处理的实体类
@@ -61,6 +63,57 @@ public class FiveLogMain implements Serializable {
 	private List<SignalBean> signalBeans;
 
 	
+	private Long testTimeMill;// 当前时间的时间戳，提供排序使用
+	
+	
+	
+	public FiveLogMain(String pid, String id, String logversion, String dualSimSupport, String operatorCompareSupport,
+			String rootSupport, String phone, String operator, String operator_y, String latitude, String longitude,
+			String speed, String height, String testTime, String downLoadSpeed, String upLoadSpeed,
+			String normalEventType, String abNormalEventType, String rsrp, String sinr, String ssrsrp, String sssinr,
+			NrDataInfoBean nrDataInfoBean, LteDataInfoBean lteDataInfoBean, ProNrDataInfoBean proNrDataInfoBean,
+			ProLteDataInfoBean proLteDataInfoBeans, List<SignalEventBean> signalEventBeans,
+			List<SignalBean> signalBeans, Long testTimeMill) {
+		super();
+		this.pid = pid;
+		this.id = id;
+		this.logversion = logversion;
+		this.dualSimSupport = dualSimSupport;
+		this.operatorCompareSupport = operatorCompareSupport;
+		this.rootSupport = rootSupport;
+		this.phone = phone;
+		this.operator = operator;
+		this.operator_y = operator_y;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.speed = speed;
+		this.height = height;
+		this.testTime = testTime;
+		this.downLoadSpeed = downLoadSpeed;
+		this.upLoadSpeed = upLoadSpeed;
+		this.normalEventType = normalEventType;
+		this.abNormalEventType = abNormalEventType;
+		this.rsrp = rsrp;
+		this.sinr = sinr;
+		this.ssrsrp = ssrsrp;
+		this.sssinr = sssinr;
+		this.nrDataInfoBean = nrDataInfoBean;
+		this.lteDataInfoBean = lteDataInfoBean;
+		this.proNrDataInfoBean = proNrDataInfoBean;
+		this.proLteDataInfoBeans = proLteDataInfoBeans;
+		this.signalEventBeans = signalEventBeans;
+		this.signalBeans = signalBeans;
+		this.testTimeMill = testTimeMill;
+	}
+
+	public Long getTestTimeMill() {
+		return testTimeMill;
+	}
+
+	public void setTestTimeMill(Long testTimeMill) {
+		this.testTimeMill = testTimeMill;
+	}
+
 	public String getPid() {
 		return pid;
 	}
@@ -347,6 +400,13 @@ public class FiveLogMain implements Serializable {
 		this.speed = nrLogBodyBean.getSpeed();
 		this.height = nrLogBodyBean.getHeight();
 		this.testTime = nrLogBodyBean.getTestTime();
+		
+		this.testTimeMill=0L;
+		Date date = MyDateUtil.stringToDate(nrLogBodyBean.getTestTime(), "yyyy-MM-dd HH:mm:ss");
+		if (date != null) {
+			this.testTimeMill = date.getTime();
+		}
+		
 		this.downLoadSpeed = nrLogBodyBean.getDownLoadSpeed();
 		this.upLoadSpeed = nrLogBodyBean.getUpLoadSpeed();
 		this.normalEventType = nrLogBodyBean.getNormalEventType()+"";

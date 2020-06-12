@@ -2,19 +2,23 @@ package com.boot.kaizen.business.es.controller;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.util.StringUtil;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -38,10 +42,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSONObject;
+import com.boot.kaizen.business.buss.model.LogAnaLyze;
 import com.boot.kaizen.business.buss.model.fiveg.FiveLogMain;
 import com.boot.kaizen.business.buss.model.fiveg.FootFtpzbBean;
+import com.boot.kaizen.business.buss.model.fiveg.FootHttpzbBean;
 import com.boot.kaizen.business.buss.model.fiveg.FootLtewxzbBean;
 import com.boot.kaizen.business.buss.model.fiveg.FootNrwxzbBean;
+import com.boot.kaizen.business.buss.model.fiveg.FootPingzbBean;
+import com.boot.kaizen.business.buss.model.fiveg.FootYyzbBean;
 import com.boot.kaizen.business.buss.model.fiveg.LogFoot;
 import com.boot.kaizen.business.buss.model.fiveg.model.LteDataInfoBean;
 import com.boot.kaizen.business.buss.model.fiveg.model.LteNeighborhoodInfo;
@@ -54,9 +62,14 @@ import com.boot.kaizen.business.buss.model.fiveg.model.ProLteNeighborhoodInfo;
 import com.boot.kaizen.business.buss.model.fiveg.model.ProNrDataInfoBean;
 import com.boot.kaizen.business.buss.model.fiveg.model.ProNrNeighborhoodInfo;
 import com.boot.kaizen.business.buss.model.fiveg.model.SignalBean;
+import com.boot.kaizen.business.buss.model.fiveg.model.SignalEventBean;
 import com.boot.kaizen.business.buss.service.IOutHomeService;
 import com.boot.kaizen.business.es.model.OutHomeLogModel;
 import com.boot.kaizen.business.es.model.QueryParamData;
+import com.boot.kaizen.business.es.model.logModel.HttpzbBean;
+import com.boot.kaizen.business.es.model.logModel.PingzbBean;
+import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
+import com.boot.kaizen.business.es.model.logModel.YyzbBean;
 import com.boot.kaizen.business.es.model.sim.CommonModel;
 import com.boot.kaizen.business.es.model.sim.GcModel;
 import com.boot.kaizen.business.es.model.sim.ResultModel;
@@ -68,6 +81,7 @@ import com.boot.kaizen.entity.RequestParamEntity;
 import com.boot.kaizen.model.SysProject;
 import com.boot.kaizen.service.SysProjectService;
 import com.boot.kaizen.util.AEStest;
+import com.boot.kaizen.util.CsvUtils;
 import com.boot.kaizen.util.FileUtil;
 import com.boot.kaizen.util.GeoLngLatUtil;
 import com.boot.kaizen.util.HttpUtil;
@@ -79,6 +93,8 @@ import com.boot.kaizen.util.UserUtil;
 import com.github.pagehelper.ISelect;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+
+import cn.hutool.core.util.URLUtil;
 
 /**
  * ES 业务控制层,5glog控制层
@@ -145,11 +161,10 @@ public class EsFiveBusssController {
 			String beginTime = null;
 			String endTime = null;
 			LogFoot logFoot = null;
+			List<LogAnaLyze> logAnaLyzes = new ArrayList<>();// 存储Log分析信息
 
 			while ((str = bufferedReader.readLine()) != null) {
-
 				String id = MyUtil.getUuid();// 每个mainLog的主键
-
 				if (num == 0) {// 第一行的处理方式
 					nrLogHeadBean = JSONObject.parseObject(str, NrLogHeadBean.class);
 					// 校验头部的信息 不正确直接抛异常
@@ -161,14 +176,13 @@ public class EsFiveBusssController {
 							|| str.contains("nrwxzbBean") || str.contains("ltewxzbBean") || str.contains("yyzbBean")) {
 						// 存储文件
 						String fileStorePath = FileUtil.upFileNew(file, filesCommonPath, "outhomelog");
-
 						logFoot = JSONObject.parseObject(str, LogFoot.class);
-
 						// 处理最后一条记录的 就是 室外测试 列表
 						handleOutHomeTest(logFoot, request, beginTime,
 								FileUtil.getFilenameByOriginal(file.getOriginalFilename()), fileStorePath,
-								sysProject.getId() + "", nrLogHeadBean, endTime);
-
+								sysProject.getId() + "", nrLogHeadBean, endTime, outHomeTestId);
+						// 处理统计分析记录
+						finalAnalyzeLogData(logAnaLyzes, logFoot, outHomeTestId);
 					} else {// 其他行
 						nrLogBodyBean = JSONObject.parseObject(str, NrLogBodyBean.class);
 						if (nrLogBodyBean != null) {
@@ -178,21 +192,19 @@ public class EsFiveBusssController {
 								num++;
 							}
 							endTime = nrLogBodyBean.getTestTime();
-
 							// 先将百度经纬度转为wgs84
 							nrLogBodyBean.dealLngLatBdToWgs84();
-
 							nrLogBodyBean.setPid(outHomeTestId);// 室外测试的主键id
 							nrLogBodyBean.setId(id);/** 赋值 注意这个很重要 一定要先赋值 */
-
 							// 信令 大字段信息表得 存储
 							handleMsgInfoField(nrLogBodyBean, request);
-
 							// 主表信息转移
 							IndexRequest indexRequestMain = new IndexRequest("logmain5g", "logmain5g", id);
 							FiveLogMain mainLogModel = new FiveLogMain(nrLogBodyBean, nrLogHeadBean);
 							indexRequestMain.source(JSONObject.toJSONString(mainLogModel), XContentType.JSON);
 							request.add(indexRequestMain);
+							// 添加日志分析信息
+							addLogAnalyzeInfo(logAnaLyzes, nrLogBodyBean,nrLogHeadBean);
 						}
 					}
 				}
@@ -206,6 +218,97 @@ public class EsFiveBusssController {
 		}
 		return new JsonMsgUtil(true, "导入成功", "");
 	}
+
+	/**
+	 * 
+	* @Description: 处理统计分析最后模块
+	* @author weichengz
+	* @date 2020年5月22日 下午2:27:31
+	 */
+	private void finalAnalyzeLogData(List<LogAnaLyze> logAnaLyzes, LogFoot logFoot, String outHomeTestId) {
+		if (logAnaLyzes != null && logAnaLyzes.size() > 0) {
+			LogAnaLyze logAnaLyze = logAnaLyzes.get(0);
+			if (logFoot != null) {
+
+				logAnaLyze.setUniqueRecord(MyUtil.getUuid());// UUID
+				logAnaLyze.setFinalLogData(JSONObject.toJSONString(logFoot));
+
+				FootYyzbBean yyzbBean = logFoot.getYyzbBean();
+				if (yyzbBean != null) {
+					logAnaLyze.setZjcs(formatStringToDouble(yyzbBean.getZjcs()));
+					logAnaLyze.setDhcs(formatStringToDouble(yyzbBean.getDhcs()));
+					logAnaLyze.setWjtcs(logAnaLyze.getZjcs()-logAnaLyze.getDhcs()-formatStringToDouble(yyzbBean.getJtcs()));
+					logAnaLyze.setZhcs(logAnaLyze.getZjcs() - logAnaLyze.getWjtcs() - logAnaLyze.getDhcs());
+				}
+
+				FootPingzbBean pingzbBean = logFoot.getPingzbBean();
+				if (pingzbBean != null) {
+					logAnaLyze.setPingQqcs(formatStringToDouble(pingzbBean.getQqcs()));
+					logAnaLyze.setPingCgch(formatStringToDouble(pingzbBean.getCgcs()));
+					logAnaLyze.setPingSbch(logAnaLyze.getPingQqcs() - logAnaLyze.getPingCgch());
+				}
+
+				FootHttpzbBean httpzbBean = logFoot.getHttpzbBean();
+				if (httpzbBean != null) {
+					logAnaLyze.setHttpQqcs(formatStringToDouble(httpzbBean.getQqcs()));
+					logAnaLyze.setHttpCgch(formatStringToDouble(httpzbBean.getCgcs()));
+					logAnaLyze.setHttpSbch(logAnaLyze.getHttpQqcs() - logAnaLyze.getHttpCgch());
+				}
+			}
+		}
+	}
+
+	/**
+	 * 室外测试统计分析部分的统计
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2020年5月21日 下午4:10:55
+	 */
+	private void addLogAnalyzeInfo(List<LogAnaLyze> logAnaLyzes, NrLogBodyBean nrLogBodyBean,NrLogHeadBean nrLogHeadBean) {
+		LogAnaLyze model = new LogAnaLyze();
+		model.setDownLoadSpeed(formatStringToDouble(nrLogBodyBean.getDownLoadSpeed()));
+		model.setUpLoadSpeed(formatStringToDouble(nrLogBodyBean.getUpLoadSpeed()));
+		model.setPid(nrLogBodyBean.getPid());
+		int rootSupport = nrLogHeadBean.getRootSupport();
+		model.setCreateTime(new Date());
+		model.setSinr(0D);
+		model.setRsrp(0D);
+		if (0==rootSupport) {//非root
+			LteDataInfoBean lteDataInfoBean = nrLogBodyBean.getLteDataInfoBean();
+			if (lteDataInfoBean !=null) {
+				model.setSinr(formatStringToDouble(lteDataInfoBean.getLteSINR()));
+				model.setRsrp(formatStringToDouble(lteDataInfoBean.getLteRSRP()));
+			}
+		}else {//root的
+			ProLteDataInfoBean proLteDataInfoBeans = nrLogBodyBean.getProLteDataInfoBeans();
+			if (proLteDataInfoBeans != null) {
+				model.setSinr(formatStringToDouble(proLteDataInfoBeans.getServingCellPccSinr()));
+				model.setRsrp(formatStringToDouble(proLteDataInfoBeans.getServingCellPccRsrp()));
+			}
+		}
+		logAnaLyzes.add(model);
+		
+	}
+
+	
+
+	private Double formatStringToDouble(String sinr) {
+		if (StringUtils.isNotBlank(sinr)) {
+			try {
+				if (Double.valueOf(sinr) != null) {
+					return Double.valueOf(sinr);
+				}
+			} catch (Exception e) {
+				return 0D;
+			}
+		} else {
+			return 0D;
+		}
+		return 0D;
+	}
+
+
 
 	/**
 	 * 
@@ -231,9 +334,10 @@ public class EsFiveBusssController {
 	 * @date 2019年11月11日 上午10:25:31
 	 */
 	private void handleOutHomeTest(LogFoot logFoot, BulkRequest request, String beginTime, String fileName,
-			String filePath, String cityId, NrLogHeadBean nrLogHeadBean, String endTime) {
+			String filePath, String cityId, NrLogHeadBean nrLogHeadBean, String endTime, String outHomeTestId) {
 		OutHomeLogModel outHomeLogModel = new OutHomeLogModel(logFoot, beginTime, endTime);
 		outHomeLogModel.setCityId(cityId);
+		outHomeLogModel.setId(outHomeTestId);
 
 		int logversion = nrLogHeadBean.getLogversion();
 		if (1 == logversion) {// NR5G NSA
@@ -308,8 +412,708 @@ public class EsFiveBusssController {
 	}
 
 	/**
+	 * 5G室外测试log导出csv
 	 * 
-	 * @Description: 室外测试的删出 这个ids是 室外测试的id 非文档id 仅仅支持单个删出
+	 * @Description: id 室外测试的id
+	 * @author weichengz
+	 * @date 2020年5月20日 下午1:40:23
+	 */
+	@ResponseBody
+	@PostMapping(value = "/exportOutHomeCsv")
+	public void exportOutHomeCsv(HttpServletResponse response, @RequestParam(value = "id") String id)
+			throws IOException {
+
+		if (StringUtils.isBlank(id)) {
+			throw new IllegalArgumentException("室外测试的id不能为空");
+		}
+		OutHomeLogModel outHomeLogModel = outHomeService.selectById(id);
+
+		if (outHomeLogModel == null) {
+			throw new IllegalArgumentException("室外测试信息不存在");
+		}
+		String filePath = outHomeLogModel.getFilePath();
+		if (StringUtils.isBlank(filePath)) {// /outhomelog/20200114110619_d41fbf38-98b4-427f-ba18-2ca1903e85d1.txt
+			throw new IllegalArgumentException("filePath参数不存在");
+		}
+		String outHomePath = filePath.toString();
+		File file = new File(filesCommonPath + outHomePath);
+
+		if (file != null && file.exists() && file.length() > 0) {
+			String fileName = MyDateUtil.formatDate(new Date(), "yyyyMMddHHmmss");
+			// csv处理代码
+			ServletOutputStream csvResult = response.getOutputStream();
+			response.setContentType("multipart/form-data");
+			response.setCharacterEncoding("utf-8");
+			response.setHeader("Content-disposition",
+					"attachment;filename=" + URLUtil.encode(fileName, StringUtil.UTF8) + ".csv");
+
+			String[] head = new String[] {};
+
+			String[] headRoot = new String[] { // 176
+					"mTimestamp1", "mSingaType", "mMessageType", "mChannelType", "mMeaasge", "mTimestamp2",
+					"mEventType", //
+					"mEvent", "Latitude", "Longitude", "Speed", "Height", "TestTime", "DownLoadSpeed", "UpLoadSpeed",
+					"NormalEventType", //
+					"AbNormalEventType", "Band", "BandWidth", "FrequencyPointA", "FrequencyDL", "GSCN",
+					"SubCarrierSpace", "PCI", "SSBIndex", //
+					"SSARFCN", "SSRSRP", "SSSINR", "SSRSRQ", "PUSCHTxPower", "PUCCHTxPower", "SRSTxPower", "CQI",
+					"MCSUL", "MCSDL", "ModUL", "ModDL", //
+					"PUSCHBLER", "PDSCHBLER", "GrantULNum", "GrantDLNum", "RINumDL", "PDCPULThr", "PDCPDLThr",
+					"RLCULThr", "RLCDLThr", "MACULThr", //
+					"MACDLThr", "PUSCHRB", "PDSCHRB", "SlotConfig(DL/UL)", "16qamnum", "64qamnum", "256qamnum",
+					"16qamUlnum", "16qamDlnum", //
+					"64qamUlnum", "64qamDlnum", "256qamUlnum", "256qamDlnum", "QPSKUlnum", "QPSKDlnum",
+					"pNrNeighborhoodNRARFCN1", "pNrNeighborhoodPCI1", //
+					"pNrNeighborhoodReam1", "pNrNeighborhoodSSRSRP1", "pNrNeighborhoodSSSINR1",
+					"pNrNeighborhoodSSRSRQ1", "pNrNeighborhoodNRARFCN2", //
+					"pNrNeighborhoodPCI2", "pNrNeighborhoodReam2", "pNrNeighborhoodSSRSRP2", "pNrNeighborhoodSSSINR2",
+					"pNrNeighborhoodSSRSRQ2", //
+					"pNrNeighborhoodNRARFCN3", "pNrNeighborhoodPCI3", "pNrNeighborhoodReam3", "pNrNeighborhoodSSRSRP3",
+					"pNrNeighborhoodSSSINR3", //
+					"pNrNeighborhoodSSRSRQ3", "pNrNeighborhoodNRARFCN4", "pNrNeighborhoodPCI4", "pNrNeighborhoodReam4",
+					"pNrNeighborhoodSSRSRP4", //
+					"pNrNeighborhoodSSSINR4", "pNrNeighborhoodSSRSRQ4", "pNrNeighborhoodNRARFCN5",
+					"pNrNeighborhoodPCI5", "pNrNeighborhoodReam5", //
+					"pNrNeighborhoodSSRSRP5", "pNrNeighborhoodSSSINR5", "pNrNeighborhoodSSRSRQ5",
+					"pNrNeighborhoodNRARFCN6", "pNrNeighborhoodPCI6", //
+					"pNrNeighborhoodReam6", "pNrNeighborhoodSSRSRP6", "pNrNeighborhoodSSSINR6",
+					"pNrNeighborhoodSSRSRQ6", "servingCellPccMcc", //
+					"servingCellPccMnc", "servingCellPccSiteEci", "servingCellPccBandIndex", "servingCellPccBwDl",
+					"servingCellPccFreqDl", //
+					"servingCellPccTac", "servingCellPccSsp", "servingCellPccSa", "servingCellPccCellId",
+					"servingCellPccEarfcnDl", "servingCellPccPci", //
+					"servingCellPccRsrp", "servingCellPccSinr", "servingCellPccRsrq", "servingCellPccRssi",
+					"servingCellPccPuschTxpower", //
+					"servingCellPccPucchTxpower", "servingCellPccEnodebId", "servingCellPccWidebandCqi",
+					"servingCellPccMcsul", "servingCellPccMcsdl", //
+					"servingCellPccModul", "servingCellPccModdl", "servingCellPccULBLER", "servingCellPccDLBLER",
+					"servingCellPccGrantulnum", //
+					"servingCellPccGrantdlnum", "servingCellPccRankIndex", "throughputPccPdcpUl", "throughputPccPdcpDl",
+					"throughputPccRlcUl", //
+					"throughputPccRlcDl", "throughputPccMacUl", "throughputPccMacDl", "servingCellPccPuschRbs",
+					"servingCellPccPdschRbs", //
+					"modulationPcc16qam", "modulationPcc64qam", "modulationPcc256qam", "modulationPcc16qamUl",
+					"modulationPcc16qamDl", //
+					"modulationPcc64qamUl", "modulationPcc64qamDl", "modulationPcc256qamUl", "modulationPcc256qamDl",
+					"modulationPccQPSKUl", //
+					"modulationPccQPSKDl", "pLteNeighbirhoodEARFCN1", "pLteNeighbirhoodPCI1", "pLteNeighbirhoodRSRP1",
+					"pLteNeighbirhoodRSRQ1", //
+					"pLteNeighbirhoodRSSI1", "pLteNeighbirhoodEARFCN2", "pLteNeighbirhoodPCI2", "pLteNeighbirhoodRSRP2",
+					"pLteNeighbirhoodRSRQ2", //
+					"pLteNeighbirhoodRSSI2", "pLteNeighbirhoodEARFCN3", "pLteNeighbirhoodPCI3", "pLteNeighbirhoodRSRP3",
+					"pLteNeighbirhoodRSRQ3", //
+					"pLteNeighbirhoodRSSI3", "pLteNeighbirhoodEARFCN4", "pLteNeighbirhoodPCI4", "pLteNeighbirhoodRSRP4",
+					"pLteNeighbirhoodRSRQ4", //
+					"pLteNeighbirhoodRSSI4", "pLteNeighbirhoodEARFCN5", "pLteNeighbirhoodPCI5", "pLteNeighbirhoodRSRP5",
+					"pLteNeighbirhoodRSRQ5", //
+					"pLteNeighbirhoodRSSI5", "pLteNeighbirhoodEARFCN6", "pLteNeighbirhoodPCI6", "pLteNeighbirhoodRSRP6",
+					"pLteNeighbirhoodRSRQ6", //
+					"pLteNeighbirhoodRSSI6"//
+			};
+			String[] headNoRoot = new String[] { // 85
+					"Latitude", "Longitude", "Speed", "Height", "TestTime", "DownLoadSpeed", "UpLoadSpeed"//
+					, "NormalEventType", "AbNormalEventType", "NrARFCN", "NrPCI", "NrCellName", "SSRSRP"//
+					, "SSSINR", "SSRSRQ", "NrNeighborhoodNRARFCN1", "NrNeighborhoodPCI1", "NrNeighborhoodSSRSRP1"//
+					, "NrNeighborhoodSSRSRQ1", "NrNeighborhoodSSSINR1", "NrNeighborhoodNRARFCN2", "NrNeighborhoodPCI2"//
+					, "NrNeighborhoodSSRSRP2", "NrNeighborhoodSSRSRQ2", "NrNeighborhoodSSSINR2",
+					"NrNeighborhoodNRARFCN3"//
+					, "NrNeighborhoodPCI3", "NrNeighborhoodSSRSRP3", "NrNeighborhoodSSRSRQ3", "NrNeighborhoodSSSINR3"//
+					, "NrNeighborhoodNRARFCN4", "NrNeighborhoodPCI4", "NrNeighborhoodSSRSRP4", "NrNeighborhoodSSRSRQ4"//
+					, "NrNeighborhoodSSSINR4", "NrNeighborhoodNRARFCN5", "NrNeighborhoodPCI5", "NrNeighborhoodSSRSRP5"//
+					, "NrNeighborhoodSSRSRQ5", "NrNeighborhoodSSSINR5", "NrNeighborhoodNRARFCN6", "NrNeighborhoodPCI6"//
+					, "NrNeighborhoodSSRSRP6", "NrNeighborhoodSSRSRQ6", "NrNeighborhoodSSSINR6", "LteTAC", "LteEARFCN"//
+					, "LtePCI", "LteENB", "LteCellID", "LteCellName", "LteRSRP", "LteRSRQ", "LteSINR", "LteRSSI",
+					"LteNeighbirhoodEARFCN1"//
+					, "LteNeighbirhoodPCI1", "LteNeighbirhoodRSRP1", "LteNeighbirhoodRSRQ1", "LteNeighbirhoodRSSI1",
+					"LteNeighbirhoodEARFCN2"//
+					, "LteNeighbirhoodPCI2", "LteNeighbirhoodRSRP2", "LteNeighbirhoodRSRQ2", "LteNeighbirhoodRSSI2",
+					"LteNeighbirhoodEARFCN3"//
+					, "LteNeighbirhoodPCI3", "LteNeighbirhoodRSRP3", "LteNeighbirhoodRSRQ3", "LteNeighbirhoodRSSI3",
+					"LteNeighbirhoodEARFCN4", //
+					"LteNeighbirhoodPCI4", "LteNeighbirhoodRSRP4", "LteNeighbirhoodRSRQ4", "LteNeighbirhoodRSSI4",
+					"LteNeighbirhoodEARFCN5"//
+					, "LteNeighbirhoodPCI5", "LteNeighbirhoodRSRP5", "LteNeighbirhoodRSRQ5", "LteNeighbirhoodRSSI5",
+					"LteNeighbirhoodEARFCN6"//
+					, "LteNeighbirhoodPCI6", "LteNeighbirhoodRSRP6", "LteNeighbirhoodRSRQ6", "LteNeighbirhoodRSSI6"//
+			};
+
+			List<Object[]> result = new ArrayList<>();
+
+			BufferedReader bufferedReader = null;
+			bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+			String str = null;// 文件里面一行记录
+			Integer num = 0;
+			Integer rootSupport = 0;// 0 非root 1 root
+
+			while ((str = bufferedReader.readLine()) != null) {
+				if (num == 0) {
+					NrLogHeadBean nrLogHeadBean = JSONObject.parseObject(str, NrLogHeadBean.class);
+					rootSupport = nrLogHeadBean.getRootSupport();
+					num = num + 1;
+				} else {
+					// 如果最后一行
+					if (str.contains("httpzbBean") || str.contains("pingzbBean") || str.contains("ftpzbBean")
+							|| str.contains("nrwxzbBean") || str.contains("ltewxzbBean") || str.contains("yyzbBean")) {
+
+					} else {// 转为csv
+						NrLogBodyBean signalDataBean = JSONObject.parseObject(str, NrLogBodyBean.class);
+
+						if (signalDataBean != null) {
+							if (rootSupport == 0) {// 非root
+								head = headNoRoot;
+								Object[] objects = new Object[85];
+								objects[0] = MyUtil.nullToEmpty(signalDataBean.getLatitude());
+								objects[1] = MyUtil.nullToEmpty(signalDataBean.getLongitude());
+								objects[2] = MyUtil.nullToEmpty(signalDataBean.getSpeed());
+								objects[3] = MyUtil.nullToEmpty(signalDataBean.getHeight());
+								objects[4] = MyUtil.nullToEmpty(signalDataBean.getTestTime());
+								objects[5] = MyUtil.nullToEmpty(signalDataBean.getDownLoadSpeed());
+								objects[6] = MyUtil.nullToEmpty(signalDataBean.getUpLoadSpeed());
+								objects[7] = MyUtil
+										.nullToEmpty(dealNormalEventType(signalDataBean.getNormalEventType()));
+								objects[8] = MyUtil
+										.nullToEmpty(dealAbNormalEventType(signalDataBean.getNormalEventType()));
+
+								for (int i = 9; i < 45; i++) {
+									objects[i] = "";
+								}
+
+								NrDataInfoBean nrDataInfoBean = signalDataBean.getNrDataInfoBean();
+								if (nrDataInfoBean != null) {
+									objects[9] = MyUtil.nullToEmpty(nrDataInfoBean.getNrARFCN());
+									objects[10] = MyUtil.nullToEmpty(nrDataInfoBean.getNrPCI());
+									objects[11] = MyUtil.nullToEmpty(nrDataInfoBean.getNrCellName());
+									objects[12] = MyUtil.nullToEmpty(nrDataInfoBean.getSsRSRP());
+									objects[13] = MyUtil.nullToEmpty(nrDataInfoBean.getSsSINR());
+									objects[14] = MyUtil.nullToEmpty(nrDataInfoBean.getSsRSRQ());
+									List<NrNeighborhoodInfo> nrNeighborhoodInfos = nrDataInfoBean
+											.getNrNeighborhoodInfos();
+									if (nrNeighborhoodInfos != null && nrNeighborhoodInfos.size() > 0) {
+										Integer cycleNum = 0;
+										Integer beginNum = 15;
+										for (NrNeighborhoodInfo nrNeighborhoodInfo : nrNeighborhoodInfos) {
+											if (cycleNum > 5) {
+												break;
+											}
+
+											objects[beginNum++] = MyUtil
+													.nullToEmpty(nrNeighborhoodInfo.getNrNeighborhoodNRARFCN());
+											objects[beginNum++] = MyUtil
+													.nullToEmpty(nrNeighborhoodInfo.getNrNeighborhoodPCI());
+											objects[beginNum++] = MyUtil
+													.nullToEmpty(nrNeighborhoodInfo.getNrNeighborhoodSSRSRP());
+											objects[beginNum++] = MyUtil
+													.nullToEmpty(nrNeighborhoodInfo.getNrNeighborhoodSSRSRQ());
+											objects[beginNum++] = MyUtil
+													.nullToEmpty(nrNeighborhoodInfo.getNrNeighborhoodSSSINR());
+
+											cycleNum++;
+										}
+									}
+								}
+
+								// 45-85
+								for (int i = 45; i < 85; i++) {
+									objects[i] = "";
+								}
+
+								LteDataInfoBean lteDataInfoBean = signalDataBean.getLteDataInfoBean();
+								if (lteDataInfoBean != null) {
+									objects[45] = MyUtil.nullToEmpty(lteDataInfoBean.getLteTAC());
+									objects[46] = MyUtil.nullToEmpty(lteDataInfoBean.getLteEARFCN());
+									objects[47] = MyUtil.nullToEmpty(lteDataInfoBean.getLtePCI());
+									objects[48] = MyUtil.nullToEmpty(lteDataInfoBean.getLteENB());
+									objects[49] = MyUtil.nullToEmpty(lteDataInfoBean.getLteCellID());
+									objects[50] = MyUtil.nullToEmpty(lteDataInfoBean.getLteCellName());
+									objects[51] = MyUtil.nullToEmpty(lteDataInfoBean.getLteRSRP());
+									objects[52] = MyUtil.nullToEmpty(lteDataInfoBean.getLteRSRQ());
+									objects[53] = MyUtil.nullToEmpty(lteDataInfoBean.getLteSINR());
+									objects[54] = MyUtil.nullToEmpty(lteDataInfoBean.getLteRSSI());
+
+									List<LteNeighborhoodInfo> lteNeighborhoodInfos = lteDataInfoBean
+											.getLteNeighborhoodInfos();
+									if (lteNeighborhoodInfos != null && lteNeighborhoodInfos.size() > 0) {
+										Integer beginNum = 55;
+										Integer cycleNum = 0;
+										for (LteNeighborhoodInfo lteNeighborhoodInfo : lteNeighborhoodInfos) {
+											if (cycleNum > 5) {
+												break;
+											}
+
+											objects[beginNum++] = MyUtil
+													.nullToEmpty(lteNeighborhoodInfo.getLteNeighbirhoodEARFCN());
+											objects[beginNum++] = MyUtil
+													.nullToEmpty(lteNeighborhoodInfo.getLteNeighbirhoodPCI());
+											objects[beginNum++] = MyUtil
+													.nullToEmpty(lteNeighborhoodInfo.getLteNeighbirhoodRSRP());
+											objects[beginNum++] = MyUtil
+													.nullToEmpty(lteNeighborhoodInfo.getLteNeighbirhoodRSRQ());
+											objects[beginNum++] = MyUtil
+													.nullToEmpty(lteNeighborhoodInfo.getLteNeighbirhoodRSSI());
+											cycleNum++;
+										}
+									}
+								}
+								result.add(objects);
+							} else {// root
+								head = headRoot;
+								List<String> timesList = new ArrayList<>();// 时间集合
+
+								String testTime = signalDataBean.getTestTime();// 主的时间
+
+								// 事件
+								List<SignalEventBean> signalEventBeans = signalDataBean.getSignalEventBeans();
+								if (signalEventBeans != null && signalEventBeans.size() > 0) {
+									for (SignalEventBean signalEventBean : signalEventBeans) {
+										long getmTimestamp = signalEventBean.getmTimestamp();
+										String formatDate = MyDateUtil.formatDate(new Date(getmTimestamp),
+												"yyyy-MM-dd HH:mm:ss");
+										if (!timesList.contains(formatDate)) {
+											timesList.add(formatDate);
+										}
+									}
+								}
+								// 信令
+								List<SignalBean> signalBeans = signalDataBean.getSignalBeans();
+								if (signalBeans != null && signalBeans.size() > 0) {
+									for (SignalBean signalBean : signalBeans) {
+										long getmTimestamp = signalBean.getmTimestamp();
+										String formatDate = MyDateUtil.formatDate(new Date(getmTimestamp),
+												"yyyy-MM-dd HH:mm:ss");
+										if (!timesList.contains(formatDate)) {
+											timesList.add(formatDate);
+										}
+									}
+								}
+								Collections.sort(timesList);// 时间排序
+
+								if (timesList != null && timesList.size() > 0) {
+									for (String time : timesList) {
+
+										Object[] objects = new Object[176];
+										for (int i = 0; i < 176; i++) {
+											objects[i] = "";
+										}
+
+										// 存储当前时间的事件信令
+										List<SignalEventBean> eventDataByTime = new ArrayList<>();
+										List<SignalBean> messageDataByTime = new ArrayList<>();
+
+										// 找出时间相同的数据
+										List<SignalEventBean> signalEventBeansModel = signalDataBean
+												.getSignalEventBeans();
+										if (signalEventBeansModel != null && signalEventBeansModel.size() > 0) {
+											for (SignalEventBean signalEventBean : signalEventBeansModel) {
+												long getmTimestamp = signalEventBean.getmTimestamp();
+												String formatDate = MyDateUtil.formatDate(new Date(getmTimestamp),
+														"yyyy-MM-dd HH:mm:ss");
+												if (time.equals(formatDate)) {
+													eventDataByTime.add(signalEventBean);
+												}
+												if (formatDate.compareTo(time) > 0) {
+													break;
+												}
+											}
+										}
+
+										// 找出时间相同的数据
+										List<SignalBean> signalBeansModel = signalDataBean.getSignalBeans();
+										if (signalBeansModel != null && signalBeansModel.size() > 0) {
+											for (SignalBean signalBean : signalBeansModel) {
+												long getmTimestamp = signalBean.getmTimestamp();
+												String formatDate = MyDateUtil.formatDate(new Date(getmTimestamp),
+														"yyyy-MM-dd HH:mm:ss");
+												if (time.equals(formatDate)) {
+													messageDataByTime.add(signalBean);
+												}
+												if (formatDate.compareTo(time) > 0) {
+													break;
+												}
+											}
+										}
+
+										if (eventDataByTime.size() == 0 && messageDataByTime.size() == 0) {// 只写入主
+
+											writeMainCsv(signalDataBean, objects);
+											result.add(objects);
+										} else if (eventDataByTime.size() > 0 && messageDataByTime.size() == 0) {// 存在事件
+																													// 、这个事件注意判断主
+											Boolean mainCsvFlag = true;
+											for (SignalEventBean signalEventBean : eventDataByTime) {
+												long getmTimestamp = signalEventBean.getmTimestamp();
+												String formatDate = MyDateUtil.formatDate(new Date(getmTimestamp),
+														"yyyy-MM-dd HH:mm:ss");
+												if (formatDate.compareTo(testTime) == 0) {// 写入主和事件写在一个里面
+													if (mainCsvFlag) {// 先写入主
+														mainCsvFlag = false;
+														writeMainCsv(signalDataBean, objects);
+													}
+													// 写入事件
+													objects[5] = formatDate;
+													objects[6] = MyUtil.nullToEmpty(signalEventBean.getmEventType());
+													objects[7] = MyUtil.nullToEmpty(signalEventBean.getmEvent());
+													result.add(objects);
+												} else if (formatDate.compareTo(testTime) < 0) {// 只写事件
+													// 写入事件
+													objects[5] = formatDate;
+													objects[6] = MyUtil.nullToEmpty(signalEventBean.getmEventType());
+													objects[7] = MyUtil.nullToEmpty(signalEventBean.getmEvent());
+													result.add(objects);
+												} else if (formatDate.compareTo(testTime) > 0) {// 先判断主 是不是写入了 没写入写入主
+																								// 在写入事件 两个object
+													if (mainCsvFlag) {// 先写入主
+														mainCsvFlag = false;
+														Object[] objectsMain = new Object[176];
+														for (int i = 0; i < 176; i++) {
+															objectsMain[i] = "";
+														}
+														writeMainCsv(signalDataBean, objectsMain);
+														result.add(objectsMain);
+													}
+													Object[] objectsEvent = new Object[176];
+													for (int i = 0; i < 176; i++) {
+														objectsEvent[i] = "";
+													}
+													objectsEvent[5] = formatDate;
+													objectsEvent[6] = MyUtil
+															.nullToEmpty(signalEventBean.getmEventType());
+													objectsEvent[7] = MyUtil.nullToEmpty(signalEventBean.getmEvent());
+													result.add(objectsEvent);
+												}
+
+											}
+											// 如果所有的都迭代完了 主 还没写入 那么直写入主
+											// 如果所有的都迭代完了 主 还没写入 那么直写入主
+											if (mainCsvFlag) {
+												Object[] objectsFinal = new Object[176];
+												for (int i = 0; i < 176; i++) {
+													objectsFinal[i] = "";
+												}
+												writeMainCsv(signalDataBean, objectsFinal);
+												result.add(objectsFinal);
+											}
+
+										} else if (messageDataByTime.size() == 0 && messageDataByTime.size() > 0) {
+											Boolean mainCsvFlag = true;
+											for (SignalBean signalBean : messageDataByTime) {
+												long getmTimestamp = signalBean.getmTimestamp();
+												String formatDate = MyDateUtil.formatDate(new Date(getmTimestamp),
+														"yyyy-MM-dd HH:mm:ss");
+												if (formatDate.compareTo(testTime) == 0) {// 写入主和信令写在一起
+													if (mainCsvFlag) {// 先写入主
+														mainCsvFlag = false;
+														writeMainCsv(signalDataBean, objects);
+													}
+													// 写入信令
+													objects[0] = formatDate;
+													objects[1] = MyUtil.nullToEmpty(signalBean.getmSingaType());
+													objects[2] = MyUtil.nullToEmpty(signalBean.getmMessageType());
+													objects[3] = MyUtil.nullToEmpty(signalBean.getmChannelType());
+													result.add(objects);
+												} else if (formatDate.compareTo(testTime) < 0) {// 只写信令
+													// 写入信令
+													objects[0] = formatDate;
+													objects[1] = MyUtil.nullToEmpty(signalBean.getmSingaType());
+													objects[2] = MyUtil.nullToEmpty(signalBean.getmMessageType());
+													objects[3] = MyUtil.nullToEmpty(signalBean.getmChannelType());
+													result.add(objects);
+												} else if (formatDate.compareTo(testTime) > 0) {// 先判断主 是不是写入了 没写入写入主
+																								// 在写入事件 两个object
+													if (mainCsvFlag) {// 先写入主
+														mainCsvFlag = false;
+														Object[] objectsMain = new Object[176];
+														for (int i = 0; i < 176; i++) {
+															objectsMain[i] = "";
+														}
+														writeMainCsv(signalDataBean, objectsMain);
+														result.add(objectsMain);
+													}
+													Object[] objectsEvent = new Object[176];
+													for (int i = 0; i < 176; i++) {
+														objectsEvent[i] = "";
+													}
+													// 写入信令
+													objectsEvent[0] = formatDate;
+													objectsEvent[1] = MyUtil.nullToEmpty(signalBean.getmSingaType());
+													objectsEvent[2] = MyUtil.nullToEmpty(signalBean.getmMessageType());
+													objectsEvent[3] = MyUtil.nullToEmpty(signalBean.getmChannelType());
+													result.add(objectsEvent);
+												}
+											}
+											// 如果所有的都迭代完了 主 还没写入 那么直写入主
+											if (mainCsvFlag) {
+												Object[] objectsFinal = new Object[176];
+												for (int i = 0; i < 176; i++) {
+													objectsFinal[i] = "";
+												}
+												writeMainCsv(signalDataBean, objectsFinal);
+												result.add(objectsFinal);
+											}
+
+										} else if (eventDataByTime.size() > 0 && messageDataByTime.size() > 0) {// 都存在的情况
+											Integer eventNum = eventDataByTime.size();
+											Integer msgNum = messageDataByTime.size();
+											int max = Math.max(eventNum, msgNum);
+											boolean mainCsvFlag = true;
+											for (int i = 0; i < max; i++) {// 注意 这里需要判断 是不是超过索引了 超过了就不要超过的部分了
+												if (time.compareTo(testTime) == 0) {// 写入主 主和 上面两个是一样的object
+													if (mainCsvFlag) {
+														mainCsvFlag = false;
+														writeMainCsv(signalDataBean, objects);
+													}
+												} else if (time.compareTo(testTime) < 0) {// 只写入信令事件
+
+												} else if (time.compareTo(testTime) > 0) {// 先判断主是不是写入了 没写入 独立写主
+													if (mainCsvFlag) {
+														mainCsvFlag = false;
+														Object[] objectsFinal = new Object[176];
+														for (int w = 0; w < 176; w++) {
+															objectsFinal[w] = "";
+														}
+														writeMainCsv(signalDataBean, objectsFinal);
+														result.add(objectsFinal);
+													}
+												}
+												if (i < eventNum) {// 写事件
+													SignalEventBean signalEventBean = eventDataByTime.get(i);
+													objects[5] = time;
+													objects[6] = MyUtil.nullToEmpty(signalEventBean.getmEventType());
+													objects[7] = MyUtil.nullToEmpty(signalEventBean.getmEvent());
+												}
+												if (i < msgNum) {// 写信令
+													// 写入信令
+													SignalBean signalBean = messageDataByTime.get(i);
+													objects[0] = time;
+													objects[1] = MyUtil.nullToEmpty(signalBean.getmSingaType());
+													objects[2] = MyUtil.nullToEmpty(signalBean.getmMessageType());
+													objects[3] = MyUtil.nullToEmpty(signalBean.getmChannelType());
+												}
+												result.add(objects);
+											}
+											// 循环完了之后判断是不是主写入了 没写入在最后写入
+											if (mainCsvFlag) {
+												mainCsvFlag = false;
+												Object[] objectsFinal = new Object[176];
+												for (int w = 0; w < 176; w++) {
+													objectsFinal[w] = "";
+												}
+												writeMainCsv(signalDataBean, objectsFinal);
+												result.add(objectsFinal);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if (bufferedReader != null) {
+				bufferedReader.close();
+			}
+			CsvUtils.simpleExport(true, "\n", head, result, fileName, csvResult);
+		}
+	}
+
+	private void writeMainCsv(NrLogBodyBean signalDataBean, Object[] objects) {
+		objects[8] = MyUtil.nullToEmpty(signalDataBean.getLatitude());
+		objects[9] = MyUtil.nullToEmpty(signalDataBean.getLongitude());
+		objects[10] = MyUtil.nullToEmpty(signalDataBean.getSpeed());
+		objects[11] = MyUtil.nullToEmpty(signalDataBean.getHeight());
+		objects[12] = MyUtil.nullToEmpty(signalDataBean.getTestTime());
+		objects[13] = MyUtil.nullToEmpty(signalDataBean.getDownLoadSpeed());
+		objects[14] = MyUtil.nullToEmpty(signalDataBean.getUpLoadSpeed());
+		objects[15] = MyUtil.nullToEmpty(dealNormalEventType(signalDataBean.getNormalEventType()));
+		objects[16] = MyUtil.nullToEmpty(dealNormalEventType(signalDataBean.getAbNormalEventType()));
+
+		ProNrDataInfoBean proNrDataInfoBean = signalDataBean.getProNrDataInfoBean();
+		if (proNrDataInfoBean != null) {
+			objects[17] = MyUtil.nullToEmpty(proNrDataInfoBean.getBand());
+			objects[18] = MyUtil.nullToEmpty(proNrDataInfoBean.getBandWidth());
+			objects[19] = MyUtil.nullToEmpty(proNrDataInfoBean.getFrequencyPointA());
+			objects[20] = MyUtil.nullToEmpty(proNrDataInfoBean.getFrequencyDL());
+			objects[21] = MyUtil.nullToEmpty(proNrDataInfoBean.getGSCN());
+			objects[22] = MyUtil.nullToEmpty(proNrDataInfoBean.getSubCarrierSpace());
+			objects[23] = MyUtil.nullToEmpty(proNrDataInfoBean.getPCI());
+			objects[24] = MyUtil.nullToEmpty(proNrDataInfoBean.getSSBIndex());
+			objects[25] = MyUtil.nullToEmpty(proNrDataInfoBean.getSsARFCN());
+			objects[26] = MyUtil.nullToEmpty(proNrDataInfoBean.getSsRSRP());
+			objects[27] = MyUtil.nullToEmpty(proNrDataInfoBean.getSsSINR());
+			objects[28] = MyUtil.nullToEmpty(proNrDataInfoBean.getSsRSRQ());
+			objects[29] = MyUtil.nullToEmpty(proNrDataInfoBean.getPuschTxPower());
+			objects[30] = MyUtil.nullToEmpty(proNrDataInfoBean.getPucchTxPower());
+			objects[31] = MyUtil.nullToEmpty(proNrDataInfoBean.getSrsTxPower());
+			objects[32] = MyUtil.nullToEmpty(proNrDataInfoBean.getCqi());
+			objects[33] = MyUtil.nullToEmpty(proNrDataInfoBean.getMcsUL());
+			objects[34] = MyUtil.nullToEmpty(proNrDataInfoBean.getMcsDL());
+			objects[35] = MyUtil.nullToEmpty(proNrDataInfoBean.getModUL());
+			objects[36] = MyUtil.nullToEmpty(proNrDataInfoBean.getModDL());
+			objects[37] = MyUtil.nullToEmpty(proNrDataInfoBean.getPuschBler());
+			objects[38] = MyUtil.nullToEmpty(proNrDataInfoBean.getPdschBler());
+			objects[39] = MyUtil.nullToEmpty(proNrDataInfoBean.getGrantULNum());
+			objects[40] = MyUtil.nullToEmpty(proNrDataInfoBean.getGrantDLNum());
+			objects[41] = MyUtil.nullToEmpty(proNrDataInfoBean.getRiNumDL());
+			objects[42] = MyUtil.nullToEmpty(proNrDataInfoBean.getPdcpULThr());
+			objects[43] = MyUtil.nullToEmpty(proNrDataInfoBean.getPdcpDLThr());
+			objects[44] = MyUtil.nullToEmpty(proNrDataInfoBean.getRlcULThr());
+			objects[45] = MyUtil.nullToEmpty(proNrDataInfoBean.getRlcDLThr());
+			objects[46] = MyUtil.nullToEmpty(proNrDataInfoBean.getMacULThr());
+			objects[47] = MyUtil.nullToEmpty(proNrDataInfoBean.getMacDLThr());
+			objects[48] = MyUtil.nullToEmpty(proNrDataInfoBean.getPuschRB());
+			objects[49] = MyUtil.nullToEmpty(proNrDataInfoBean.getPdschRB());
+			objects[50] = MyUtil.nullToEmpty(proNrDataInfoBean.getSlotConfigDLUL());
+			objects[51] = MyUtil.nullToEmpty(proNrDataInfoBean.get_16qamNum());
+			objects[52] = MyUtil.nullToEmpty(proNrDataInfoBean.get_64qamNum());
+			objects[53] = MyUtil.nullToEmpty(proNrDataInfoBean.get_256qamNum());
+			objects[54] = MyUtil.nullToEmpty(proNrDataInfoBean.get_16qamUlNum());
+			objects[55] = MyUtil.nullToEmpty(proNrDataInfoBean.get_16qamDlNum());
+			objects[56] = MyUtil.nullToEmpty(proNrDataInfoBean.get_64qamUlNum());
+			objects[57] = MyUtil.nullToEmpty(proNrDataInfoBean.get_64qamDlNum());
+			objects[58] = MyUtil.nullToEmpty(proNrDataInfoBean.get_256qamUlNum());
+			objects[59] = MyUtil.nullToEmpty(proNrDataInfoBean.get_256qamDlNum());
+			objects[60] = MyUtil.nullToEmpty(proNrDataInfoBean.getQpskUlNum());
+			objects[61] = MyUtil.nullToEmpty(proNrDataInfoBean.getQpskDlNum());
+
+			List<ProNrNeighborhoodInfo> proNrNeighborhoodInfos = proNrDataInfoBean.getProNrNeighborhoodInfos();
+			if (proNrNeighborhoodInfos != null && proNrNeighborhoodInfos.size() > 0) {
+				Integer beninNum = 62;
+				Integer cycleNum = 0;
+				for (ProNrNeighborhoodInfo proLteNeighborhoodInfo : proNrNeighborhoodInfos) {
+					if (cycleNum > 5) {
+						break;
+					}
+					objects[beninNum++] = MyUtil.nullToEmpty(proLteNeighborhoodInfo.getpNrNeighborhoodNRARFCN());
+					objects[beninNum++] = MyUtil.nullToEmpty(proLteNeighborhoodInfo.getpNrNeighborhoodPCI());
+					objects[beninNum++] = MyUtil.nullToEmpty(proLteNeighborhoodInfo.getpNrNeighborhoodBeam());// pNrNeighborhoodReam1
+					objects[beninNum++] = MyUtil.nullToEmpty(proLteNeighborhoodInfo.getpNrNeighborhoodSSRSRP());
+					objects[beninNum++] = MyUtil.nullToEmpty(proLteNeighborhoodInfo.getpNrNeighborhoodSSSINR());
+					objects[beninNum++] = MyUtil.nullToEmpty(proLteNeighborhoodInfo.getpNrNeighborhoodSSRSRQ());
+					cycleNum++;
+				}
+			}
+		}
+
+		ProLteDataInfoBean proLteDataInfoBeans = signalDataBean.getProLteDataInfoBeans();
+		if (proLteDataInfoBeans != null) {
+
+			objects[98] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccMcc());
+			objects[99] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccMnc());
+			objects[100] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccSiteEci());
+			objects[101] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccBandIndex());
+			objects[102] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccBwDl());
+			objects[103] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccFreqDl());
+			objects[104] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccTac());
+			objects[105] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccSsp());
+			objects[106] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccSa());
+			objects[107] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccCellId());
+			objects[108] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccEarfcnDl());
+			objects[109] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccPci());
+			objects[110] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccRsrp());
+			objects[111] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccSinr());
+			objects[112] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccRsrq());
+			objects[113] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccRssi());
+			objects[114] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccPuschTxpower());
+			objects[115] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccPucchTxpower());
+			objects[116] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccEnodebId());
+			objects[117] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccWidebandCqi());
+			objects[118] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccMcsul());
+			objects[119] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccMcsdl());
+			objects[120] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccModul());
+			objects[121] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccModdl());
+			objects[122] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccULBLER());
+			objects[123] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccDLBLER());
+			objects[124] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccGrantulnum());
+			objects[125] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccGrantdlnum());
+			objects[126] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccRankIndex());
+			objects[127] = MyUtil.nullToEmpty(proLteDataInfoBeans.getThroughputPccPdcpUl());
+			objects[128] = MyUtil.nullToEmpty(proLteDataInfoBeans.getThroughputPccPdcpDl());
+			objects[129] = MyUtil.nullToEmpty(proLteDataInfoBeans.getThroughputPccRlcUl());
+			objects[130] = MyUtil.nullToEmpty(proLteDataInfoBeans.getThroughputPccRlcDl());
+			objects[131] = MyUtil.nullToEmpty(proLteDataInfoBeans.getThroughputPccMacUl());
+			objects[132] = MyUtil.nullToEmpty(proLteDataInfoBeans.getThroughputPccMacDl());
+			objects[133] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccPuschRbs());
+			objects[134] = MyUtil.nullToEmpty(proLteDataInfoBeans.getServingCellPccPdschRbs());
+			objects[135] = MyUtil.nullToEmpty(proLteDataInfoBeans.getModulationPcc16qam());
+			objects[136] = MyUtil.nullToEmpty(proLteDataInfoBeans.getModulationPcc64qam());
+			objects[137] = MyUtil.nullToEmpty(proLteDataInfoBeans.getModulationPcc256qam());
+			objects[138] = MyUtil.nullToEmpty(proLteDataInfoBeans.getModulationPcc16qamUl());
+			objects[139] = MyUtil.nullToEmpty(proLteDataInfoBeans.getModulationPcc16qamDl());
+			objects[140] = MyUtil.nullToEmpty(proLteDataInfoBeans.getModulationPcc64qamUl());
+			objects[141] = MyUtil.nullToEmpty(proLteDataInfoBeans.getModulationPcc64qamDl());
+			objects[142] = MyUtil.nullToEmpty(proLteDataInfoBeans.getModulationPcc256qamUl());
+			objects[143] = MyUtil.nullToEmpty(proLteDataInfoBeans.getModulationPcc256qamDl());
+			objects[144] = MyUtil.nullToEmpty(proLteDataInfoBeans.getModulationPccQPSKUl());
+			objects[145] = MyUtil.nullToEmpty(proLteDataInfoBeans.getModulationPccQPSKDl());
+
+			List<ProLteNeighborhoodInfo> proLteNeighborhoodInfos = proLteDataInfoBeans.getProLteNeighborhoodInfos();
+			if (proLteNeighborhoodInfos != null && proLteNeighborhoodInfos.size() > 0) {
+				Integer beninNum = 146;
+				Integer cycleNum = 0;
+				for (ProLteNeighborhoodInfo proLteNeighborhoodInfo : proLteNeighborhoodInfos) {
+					if (cycleNum > 5) {
+						break;
+					}
+					objects[beninNum++] = MyUtil.nullToEmpty(proLteNeighborhoodInfo.getpLteNeighbirhoodEARFCN());
+					objects[beninNum++] = MyUtil.nullToEmpty(proLteNeighborhoodInfo.getpLteNeighbirhoodPCI());
+					objects[beninNum++] = MyUtil.nullToEmpty(proLteNeighborhoodInfo.getpLteNeighbirhoodRSRP());
+					objects[beninNum++] = MyUtil.nullToEmpty(proLteNeighborhoodInfo.getpLteNeighbirhoodRSRQ());
+					objects[beninNum++] = MyUtil.nullToEmpty(proLteNeighborhoodInfo.getpLteNeighbirhoodRSSI());
+					cycleNum++;
+				}
+			}
+		}
+	}
+
+	public String dealNormalEventType(Integer num) {
+
+		String result = "";
+		if (num == 0) {
+			result = "FTPConnectionSuccess";
+		} else if (num == 1) {
+			result = "DownloadStart";
+		} else if (num == 2) {
+			result = "DownloadComplete";
+		} else if (num == 3) {
+			result = "UploadStart";
+		} else if (num == 4) {
+			result = "UploadComplete";
+		} else if (num == 5) {
+			result = "PingSuccess";
+		} else if (num == 6) {
+			result = "HttpSuccess";
+		} else if (num == 7) {
+			result = "CallInitiate";
+		} else if (num == 8) {
+			result = "CallStart";
+		} else if (num == 8) {
+			result = "CallEnd";
+		}
+		return result;
+	}
+
+	public String dealAbNormalEventType(Integer num) {
+		String result = "";
+		if (num == 0) {
+			result = "FTPConnectionFailure";
+		} else if (num == 1) {
+			result = "DownloadFailure";
+		} else if (num == 2) {
+			result = "UploadFailure";
+		} else if (num == 3) {
+			result = "PingFailure";
+		} else if (num == 4) {
+			result = "HttpFailure";
+		} else if (num == 5) {
+			result = "BlockedCall";
+		} else if (num == 6) {
+			result = "DropedCall";
+		}
+		return result;
+	}
+
+	/**
+	 * 
+	 * @Description: 室外测试的删出 这个ids是 室外测试列表的id 非文档id 仅仅支持单个删出
 	 * @author weichengz
 	 * @date 2019年11月13日 上午11:27:46
 	 */
@@ -555,10 +1359,6 @@ public class EsFiveBusssController {
 
 	}
 
-	
-
-	
-
 	/**
 	 * 对角坐标查询工参信息: 这个就是index/type不一样
 	 */
@@ -611,8 +1411,6 @@ public class EsFiveBusssController {
 		}
 	}
 
-	
-
 	/**
 	 * 查询邻区的拉线问题 只查询距离最近的一个 如果一个站点 有多个邻区 那么就会有多个线 [针对 新的log] 可 兼容4G\5G工参
 	 * 
@@ -652,7 +1450,7 @@ public class EsFiveBusssController {
 				if (fiveLogMain != null) {
 					String longitude = fiveLogMain.getLongitude();
 					String latitude = fiveLogMain.getLatitude();// 经纬度
-				//	String logversion = fiveLogMain.getLogversion();// 0: LTE 1: NR5G NSA
+					// String logversion = fiveLogMain.getLogversion();// 0: LTE 1: NR5G NSA
 					String rootSupport = fiveLogMain.getRootSupport();// 0: None Root1: Root
 					if (StringUtils.isNotBlank(longitude) && StringUtils.isNotBlank(latitude)) {
 						QueryParamData queryParamDataFinal = new QueryParamData();
@@ -1137,21 +1935,23 @@ public class EsFiveBusssController {
 
 		return paramMap;
 	}
+
 	/**
 	 * 
-	 * @Description: 查询左下角邻区和主服务小区接口    入参是主log的主键ID
+	 * @Description: 查询左下角邻区和主服务小区接口 入参是主log的主键ID
 	 * @author weichengz
 	 * @date 2020年5月8日 上午10:11:43
 	 */
 	@ResponseBody
 	@PostMapping(value = "/queryNearOrMainService")
-	public Map<String, Object> queryNearOrMainService(@RequestParam("id") String id) {
-		
+	public Map<String, Object> queryNearOrMainService(@RequestBody QueryParamData queryParamData) {
+
 		Map<String, Object> paramMap = new HashMap<>();
 		paramMap.put("4G", new ArrayList<>());
 		paramMap.put("5G", new ArrayList<>());
-		
+
 		// log中每个主题内容的id
+		String id = queryParamData.getId();
 		if (StringUtils.isNotBlank(id)) {
 			// 查询这条id对应的主log信息
 			QueryParamData queryParamDataParam = new QueryParamData("logmain5g", "logmain5g");
@@ -1170,10 +1970,10 @@ public class EsFiveBusssController {
 						// 4G
 						ProLteDataInfoBean proLteDataInfoBeans = fiveLogMain.getProLteDataInfoBeans();
 						if (proLteDataInfoBeans != null) {
-							List<Map<String, Object>> datas=new ArrayList<>();
-							
-							//PCLL
-							Map<String, Object> pcellMap=new HashMap<>();
+							List<Map<String, Object>> datas = new ArrayList<>();
+
+							// PCLL
+							Map<String, Object> pcellMap = new HashMap<>();
 							pcellMap.put("Type", "Pcell");
 							// 4G
 							pcellMap.put("CellName", "");
@@ -1184,15 +1984,16 @@ public class EsFiveBusssController {
 							pcellMap.put("PCI", proLteDataInfoBeans.getServingCellPccPci());
 							pcellMap.put("RSRP", proLteDataInfoBeans.getServingCellPccRsrp());
 							pcellMap.put("RSRQ", proLteDataInfoBeans.getServingCellPccRsrq());
-							pcellMap.put("SINR",  proLteDataInfoBeans.getServingCellPccSinr());
+							pcellMap.put("SINR", proLteDataInfoBeans.getServingCellPccSinr());
 							pcellMap.put("RSSI", proLteDataInfoBeans.getServingCellPccRssi());
 							datas.add(pcellMap);
-							
-							List<ProLteNeighborhoodInfo> proLteNeighborhoodInfos = proLteDataInfoBeans.getProLteNeighborhoodInfos();
-							if (proLteNeighborhoodInfos !=null && proLteNeighborhoodInfos.size()>0) {
+
+							List<ProLteNeighborhoodInfo> proLteNeighborhoodInfos = proLteDataInfoBeans
+									.getProLteNeighborhoodInfos();
+							if (proLteNeighborhoodInfos != null && proLteNeighborhoodInfos.size() > 0) {
 								for (ProLteNeighborhoodInfo proLteNeighborhoodInfo : proLteNeighborhoodInfos) {
-									Map<String, Object> lteMap=new HashMap<>();
-									
+									Map<String, Object> lteMap = new HashMap<>();
+
 									lteMap.put("Type", "Ncell");
 									// 4G
 									lteMap.put("CellName", "");
@@ -1200,20 +2001,20 @@ public class EsFiveBusssController {
 									lteMap.put("PCI", proLteNeighborhoodInfo.getpLteNeighbirhoodPCI());
 									lteMap.put("RSRP", proLteNeighborhoodInfo.getpLteNeighbirhoodRSRP());
 									lteMap.put("RSRQ", proLteNeighborhoodInfo.getpLteNeighbirhoodRSRQ());
-									lteMap.put("SINR",  "");
+									lteMap.put("SINR", "");
 									lteMap.put("RSSI", proLteNeighborhoodInfo.getpLteNeighbirhoodRSSI());
 									datas.add(lteMap);
 								}
 							}
 							paramMap.put("4G", datas);
 						}
-						
+
 						// 5g
 						ProNrDataInfoBean proNrDataInfoBean = fiveLogMain.getProNrDataInfoBean();
 						if (proNrDataInfoBean != null) {
-							List<Map<String, Object>> datas=new ArrayList<>();
-							Map<String, Object> pcellMap=new HashMap<>();
-							
+							List<Map<String, Object>> datas = new ArrayList<>();
+							Map<String, Object> pcellMap = new HashMap<>();
+
 							// 5G
 							pcellMap.put("Type", "Pcell");
 							pcellMap.put("CellName", "");
@@ -1227,11 +2028,12 @@ public class EsFiveBusssController {
 							pcellMap.put("SSRSRQ", proNrDataInfoBean.getSsRSRQ());
 							pcellMap.put("SSSINR", proNrDataInfoBean.getSsSINR());
 							datas.add(pcellMap);
-							
-							List<ProNrNeighborhoodInfo> proNrNeighborhoodInfos = proNrDataInfoBean.getProNrNeighborhoodInfos();
-							if (proNrNeighborhoodInfos != null && proNrNeighborhoodInfos.size()>0) {
+
+							List<ProNrNeighborhoodInfo> proNrNeighborhoodInfos = proNrDataInfoBean
+									.getProNrNeighborhoodInfos();
+							if (proNrNeighborhoodInfos != null && proNrNeighborhoodInfos.size() > 0) {
 								for (ProNrNeighborhoodInfo proNrNeighborhoodInfo : proNrNeighborhoodInfos) {
-									Map<String,Object> nellMap=new HashMap<>();
+									Map<String, Object> nellMap = new HashMap<>();
 									// 5G
 									nellMap.put("Type", "Ncell");
 									nellMap.put("CellName", "");
@@ -1246,16 +2048,16 @@ public class EsFiveBusssController {
 							}
 							paramMap.put("5G", datas);
 						}
-						
+
 					} else {// 非root版本 显示5G/4G窗口的信息
-						
+
 						// 5G
 						NrDataInfoBean proLteDataInfoBeans = fiveLogMain.getNrDataInfoBean();
 						if (proLteDataInfoBeans != null) {
-							List<Map<String, Object>> datas=new ArrayList<>();
-							
-							//PCLL
-							Map<String, Object> pcellMap=new HashMap<>();
+							List<Map<String, Object>> datas = new ArrayList<>();
+
+							// PCLL
+							Map<String, Object> pcellMap = new HashMap<>();
 							pcellMap.put("Type", "Pcell");
 							// 5G
 							pcellMap.put("CellName", "");
@@ -1267,14 +2069,15 @@ public class EsFiveBusssController {
 							pcellMap.put("Beam", "");
 							pcellMap.put("SSRSRP", proLteDataInfoBeans.getSsRSRP());
 							pcellMap.put("SSRSRQ", proLteDataInfoBeans.getSsRSRQ());
-							pcellMap.put("SSSINR",  proLteDataInfoBeans.getSsSINR());
+							pcellMap.put("SSSINR", proLteDataInfoBeans.getSsSINR());
 							datas.add(pcellMap);
-							
-							List<NrNeighborhoodInfo> proLteNeighborhoodInfos = proLteDataInfoBeans.getNrNeighborhoodInfos();
-							if (proLteNeighborhoodInfos !=null && proLteNeighborhoodInfos.size()>0) {
+
+							List<NrNeighborhoodInfo> proLteNeighborhoodInfos = proLteDataInfoBeans
+									.getNrNeighborhoodInfos();
+							if (proLteNeighborhoodInfos != null && proLteNeighborhoodInfos.size() > 0) {
 								for (NrNeighborhoodInfo proLteNeighborhoodInfo : proLteNeighborhoodInfos) {
-									Map<String, Object> lteMap=new HashMap<>();
-									
+									Map<String, Object> lteMap = new HashMap<>();
+
 									lteMap.put("Type", "Ncell");
 									// 5G
 									lteMap.put("CellName", "");
@@ -1283,19 +2086,19 @@ public class EsFiveBusssController {
 									lteMap.put("Beam", "");
 									lteMap.put("SSRSRP", proLteNeighborhoodInfo.getNrNeighborhoodSSRSRP());
 									lteMap.put("SSRSRQ", proLteNeighborhoodInfo.getNrNeighborhoodSSRSRQ());
-									lteMap.put("SSSINR",  proLteNeighborhoodInfo.getNrNeighborhoodSSSINR());
+									lteMap.put("SSSINR", proLteNeighborhoodInfo.getNrNeighborhoodSSSINR());
 									datas.add(lteMap);
 								}
 							}
 							paramMap.put("5G", datas);
 						}
-						
+
 						// 4g
 						LteDataInfoBean proNrDataInfoBean = fiveLogMain.getLteDataInfoBean();
 						if (proNrDataInfoBean != null) {
-							List<Map<String, Object>> datas=new ArrayList<>();
-							Map<String, Object> pcellMap=new HashMap<>();
-							
+							List<Map<String, Object>> datas = new ArrayList<>();
+							Map<String, Object> pcellMap = new HashMap<>();
+
 							// 4G
 							pcellMap.put("Type", "Pcell");
 							pcellMap.put("CellName", "");
@@ -1309,11 +2112,12 @@ public class EsFiveBusssController {
 							pcellMap.put("SINR", proNrDataInfoBean.getLteSINR());
 							pcellMap.put("RSSI", proNrDataInfoBean.getLteRSSI());
 							datas.add(pcellMap);
-							
-							List<LteNeighborhoodInfo> proNrNeighborhoodInfos = proNrDataInfoBean.getLteNeighborhoodInfos();
-							if (proNrNeighborhoodInfos != null && proNrNeighborhoodInfos.size()>0) {
+
+							List<LteNeighborhoodInfo> proNrNeighborhoodInfos = proNrDataInfoBean
+									.getLteNeighborhoodInfos();
+							if (proNrNeighborhoodInfos != null && proNrNeighborhoodInfos.size() > 0) {
 								for (LteNeighborhoodInfo proNrNeighborhoodInfo : proNrNeighborhoodInfos) {
-									Map<String,Object> nellMap=new HashMap<>();
+									Map<String, Object> nellMap = new HashMap<>();
 									// 4G
 									nellMap.put("Type", "Ncell");
 									nellMap.put("CellName", "");
@@ -1322,7 +2126,7 @@ public class EsFiveBusssController {
 									nellMap.put("RSRP", proNrNeighborhoodInfo.getLteNeighbirhoodRSRP());
 									nellMap.put("RSRQ", proNrNeighborhoodInfo.getLteNeighbirhoodRSRQ());
 									nellMap.put("SINR", "");
-									nellMap.put("RSSI",proNrNeighborhoodInfo.getLteNeighbirhoodRSSI());
+									nellMap.put("RSSI", proNrNeighborhoodInfo.getLteNeighbirhoodRSSI());
 									datas.add(nellMap);
 								}
 							}
@@ -1334,8 +2138,7 @@ public class EsFiveBusssController {
 		}
 		return paramMap;
 	}
-	
-	
+
 	/**
 	 * 
 	 * @Description: 查询速率
@@ -1344,13 +2147,14 @@ public class EsFiveBusssController {
 	 */
 	@ResponseBody
 	@PostMapping(value = "/queryLogRate")
-	public Map<String, Object> queryLogRate(@RequestParam("id") String id) {
-		
+	public Map<String, Object> queryLogRate(@RequestBody QueryParamData queryParamData) {
+
 		Map<String, Object> paramMap = new HashMap<>();
 		paramMap.put("4G", new HashMap<>());
 		paramMap.put("5G", new HashMap<>());
-		
+
 		// log中每个主题内容的id
+		String id = queryParamData.getId();
 		if (StringUtils.isNotBlank(id)) {
 			// 查询这条id对应的主log信息
 			QueryParamData queryParamDataParam = new QueryParamData("logmain5g", "logmain5g");
@@ -1362,28 +2166,34 @@ public class EsFiveBusssController {
 				FiveLogMain fiveLogMain = JSONObject.parseObject(JSONObject.toJSONString(mapRes), FiveLogMain.class);
 				if (fiveLogMain != null) {
 					String logversion = fiveLogMain.getLogversion();
-					if (("0").equals(logversion)) {//4g
-						LinkedHashMap<String, Object> paramMapUlDl=new LinkedHashMap<>();
-						paramMapUlDl.put("APP", fiveLogMain.getDownLoadSpeed()+" ~ "+fiveLogMain.getUpLoadSpeed());
-						
+					if (("0").equals(logversion)) {// 4g
+						LinkedHashMap<String, Object> paramMapUlDl = new LinkedHashMap<>();
+						paramMapUlDl.put("APP", fiveLogMain.getDownLoadSpeed() + " ~ " + fiveLogMain.getUpLoadSpeed());
+
 						ProLteDataInfoBean proNrDataInfoBean = fiveLogMain.getProLteDataInfoBeans();
-						if (proNrDataInfoBean !=null) {
-							paramMapUlDl.put("PDCP", proNrDataInfoBean.getThroughputPccPdcpDl()+" ~ "+proNrDataInfoBean.getThroughputPccPdcpUl());
-							paramMapUlDl.put("RLC", proNrDataInfoBean.getThroughputPccRlcDl()+" ~ "+proNrDataInfoBean.getThroughputPccRlcUl());
-							paramMapUlDl.put("MAC", proNrDataInfoBean.getThroughputPccMacDl()+" ~ "+proNrDataInfoBean.getThroughputPccMacUl());
+						if (proNrDataInfoBean != null) {
+							paramMapUlDl.put("PDCP", proNrDataInfoBean.getThroughputPccPdcpDl() + " ~ "
+									+ proNrDataInfoBean.getThroughputPccPdcpUl());
+							paramMapUlDl.put("RLC", proNrDataInfoBean.getThroughputPccRlcDl() + " ~ "
+									+ proNrDataInfoBean.getThroughputPccRlcUl());
+							paramMapUlDl.put("MAC", proNrDataInfoBean.getThroughputPccMacDl() + " ~ "
+									+ proNrDataInfoBean.getThroughputPccMacUl());
 							paramMapUlDl.put("PHY", " ~ ");
 						}
 						paramMap.put("4G", paramMapUlDl);
 					}
-					if (("1").equals(logversion)) {//5g
-						LinkedHashMap<String, Object> paramMapUlDl=new LinkedHashMap<>();
-						paramMapUlDl.put("APP", fiveLogMain.getDownLoadSpeed()+" ~ "+fiveLogMain.getUpLoadSpeed());
-						
+					if (("1").equals(logversion)) {// 5g
+						LinkedHashMap<String, Object> paramMapUlDl = new LinkedHashMap<>();
+						paramMapUlDl.put("APP", fiveLogMain.getDownLoadSpeed() + " ~ " + fiveLogMain.getUpLoadSpeed());
+
 						ProNrDataInfoBean proNrDataInfoBean = fiveLogMain.getProNrDataInfoBean();
-						if (proNrDataInfoBean !=null) {
-							paramMapUlDl.put("PDCP", proNrDataInfoBean.getPdcpDLThr()+" ~ "+proNrDataInfoBean.getPdcpULThr());
-							paramMapUlDl.put("RLC", proNrDataInfoBean.getRlcDLThr()+" ~ "+proNrDataInfoBean.getRlcULThr());
-							paramMapUlDl.put("MAC", proNrDataInfoBean.getMacDLThr()+" ~ "+proNrDataInfoBean.getMacULThr());
+						if (proNrDataInfoBean != null) {
+							paramMapUlDl.put("PDCP",
+									proNrDataInfoBean.getPdcpDLThr() + " ~ " + proNrDataInfoBean.getPdcpULThr());
+							paramMapUlDl.put("RLC",
+									proNrDataInfoBean.getRlcDLThr() + " ~ " + proNrDataInfoBean.getRlcULThr());
+							paramMapUlDl.put("MAC",
+									proNrDataInfoBean.getMacDLThr() + " ~ " + proNrDataInfoBean.getMacULThr());
 							paramMapUlDl.put("PHY", " ~ ");
 						}
 						paramMap.put("5G", paramMapUlDl);
@@ -1463,8 +2273,10 @@ public class EsFiveBusssController {
 			paramMap.put("projectLevel", projectLevelFlag);// 3是查询本市 2是查询全省的
 			paramMap.put("provinceName", sysProject.getProProvice());
 			paramMap.put("operator", sysProject.getProjOperator());
+			// paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
+			// "lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm,lte_site_name");
 			paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
-					"lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm,lte_site_name");
+					"nr_city_name,1,nr_btsid,1,nr_lcrid,nr_ci,nr_ci,nr_phycellid,nr_longitude2,nr_latitude2,nr_longitude,nr_latitude,nr_site_tall,nr_azimuth,nr_mechanical_downdip,nr_electronic_downdip,nr_total_downdip,nr_tac,nr_sys,nr_site_type,nr_arfcn,nr_derrick_type,nr_address,nr_scene,nr_grid,nr_firm,nr_site_name");
 
 			paramMap.put("limit", "" + i * limit + "," + limit); // 不限制就是全部的
 
@@ -1489,7 +2301,7 @@ public class EsFiveBusssController {
 				break;
 			}
 			for (List<String> data : datas) {
-				CommonModel commonModel = CommonModel.changeStrToObj(data);
+				CommonModel commonModel = CommonModel.changeStrToObj5g(data);
 				GcModel model = new GcModel(commonModel);
 				// 将经纬度处理为WGS84
 				model.dealLngLatBdToWgs84();

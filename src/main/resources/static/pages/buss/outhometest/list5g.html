@@ -221,7 +221,7 @@
 	  /**多项删除*/
 	  $("#deleteBtnModel").click(function(){
 		  if(checkArray && checkArray.length ==1){
-		  	  common.getConfirmDelDialog("确定要删除吗？",'共删除【'+checkArray.length+'】条记录',2,"/es/buss/deleteOutHome",{"ids":checkArray.join(",")},fresh);
+		  	  common.getConfirmDelDialog("确定要删除吗？",'共删除【'+checkArray.length+'】条记录',2,"/es/buss/5g/deleteOutHome",{"ids":checkArray.join(",")},fresh);
 		  	if(checkArray){
 	   			checkArray.length=0
 	   		}

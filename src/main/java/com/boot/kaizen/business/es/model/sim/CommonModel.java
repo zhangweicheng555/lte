@@ -13,35 +13,35 @@ public class CommonModel implements Serializable {
 
 	public static final long serialVersionUID = 1L;
 	
-	public String lte_azimuth;// 方位角    
-	public String lte_cell;// Cell           
-	public String lte_ci;// CI         
-	public String lte_city_name;// 城市   
-	public String lte_earfcn;// EARFCN     不可检索
-	public String lte_ecgi;// lte_ecgi  
-	public String lte_electronic_downdip;// 电子倾角   不可检索
-	public String lte_enodebid;// eNodeBID  
+	public String lte_azimuth;// 方位角      33
+	public String lte_cell;// Cell          4 
+	public String lte_ci;// CI             
+	public String lte_city_name;// 城市      
+	public String lte_earfcn;// EARFCN      不可检索   6
+	public String lte_ecgi;// lte_ecgi      5             
+	public String lte_electronic_downdip;// 电子倾角   不可检索  11
+	public String lte_enodebid;// eNodeBID    3
 	public String lte_firm;// 厂商   
 	public String lte_grid;// 网格归属       
-	public String lte_longitude2;// 经度 百度的
-	public String lte_latitude2;// 纬度 百度的
-	public String lte_longitude;             //不可检索
-	public String lte_latitude;              //不可检索
-	public String lte_mechanical_downdip;// 机械下倾角    //不可检索
-	public String lte_net;// 网络
-	public String lte_phycellid;// PhyCellId 这个就是PCI     
-	public String lte_site_tall;// 站高            //不可检索
+	public String lte_longitude2;// 经度 百度的   
+	public String lte_latitude2;// 纬度 百度的    
+	public String lte_longitude;             //不可检索    22
+	public String lte_latitude;              //不可检索    33
+	public String lte_mechanical_downdip;// 机械下倾角    //不可检索  10
+	public String lte_net;// 网络                          1
+	public String lte_phycellid;// PhyCellId 这个就是PCI        8
+	public String lte_site_tall;// 站高            //不可检索     9
 	public String lte_site_type;// 站型           //不可检索
-	public String lte_tac;// TAC              //不可检索
+	public String lte_tac;// TAC              //不可检索     7
 	public String lte_sys;// 制式                       //不可检索
-	public String lte_total_downdip;// 总下倾角     //不可检索
+	public String lte_total_downdip;// 总下倾角     //不可检索    12
 	
 	public String lte_sector_id;// Sector ID    //不可检索
 	public String lte_derrick_type;// 抱杆类型    //不可检索
 	public String lte_address;// 详细地址        //不可检索
 	public String lte_scene;// 场景归属        //不可检索
 	
-	public String lte_site_name;// 小区名字20200428添加
+	public String lte_site_name;// 小区名字20200428添加    2
 	
 
 	
@@ -380,6 +380,43 @@ public class CommonModel implements Serializable {
 				array.get(24), //
 				array.get(25),//
 		       array.get(26));//
+		return model;
+	}
+	public static CommonModel changeStrToObj5g(List<String> data) {
+		if (data != null && data.size() == 27) {
+			return createCommonModel5g(data);
+		}
+		return null;
+	}
+	
+	public static CommonModel createCommonModel5g(List<String>  array) {
+		CommonModel model = new CommonModel(array.get(0), //
+				"NR", //
+				array.get(2), //
+				"", //
+				array.get(4), //
+				array.get(5), //
+				array.get(6), //
+				array.get(7), //
+				array.get(8), //
+				array.get(9), //
+				array.get(10), //
+				array.get(11), //
+				array.get(12), //
+				array.get(13), //
+				array.get(14), //
+				array.get(15), //
+				array.get(16), //
+				array.get(17), ////
+				array.get(18), //
+				array.get(19), //
+				array.get(20), //
+				array.get(21), //
+				array.get(22), //
+				array.get(23), //
+				array.get(24), //
+				array.get(25),//
+				array.get(26));//
 		return model;
 	}
 

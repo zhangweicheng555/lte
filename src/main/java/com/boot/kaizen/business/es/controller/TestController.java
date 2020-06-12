@@ -804,6 +804,9 @@ public class TestController {
 				.startObject("speed").field("type", "text").endObject()//
 				.startObject("height").field("type", "text").endObject()//
 				.startObject("testTime").field("type", "text").endObject()//
+				
+				.startObject("testTime").field("type", "long").endObject()//
+				
 				.startObject("downLoadSpeed").field("type", "text").endObject()//
 				.startObject("upLoadSpeed").field("type", "text").endObject()//
 				.startObject("normalEventType").field("type", "text").endObject()//
