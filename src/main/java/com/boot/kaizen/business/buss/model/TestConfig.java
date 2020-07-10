@@ -15,17 +15,27 @@ public class TestConfig extends SuperEntity<TestConfig> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Integer projId;
+	private String projId;
 	private Date createTime;
 
 	private String item; // RSRP 、SINR、DL、UL 这个是固定的
 	private String jsonStr;// 该项对应得测试配置列表内容 这个就是 RequestParamConfig得json传
 
-	public Integer getProjId() {
+	private String configType; // 配置类型 默认是0 4G 1是5G
+
+	public String getConfigType() {
+		return configType;
+	}
+
+	public void setConfigType(String configType) {
+		this.configType = configType;
+	}
+
+	public String getProjId() {
 		return projId;
 	}
 
-	public void setProjId(Integer projId) {
+	public void setProjId(String projId) {
 		this.projId = projId;
 	}
 
@@ -53,12 +63,13 @@ public class TestConfig extends SuperEntity<TestConfig> {
 		this.jsonStr = jsonStr;
 	}
 
-	public TestConfig(Integer projId, Date createTime, String item, String jsonStr) {
+	public TestConfig(String projId, Date createTime, String item, String jsonStr, String configType) {
 		super();
 		this.projId = projId;
 		this.createTime = createTime;
 		this.item = item;
 		this.jsonStr = jsonStr;
+		this.configType = configType;
 	}
 
 	public TestConfig() {

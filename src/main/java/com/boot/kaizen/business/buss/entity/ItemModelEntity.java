@@ -13,8 +13,29 @@ public class ItemModelEntity implements Serializable {
 
 	private String minVal;
 	private String maxVal;
-	private Integer num;
 	private String colorVal;
+	private Integer num;//数量
+	private String numPerRatio;//百分比
+	
+	
+	
+
+	public String getNumPerRatio() {
+		return numPerRatio;
+	}
+
+	public void setNumPerRatio(String numPerRatio) {
+		this.numPerRatio = numPerRatio;
+	}
+
+	public ItemModelEntity(String minVal, String maxVal, Integer num, String colorVal, String numPerRatio) {
+		super();
+		this.minVal = minVal;
+		this.maxVal = maxVal;
+		this.colorVal = colorVal;
+		this.num = num;
+		this.numPerRatio = numPerRatio;
+	}
 
 	public ItemModelEntity(String minVal, String maxVal, Integer num, String colorVal) {
 		super();

@@ -16,6 +16,31 @@ public class RequestParamConfigEntity implements Serializable {
 	private String item; // RSRP 、SINR、DL、UL 这个是固定的
 	private List<ItemModelEntity> content;
 	
+	//20200628  图例模块记忆功能
+	private String showFlag="1";// 显示 默认是0 1是显示
+	private String pointDetail="1";// 采样点详情 默认是0 1是显示
+	
+	
+	public String getShowFlag() {
+		return showFlag;
+	}
+
+
+	public void setShowFlag(String showFlag) {
+		this.showFlag = showFlag;
+	}
+
+
+	public String getPointDetail() {
+		return pointDetail;
+	}
+
+
+	public void setPointDetail(String pointDetail) {
+		this.pointDetail = pointDetail;
+	}
+
+
 	public String getItem() {
 		return item;
 	}

@@ -152,4 +152,9 @@ public class PermissionServiceImpl implements PermissionService {
 		return permissionDao.queryByUserIdAndProjId(username, projId);
 	}
 
+	@Override
+	public List<Permission> selectByCondition(Map<String, Object> map) {
+		return permissionDao.selectByCondition(map);
+	}
+
 }

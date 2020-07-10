@@ -57,7 +57,7 @@ public interface UserService {
 	List<Long> findUserIds(Long roleId);
 
 	/**
-	 * app使用
+	 * app使用  根据项目编号和登陆账号查询用户
 	 * @param roleId
 	 * @return
 	 */

@@ -81,7 +81,6 @@ public class EsController {
 		System.out.println(Esutil.typeIfExists(index, type));
 		return new JsonMsgUtil(true);
 	}
-	
 
 	@SuppressWarnings("unchecked")
 	@ResponseBody
@@ -114,14 +113,11 @@ public class EsController {
 		return Esutil.scrollQuery(queryParamData);
 	}
 
-	
 	@ResponseBody
 	@PostMapping(value = "/queryList")
 	public List<Map<String, Object>> queryList(@RequestBody QueryParamData queryParamData) {
 		return Esutil.queryList(queryParamData);
 	}
-
-	
 
 	@ResponseBody
 	@PostMapping(value = "/queryPage")
@@ -139,7 +135,6 @@ public class EsController {
 		}
 		return new TableResultUtil(1L, "查询失败", 0L, new ArrayList<>());
 	}
-
 
 	/**
 	 * 一键测试数据的导入
@@ -171,7 +166,7 @@ public class EsController {
 		}
 		/** 分批的添加进去 */
 		transportClient.bulk(request).get();
-		if (bufferedReader !=null) {
+		if (bufferedReader != null) {
 			bufferedReader.close();
 		}
 		return "success";
@@ -188,7 +183,7 @@ public class EsController {
 	@RequestMapping(value = "/esLqQuery")
 	public Object esLqQuery() throws Exception {
 		GeoPoint topLeft = new GeoPoint(22.825263470505483d, 108.37550228611097d);
-		//GeoPoint bottomRight = new GeoPoint(22.82323569809738d, 108.37695754103666);
+		// GeoPoint bottomRight = new GeoPoint(22.82323569809738d, 108.37695754103666);
 
 		Double splitMi = 200d; // 单位是米
 		GeoDistanceQueryBuilder distanceQueryBuilder = QueryBuilders.geoDistanceQuery("location").point(topLeft)
@@ -347,5 +342,5 @@ public class EsController {
 		return "success";
 	}
 
-	
+
 }

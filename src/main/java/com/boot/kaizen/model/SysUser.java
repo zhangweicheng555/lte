@@ -29,48 +29,35 @@ public class SysUser extends BaseEntity<Long> {
 	private Integer status;
 
 	/** 流程角色相关 */
-	/** 厂商 */
+	/** 厂商 *//*
 	private String comapny;
-	/** 分区归属 */
+	*//** 分区归属 *//*
 	private String comapnyBelong;
-	/** 分公司名称 */
-	private String secondConpany;
+	*//** 分公司名称 *//*
+	private String secondConpany;*/
 
 	private String roleIdsStr;
 
 	/** 添加用户的角色使用 */
+   
+	
 
-	public String getComapny() {
-		return comapny;
-	}
-
+	
 	public String getRoleIdsStr() {
 		return roleIdsStr;
+	}
+
+	public SysUser(String username, String password, String nickname) {
+		super();
+		this.username = username;
+		this.password = password;
+		this.nickname = nickname;
 	}
 
 	public void setRoleIdsStr(String roleIdsStr) {
 		this.roleIdsStr = roleIdsStr;
 	}
 
-	public void setComapny(String comapny) {
-		this.comapny = comapny;
-	}
-
-	public String getComapnyBelong() {
-		return comapnyBelong;
-	}
-
-	public void setComapnyBelong(String comapnyBelong) {
-		this.comapnyBelong = comapnyBelong;
-	}
-
-	public String getSecondConpany() {
-		return secondConpany;
-	}
-
-	public void setSecondConpany(String secondConpany) {
-		this.secondConpany = secondConpany;
-	}
 
 	public String getUsername() {
 		return username;
@@ -161,4 +148,25 @@ public class SysUser extends BaseEntity<Long> {
 		int LOCKED = 2;
 	}
 
+	public SysUser(String username, String password, String nickname, String phone, String telephone, String email,
+			Date birthday, Integer sex, String headImgUrl, Integer status, String roleIdsStr) {
+		super();
+		this.username = username;
+		this.password = password;
+		this.nickname = nickname;
+		this.phone = phone;
+		this.telephone = telephone;
+		this.email = email;
+		this.birthday = birthday;
+		this.sex = sex;
+		this.headImgUrl = headImgUrl;
+		this.status = status;
+		this.roleIdsStr = roleIdsStr;
+	}
+
+	public SysUser() {
+		super();
+	}
+
+	
 }

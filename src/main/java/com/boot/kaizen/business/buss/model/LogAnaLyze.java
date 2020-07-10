@@ -20,6 +20,8 @@ public class LogAnaLyze extends SuperEntity<LogAnaLyze> {
 	private Double sinr;
 
 	private Double rsrp;
+	private Double ssrsrp;
+	private Double sssinr;
 
 	private Double downLoadSpeed;// 下载速率
 	private Double upLoadSpeed;// 上传速率
@@ -53,6 +55,50 @@ public class LogAnaLyze extends SuperEntity<LogAnaLyze> {
 
 	public String getFinalLogData() {
 		return finalLogData;
+	}
+
+	
+	public Double getSsrsrp() {
+		return ssrsrp;
+	}
+
+	public void setSsrsrp(Double ssrsrp) {
+		this.ssrsrp = ssrsrp;
+	}
+
+	public Double getSssinr() {
+		return sssinr;
+	}
+
+	public void setSssinr(Double sssinr) {
+		this.sssinr = sssinr;
+	}
+
+	public LogAnaLyze(String pid, Double sinr, Double rsrp, Double ssrsrp, Double sssinr, Double downLoadSpeed,
+			Double upLoadSpeed, String uniqueRecord, String finalLogData, Double zjcs, Double wjtcs, Double dhcs,
+			Double zhcs, Double pingQqcs, Double pingCgch, Double pingSbch, Double httpQqcs, Double httpCgch,
+			Double httpSbch, Date createTime) {
+		super();
+		this.pid = pid;
+		this.sinr = sinr;
+		this.rsrp = rsrp;
+		this.ssrsrp = ssrsrp;
+		this.sssinr = sssinr;
+		this.downLoadSpeed = downLoadSpeed;
+		this.upLoadSpeed = upLoadSpeed;
+		this.uniqueRecord = uniqueRecord;
+		this.finalLogData = finalLogData;
+		this.zjcs = zjcs;
+		this.wjtcs = wjtcs;
+		this.dhcs = dhcs;
+		this.zhcs = zhcs;
+		this.pingQqcs = pingQqcs;
+		this.pingCgch = pingCgch;
+		this.pingSbch = pingSbch;
+		this.httpQqcs = httpQqcs;
+		this.httpCgch = httpCgch;
+		this.httpSbch = httpSbch;
+		this.createTime = createTime;
 	}
 
 	public void setFinalLogData(String finalLogData) {

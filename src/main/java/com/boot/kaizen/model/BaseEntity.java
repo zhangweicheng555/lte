@@ -30,6 +30,9 @@ public abstract class BaseEntity<T extends Serializable> implements Serializable
 	/** 添加人 */
 	private T createAt;
 
+	
+	
+
 	public T getId() {
 		return id;
 	}

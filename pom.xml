@@ -325,6 +325,38 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				
+				<!-- 编译的时候不带lib包    
+				    本地开发的时候  将这个注释打开  
+				    使用：将lib跟jar放在同一个目录即可
+					nohup java -Dloader.path=lib/ -jar kaizenLog.jar &
+				   -->
+				<configuration>
+					<mainClass>com.boot.kaizen.KaizenApplication</mainClass>
+					<layout>ZIP</layout>
+					<includes>
+						<include>
+							<groupId>nothing</groupId>
+							<artifactId>nothing</artifactId>							
+						</include>
+					</includes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>
+								repackage
+							</goal>
+						</goals>
+					</execution>
+				</executions>
+		<!--
+			 编译的时候不带lib包   
+			          本地开发的时候  将这个注释打开 
+				    使用：将lib跟jar放在同一个目录即可
+					java -Dloader.path=lib/ -jar kaizenLog.jar
+		    -->
+			
 			</plugin>
 			<plugin>
 				<groupId>org.flywaydb</groupId>

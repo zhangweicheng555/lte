@@ -125,6 +125,7 @@ function initRoleList(projName){
 		async:false,
 		data:{"projName":projName},
 		success : function(data) {
+			console.info(data);
 			var length = data.length;
 			 //$('tr:gt(1)').remove();//从tr第二行开始删除
 			for(var i=0; i<length; i++){

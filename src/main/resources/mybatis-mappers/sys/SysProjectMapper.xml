@@ -114,8 +114,27 @@
         </if>
 		
 		 group by sp.id,sp.proj_name,sp.proj_code,sp.proj_intro,sp.sort,sp.createTime,sp.updateTime,sp.proj_province,sp.hostAp,sp.projSimName,sp.projOperator
-		 order by sp.sort
+		 order by sp.createTime
 	</select>
+	
+	
+	
+	<select id="findByCondition" resultMap="SysProjectFMap">
+		 select 
+		   sp.id,sp.proj_name,sp.proj_code,sp.proj_intro,sp.sort,sp.createTime,sp.updateTime,sp.proj_province
+		   ,sp.hostAp,sp.projSimName,sp.projOperator
+		 from 
+		 sys_project sp
+		 where 1=1 
+		
+		 <if test="map.projName != null and map.projName != ''">
+            and sp.proj_name = #{map.projName}
+        </if>
+        
+		 
+		 order by sp.createTime
+	</select>
+	
 	
 	
 	<select id="findList" resultMap="SysProjectFMap">
@@ -177,6 +196,9 @@
 		<result property="createTime" column="createTime" />
 		<result property="updateTime" column="updateTime" />
 	</resultMap>
+	
+	
+	
 
 	
 </mapper>

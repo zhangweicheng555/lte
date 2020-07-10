@@ -207,4 +207,13 @@ public class RoleServiceImpl implements RoleService {
 	public List<SysRole> find(Map<String, Object> map) {
 		return sysRoleDao.find(map);
 	}
+
+	@Override
+	public void save(SysRole sysRole) {
+		sysRoleDao.save(sysRole);
+	}
+	
+	
+	
+	
 }

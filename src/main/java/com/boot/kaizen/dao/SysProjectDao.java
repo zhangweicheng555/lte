@@ -9,6 +9,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.boot.kaizen.business.buss.model.SimProject;
 import com.boot.kaizen.model.SysProject;
 
 /**
@@ -25,13 +27,15 @@ public interface SysProjectDao {
 	List<SysProject> findWithRoleRealtion(@Param("projId") Long projId, @Param("projName") String projName);
 
 	List<SysProject> findList(@Param("projId") Long projId);
+	
+	List<SysProject> findByCondition(@Param("map") Map<String, Object> map);
 
 	List<SysProject> find(@Param("map") Map<String, Object> map);
 
 	Integer delete(@Param("idsArray") Long[] array);
 
 	@Insert("insert into sys_project(proj_name,proj_code,proj_intro,sort,createTime,proj_province,hostAp,projSimName,projOperator) values(#{projName},#{projCode},#{projIntro},#{sort},#{createTime},#{proProvice},#{hostAp},#{projSimName},#{projOperator})")
-	void insert(SysProject sysProject);
+	void insertSelf(SysProject sysProject);
 
 	@Update("update sys_project set proj_name=#{projName},proj_code=#{projCode},proj_intro=#{projIntro},sort=#{sort},updateTime=#{updateTime},proj_province=#{proProvice},hostAp=#{hostAp},projSimName=#{projSimName},projOperator=#{projOperator} where id=#{id}")
 	void update(SysProject sysProject);

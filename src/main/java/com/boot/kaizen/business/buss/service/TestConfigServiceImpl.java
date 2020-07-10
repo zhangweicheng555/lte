@@ -23,14 +23,21 @@ import com.boot.kaizen.business.buss.model.TestConfig;
 public class TestConfigServiceImpl extends ServiceImpl<TestConfigMapper, TestConfig> implements ITestConfigService {
 
 	@Override
-	public List<RequestParamConfig> queryItemAll(String item, Integer projId) {
+	public List<RequestParamConfig> queryItemAll(String item, Integer projId,String type) {
 		List<RequestParamConfig> datas = new ArrayList<>();
 
 		Map<String, Object> paramMap = new HashMap<>();
-		paramMap.put("projId", projId);
+		paramMap.put("projId", projId+"");
+		
 		if (StringUtils.isNotBlank(item)) {
 			paramMap.put("item", item);
 		}
+		
+		if (StringUtils.isBlank(type)) {
+			type="0";
+		}
+		
+		paramMap.put("configType", type);
 
 		List<TestConfig> testConfigs = this.selectByMap(paramMap);
 		if (testConfigs == null || testConfigs.size() == 0) {// 返回默认

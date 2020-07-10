@@ -38,15 +38,6 @@
 		and su.createTime >= str_to_date(#{map.beginTime},'%Y-%m-%d %H:%i:%s') 
 	</if>
 	
-	<if test="map.comapny != null">
-		and su.comapny = #{map.comapny} 
-	</if>
-	<if test="map.comapnyBelong != null">
-		and su.comapnyBelong  like  '%${map.comapnyBelong}%'  
-	</if>
-	<if test="map.secondConpany != null">
-		and su.secondConpany    like  '%${map.secondConpany}%'     
-	</if>
 	<if test="map.roleId != null">
 		and r.id = #{map.roleId}
 	</if>
@@ -56,6 +47,12 @@
 	
 		order by su.createTime desc 
 	</select>
+	
+	
+	
+	
+	
+	
 	
 	<select id="queryUser" resultType="SysUser">
 	
@@ -201,15 +198,7 @@
         updateTime,
       </if>
       
-      <if test="comapny != null">
-        comapny,
-      </if>
-      <if test="comapnyBelong != null">
-        comapnyBelong,
-      </if>
-      <if test="secondConpany != null">
-        secondConpany,
-      </if>
+     
       
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -253,15 +242,7 @@
         #{updateTime},
       </if>
       
-      <if test="comapny != null">
-        #{comapny},
-      </if>
-      <if test="comapnyBelong != null">
-        #{comapnyBelong},
-      </if>
-      <if test="secondConpany != null">
-        #{secondConpany},
-      </if>
+     
     </trim>
   </insert>
 	
@@ -295,15 +276,7 @@
 		<if test="user.status != null">
 			status = #{user.status},
 		</if>
-		<if test="user.comapny != null">
-			comapny = #{user.comapny},
-		</if>
-		<if test="user.comapnyBelong != null">
-			comapnyBelong = #{user.comapnyBelong},
-		</if>
-		<if test="user.secondConpany != null">
-			secondConpany = #{user.secondConpany},
-		</if>
+		
 		</set>
 		where t.id = #{user.id}
 	</update>

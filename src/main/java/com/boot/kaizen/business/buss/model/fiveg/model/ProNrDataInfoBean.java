@@ -3,6 +3,8 @@ package com.boot.kaizen.business.buss.model.fiveg.model;
 import java.io.Serializable;
 import java.util.List;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 /**
  * root5G信令
  * @author weichengz
@@ -13,12 +15,19 @@ public class ProNrDataInfoBean implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	private String band;//频段
+	@JSONField(name="BandWidth")
     private String BandWidth;//带宽
+	@JSONField(name="FrequencyPointA")
     private String FrequencyPointA;//PointA频率
+	@JSONField(name="FrequencyDL")
     private String FrequencyDL;//下行频率
+	@JSONField(name="GSCN")
     private String GSCN;//全局同步信道
+	@JSONField(name="SubCarrierSpace")
     private String SubCarrierSpace;//子载波间隔
+	@JSONField(name="PCI")
     private String PCI;
+	@JSONField(name="SSBIndex")
     private String SSBIndex;//SSB号
     private String ssRSRP;
     private String ssSINR;

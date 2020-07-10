@@ -122,7 +122,7 @@
   margin: 0px!important;
 }
 .ant-btn-primary{
-  border-color:transparent!important;
+  border-color:transparent;
 }
 .ant-btn-default{
   border-color:transparent!important;

@@ -15,9 +15,9 @@ public class SysProject extends BaseEntity<Long> {
 	private static final long serialVersionUID = 1L;
 	private String projectMapperName; // 所属项目名称 这个一般是自己查询显示用的
 	
-	private String projIntro; // 所属项目编号 新增  这个废弃20200224
+	private String projIntro; // 所属项目编号 新增  这个废弃20200224   20200612重新使用，当作说明字段
 
-	private String projName;// 地市名字
+	private String projName;// 项目名字
 	private String projCode;// SIM地市的名字
 	private String proProvice;// SIM地市省份
 
@@ -26,6 +26,7 @@ public class SysProject extends BaseEntity<Long> {
 	private String projSimName;// SIM ProjectName名称
 	private String projOperator;// sim项目 运行商 手动填写
 
+	
 	private String sort;
 	@JsonIgnore
 	private List<SysRole> roles;

@@ -14,8 +14,30 @@ public class SignalEventBean implements Serializable{
     private String mEvent;
     private double mLongitude;
     private double mLatitude;
+    
+    private String mid;//此点的id
 
-    public long getmTimestamp() {
+    
+    public SignalEventBean(long mTimestamp, String mEventType, String mEvent, double mLongitude, double mLatitude,
+			String mid) {
+		super();
+		this.mTimestamp = mTimestamp;
+		this.mEventType = mEventType;
+		this.mEvent = mEvent;
+		this.mLongitude = mLongitude;
+		this.mLatitude = mLatitude;
+		this.mid = mid;
+	}
+
+	public String getMid() {
+		return mid;
+	}
+
+	public void setMid(String mid) {
+		this.mid = mid;
+	}
+
+	public long getmTimestamp() {
         return mTimestamp;
     }
 

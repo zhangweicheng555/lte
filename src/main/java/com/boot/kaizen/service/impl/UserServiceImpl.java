@@ -83,25 +83,28 @@ public class UserServiceImpl implements UserService {
 			// 修改信息
 			sysUser.setUpdateTime(new Date());
 			userDao.update(sysUser);
-			// 查询用户 角色信息 没有就添加
-			String roleIdsStr = sysUser.getRoleIdsStr();
-			if (StringUtils.isBlank(roleIdsStr)) {
-				throw new IllegalArgumentException("用户角色不能为空");
-			}
+
 			// 删除该项目下该用户的所有角色
 			List<SysRole> roles = sysRoleDao.queryByProIdAndUserId(projId, sysUser.getId());
 			if (roles != null && roles.size() > 0) {
 				Long[] userIds = new Long[] { sysUser.getId() };
 				roleUserService.deleteBatch(userIds);
 			}
-			List<SysRoleUser> list = new ArrayList<SysRoleUser>();
-			String[] split = roleIdsStr.split(",");
-			for (String roleId : split) {
-				list.add(new SysRoleUser(sysUser.getId(), Long.valueOf(roleId)));
+
+			// 查询用户 角色信息 没有就添加
+			String roleIdsStr = sysUser.getRoleIdsStr();
+			if (StringUtils.isNotBlank(roleIdsStr)) {
+				// 重新添加改用户的角色
+				List<SysRoleUser> list = new ArrayList<SysRoleUser>();
+				String[] split = roleIdsStr.split(",");
+				for (String roleId : split) {
+					list.add(new SysRoleUser(sysUser.getId(), Long.valueOf(roleId)));
+				}
+				if (list != null && list.size() > 0) {
+					roleUserService.batchInsert(list);
+				}
 			}
-			if (list != null && list.size() > 0) {
-				roleUserService.batchInsert(list);
-			}
+
 			j = new JsonMsgUtil(true, "操作成功", "");
 		} catch (Exception e) {
 			throw new IllegalArgumentException(e.getMessage());
@@ -129,7 +132,7 @@ public class UserServiceImpl implements UserService {
 					Long userid = Long.valueOf(id.trim());
 					if (!userid.equals(userId)) {
 						array[i] = userid;
-						//删出用户登陆日志
+						// 删出用户登陆日志
 						SysUser sysUser = selectById(userid);
 						if (sysUser != null && StringUtils.isNotBlank(sysUser.getUsername())) {
 							sysLoginServiceService.deleteByUserName(sysUser.getUsername());
@@ -139,7 +142,7 @@ public class UserServiceImpl implements UserService {
 			}
 			// 删除用户角色关系
 			roleUserService.deleteBatch(array);
-	//		userDao.deleteBatch(array, projId);
+			// userDao.deleteBatch(array, projId);
 			userDao.deleteBatch(array, null);
 			j = new JsonMsgUtil(true, "删除操作成功", "");
 		}
@@ -154,7 +157,7 @@ public class UserServiceImpl implements UserService {
 			j = new JsonMsgUtil(true, "操作成功", userDao.getById(id));
 		} catch (Exception e) {
 			j.setMessage("操作失败");
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 		return j;
 	}
@@ -194,15 +197,13 @@ public class UserServiceImpl implements UserService {
 		return userDao.getById(id);
 	}
 
-	
-	
 	@Transactional
 	@Override
-	public JsonMsgUtil saveUserRole(SysUser sysUser,LoginUser user) {
+	public JsonMsgUtil saveUserRole(SysUser sysUser, LoginUser user) {
 		SysUser model = saveUser(sysUser);
-		
+
 		String roleIdsStr = sysUser.getRoleIdsStr();
-		//系统项目角色 可不勾选  其余的项目必须要勾选
+		// 系统项目角色 可不勾选 其余的项目必须要勾选
 		if (!Constant.SYSTEM_ID_PROJECT.equals(user.getProjId())) {
 			if (StringUtils.isBlank(roleIdsStr)) {
 				throw new IllegalArgumentException("用户角色不能为空");

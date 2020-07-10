@@ -1,6 +1,7 @@
 package com.boot.kaizen.business.es.controller;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,9 +12,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -63,13 +67,10 @@ import com.boot.kaizen.business.buss.model.fiveg.model.ProNrDataInfoBean;
 import com.boot.kaizen.business.buss.model.fiveg.model.ProNrNeighborhoodInfo;
 import com.boot.kaizen.business.buss.model.fiveg.model.SignalBean;
 import com.boot.kaizen.business.buss.model.fiveg.model.SignalEventBean;
+import com.boot.kaizen.business.buss.service.ILogAnaLyzeService;
 import com.boot.kaizen.business.buss.service.IOutHomeService;
 import com.boot.kaizen.business.es.model.OutHomeLogModel;
 import com.boot.kaizen.business.es.model.QueryParamData;
-import com.boot.kaizen.business.es.model.logModel.HttpzbBean;
-import com.boot.kaizen.business.es.model.logModel.PingzbBean;
-import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
-import com.boot.kaizen.business.es.model.logModel.YyzbBean;
 import com.boot.kaizen.business.es.model.sim.CommonModel;
 import com.boot.kaizen.business.es.model.sim.GcModel;
 import com.boot.kaizen.business.es.model.sim.ResultModel;
@@ -109,6 +110,8 @@ public class EsFiveBusssController {
 	@Autowired
 	private IEsBussService esBussService;
 	@Autowired
+	private ILogAnaLyzeService logAnaLyzeService;
+	@Autowired
 	private TransportClient transportClient;
 	@Autowired
 	private SysProjectService sysProjectService;
@@ -127,6 +130,8 @@ public class EsFiveBusssController {
 	private static final double MINT_UNIT = 0.01;// 千米
 
 	private static final double GEO_DISTANCE = 10;// 公里
+	private static final double GEO_DISTANCE_5G = 5;// 公里
+	private static final double DEFAAULT_NUM = -99999;// 统计分析的默认值
 
 	/**
 	 * 
@@ -204,13 +209,19 @@ public class EsFiveBusssController {
 							indexRequestMain.source(JSONObject.toJSONString(mainLogModel), XContentType.JSON);
 							request.add(indexRequestMain);
 							// 添加日志分析信息
-							addLogAnalyzeInfo(logAnaLyzes, nrLogBodyBean,nrLogHeadBean);
+							addLogAnalyzeInfo(logAnaLyzes, nrLogBodyBean, nrLogHeadBean, mainLogModel);
 						}
 					}
 				}
 			}
 			/** 分批的添加进去 */
 			transportClient.bulk(request).get();
+			// 批量保存logAnaLyzes
+			logAnaLyzeService.insertBatch(logAnaLyzes, 500);
+			/*
+			 * if (logAnaLyzes !=null && logAnaLyzes.size()>0) { for (LogAnaLyze logAnaLyze
+			 * : logAnaLyzes) { logAnaLyzeService.insert(logAnaLyze); } }
+			 */
 
 			if (bufferedReader != null) {
 				bufferedReader.close();
@@ -221,9 +232,9 @@ public class EsFiveBusssController {
 
 	/**
 	 * 
-	* @Description: 处理统计分析最后模块
-	* @author weichengz
-	* @date 2020年5月22日 下午2:27:31
+	 * @Description: 处理统计分析最后模块
+	 * @author weichengz
+	 * @date 2020年5月22日 下午2:27:31
 	 */
 	private void finalAnalyzeLogData(List<LogAnaLyze> logAnaLyzes, LogFoot logFoot, String outHomeTestId) {
 		if (logAnaLyzes != null && logAnaLyzes.size() > 0) {
@@ -237,7 +248,8 @@ public class EsFiveBusssController {
 				if (yyzbBean != null) {
 					logAnaLyze.setZjcs(formatStringToDouble(yyzbBean.getZjcs()));
 					logAnaLyze.setDhcs(formatStringToDouble(yyzbBean.getDhcs()));
-					logAnaLyze.setWjtcs(logAnaLyze.getZjcs()-logAnaLyze.getDhcs()-formatStringToDouble(yyzbBean.getJtcs()));
+					logAnaLyze.setWjtcs(
+							logAnaLyze.getZjcs() - logAnaLyze.getDhcs() - formatStringToDouble(yyzbBean.getJtcs()));
 					logAnaLyze.setZhcs(logAnaLyze.getZjcs() - logAnaLyze.getWjtcs() - logAnaLyze.getDhcs());
 				}
 
@@ -265,22 +277,27 @@ public class EsFiveBusssController {
 	 * @author weichengz
 	 * @date 2020年5月21日 下午4:10:55
 	 */
-	private void addLogAnalyzeInfo(List<LogAnaLyze> logAnaLyzes, NrLogBodyBean nrLogBodyBean,NrLogHeadBean nrLogHeadBean) {
+	private void addLogAnalyzeInfo(List<LogAnaLyze> logAnaLyzes, NrLogBodyBean nrLogBodyBean,
+			NrLogHeadBean nrLogHeadBean, FiveLogMain mainLogModel) {
 		LogAnaLyze model = new LogAnaLyze();
 		model.setDownLoadSpeed(formatStringToDouble(nrLogBodyBean.getDownLoadSpeed()));
 		model.setUpLoadSpeed(formatStringToDouble(nrLogBodyBean.getUpLoadSpeed()));
 		model.setPid(nrLogBodyBean.getPid());
 		int rootSupport = nrLogHeadBean.getRootSupport();
 		model.setCreateTime(new Date());
-		model.setSinr(0D);
-		model.setRsrp(0D);
-		if (0==rootSupport) {//非root
+		model.setSinr(DEFAAULT_NUM);// 先设置为默认的值
+		model.setRsrp(DEFAAULT_NUM);// 先设置为默认的值
+
+		model.setSsrsrp(formatStringToDouble(mainLogModel.getSsrsrp()));// 设置ssrsrp sssinr的值
+		model.setSssinr(formatStringToDouble(mainLogModel.getSssinr()));
+
+		if (0 == rootSupport) {// 非root
 			LteDataInfoBean lteDataInfoBean = nrLogBodyBean.getLteDataInfoBean();
-			if (lteDataInfoBean !=null) {
+			if (lteDataInfoBean != null) {
 				model.setSinr(formatStringToDouble(lteDataInfoBean.getLteSINR()));
 				model.setRsrp(formatStringToDouble(lteDataInfoBean.getLteRSRP()));
 			}
-		}else {//root的
+		} else {// root的
 			ProLteDataInfoBean proLteDataInfoBeans = nrLogBodyBean.getProLteDataInfoBeans();
 			if (proLteDataInfoBeans != null) {
 				model.setSinr(formatStringToDouble(proLteDataInfoBeans.getServingCellPccSinr()));
@@ -288,11 +305,16 @@ public class EsFiveBusssController {
 			}
 		}
 		logAnaLyzes.add(model);
-		
+
 	}
 
-	
-
+	/**
+	 * 不符合条件的都设置为默认的值
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2020年6月24日 上午11:08:46
+	 */
 	private Double formatStringToDouble(String sinr) {
 		if (StringUtils.isNotBlank(sinr)) {
 			try {
@@ -300,15 +322,13 @@ public class EsFiveBusssController {
 					return Double.valueOf(sinr);
 				}
 			} catch (Exception e) {
-				return 0D;
+				return DEFAAULT_NUM;
 			}
 		} else {
-			return 0D;
+			return DEFAAULT_NUM;
 		}
-		return 0D;
+		return DEFAAULT_NUM;
 	}
-
-
 
 	/**
 	 * 
@@ -1250,6 +1270,44 @@ public class EsFiveBusssController {
 	}
 
 	/**
+	 * 根据CI查询4g /5g对应的小区信息注意，4g/5g小区信息各只会存在一个
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2020年7月7日 上午11:04:37
+	 */
+	@ResponseBody
+	@PostMapping(value = "/queryGcByCi")
+	public List<Map<String, Object>> queryGcByCi(@RequestParam("ci") String ci) {
+		List<Map<String, Object>> datas = new ArrayList<>();
+
+		Map<String, Object> termMap = new HashMap<>();
+		termMap.put("lte_ci.keyword", ci);
+
+		QueryParamData queryParamData = new QueryParamData("simgc", "simgc", true, 1);
+		queryParamData.setTermMap(termMap);// 精确查询
+
+		// 显示的字段
+		queryParamData.setRevelFields(Arrays.asList("lte_site_name", "lte_net", "lte_longitude", "lte_latitude",
+				"lte_azimuth", "lte_enodebid", "lte_cell", "lte_ecgi", "lte_earfcn", "lte_tac", "lte_phycellid",
+				"lte_site_tall", "lte_mechanical_downdip", "lte_electronic_downdip", "lte_ci","lte_longitude2","lte_latitude2"));
+		// 查询4G
+		List<Map<String, Object>> queryList = Esutil.queryList(queryParamData);
+		if (queryList != null && queryList.size() > 0) {
+			datas.add(queryList.get(0));
+		}
+
+		queryParamData.setIndex("simgc5g");
+		queryParamData.setType("simgc5g");
+		// 查询5g
+		List<Map<String, Object>> queryList1 = Esutil.queryList(queryParamData);
+		if (queryList1 != null && queryList1.size() > 0) {
+			datas.add(queryList1.get(0));
+		}
+		return datas;
+	}
+
+	/**
 	 * 查询工参里面得去重经纬度信息
 	 */
 	@ResponseBody
@@ -1454,7 +1512,6 @@ public class EsFiveBusssController {
 					String rootSupport = fiveLogMain.getRootSupport();// 0: None Root1: Root
 					if (StringUtils.isNotBlank(longitude) && StringUtils.isNotBlank(latitude)) {
 						QueryParamData queryParamDataFinal = new QueryParamData();
-
 						GeoPoint ceterPoint = new GeoPoint(Double.valueOf(latitude), Double.valueOf(longitude));
 						queryParamDataFinal.dealGeoDiatanceBuss(ceterPoint, GEO_DISTANCE, "location");
 
@@ -1463,6 +1520,10 @@ public class EsFiveBusssController {
 							if (("0").equals(gcType)) {// 4G
 								// 赋值索引类型
 								QueryParamData queryParamDataGc = new QueryParamData("simgc", "simgc");
+								// 地理位置的信息距离
+								queryParamDataGc.setDiatinceGeoMap(queryParamDataFinal.getDiatinceGeoMap());
+								queryParamDataGc.setSortGeoMap(queryParamDataFinal.getSortGeoMap());
+								;
 
 								ProLteDataInfoBean proLteDataInfoBeans = fiveLogMain.getProLteDataInfoBeans();
 								if (proLteDataInfoBeans != null) {
@@ -1475,10 +1536,14 @@ public class EsFiveBusssController {
 										for (ProLteNeighborhoodInfo nrNeighborhoodInfo : proLteNeighborhoodInfos) {
 
 											String mLteNeighborhoodPCI = nrNeighborhoodInfo.getpLteNeighbirhoodPCI();
-											if (StringUtils.isNotBlank(mLteNeighborhoodPCI)) {
+											String getpLteNeighbirhoodEARFCN = nrNeighborhoodInfo
+													.getpLteNeighbirhoodEARFCN();
+											if (StringUtils.isNotBlank(mLteNeighborhoodPCI)
+													&& StringUtils.isNotBlank(getpLteNeighbirhoodEARFCN)) {
 												// 处理该地市的查询条件
 												Map<String, Object> termMap = new HashMap<>();
 
+												termMap.put("lte_earfcn", getpLteNeighbirhoodEARFCN);
 												termMap.put("lte_phycellid.keyword", mLteNeighborhoodPCI);
 												termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
 												queryParamDataGc.setTermMap(termMap);
@@ -1523,6 +1588,10 @@ public class EsFiveBusssController {
 							} else {// 5g
 								// 赋值索引类型
 								QueryParamData queryParamDataGc = new QueryParamData("simgc5g", "simgc5g");
+								// 地理位置的信息距离
+								queryParamDataGc.setDiatinceGeoMap(queryParamDataFinal.getDiatinceGeoMap());
+								queryParamDataGc.setSortGeoMap(queryParamDataFinal.getSortGeoMap());
+								;
 
 								ProNrDataInfoBean proNrDataInfoBean = fiveLogMain.getProNrDataInfoBean();
 								if (proNrDataInfoBean != null) {
@@ -1535,10 +1604,14 @@ public class EsFiveBusssController {
 										for (ProNrNeighborhoodInfo nrNeighborhoodInfo : proNrNeighborhoodInfos) {
 
 											String mLteNeighborhoodPCI = nrNeighborhoodInfo.getpNrNeighborhoodPCI();
-											if (StringUtils.isNotBlank(mLteNeighborhoodPCI)) {
+											String getpNrNeighborhoodNRARFCN = nrNeighborhoodInfo
+													.getpNrNeighborhoodNRARFCN();
+
+											if (StringUtils.isNotBlank(mLteNeighborhoodPCI)
+													&& StringUtils.isNotBlank(getpNrNeighborhoodNRARFCN)) {
 												// 处理该地市的查询条件
 												Map<String, Object> termMap = new HashMap<>();
-
+												termMap.put("lte_earfcn", getpNrNeighborhoodNRARFCN);
 												termMap.put("lte_phycellid.keyword", mLteNeighborhoodPCI);
 												termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
 												queryParamDataGc.setTermMap(termMap);
@@ -1586,6 +1659,9 @@ public class EsFiveBusssController {
 
 								// 赋值索引类型
 								QueryParamData queryParamDataGc = new QueryParamData("simgc", "simgc");
+								// 地理位置的信息距离
+								queryParamDataGc.setDiatinceGeoMap(queryParamDataFinal.getDiatinceGeoMap());
+								queryParamDataGc.setSortGeoMap(queryParamDataFinal.getSortGeoMap());
 
 								LteDataInfoBean lteDataInfoBean = fiveLogMain.getLteDataInfoBean();
 								if (lteDataInfoBean != null) {
@@ -1598,10 +1674,14 @@ public class EsFiveBusssController {
 										for (LteNeighborhoodInfo nrNeighborhoodInfo : lteNeighborhoodInfos) {
 
 											String mLteNeighborhoodPCI = nrNeighborhoodInfo.getLteNeighbirhoodPCI();
-											if (StringUtils.isNotBlank(mLteNeighborhoodPCI)) {
+											String lteNeighbirhoodEARFCN = nrNeighborhoodInfo
+													.getLteNeighbirhoodEARFCN();
+											if (StringUtils.isNotBlank(mLteNeighborhoodPCI)
+													&& StringUtils.isNotBlank(lteNeighbirhoodEARFCN)) {
 												// 处理该地市的查询条件
 												Map<String, Object> termMap = new HashMap<>();
 
+												termMap.put("lte_earfcn", lteNeighbirhoodEARFCN);
 												termMap.put("lte_phycellid.keyword", mLteNeighborhoodPCI);
 												termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
 												queryParamDataGc.setTermMap(termMap);
@@ -1646,6 +1726,9 @@ public class EsFiveBusssController {
 							} else {// 5g
 								// 赋值索引类型
 								QueryParamData queryParamDataGc = new QueryParamData("simgc5g", "simgc5g");
+								// 地理位置的信息距离
+								queryParamDataGc.setDiatinceGeoMap(queryParamDataFinal.getDiatinceGeoMap());
+								queryParamDataGc.setSortGeoMap(queryParamDataFinal.getSortGeoMap());
 
 								NrDataInfoBean nrDataInfoBean = fiveLogMain.getNrDataInfoBean();
 								if (nrDataInfoBean != null) {
@@ -1658,10 +1741,15 @@ public class EsFiveBusssController {
 										for (NrNeighborhoodInfo nrNeighborhoodInfo : nrNeighborhoodInfos) {
 
 											String mLteNeighborhoodPCI = nrNeighborhoodInfo.getNrNeighborhoodPCI();
-											if (StringUtils.isNotBlank(mLteNeighborhoodPCI)) {
+											String nrNeighborhoodNRARFCN = nrNeighborhoodInfo
+													.getNrNeighborhoodNRARFCN();
+
+											if (StringUtils.isNotBlank(mLteNeighborhoodPCI)
+													&& StringUtils.isNotBlank(nrNeighborhoodNRARFCN)) {
 												// 处理该地市的查询条件
 												Map<String, Object> termMap = new HashMap<>();
 
+												termMap.put("lte_earfcn", nrNeighborhoodNRARFCN);
 												termMap.put("lte_phycellid.keyword", mLteNeighborhoodPCI);
 												termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
 												queryParamDataGc.setTermMap(termMap);
@@ -1714,6 +1802,1211 @@ public class EsFiveBusssController {
 	}
 
 	/**
+	 * 小区拉线全网拉线
+	 * 
+	 * gcType: 0 4g 1 5g 不填写就是4g5g都连
+	 * 前4个同时存在的时候 为4小区拉线   否则为全网拉线
+	 * 对于全网拉线  gcType  可不填写  不填写就是拉取4g  5g
+	 * @Description: pid室外测试的id  这个必须要有
+	 * @author weichengz
+	 * @date 2020年7月7日 下午2:17:48
+	 * 
+	 * 返回的格式定制为：[{lnt: lat: points: [{lnt: lat:}]},]  前面是  扇区的，
+	 */
+	@ResponseBody
+	@PostMapping(value = "/queryCellNetLine")
+	public List<Map<String, Object>> queryCellNetLine(
+			@RequestParam(value = "longitude", required = false) String longitude,
+			@RequestParam(value = "latitude", required = false) String latitude,
+			@RequestParam(value = "azimuth", required = false) String azimuth,
+			
+			@RequestParam(value = "gcType", required = false) String gcType,
+			
+			@RequestParam(value = "pid", required = false) String pid) {
+
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+		
+		if (StringUtils.isBlank(pid)) {
+			throw new IllegalArgumentException("室外测试id不能为空");
+		}
+
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
+		} else {
+			if (StringUtils.isBlank(sysProject.getProjCode())) {
+				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的sim地市不存在");
+			}
+		}
+		
+		List<Map<String, Object>> resultFinal=new ArrayList<Map<String,Object>>();//返回的结果
+
+			if (StringUtils.isNotBlank(longitude) && StringUtils.isNotBlank(latitude) && StringUtils.isNotBlank(azimuth) && StringUtils.isNotBlank(gcType)) {//小区拉线
+				if (("1").equals(gcType)) {//5g小区
+					//查询5g工参信息
+					QueryParamData paramModel=new QueryParamData("simgc5g", "simgc5g");
+					Map<String, Object> paramMap=new HashMap<>();
+					paramMap.put("lte_longitude2.keyword", longitude);
+					paramMap.put("lte_latitude2.keyword", latitude);
+					paramMap.put("lte_azimuth.keyword", azimuth);
+					paramModel.setTermMap(paramMap);
+					paramModel.setLimit(1);
+					List<Map<String, Object>> datas5g = Esutil.queryList(paramModel);
+					if (datas5g !=null && datas5g.size()>0) {
+						for (Map<String, Object> map : datas5g) {
+							Object objectlte_earfcn = map.get("lte_earfcn");
+							Object objectlte_phycellid = map.get("lte_phycellid");
+							String randStr=UUID.randomUUID().toString().replace("-", "");
+							String objectlte_ci = map.get("pk")==null?randStr:map.get("pk").toString();
+							objectlte_ci=objectlte_ci.replace("_", "~");
+							
+							if (objectlte_earfcn !=null && objectlte_phycellid !=null) {
+								String lteEarfcn=objectlte_earfcn.toString();
+								String ltePhycellid=objectlte_phycellid.toString();
+								if (StringUtils.isNotBlank(lteEarfcn) && StringUtils.isNotBlank(ltePhycellid)) {
+									//先查询出一条信息 root/非root
+									QueryParamData queryParam=new QueryParamData("logmain5g", "logmain5g");
+									Map<String, Object> termMap=new HashMap<>();
+									termMap.put("pid.keyword", pid.trim());
+									queryParam.setTermMap(termMap);
+									queryParam.setLimit(1);
+									queryParam.setRevelFields(Arrays.asList("logversion","rootSupport"));
+									List<Map<String, Object>> mainDtas = Esutil.queryList(queryParam);
+									if (mainDtas !=null && mainDtas.size()>0) {
+										Map<String, Object> map2 = mainDtas.get(0);
+										Object logversion = map2.get("logversion");
+										Object rootSupport = map2.get("rootSupport");
+										if (rootSupport !=null && logversion !=null) {
+											String rootSupportStr = rootSupport.toString();
+											String logversionStr = logversion.toString();
+											
+											//不同的类型下，根据数据的信息进行查询
+											QueryParamData finalDatas=new QueryParamData("logmain5g", "logmain5g");
+											Map<String, Object> finaltermMap=new HashMap<>();
+											finaltermMap.put("pid.keyword", pid.trim());
+											finalDatas.setTermMap(finaltermMap);
+											finalDatas.setLimit(500);//滚动数量
+											finalDatas.setRevelFields(Arrays.asList("latitude","longitude"));
+											
+											if (("1").equals(rootSupportStr)) {// root版本
+												if (("1").equals(logversionStr)) {// 5G
+													Map<String, Object> phraseMapMap=new HashMap<>();
+													phraseMapMap.put("proNrDataInfoBean.ssARFCN", lteEarfcn);
+													phraseMapMap.put("proNrDataInfoBean.PCI",ltePhycellid);
+													finalDatas.setPhraseMap(phraseMapMap);
+													List<Map<String, Object>> scrollQueryDatas = Esutil.scrollQuery(finalDatas);
+													if (scrollQueryDatas !=null && scrollQueryDatas.size()>0) {
+														Map<String, Object> mapSecond=new HashMap<>();
+														
+														//便宜当前的经纬度
+														String convertDistanceToLogLat = GeoLngLatUtil
+																.ConvertDistanceToLogLat(
+																		Double.valueOf(longitude),
+																		Double.valueOf(latitude),
+																		MINT_UNIT,
+																		Double.valueOf(azimuth));
+														if (convertDistanceToLogLat != null) {
+															String[] split = convertDistanceToLogLat.split(",");
+															if (split != null && split.length == 2) {
+																mapSecond.put("ci", objectlte_ci);
+																mapSecond.put("pci", ltePhycellid);
+																mapSecond.put("lng", split[0]);
+																mapSecond.put("lat", split[1]);
+															}
+														}
+														
+														List<Map<String, Object>> resultMap=new ArrayList<Map<String,Object>>();
+														//添加对应的轨迹点
+														for (Map<String, Object> map3 : scrollQueryDatas) {
+															Object objectLatitude = map3.get("latitude");
+															Object objectLongitude = map3.get("longitude");
+															if (objectLatitude !=null  && objectLongitude !=null) {
+																Map<String, Object> mapModel=new HashMap<>();
+																mapModel.put("lat", objectLatitude.toString());
+																mapModel.put("lng", objectLongitude.toString());
+																resultMap.add(mapModel);
+															}
+														}
+														mapSecond.put("points", resultMap);
+														resultFinal.add(mapSecond);
+														return resultFinal;
+													}
+													
+												} 
+											} else {// 非root
+												if (("1").equals(logversionStr)) {// 5G
+													Map<String, Object> phraseMapMap=new HashMap<>();
+													phraseMapMap.put("nrDataInfoBean.nrARFCN", lteEarfcn);
+													phraseMapMap.put("nrDataInfoBean.nrPCI",ltePhycellid);
+													finalDatas.setPhraseMap(phraseMapMap);
+													List<Map<String, Object>> scrollQueryDatas = Esutil.scrollQuery(finalDatas);
+													if (scrollQueryDatas !=null && scrollQueryDatas.size()>0) {
+														Map<String, Object> mapSecond=new HashMap<>();
+														//便宜当前的经纬度
+														String convertDistanceToLogLat = GeoLngLatUtil
+																.ConvertDistanceToLogLat(
+																		Double.valueOf(longitude),
+																		Double.valueOf(latitude),
+																		MINT_UNIT,
+																		Double.valueOf(azimuth));
+														if (convertDistanceToLogLat != null) {
+															String[] split = convertDistanceToLogLat.split(",");
+															if (split != null && split.length == 2) {
+																mapSecond.put("pci", ltePhycellid);
+																mapSecond.put("ci", objectlte_ci);
+																mapSecond.put("lng", split[0]);
+																mapSecond.put("lat", split[1]);
+															}
+														}
+														
+														List<Map<String, Object>> resultMap=new ArrayList<Map<String,Object>>();
+														//添加对应的轨迹点
+														for (Map<String, Object> map3 : scrollQueryDatas) {
+															Object objectLatitude = map3.get("latitude");
+															Object objectLongitude = map3.get("longitude");
+															if (objectLatitude !=null  && objectLongitude !=null) {
+																Map<String, Object> mapModel=new HashMap<>();
+																mapModel.put("lat", objectLatitude.toString());
+																mapModel.put("lng", objectLongitude.toString());
+																resultMap.add(mapModel);
+															}
+														}
+														mapSecond.put("points", resultMap);
+														resultFinal.add(mapSecond);
+														return resultFinal;
+													}
+													
+												} 
+											}
+										}
+									}
+									
+									break;
+								}else {
+									continue;
+								}
+							}else {
+								continue;
+							}
+						}
+					}
+					
+					
+				}else {//4g小区
+					QueryParamData paramModel=new QueryParamData("simgc", "simgc");
+					Map<String, Object> paramMap=new HashMap<>();
+					paramMap.put("lte_longitude2.keyword", longitude);
+					paramMap.put("lte_latitude2.keyword", latitude);
+					paramMap.put("lte_azimuth.keyword", azimuth);
+					paramModel.setTermMap(paramMap);
+					paramModel.setLimit(1);
+					List<Map<String, Object>> datas5g = Esutil.queryList(paramModel);
+					if (datas5g !=null && datas5g.size()>0) {
+						for (Map<String, Object> map : datas5g) {
+							Object objectlte_cell = map.get("lte_cell");
+							Object objectlte_enodebid = map.get("lte_enodebid");
+							String randStr=UUID.randomUUID().toString().replace("-", "");
+							String objectlte_ci = map.get("pk")==null?randStr:map.get("pk").toString();
+							String objectlte_phycellid = map.get("lte_phycellid")==null?"":map.get("lte_phycellid").toString();
+							objectlte_ci=objectlte_ci.replace("_", "~");
+							
+							if (objectlte_cell !=null && objectlte_enodebid !=null) {
+								String ltecell=objectlte_cell.toString();
+								String lteEnodebid=objectlte_enodebid.toString();
+								if (StringUtils.isNotBlank(ltecell) && StringUtils.isNotBlank(lteEnodebid)) {
+									//先查询出一条信息 root/非root
+									QueryParamData queryParam=new QueryParamData("logmain5g", "logmain5g");
+									Map<String, Object> termMap=new HashMap<>();
+									termMap.put("pid.keyword", pid.trim());
+									queryParam.setTermMap(termMap);
+									queryParam.setLimit(1);
+									queryParam.setRevelFields(Arrays.asList("logversion","rootSupport"));
+									List<Map<String, Object>> mainDtas = Esutil.queryList(queryParam);
+									if (mainDtas !=null && mainDtas.size()>0) {
+										Map<String, Object> map2 = mainDtas.get(0);
+										Object logversion = map2.get("logversion");
+										Object rootSupport = map2.get("rootSupport");
+										if (rootSupport !=null && logversion !=null) {
+											String rootSupportStr = rootSupport.toString();
+											String logversionStr = logversion.toString();
+											
+											//不同的类型下，根据数据的信息进行查询
+											QueryParamData finalDatas=new QueryParamData("logmain5g", "logmain5g");
+											Map<String, Object> finaltermMap=new HashMap<>();
+											finaltermMap.put("pid.keyword", pid.trim());
+											finalDatas.setTermMap(finaltermMap);
+											finalDatas.setLimit(500);//滚动数量
+											finalDatas.setRevelFields(Arrays.asList("latitude","longitude"));
+											
+											if (("1").equals(rootSupportStr)) {// root版本
+												if (("0").equals(logversionStr)) {// 4G
+													Map<String, Object> phraseMapMap=new HashMap<>();
+													phraseMapMap.put("proLteDataInfoBeans.servingCellPccCellId", ltecell);
+													phraseMapMap.put("proNrDataInfoBean.servingCellPccEnodebId",lteEnodebid);
+													finalDatas.setPhraseMap(phraseMapMap);
+													List<Map<String, Object>> scrollQueryDatas = Esutil.scrollQuery(finalDatas);
+													if (scrollQueryDatas !=null && scrollQueryDatas.size()>0) {
+														Map<String, Object> mapSecond=new HashMap<>();
+														//便宜当前的经纬度
+														String convertDistanceToLogLat = GeoLngLatUtil
+																.ConvertDistanceToLogLat(
+																		Double.valueOf(longitude),
+																		Double.valueOf(latitude),
+																		MINT_UNIT,
+																		Double.valueOf(azimuth));
+														
+														
+														if (convertDistanceToLogLat != null) {
+															String[] split = convertDistanceToLogLat.split(",");
+															if (split != null && split.length == 2) {
+																mapSecond.put("pci", objectlte_phycellid);
+																mapSecond.put("ci", objectlte_ci);
+																mapSecond.put("lng", split[0]);
+																mapSecond.put("lat", split[1]);
+															}
+														}
+														
+														List<Map<String, Object>> resultMap=new ArrayList<Map<String,Object>>();
+														//添加对应的轨迹点
+														for (Map<String, Object> map3 : scrollQueryDatas) {
+															Object objectLatitude = map3.get("latitude");
+															Object objectLongitude = map3.get("longitude");
+															if (objectLatitude !=null  && objectLongitude !=null) {
+																Map<String, Object> mapModel=new HashMap<>();
+																mapModel.put("lat", objectLatitude.toString());
+																mapModel.put("lng", objectLongitude.toString());
+																resultMap.add(mapModel);
+															}
+														}
+														mapSecond.put("points", resultMap);
+														resultFinal.add(mapSecond);
+														return resultFinal;
+													}
+													
+												} 
+											} else {// 非root
+												if (("0").equals(logversionStr)) {// 4G
+													Map<String, Object> phraseMapMap=new HashMap<>();
+													phraseMapMap.put("lteDataInfoBean.lteCellID", ltecell);
+													phraseMapMap.put("lteDataInfoBean.lteENB",lteEnodebid);
+													finalDatas.setPhraseMap(phraseMapMap);
+													List<Map<String, Object>> scrollQueryDatas = Esutil.scrollQuery(finalDatas);
+													if (scrollQueryDatas !=null && scrollQueryDatas.size()>0) {
+														Map<String, Object> mapSecond=new HashMap<>();
+														//便宜当前的经纬度
+														String convertDistanceToLogLat = GeoLngLatUtil
+																.ConvertDistanceToLogLat(
+																		Double.valueOf(longitude),
+																		Double.valueOf(latitude),
+																		MINT_UNIT,
+																		Double.valueOf(azimuth));
+														if (convertDistanceToLogLat != null) {
+															String[] split = convertDistanceToLogLat.split(",");
+															if (split != null && split.length == 2) {
+																
+																mapSecond.put("ci", objectlte_ci);
+																mapSecond.put("pci", objectlte_phycellid);
+																
+																mapSecond.put("lng", split[0]);
+																mapSecond.put("lat", split[1]);
+															}
+														}
+														
+														List<Map<String, Object>> resultMap=new ArrayList<Map<String,Object>>();
+														//添加对应的轨迹点
+														for (Map<String, Object> map3 : scrollQueryDatas) {
+															Object objectLatitude = map3.get("latitude");
+															Object objectLongitude = map3.get("longitude");
+															if (objectLatitude !=null  && objectLongitude !=null) {
+																Map<String, Object> mapModel=new HashMap<>();
+																mapModel.put("lat", objectLatitude.toString());
+																mapModel.put("lng", objectLongitude.toString());
+																resultMap.add(mapModel);
+															}
+														}
+														mapSecond.put("points", resultMap);
+														resultFinal.add(mapSecond);
+														return resultFinal;
+													}
+													
+												} 
+											}
+										}
+									}
+									
+									break;
+								}else {
+									continue;
+								}
+							}else {
+								continue;
+							}
+						}
+					}
+					
+					//
+				}
+			}else {//全网拉线
+				Map<String, List<String>> secondFinal=new HashMap<>();//这个适用于最终转换为结果的map  key为扇区经纬度   v为轨迹的经纬度
+				
+				//查询出所有的轨迹信息
+				QueryParamData queryParam=new QueryParamData("logmain5g", "logmain5g");
+				Map<String, Object> termMap=new HashMap<>();
+				termMap.put("pid.keyword", pid.trim());
+				queryParam.setTermMap(termMap);
+				queryParam.setLimit(500);
+				
+				if (StringUtils.isBlank(gcType)) {//4g  5g的拉线都有
+					/*****/
+					//4g的全网拉线
+					queryParam.setRevelFields(Arrays.asList("logversion","rootSupport","latitude","nrDataInfoBean","proNrDataInfoBean","longitude","lteDataInfoBean","proLteDataInfoBeans"));
+					List<Map<String, Object>> mainDtas = Esutil.scrollQuery(queryParam);
+					if (mainDtas !=null && mainDtas.size()>0) {
+						//查询出root非root信息
+						Map<String, Object> map2 = mainDtas.get(0);
+						Object logversion = map2.get("logversion");
+						Object rootSupport = map2.get("rootSupport");
+						if (rootSupport !=null && logversion !=null) {
+							String rootSupportStr = rootSupport.toString();
+							if (("1").equals(rootSupportStr)) {//root
+									//循环处理每个一点的
+									for (Map<String, Object> map : mainDtas) {
+										Object longitudeMain = map2.get("longitude");
+										Object latitudeMain = map2.get("latitude");
+										
+										FiveLogMain fiveLogMain = JSONObject.parseObject(JSONObject.toJSONString(map), FiveLogMain.class);
+										if (fiveLogMain !=null) {
+											
+											//处理5g工参
+											ProNrDataInfoBean proNrDataInfoBean = fiveLogMain.getProNrDataInfoBean();
+											if (proNrDataInfoBean != null) {
+												String arfcn = proNrDataInfoBean.getSsARFCN();
+												String pci = proNrDataInfoBean.getPCI();
+												if (StringUtils.isNotBlank(arfcn) && StringUtils.isNotBlank(pci)) {
+													QueryParamData queryParamDataCell=new QueryParamData("simgc5g", "simgc5g");
+													queryParamDataCell.setLimit(1);
+													Map<String, Object> xiaoquTermMap=new HashMap<>();
+													xiaoquTermMap.put("lte_earfcn", arfcn);
+													xiaoquTermMap.put("lte_phycellid.keyword", pci);
+													queryParamDataCell.setTermMap(xiaoquTermMap);
+													List<Map<String, Object>> gcs4g = Esutil.queryList(queryParamDataCell);
+													if (gcs4g !=null && gcs4g.size()>0) {
+														
+														Map<String, Object> map3 = gcs4g.get(0);
+														Object lte_longitude2 = map3.get("lte_longitude2");
+														Object lte_latitude2 = map3.get("lte_latitude2");
+														Object lte_azimuth = map3.get("lte_azimuth");
+														String pk = map3.get("pk")==null?UUID.randomUUID().toString().replace("-", ""):map3.get("pk").toString();
+														pk=pk.replace("_", "~");
+														String pciModel = map3.get("lte_phycellid")==null?"0":map3.get("lte_phycellid").toString();
+														
+														
+														if (lte_longitude2 !=null && lte_latitude2 !=null) {
+															String convertDistanceToLogLat = GeoLngLatUtil
+																	.ConvertDistanceToLogLat(
+																			Double.valueOf(lte_longitude2.toString()),
+																			Double.valueOf(lte_latitude2.toString()),
+																			MINT_UNIT,
+																			Double.valueOf(lte_azimuth.toString()));
+															if (convertDistanceToLogLat != null) {
+																String[] split = convertDistanceToLogLat.split(",");
+																if (split != null && split.length == 2) {
+																	String key=split[0]+"_"+split[1]+"_"+pciModel+"_"+pk;
+																	if (secondFinal.containsKey(key)) {
+																		List<String> list = secondFinal.get(key);
+																		if (!list.contains(longitudeMain+"_"+latitudeMain)) {
+																			list.add(longitudeMain+"_"+latitudeMain);
+																		}
+																		secondFinal.put(key, list);
+																	}else {
+																		List<String> datasmm=new ArrayList<>();
+																		datasmm.add(longitudeMain+"_"+latitudeMain);
+																		secondFinal.put(key, datasmm);
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+											//处理4g工参
+											ProLteDataInfoBean proLteDataInfoBeans = fiveLogMain.getProLteDataInfoBeans();
+											if (proLteDataInfoBeans != null) {
+												String servingCellPccCellId = proLteDataInfoBeans.getServingCellPccCellId();
+												String servingCellPccEnodebId = proLteDataInfoBeans.getServingCellPccEnodebId();
+												if (StringUtils.isNotBlank(servingCellPccCellId) && StringUtils.isNotBlank(servingCellPccEnodebId)) {
+													QueryParamData queryParamDataCell=new QueryParamData("simgc", "simgc");
+													queryParamDataCell.setLimit(1);
+													Map<String, Object> xiaoquTermMap=new HashMap<>();
+													xiaoquTermMap.put("lte_cell.keyword", servingCellPccCellId);
+													xiaoquTermMap.put("lte_enodebid.keyword", servingCellPccEnodebId);
+													queryParamDataCell.setTermMap(xiaoquTermMap);
+													List<Map<String, Object>> gcs4g = Esutil.queryList(queryParamDataCell);
+													if (gcs4g !=null && gcs4g.size()>0) {
+														
+														Map<String, Object> map3 = gcs4g.get(0);
+														Object lte_longitude2 = map3.get("lte_longitude2");
+														Object lte_latitude2 = map3.get("lte_latitude2");
+														Object lte_azimuth = map3.get("lte_azimuth");
+														String pk = map3.get("pk")==null?UUID.randomUUID().toString().replace("-", ""):map3.get("lte_phycellid").toString();
+														pk=pk.replace("_", "~");
+														String pciModel = map3.get("lte_phycellid")==null?"0":map3.get("lte_phycellid").toString();
+														
+														if (lte_longitude2 !=null && lte_latitude2 !=null) {
+															String convertDistanceToLogLat = GeoLngLatUtil
+																	.ConvertDistanceToLogLat(
+																			Double.valueOf(lte_longitude2.toString()),
+																			Double.valueOf(lte_latitude2.toString()),
+																			MINT_UNIT,
+																			Double.valueOf(lte_azimuth.toString()));
+															if (convertDistanceToLogLat != null) {
+																String[] split = convertDistanceToLogLat.split(",");
+																if (split != null && split.length == 2) {
+																	String key=split[0]+"_"+split[1]+"_"+pciModel+"_"+pk;
+																	if (secondFinal.containsKey(key)) {
+																		List<String> list = secondFinal.get(key);
+																		if (!list.contains(longitudeMain+"_"+latitudeMain)) {
+																			list.add(longitudeMain+"_"+latitudeMain);
+																		}
+																		secondFinal.put(key, list);
+																	}else {
+																		List<String> datasmm=new ArrayList<>();
+																		datasmm.add(longitudeMain+"_"+latitudeMain);
+																		secondFinal.put(key, datasmm);
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+											
+											
+											
+										}
+									}
+							}else {//非root
+								//root
+								//循环处理每个一点的
+								for (Map<String, Object> map : mainDtas) {
+									FiveLogMain fiveLogMain = JSONObject.parseObject(JSONObject.toJSONString(map), FiveLogMain.class);
+									if (fiveLogMain !=null) {
+										Object longitudeMain = map2.get("longitude");
+										Object latitudeMain = map2.get("latitude");
+										//处理5g工参
+										NrDataInfoBean proNrDataInfoBean = fiveLogMain.getNrDataInfoBean();
+										if (proNrDataInfoBean != null) {
+											String arfcn = proNrDataInfoBean.getNrARFCN();
+											String pci = proNrDataInfoBean.getNrPCI();
+											if (StringUtils.isNotBlank(arfcn) && StringUtils.isNotBlank(pci)) {
+												QueryParamData queryParamDataCell=new QueryParamData("simgc5g", "simgc5g");
+												queryParamDataCell.setLimit(1);
+												Map<String, Object> xiaoquTermMap=new HashMap<>();
+												xiaoquTermMap.put("lte_earfcn", arfcn);
+												xiaoquTermMap.put("lte_phycellid.keyword", pci);
+												queryParamDataCell.setTermMap(xiaoquTermMap);
+												List<Map<String, Object>> gcs4g = Esutil.queryList(queryParamDataCell);
+												if (gcs4g !=null && gcs4g.size()>0) {
+													
+													Map<String, Object> map3 = gcs4g.get(0);
+													Object lte_longitude2 = map3.get("lte_longitude2");
+													Object lte_latitude2 = map3.get("lte_latitude2");
+													Object lte_azimuth = map3.get("lte_azimuth");
+													String pk = map3.get("pk")==null?UUID.randomUUID().toString().replace("-", ""):map3.get("pk").toString();
+													pk=pk.replace("_", "~");
+													String pciModel = map3.get("lte_phycellid")==null?"0":map3.get("lte_phycellid").toString();
+													
+													if (lte_longitude2 !=null && lte_latitude2 !=null) {
+														String convertDistanceToLogLat = GeoLngLatUtil
+																.ConvertDistanceToLogLat(
+																		Double.valueOf(lte_longitude2.toString()),
+																		Double.valueOf(lte_latitude2.toString()),
+																		MINT_UNIT,
+																		Double.valueOf(lte_azimuth.toString()));
+														if (convertDistanceToLogLat != null) {
+															String[] split = convertDistanceToLogLat.split(",");
+															if (split != null && split.length == 2) {
+																String key=split[0]+"_"+split[1]+"_"+pciModel+"_"+pk;
+																if (secondFinal.containsKey(key)) {
+																	List<String> list = secondFinal.get(key);
+																	if (!list.contains(longitudeMain+"_"+latitudeMain)) {
+																		list.add(longitudeMain+"_"+latitudeMain);
+																	}
+																	secondFinal.put(key, list);
+																}else {
+																	List<String> datasmm=new ArrayList<>();
+																	datasmm.add(longitudeMain+"_"+latitudeMain);
+																	secondFinal.put(key, datasmm);
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+										
+										
+										//处理4g工参
+									     LteDataInfoBean proLteDataInfoBeans = fiveLogMain.getLteDataInfoBean();
+										if (proLteDataInfoBeans != null) {
+											String servingCellPccCellId = proLteDataInfoBeans.getLteCellID();
+											String servingCellPccEnodebId = proLteDataInfoBeans.getLteENB();
+											if (StringUtils.isNotBlank(servingCellPccCellId) && StringUtils.isNotBlank(servingCellPccEnodebId)) {
+												QueryParamData queryParamDataCell=new QueryParamData("simgc", "simgc");
+												queryParamDataCell.setLimit(1);
+												Map<String, Object> xiaoquTermMap=new HashMap<>();
+												xiaoquTermMap.put("lte_cell.keyword", servingCellPccCellId);
+												xiaoquTermMap.put("lte_enodebid.keyword", servingCellPccEnodebId);
+												queryParamDataCell.setTermMap(xiaoquTermMap);
+												List<Map<String, Object>> gcs4g = Esutil.queryList(queryParamDataCell);
+												if (gcs4g !=null && gcs4g.size()>0) {
+													
+													Map<String, Object> map3 = gcs4g.get(0);
+													Object lte_longitude2 = map3.get("lte_longitude2");
+													Object lte_latitude2 = map3.get("lte_latitude2");
+													Object lte_azimuth = map3.get("lte_azimuth");
+													String pk = map3.get("pk")==null?UUID.randomUUID().toString().replace("-", ""):map3.get("pk").toString();
+													pk=pk.replace("_", "~");
+													String pciModel = map3.get("lte_phycellid")==null?"0":map3.get("lte_phycellid").toString();
+													
+													if (lte_longitude2 !=null && lte_latitude2 !=null) {
+														String convertDistanceToLogLat = GeoLngLatUtil
+																.ConvertDistanceToLogLat(
+																		Double.valueOf(lte_longitude2.toString()),
+																		Double.valueOf(lte_latitude2.toString()),
+																		MINT_UNIT,
+																		Double.valueOf(lte_azimuth.toString()));
+														if (convertDistanceToLogLat != null) {
+															String[] split = convertDistanceToLogLat.split(",");
+															if (split != null && split.length == 2) {
+																String key=split[0]+"_"+split[1]+"_"+pciModel+"_"+pk;
+																if (secondFinal.containsKey(key)) {
+																	List<String> list = secondFinal.get(key);
+																	if (!list.contains(longitudeMain+"_"+latitudeMain)) {
+																		list.add(longitudeMain+"_"+latitudeMain);
+																	}
+																	secondFinal.put(key, list);
+																}else {
+																	List<String> datasmm=new ArrayList<>();
+																	datasmm.add(longitudeMain+"_"+latitudeMain);
+																	secondFinal.put(key, datasmm);
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+						
+							}
+						}
+					}
+					/*****/
+				}else if (("0").equals(gcType)) {//4g的全网拉线
+					queryParam.setRevelFields(Arrays.asList("logversion","rootSupport","latitude","longitude","lteDataInfoBean","proLteDataInfoBeans"));
+					List<Map<String, Object>> mainDtas = Esutil.scrollQuery(queryParam);
+					if (mainDtas !=null && mainDtas.size()>0) {
+						//查询出root非root信息
+						Map<String, Object> map2 = mainDtas.get(0);
+						Object logversion = map2.get("logversion");
+						Object rootSupport = map2.get("rootSupport");
+						if (rootSupport !=null && logversion !=null) {
+							String rootSupportStr = rootSupport.toString();
+							String logversionStr = logversion.toString();
+							if (("1").equals(rootSupportStr)) {//root
+								if (("0").equals(logversionStr)) {
+									//循环处理每个一点的
+									for (Map<String, Object> map : mainDtas) {
+										Object longitudeMain = map2.get("longitude");
+										Object latitudeMain = map2.get("latitude");
+										FiveLogMain fiveLogMain = JSONObject.parseObject(JSONObject.toJSONString(map), FiveLogMain.class);
+										if (fiveLogMain !=null) {
+											ProLteDataInfoBean proLteDataInfoBeans = fiveLogMain.getProLteDataInfoBeans();
+											if (proLteDataInfoBeans != null) {
+												String servingCellPccCellId = proLteDataInfoBeans.getServingCellPccCellId();
+												String servingCellPccEnodebId = proLteDataInfoBeans.getServingCellPccEnodebId();
+												if (StringUtils.isNotBlank(servingCellPccCellId) && StringUtils.isNotBlank(servingCellPccEnodebId)) {
+													QueryParamData queryParamDataCell=new QueryParamData("simgc", "simgc");
+													queryParamDataCell.setLimit(1);
+													Map<String, Object> xiaoquTermMap=new HashMap<>();
+													xiaoquTermMap.put("lte_cell.keyword", servingCellPccCellId);
+													xiaoquTermMap.put("lte_enodebid.keyword", servingCellPccEnodebId);
+													queryParamDataCell.setTermMap(xiaoquTermMap);
+													List<Map<String, Object>> gcs4g = Esutil.queryList(queryParamDataCell);
+													if (gcs4g !=null && gcs4g.size()>0) {
+														
+														Map<String, Object> map3 = gcs4g.get(0);
+														Object lte_longitude2 = map3.get("lte_longitude2");
+														Object lte_latitude2 = map3.get("lte_latitude2");
+														Object lte_azimuth = map3.get("lte_azimuth");
+														String pk = map3.get("pk")==null?UUID.randomUUID().toString().replace("-", ""):map3.get("pk").toString();
+														pk=pk.replace("_", "~");
+														String pciModel = map3.get("lte_phycellid")==null?"0":map3.get("lte_phycellid").toString();
+														
+														if (lte_longitude2 !=null && lte_latitude2 !=null) {
+															String convertDistanceToLogLat = GeoLngLatUtil
+																	.ConvertDistanceToLogLat(
+																			Double.valueOf(lte_longitude2.toString()),
+																			Double.valueOf(lte_latitude2.toString()),
+																			MINT_UNIT,
+																			Double.valueOf(lte_azimuth.toString()));
+															if (convertDistanceToLogLat != null) {
+																String[] split = convertDistanceToLogLat.split(",");
+																if (split != null && split.length == 2) {
+																	String key=split[0]+"_"+split[1]+"_"+pciModel+"_"+pk;
+																	if (secondFinal.containsKey(key)) {
+																		List<String> list = secondFinal.get(key);
+																		if (!list.contains(longitudeMain+"_"+latitudeMain)) {
+																			list.add(longitudeMain+"_"+latitudeMain);
+																		}
+																		secondFinal.put(key, list);
+																	}else {
+																		List<String> datasmm=new ArrayList<>();
+																		datasmm.add(longitudeMain+"_"+latitudeMain);
+																		secondFinal.put(key, datasmm);
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}else {//非root
+								if (("0").equals(logversionStr)) {
+									//循环处理每个一点的
+									for (Map<String, Object> map : mainDtas) {
+										Object longitudeMain = map2.get("longitude");
+										Object latitudeMain = map2.get("latitude");
+										FiveLogMain fiveLogMain = JSONObject.parseObject(JSONObject.toJSONString(map), FiveLogMain.class);
+										if (fiveLogMain !=null) {
+											LteDataInfoBean proLteDataInfoBeans = fiveLogMain.getLteDataInfoBean();
+											if (proLteDataInfoBeans != null) {
+												String servingCellPccCellId = proLteDataInfoBeans.getLteCellID();
+												String servingCellPccEnodebId = proLteDataInfoBeans.getLteENB();
+												if (StringUtils.isNotBlank(servingCellPccCellId) && StringUtils.isNotBlank(servingCellPccEnodebId)) {
+													QueryParamData queryParamDataCell=new QueryParamData("simgc", "simgc");
+													queryParamDataCell.setLimit(1);
+													Map<String, Object> xiaoquTermMap=new HashMap<>();
+													xiaoquTermMap.put("lte_cell.keyword", servingCellPccCellId);
+													xiaoquTermMap.put("lte_enodebid.keyword", servingCellPccEnodebId);
+													queryParamDataCell.setTermMap(xiaoquTermMap);
+													List<Map<String, Object>> gcs4g = Esutil.queryList(queryParamDataCell);
+													if (gcs4g !=null && gcs4g.size()>0) {
+														
+														Map<String, Object> map3 = gcs4g.get(0);
+														Object lte_longitude2 = map3.get("lte_longitude2");
+														Object lte_latitude2 = map3.get("lte_latitude2");
+														Object lte_azimuth = map3.get("lte_azimuth");
+														String pk = map3.get("pk")==null?UUID.randomUUID().toString().replace("-", ""):map3.get("pk").toString();
+														pk=pk.replace("_", "~");
+														String pciModel = map3.get("lte_phycellid")==null?"0":map3.get("lte_phycellid").toString();
+														
+														
+														if (lte_longitude2 !=null && lte_latitude2 !=null) {
+															String convertDistanceToLogLat = GeoLngLatUtil
+																	.ConvertDistanceToLogLat(
+																			Double.valueOf(lte_longitude2.toString()),
+																			Double.valueOf(lte_latitude2.toString()),
+																			MINT_UNIT,
+																			Double.valueOf(lte_azimuth.toString()));
+															if (convertDistanceToLogLat != null) {
+																String[] split = convertDistanceToLogLat.split(",");
+																if (split != null && split.length == 2) {
+																	String key=split[0]+"_"+split[1]+"_"+pciModel+"_"+pk;
+																	if (secondFinal.containsKey(key)) {
+																		List<String> list = secondFinal.get(key);
+																		if (!list.contains(longitudeMain+"_"+latitudeMain)) {
+																			list.add(longitudeMain+"_"+latitudeMain);
+																		}
+																		secondFinal.put(key, list);
+																	}else {
+																		List<String> datasmm=new ArrayList<>();
+																		datasmm.add(longitudeMain+"_"+latitudeMain);
+																		secondFinal.put(key, datasmm);
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}else if (("1").equals(gcType)) {//5g的全网拉线
+					queryParam.setRevelFields(Arrays.asList("logversion","rootSupport","latitude","longitude","nrDataInfoBean","proNrDataInfoBean"));
+					List<Map<String, Object>> mainDtas = Esutil.scrollQuery(queryParam);
+					if (mainDtas !=null && mainDtas.size()>0) {
+						//查询出root非root信息
+						Map<String, Object> map2 = mainDtas.get(0);
+						Object logversion = map2.get("logversion");
+						Object rootSupport = map2.get("rootSupport");
+						if (rootSupport !=null && logversion !=null) {
+							String rootSupportStr = rootSupport.toString();
+							String logversionStr = logversion.toString();
+							if (("1").equals(rootSupportStr)) {//root
+								if (("1").equals(logversionStr)) {
+									//循环处理每个一点的
+									for (Map<String, Object> map : mainDtas) {
+										Object longitudeMain = map.get("longitude");
+									    Object latitudeMain = map.get("latitude");
+										
+										
+										FiveLogMain fiveLogMain = JSONObject.parseObject(JSONObject.toJSONString(map), FiveLogMain.class);
+										if (fiveLogMain !=null) {
+											ProNrDataInfoBean proLteDataInfoBeans = fiveLogMain.getProNrDataInfoBean();
+											if (proLteDataInfoBeans != null) {
+												String earfn = proLteDataInfoBeans.getSsARFCN();
+												String pci = proLteDataInfoBeans.getPCI();
+												if (StringUtils.isNotBlank(earfn) && StringUtils.isNotBlank(pci)) {
+													QueryParamData queryParamDataCell=new QueryParamData("simgc5g", "simgc5g");
+													queryParamDataCell.setLimit(1);
+													Map<String, Object> xiaoquTermMap=new HashMap<>();
+													xiaoquTermMap.put("lte_earfcn", earfn);
+													xiaoquTermMap.put("lte_phycellid.keyword", pci);
+													
+													queryParamDataCell.setTermMap(xiaoquTermMap);
+													List<Map<String, Object>> gcs4g = Esutil.queryList(queryParamDataCell);
+													if (gcs4g !=null && gcs4g.size()>0) {
+														
+														Map<String, Object> map3 = gcs4g.get(0);
+														Object lte_longitude2 = map3.get("lte_longitude2");
+														Object lte_latitude2 = map3.get("lte_latitude2");
+														Object lte_azimuth = map3.get("lte_azimuth");
+														String pk = map3.get("pk")==null?UUID.randomUUID().toString().replace("-", ""):map3.get("pk").toString();
+														pk=pk.replace("_", "~");
+														String pciModel = map3.get("lte_phycellid")==null?"0":map3.get("lte_phycellid").toString();
+														
+														if (lte_longitude2 !=null && lte_latitude2 !=null) {
+															String convertDistanceToLogLat = GeoLngLatUtil
+																	.ConvertDistanceToLogLat(
+																			Double.valueOf(lte_longitude2.toString()),
+																			Double.valueOf(lte_latitude2.toString()),
+																			MINT_UNIT,
+																			Double.valueOf(lte_azimuth.toString()));
+															if (convertDistanceToLogLat != null) {
+																String[] split = convertDistanceToLogLat.split(",");
+																if (split != null && split.length == 2) {
+																	String key=split[0]+"_"+split[1]+"_"+pciModel+"_"+pk;
+																	if (secondFinal.containsKey(key)) {
+																		List<String> list = secondFinal.get(key);
+																		if (!list.contains(longitudeMain+"_"+latitudeMain)) {
+																			list.add(longitudeMain+"_"+latitudeMain);
+																		}
+																		secondFinal.put(key, list);
+																	}else {
+																		List<String> datasmm=new ArrayList<>();
+																		datasmm.add(longitudeMain+"_"+latitudeMain);
+																		secondFinal.put(key, datasmm);
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}else {//非root
+								if (("1").equals(logversionStr)) {
+									//循环处理每个一点的
+									for (Map<String, Object> map : mainDtas) {
+										
+										Object longitudeMain = map.get("longitude");
+									    Object latitudeMain = map.get("latitude");
+									    
+									    
+										FiveLogMain fiveLogMain = JSONObject.parseObject(JSONObject.toJSONString(map), FiveLogMain.class);
+										if (fiveLogMain !=null) {
+											NrDataInfoBean proLteDataInfoBeans = fiveLogMain.getNrDataInfoBean();
+											if (proLteDataInfoBeans != null) {
+												String arfcn = proLteDataInfoBeans.getNrARFCN();
+												String pci = proLteDataInfoBeans.getNrPCI();
+												if (StringUtils.isNotBlank(arfcn) && StringUtils.isNotBlank(pci)) {
+													QueryParamData queryParamDataCell=new QueryParamData("simgc5g", "simgc5g");
+													queryParamDataCell.setLimit(1);
+													Map<String, Object> xiaoquTermMap=new HashMap<>();
+													xiaoquTermMap.put("lte_earfcn", arfcn);
+													xiaoquTermMap.put("lte_phycellid.keyword", pci);
+													
+													queryParamDataCell.setTermMap(xiaoquTermMap);
+													List<Map<String, Object>> gcs4g = Esutil.queryList(queryParamDataCell);
+													if (gcs4g !=null && gcs4g.size()>0) {
+														
+														Map<String, Object> map3 = gcs4g.get(0);
+														Object lte_longitude2 = map3.get("lte_longitude2");
+														Object lte_latitude2 = map3.get("lte_latitude2");
+														Object lte_azimuth = map3.get("lte_azimuth");
+														String pk = map3.get("pk")==null?UUID.randomUUID().toString().replace("-", ""):map3.get("pk").toString();
+														pk=pk.replace("_", "~");
+														String pciModel = map3.get("lte_phycellid")==null?"0":map3.get("lte_phycellid").toString();
+														
+														
+														if (lte_longitude2 !=null && lte_latitude2 !=null) {
+															String convertDistanceToLogLat = GeoLngLatUtil
+																	.ConvertDistanceToLogLat(
+																			Double.valueOf(lte_longitude2.toString()),
+																			Double.valueOf(lte_latitude2.toString()),
+																			MINT_UNIT,
+																			Double.valueOf(lte_azimuth.toString()));
+															if (convertDistanceToLogLat != null) {
+																String[] split = convertDistanceToLogLat.split(",");
+																if (split != null && split.length == 2) {
+																	String key=split[0]+"_"+split[1]+"_"+pciModel+"_"+pk;
+																	if (secondFinal.containsKey(key)) {
+																		List<String> list = secondFinal.get(key);
+																		if (!list.contains(longitudeMain+"_"+latitudeMain)) {
+																			list.add(longitudeMain+"_"+latitudeMain);
+																		}
+																		secondFinal.put(key, list);
+																	}else {
+																		List<String> datasmm=new ArrayList<>();
+																		datasmm.add(longitudeMain+"_"+latitudeMain);
+																		secondFinal.put(key, datasmm);
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				/////
+				}
+				
+				//最终处理拉线的问题
+				if (secondFinal !=null && secondFinal.size()>0) {
+					Set<Entry<String,List<String>>> entrySet = secondFinal.entrySet();
+					for (Entry<String, List<String>> entry : entrySet) {
+						Map<String, Object> datasmap=new HashMap<>();
+						
+						String key = entry.getKey();
+						datasmap.put("lat", key.split("_")[1]);
+						datasmap.put("lng", key.split("_")[0]);
+						datasmap.put("ci", key.split("_")[3]);
+						datasmap.put("pci", key.split("_")[2]);
+						List<Map<String, Object>> pointsFinal=new ArrayList<>();
+						
+						List<String> value = entry.getValue();
+						for (String lnglat : value) {
+							Map<String, Object> paramMapL=new HashMap<>();
+							paramMapL.put("lng", lnglat.split("_")[0]);
+							paramMapL.put("lat", lnglat.split("_")[1]);
+							pointsFinal.add(paramMapL);
+						}
+						datasmap.put("points", pointsFinal);
+						resultFinal.add(datasmap);
+					}
+				}
+			}
+		return resultFinal;
+	}
+
+	/**
+	 * 查询主服务小区的问题 只查询5公里距离最近的一个 可 兼容4G\5G工参
+	 * 
+	 * @Description: 主服务小区的查询方式是 5公里内最近的 频点 pci分别对应相等
+	 * @author weichengz
+	 * @date 2019年11月22日 下午2:37:43
+	 */
+
+	@ResponseBody
+	@PostMapping(value = "/queryMainService")
+	public List<Map<String, Object>> queryMainService(@RequestParam("id") String id,
+			@RequestParam("gcType") String gcType) {
+
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
+		} else {
+			if (StringUtils.isBlank(sysProject.getProjCode())) {
+				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的sim地市不存在");
+			}
+		}
+
+		// log中每个主题内容的id
+		if (StringUtils.isNotBlank(id)) {
+			// 查询这条id对应的主log信息
+			QueryParamData queryParamDataParam = new QueryParamData("logmain5g", "logmain5g");
+			queryParamDataParam.setTermMap(MyUtil.createHashMap("id~" + id));
+			queryParamDataParam.setLimit(1);
+			List<Map<String, Object>> queryList = Esutil.queryList(queryParamDataParam);
+			if (queryList != null && queryList.size() > 0) {
+				Map<String, Object> mapRes = queryList.get(0);
+				FiveLogMain fiveLogMain = JSONObject.parseObject(JSONObject.toJSONString(mapRes), FiveLogMain.class);
+				if (fiveLogMain != null) {
+					String longitude = fiveLogMain.getLongitude();
+					String latitude = fiveLogMain.getLatitude();// 经纬度
+					// String logversion = fiveLogMain.getLogversion();// 0: LTE 1: NR5G NSA
+					String rootSupport = fiveLogMain.getRootSupport();// 0: None Root1: Root
+					if (StringUtils.isNotBlank(longitude) && StringUtils.isNotBlank(latitude)) {
+						QueryParamData queryParamDataFinal = new QueryParamData();
+						GeoPoint ceterPoint = new GeoPoint(Double.valueOf(latitude), Double.valueOf(longitude));
+						queryParamDataFinal.dealGeoDiatanceBuss(ceterPoint, GEO_DISTANCE_5G, "location");
+
+						// 根据条件寻找PCI
+						if (("1").equals(rootSupport)) {// root版本
+							if (("0").equals(gcType)) {// 4G
+								// 赋值索引类型
+								QueryParamData queryParamDataGc = new QueryParamData("simgc", "simgc");
+								// 地理位置的信息距离
+								queryParamDataGc.setDiatinceGeoMap(queryParamDataFinal.getDiatinceGeoMap());
+								queryParamDataGc.setSortGeoMap(queryParamDataFinal.getSortGeoMap());
+								;
+
+								ProLteDataInfoBean proLteDataInfoBeans = fiveLogMain.getProLteDataInfoBeans();
+								if (proLteDataInfoBeans != null) {
+									String ci = proLteDataInfoBeans.getServingCellPccCellId();
+									String enb = proLteDataInfoBeans.getServingCellPccEnodebId();
+
+									List<Map<String, Object>> resultDataMap = new ArrayList<>();// 返回的结果
+
+									if (StringUtils.isNotBlank(ci) && StringUtils.isNotBlank(enb)) {
+
+										// 处理该地市的查询条件
+										Map<String, Object> termMap = new HashMap<>();
+
+										termMap.put("lte_enodebid.keyword", enb);
+										termMap.put("lte_cell.keyword", ci);
+										termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
+										queryParamDataGc.setTermMap(termMap);
+										List<Map<String, Object>> queryList2 = Esutil.queryList(queryParamDataGc);
+										if (queryList2 != null && queryList2.size() > 0) {
+											Map<String, Object> map = queryList2.get(0);
+											Object lte_latitude2 = map.get("lte_latitude2");
+											Object lte_longitude2 = map.get("lte_longitude2");
+											Object lte_azimuth = map.get("lte_azimuth");
+											if (lte_latitude2 != null && lte_longitude2 != null
+													&& lte_azimuth != null) {
+
+												try {
+													Map<String, Object> latLon = new HashMap<>();
+
+													String convertDistanceToLogLat = GeoLngLatUtil
+															.ConvertDistanceToLogLat(
+																	Double.valueOf(lte_longitude2.toString()),
+																	Double.valueOf(lte_latitude2.toString()), MINT_UNIT,
+																	Double.valueOf(lte_azimuth.toString()));
+													if (convertDistanceToLogLat != null) {
+														String[] split = convertDistanceToLogLat.split(",");
+														if (split != null && split.length == 2) {
+															latLon.put("lte_longitude2", split[0]);
+															latLon.put("lte_latitude2", split[1]);
+															latLon.put("lte_azimuth", lte_azimuth);
+															resultDataMap.add(latLon);
+														}
+													}
+												} catch (Exception e) {
+												}
+											}
+										}
+									}
+									return resultDataMap;
+								}
+							} else {// 5g
+								// 赋值索引类型
+								QueryParamData queryParamDataGc = new QueryParamData("simgc5g", "simgc5g");
+								// 地理位置的信息距离
+								queryParamDataGc.setDiatinceGeoMap(queryParamDataFinal.getDiatinceGeoMap());
+								queryParamDataGc.setSortGeoMap(queryParamDataFinal.getSortGeoMap());
+
+								ProNrDataInfoBean proNrDataInfoBean = fiveLogMain.getProNrDataInfoBean();
+								if (proNrDataInfoBean != null) {
+									String pci = proNrDataInfoBean.getPCI();
+									String ssARFCN = proNrDataInfoBean.getSsARFCN();
+
+									List<Map<String, Object>> resultDataMap = new ArrayList<>();// 返回的结果
+
+									if (StringUtils.isNotBlank(pci) && StringUtils.isNotBlank(ssARFCN)) {
+
+										// 处理该地市的查询条件
+										Map<String, Object> termMap = new HashMap<>();
+
+										// termMap.put("lte_earfcn.keyword", ssARFCN); //这个地方调整一下 映射表的关系
+										termMap.put("lte_earfcn", ssARFCN);
+										termMap.put("lte_phycellid.keyword", pci);
+										termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
+										queryParamDataGc.setTermMap(termMap);
+										List<Map<String, Object>> queryList2 = Esutil.queryList(queryParamDataGc);
+										if (queryList2 != null && queryList2.size() > 0) {
+											Map<String, Object> map = queryList2.get(0);
+											Object lte_latitude2 = map.get("lte_latitude2");
+											Object lte_longitude2 = map.get("lte_longitude2");
+											Object lte_azimuth = map.get("lte_azimuth");
+											if (lte_latitude2 != null && lte_longitude2 != null
+													&& lte_azimuth != null) {
+
+												try {
+													Map<String, Object> latLon = new HashMap<>();
+
+													String convertDistanceToLogLat = GeoLngLatUtil
+															.ConvertDistanceToLogLat(
+																	Double.valueOf(lte_longitude2.toString()),
+																	Double.valueOf(lte_latitude2.toString()), MINT_UNIT,
+																	Double.valueOf(lte_azimuth.toString()));
+													if (convertDistanceToLogLat != null) {
+														String[] split = convertDistanceToLogLat.split(",");
+														if (split != null && split.length == 2) {
+															latLon.put("lte_longitude2", split[0]);
+															latLon.put("lte_latitude2", split[1]);
+															latLon.put("lte_azimuth", lte_azimuth);
+															resultDataMap.add(latLon);
+														}
+													}
+												} catch (Exception e) {
+												}
+											}
+										}
+									} //
+									return resultDataMap;
+								}
+							}
+						} else {// 非root
+							if (("0").equals(gcType)) {// 4G
+
+								// 赋值索引类型
+								QueryParamData queryParamDataGc = new QueryParamData("simgc", "simgc");
+								// 地理位置的信息距离
+								queryParamDataGc.setDiatinceGeoMap(queryParamDataFinal.getDiatinceGeoMap());
+								queryParamDataGc.setSortGeoMap(queryParamDataFinal.getSortGeoMap());
+
+								LteDataInfoBean lteDataInfoBean = fiveLogMain.getLteDataInfoBean();
+								if (lteDataInfoBean != null) {
+									String ci = lteDataInfoBean.getLteCellID();
+									String enb = lteDataInfoBean.getLteENB();
+
+									List<Map<String, Object>> resultDataMap = new ArrayList<>();// 返回的结果
+
+									if (StringUtils.isNotBlank(ci) && StringUtils.isNotBlank(enb)) {
+										// 处理该地市的查询条件
+										Map<String, Object> termMap = new HashMap<>();
+
+										termMap.put("lte_enodebid.keyword", enb);
+										termMap.put("lte_cell.keyword", ci);
+										termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
+										queryParamDataGc.setTermMap(termMap);
+										List<Map<String, Object>> queryList2 = Esutil.queryList(queryParamDataGc);
+										if (queryList2 != null && queryList2.size() > 0) {
+											Map<String, Object> map = queryList2.get(0);
+											Object lte_latitude2 = map.get("lte_latitude2");
+											Object lte_longitude2 = map.get("lte_longitude2");
+											Object lte_azimuth = map.get("lte_azimuth");
+											if (lte_latitude2 != null && lte_longitude2 != null
+													&& lte_azimuth != null) {
+
+												try {
+													Map<String, Object> latLon = new HashMap<>();
+
+													String convertDistanceToLogLat = GeoLngLatUtil
+															.ConvertDistanceToLogLat(
+																	Double.valueOf(lte_longitude2.toString()),
+																	Double.valueOf(lte_latitude2.toString()), MINT_UNIT,
+																	Double.valueOf(lte_azimuth.toString()));
+													if (convertDistanceToLogLat != null) {
+														String[] split = convertDistanceToLogLat.split(",");
+														if (split != null && split.length == 2) {
+															latLon.put("lte_longitude2", split[0]);
+															latLon.put("lte_latitude2", split[1]);
+															latLon.put("lte_azimuth", lte_azimuth);
+															resultDataMap.add(latLon);
+														}
+													}
+												} catch (Exception e) {
+												}
+											}
+										}
+									}
+									return resultDataMap;
+								}
+							} else {// 5g
+								// 赋值索引类型
+								QueryParamData queryParamDataGc = new QueryParamData("simgc5g", "simgc5g");
+								// 地理位置的信息距离
+								queryParamDataGc.setDiatinceGeoMap(queryParamDataFinal.getDiatinceGeoMap());
+								queryParamDataGc.setSortGeoMap(queryParamDataFinal.getSortGeoMap());
+
+								NrDataInfoBean nrDataInfoBean = fiveLogMain.getNrDataInfoBean();
+								if (nrDataInfoBean != null) {
+									String nrARFCN = nrDataInfoBean.getNrARFCN();
+									String nrPCI = nrDataInfoBean.getNrPCI();
+
+									List<Map<String, Object>> resultDataMap = new ArrayList<>();// 返回的结果
+
+									if (StringUtils.isNotBlank(nrARFCN) && StringUtils.isNotBlank(nrPCI)) {
+
+										// 处理该地市的查询条件
+										Map<String, Object> termMap = new HashMap<>();
+										termMap.put("lte_earfcn.keyword", nrARFCN);
+										termMap.put("lte_phycellid.keyword", nrPCI);
+										termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");
+										queryParamDataGc.setTermMap(termMap);
+										List<Map<String, Object>> queryList2 = Esutil.queryList(queryParamDataGc);
+										if (queryList2 != null && queryList2.size() > 0) {
+											Map<String, Object> map = queryList2.get(0);
+											Object lte_latitude2 = map.get("lte_latitude2");
+											Object lte_longitude2 = map.get("lte_longitude2");
+											Object lte_azimuth = map.get("lte_azimuth");
+											if (lte_latitude2 != null && lte_longitude2 != null
+													&& lte_azimuth != null) {
+
+												try {
+													Map<String, Object> latLon = new HashMap<>();
+
+													String convertDistanceToLogLat = GeoLngLatUtil
+															.ConvertDistanceToLogLat(
+																	Double.valueOf(lte_longitude2.toString()),
+																	Double.valueOf(lte_latitude2.toString()), MINT_UNIT,
+																	Double.valueOf(lte_azimuth.toString()));
+													if (convertDistanceToLogLat != null) {
+														String[] split = convertDistanceToLogLat.split(",");
+														if (split != null && split.length == 2) {
+															latLon.put("lte_longitude2", split[0]);
+															latLon.put("lte_latitude2", split[1]);
+															latLon.put("lte_azimuth", lte_azimuth);
+															resultDataMap.add(latLon);
+														}
+													}
+												} catch (Exception e) {
+												}
+											}
+										}
+
+									} //
+									return resultDataMap;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return new ArrayList<>();
+	}
+
+	
+	/**
 	 * 
 	 * @Description: 查询小区信息接口
 	 * @author weichengz
@@ -1721,8 +3014,7 @@ public class EsFiveBusssController {
 	 */
 	@ResponseBody
 	@PostMapping(value = "/cellWindowInfo")
-	public Map<String, Object> cellWindowInfo(@RequestBody QueryParamData queryParamData) {
-
+	public Map<String, Object> cellWindowInfo(@RequestParam("id") String id) {
 		LoginUser loginUser = UserUtil.getLoginUser();
 		if (loginUser == null) {
 			throw new IllegalArgumentException("当前登陆用户失效");
@@ -1742,12 +3034,11 @@ public class EsFiveBusssController {
 		paramMap.put("4G", new HashMap<>());
 
 		// log中每个主题内容的id
-		String id = queryParamData.getId();
 		if (StringUtils.isNotBlank(id)) {
 			// 查询这条id对应的主log信息
 			QueryParamData queryParamDataParam = new QueryParamData("logmain5g", "logmain5g");
 			queryParamDataParam.setTermMap(MyUtil.createHashMap("id~" + id));
-			queryParamData.setLimit(1);
+			queryParamDataParam.setLimit(1);
 			List<Map<String, Object>> queryList = Esutil.queryList(queryParamDataParam);
 			if (queryList != null && queryList.size() > 0) {
 				Map<String, Object> mapRes = queryList.get(0);
@@ -1944,14 +3235,13 @@ public class EsFiveBusssController {
 	 */
 	@ResponseBody
 	@PostMapping(value = "/queryNearOrMainService")
-	public Map<String, Object> queryNearOrMainService(@RequestBody QueryParamData queryParamData) {
+	public Map<String, Object> queryNearOrMainService(@RequestParam("id") String id) {
 
 		Map<String, Object> paramMap = new HashMap<>();
 		paramMap.put("4G", new ArrayList<>());
 		paramMap.put("5G", new ArrayList<>());
 
 		// log中每个主题内容的id
-		String id = queryParamData.getId();
 		if (StringUtils.isNotBlank(id)) {
 			// 查询这条id对应的主log信息
 			QueryParamData queryParamDataParam = new QueryParamData("logmain5g", "logmain5g");
@@ -2139,6 +3429,458 @@ public class EsFiveBusssController {
 		return paramMap;
 	}
 
+	
+	/**
+	 * 
+	 * @Description: 六个窗口的集合
+	 * @author weichengz
+	 * @date 2020年5月8日 上午10:11:43
+	 */
+	@ResponseBody
+	@PostMapping(value = "/querySiXWindowService")
+	public Map<String, Object> querySiXWindowService(@RequestParam("id") String id) {
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+		
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+		if (sysProject == null) {
+			throw new IllegalArgumentException("该用户不属于任何地市");
+		} else {
+			if (StringUtils.isBlank(sysProject.getProjCode())) {
+				throw new IllegalArgumentException("该地市【" + sysProject.getProjName() + "】对应的sim地市不存在");
+			}
+		}
+		
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("cellInfo5g", new HashMap<>());//5g小区信息
+		paramMap.put("cellInfo4g", new HashMap<>());
+		
+		paramMap.put("nearOrMain5g", new ArrayList<>());//5g邻区和主服务小区
+		paramMap.put("nearOrMain4g", new ArrayList<>());
+		
+		paramMap.put("grate4g", new HashMap<>());//速率问题
+		paramMap.put("grate5g", new HashMap<>());
+		
+		// log中每个主题内容的id
+		if (StringUtils.isNotBlank(id)) {
+			// 查询这条id对应的主log信息
+			QueryParamData queryParamDataParam = new QueryParamData("logmain5g", "logmain5g");
+			queryParamDataParam.setTermMap(MyUtil.createHashMap("id~" + id));
+			queryParamDataParam.setLimit(1);
+			List<Map<String, Object>> queryList = Esutil.queryList(queryParamDataParam);
+			if (queryList != null && queryList.size() > 0) {
+				Map<String, Object> mapRes = queryList.get(0);
+				FiveLogMain fiveLogMain = JSONObject.parseObject(JSONObject.toJSONString(mapRes), FiveLogMain.class);
+				if (fiveLogMain != null) {
+					
+					
+					/***速率录入*/
+
+					String logversion = fiveLogMain.getLogversion();
+					if (("0").equals(logversion)) {// 4g
+						LinkedHashMap<String, Object> paramMapUlDl = new LinkedHashMap<>();
+						paramMapUlDl.put("APP", fiveLogMain.getDownLoadSpeed() + " ~ " + fiveLogMain.getUpLoadSpeed());
+
+						ProLteDataInfoBean proNrDataInfoBean = fiveLogMain.getProLteDataInfoBeans();
+						if (proNrDataInfoBean != null) {
+							paramMapUlDl.put("PDCP", proNrDataInfoBean.getThroughputPccPdcpDl() + " ~ "
+									+ proNrDataInfoBean.getThroughputPccPdcpUl());
+							paramMapUlDl.put("RLC", proNrDataInfoBean.getThroughputPccRlcDl() + " ~ "
+									+ proNrDataInfoBean.getThroughputPccRlcUl());
+							paramMapUlDl.put("MAC", proNrDataInfoBean.getThroughputPccMacDl() + " ~ "
+									+ proNrDataInfoBean.getThroughputPccMacUl());
+							paramMapUlDl.put("PHY", " ~ ");
+						}
+						paramMap.put("grate4g", paramMapUlDl);
+					}
+					
+					
+				
+					
+					if (("1").equals(logversion)) {// 5g
+						LinkedHashMap<String, Object> paramMapUlDl = new LinkedHashMap<>();
+						paramMapUlDl.put("APP", fiveLogMain.getDownLoadSpeed() + " ~ " + fiveLogMain.getUpLoadSpeed());
+
+						ProNrDataInfoBean proNrDataInfoBean = fiveLogMain.getProNrDataInfoBean();
+						if (proNrDataInfoBean != null) {
+							paramMapUlDl.put("PDCP",
+									proNrDataInfoBean.getPdcpDLThr() + " ~ " + proNrDataInfoBean.getPdcpULThr());
+							paramMapUlDl.put("RLC",
+									proNrDataInfoBean.getRlcDLThr() + " ~ " + proNrDataInfoBean.getRlcULThr());
+							paramMapUlDl.put("MAC",
+									proNrDataInfoBean.getMacDLThr() + " ~ " + proNrDataInfoBean.getMacULThr());
+							paramMapUlDl.put("PHY", " ~ ");
+						}
+						paramMap.put("grate5g", paramMapUlDl);
+					}
+					
+					
+					/***速率录入*/
+					
+					String rootSupport = fiveLogMain.getRootSupport();// 0: None Root1: Root
+					LinkedHashMap<Object, Object> fiveGhashMap = new LinkedHashMap<>();
+					LinkedHashMap<Object, Object> fourGhashMap = new LinkedHashMap<>();
+					// 用于获取小区的信息
+					NrDataInfoBean nrDataInfoBean = fiveLogMain.getNrDataInfoBean();
+					LteDataInfoBean lteDataInfoBean = fiveLogMain.getLteDataInfoBean();
+					
+					if (("1").equals(rootSupport)) {// root版本 显示5G/4G窗口的信息
+					    // 4G
+						ProLteDataInfoBean proLteDataInfoBeans = fiveLogMain.getProLteDataInfoBeans();
+						if (proLteDataInfoBeans != null) {
+							List<Map<String, Object>> datas = new ArrayList<>();
+
+							// PCLL
+							Map<String, Object> pcellMap = new HashMap<>();
+							pcellMap.put("Type", "Pcell");
+							// 4G
+							pcellMap.put("CellName", "");
+							if (lteDataInfoBean != null) {
+								pcellMap.put("CellName", lteDataInfoBean.getLteCellName());
+							}
+							pcellMap.put("EARFCN", proLteDataInfoBeans.getServingCellPccEarfcnDl());
+							pcellMap.put("PCI", proLteDataInfoBeans.getServingCellPccPci());
+							pcellMap.put("RSRP", proLteDataInfoBeans.getServingCellPccRsrp());
+							pcellMap.put("RSRQ", proLteDataInfoBeans.getServingCellPccRsrq());
+							pcellMap.put("SINR", proLteDataInfoBeans.getServingCellPccSinr());
+							pcellMap.put("RSSI", proLteDataInfoBeans.getServingCellPccRssi());
+							datas.add(pcellMap);
+
+							List<ProLteNeighborhoodInfo> proLteNeighborhoodInfos = proLteDataInfoBeans
+									.getProLteNeighborhoodInfos();
+							if (proLteNeighborhoodInfos != null && proLteNeighborhoodInfos.size() > 0) {
+								for (ProLteNeighborhoodInfo proLteNeighborhoodInfo : proLteNeighborhoodInfos) {
+									Map<String, Object> lteMap = new HashMap<>();
+
+									lteMap.put("Type", "Ncell");
+									// 4G
+									lteMap.put("CellName", "");
+									lteMap.put("EARFCN", proLteNeighborhoodInfo.getpLteNeighbirhoodEARFCN());
+									lteMap.put("PCI", proLteNeighborhoodInfo.getpLteNeighbirhoodPCI());
+									lteMap.put("RSRP", proLteNeighborhoodInfo.getpLteNeighbirhoodRSRP());
+									lteMap.put("RSRQ", proLteNeighborhoodInfo.getpLteNeighbirhoodRSRQ());
+									lteMap.put("SINR", "");
+									lteMap.put("RSSI", proLteNeighborhoodInfo.getpLteNeighbirhoodRSSI());
+									datas.add(lteMap);
+								}
+							}
+							paramMap.put("nearOrMain4g", datas);
+						}
+						
+						
+
+						// 5g
+						ProNrDataInfoBean proNrDataInfoBean = fiveLogMain.getProNrDataInfoBean();
+						if (proNrDataInfoBean != null) {
+							List<Map<String, Object>> datas = new ArrayList<>();
+							Map<String, Object> pcellMap = new HashMap<>();
+
+							// 5G
+							pcellMap.put("Type", "Pcell");
+							pcellMap.put("CellName", "");
+							if (nrDataInfoBean != null) {
+								pcellMap.put("CellName", nrDataInfoBean.getNrCellName());
+							}
+							pcellMap.put("SSARFCN", proNrDataInfoBean.getSsARFCN());
+							pcellMap.put("PCI", proNrDataInfoBean.getPCI());
+							pcellMap.put("Beam", proNrDataInfoBean.getSSBIndex());
+							pcellMap.put("SSRSRP", proNrDataInfoBean.getSsRSRP());
+							pcellMap.put("SSRSRQ", proNrDataInfoBean.getSsRSRQ());
+							pcellMap.put("SSSINR", proNrDataInfoBean.getSsSINR());
+							datas.add(pcellMap);
+
+							List<ProNrNeighborhoodInfo> proNrNeighborhoodInfos = proNrDataInfoBean
+									.getProNrNeighborhoodInfos();
+							if (proNrNeighborhoodInfos != null && proNrNeighborhoodInfos.size() > 0) {
+								for (ProNrNeighborhoodInfo proNrNeighborhoodInfo : proNrNeighborhoodInfos) {
+									Map<String, Object> nellMap = new HashMap<>();
+									// 5G
+									nellMap.put("Type", "Ncell");
+									nellMap.put("CellName", "");
+									nellMap.put("SSARFCN", proNrNeighborhoodInfo.getpNrNeighborhoodNRARFCN());
+									nellMap.put("PCI", proNrNeighborhoodInfo.getpNrNeighborhoodPCI());
+									nellMap.put("Beam", proNrNeighborhoodInfo.getpNrNeighborhoodBeam());
+									nellMap.put("SSRSRP", proNrNeighborhoodInfo.getpNrNeighborhoodSSRSRP());
+									nellMap.put("SSRSRQ", proNrNeighborhoodInfo.getpNrNeighborhoodSSRSRQ());
+									nellMap.put("SSSINR", proNrNeighborhoodInfo.getpNrNeighborhoodSSSINR());
+									datas.add(nellMap);
+								}
+							}
+							paramMap.put("nearOrMain5g", datas);
+						}
+						///////
+						
+						
+						// 4G
+						ProLteDataInfoBean proLteDataInfoBeans1 = fiveLogMain.getProLteDataInfoBeans();
+						if (proLteDataInfoBeans1 != null) {
+							// 4G
+							fourGhashMap.put("Cell Name", "");
+							if (lteDataInfoBean != null) {
+								fourGhashMap.put("Cell Name", lteDataInfoBean.getLteCellName());
+							}
+							fourGhashMap.put("Band", proLteDataInfoBeans1.getServingCellPccBandIndex());
+							fourGhashMap.put("BandWidth(MHz)", proLteDataInfoBeans1.getServingCellPccBwDl());
+							fourGhashMap.put("Fequency DL", proLteDataInfoBeans1.getServingCellPccFreqDl());
+							fourGhashMap.put("EARFCN", proLteDataInfoBeans1.getServingCellPccEarfcnDl());
+							fourGhashMap.put("TAC", proLteDataInfoBeans1.getServingCellPccTac());
+							fourGhashMap.put("ECI", proLteDataInfoBeans1.getServingCellPccSiteEci());
+							fourGhashMap.put("eNodeB ID", proLteDataInfoBeans1.getServingCellPccEnodebId());
+							fourGhashMap.put("CI", proLteDataInfoBeans1.getServingCellPccCellId());
+							fourGhashMap.put("PCI", proLteDataInfoBeans1.getServingCellPccCellId());
+							fourGhashMap.put("RSRP(dBm)", proLteDataInfoBeans1.getServingCellPccRsrp());
+							fourGhashMap.put("SINR(dB)", proLteDataInfoBeans1.getServingCellPccSinr());
+							fourGhashMap.put("RSRQ(dB)", proLteDataInfoBeans1.getServingCellPccRsrq());
+							fourGhashMap.put("RSSI(dBm)", proLteDataInfoBeans1.getServingCellPccRssi());
+							fourGhashMap.put("SA/SSP", proLteDataInfoBeans1.getServingCellPccSa());
+							
+							fourGhashMap.put("CQI", proLteDataInfoBeans1.getServingCellPccWidebandCqi());
+							fourGhashMap.put("RI", proLteDataInfoBeans1.getServingCellPccBandIndex());
+							fourGhashMap.put("PUSCH TxPower", proLteDataInfoBeans1.getServingCellPccPuschTxpower());
+							fourGhashMap.put("PUCCH TxPower", proLteDataInfoBeans1.getServingCellPccPucchTxpower());
+							fourGhashMap.put("Grant UL/s", proLteDataInfoBeans1.getServingCellPccGrantulnum());
+							fourGhashMap.put("Grant DL/s", proLteDataInfoBeans1.getServingCellPccGrantdlnum());
+							fourGhashMap.put("PUSCH BLER(%)", proLteDataInfoBeans1.getServingCellPccULBLER());
+							fourGhashMap.put("PDSCH BLER(%)", proLteDataInfoBeans1.getServingCellPccDLBLER());
+							fourGhashMap.put("PUSCH RB/s", proLteDataInfoBeans1.getServingCellPccPdschRbs());
+							fourGhashMap.put("PDSCH RB/s", proLteDataInfoBeans1.getServingCellPccPdschRbs());
+							fourGhashMap.put("MCS UL", proLteDataInfoBeans1.getServingCellPccMcsul());
+							fourGhashMap.put("MCS DL", proLteDataInfoBeans1.getServingCellPccMcsdl());
+							fourGhashMap.put("Mod UL", proLteDataInfoBeans1.getServingCellPccModul());
+							fourGhashMap.put("Mod DL", proLteDataInfoBeans1.getServingCellPccModdl());
+							
+							paramMap.put("cellInfo4g", fourGhashMap);
+						}
+						
+						
+						
+						// 5g
+						ProNrDataInfoBean proNrDataInfoBean1 = fiveLogMain.getProNrDataInfoBean();
+						if (proNrDataInfoBean != null) {
+							// 5G
+							fiveGhashMap.put("Cell Name", "");
+							if (nrDataInfoBean != null) {
+								fiveGhashMap.put("Cell Name", nrDataInfoBean.getNrCellName());
+							}
+							fiveGhashMap.put("Band", proNrDataInfoBean1.getBand());
+							fiveGhashMap.put("Band Width(MHz)", proNrDataInfoBean1.getBandWidth());
+							fiveGhashMap.put("Frequency PointA", proNrDataInfoBean1.getFrequencyPointA());
+							fiveGhashMap.put("Frequency DL", proNrDataInfoBean1.getFrequencyDL());
+							fiveGhashMap.put("GSCN", proNrDataInfoBean1.getGSCN());
+							fiveGhashMap.put("SC Space(kHz)", proNrDataInfoBean1.getSubCarrierSpace());
+							fiveGhashMap.put("SS ARFCN", proNrDataInfoBean1.getSsARFCN());
+							fiveGhashMap.put("PCI", proNrDataInfoBean1.getPCI());
+							fiveGhashMap.put("SSB Index", proNrDataInfoBean1.getSSBIndex());
+							fiveGhashMap.put("SS RSRP(dBm)", proNrDataInfoBean1.getSsRSRP());
+							fiveGhashMap.put("SS SINR(dB)", proNrDataInfoBean1.getSsSINR());
+							fiveGhashMap.put("SS RSRQ(dB)", proNrDataInfoBean1.getSsRSRQ());
+							fiveGhashMap.put("CQI", proNrDataInfoBean1.getCqi());
+							fiveGhashMap.put("Slot Config(DL/UL)", proNrDataInfoBean1.getSlotConfigDLUL());
+							fiveGhashMap.put("RI", proNrDataInfoBean1.getRiNumDL());
+							fiveGhashMap.put("SRS TxPower", proNrDataInfoBean1.getSrsTxPower());
+							fiveGhashMap.put("PUSCH TxPower", proNrDataInfoBean1.getPuschTxPower());
+							fiveGhashMap.put("PUCCH TxPower", proNrDataInfoBean1.getPucchTxPower());
+							fiveGhashMap.put("Grant UL/s", proNrDataInfoBean1.getGrantULNum());
+							fiveGhashMap.put("Grant DL/s", proNrDataInfoBean1.getGrantDLNum());
+							fiveGhashMap.put("PUSCH BLER(%)", proNrDataInfoBean1.getPuschBler());
+							fiveGhashMap.put("PDSCH BLER(%)", proNrDataInfoBean1.getPdschBler());
+							fiveGhashMap.put("PUSCH RB/s", proNrDataInfoBean1.getPuschRB());
+							fiveGhashMap.put("PDSCH RB/s", proNrDataInfoBean1.getPdschRB());
+							fiveGhashMap.put("MCS UL", proNrDataInfoBean1.getMcsUL());
+							fiveGhashMap.put("MCS DL", proNrDataInfoBean1.getMcsDL());
+							fiveGhashMap.put("Mod UL", proNrDataInfoBean1.getModUL());
+							fiveGhashMap.put("Mod DL", proNrDataInfoBean1.getModDL());
+							
+							paramMap.put("cellInfo5g", fiveGhashMap);
+						}
+						
+						
+					} else {// 非root版本 显示5G/4G窗口的信息
+						
+						// 非root版本 显示5G/4G窗口的信息
+
+						// 5G
+						NrDataInfoBean proLteDataInfoBeans = fiveLogMain.getNrDataInfoBean();
+						if (proLteDataInfoBeans != null) {
+							List<Map<String, Object>> datas = new ArrayList<>();
+
+							// PCLL
+							Map<String, Object> pcellMap = new HashMap<>();
+							pcellMap.put("Type", "Pcell");
+							// 5G
+							pcellMap.put("CellName", "");
+							if (lteDataInfoBean != null) {
+								pcellMap.put("CellName", proLteDataInfoBeans.getNrCellName());
+							}
+							pcellMap.put("SSEARFCN", proLteDataInfoBeans.getNrARFCN());
+							pcellMap.put("PCI", proLteDataInfoBeans.getNrPCI());
+							pcellMap.put("Beam", "");
+							pcellMap.put("SSRSRP", proLteDataInfoBeans.getSsRSRP());
+							pcellMap.put("SSRSRQ", proLteDataInfoBeans.getSsRSRQ());
+							pcellMap.put("SSSINR", proLteDataInfoBeans.getSsSINR());
+							datas.add(pcellMap);
+
+							List<NrNeighborhoodInfo> proLteNeighborhoodInfos = proLteDataInfoBeans
+									.getNrNeighborhoodInfos();
+							if (proLteNeighborhoodInfos != null && proLteNeighborhoodInfos.size() > 0) {
+								for (NrNeighborhoodInfo proLteNeighborhoodInfo : proLteNeighborhoodInfos) {
+									Map<String, Object> lteMap = new HashMap<>();
+
+									lteMap.put("Type", "Ncell");
+									// 5G
+									lteMap.put("CellName", "");
+									lteMap.put("SSEARFCN", proLteNeighborhoodInfo.getNrNeighborhoodNRARFCN());
+									lteMap.put("PCI", proLteNeighborhoodInfo.getNrNeighborhoodPCI());
+									lteMap.put("Beam", "");
+									lteMap.put("SSRSRP", proLteNeighborhoodInfo.getNrNeighborhoodSSRSRP());
+									lteMap.put("SSRSRQ", proLteNeighborhoodInfo.getNrNeighborhoodSSRSRQ());
+									lteMap.put("SSSINR", proLteNeighborhoodInfo.getNrNeighborhoodSSSINR());
+									datas.add(lteMap);
+								}
+							}
+							paramMap.put("nearOrMain5g", datas);
+						}
+
+						
+						
+						
+						// 4g
+						LteDataInfoBean proNrDataInfoBean = fiveLogMain.getLteDataInfoBean();
+						if (proNrDataInfoBean != null) {
+							List<Map<String, Object>> datas = new ArrayList<>();
+							Map<String, Object> pcellMap = new HashMap<>();
+
+							// 4G
+							pcellMap.put("Type", "Pcell");
+							pcellMap.put("CellName", "");
+							if (nrDataInfoBean != null) {
+								pcellMap.put("CellName", proNrDataInfoBean.getLteCellName());
+							}
+							pcellMap.put("EARFCN", proNrDataInfoBean.getLteEARFCN());
+							pcellMap.put("PCI", proNrDataInfoBean.getLtePCI());
+							pcellMap.put("RSRP", proNrDataInfoBean.getLteRSRP());
+							pcellMap.put("RSRQ", proNrDataInfoBean.getLteRSRQ());
+							pcellMap.put("SINR", proNrDataInfoBean.getLteSINR());
+							pcellMap.put("RSSI", proNrDataInfoBean.getLteRSSI());
+							datas.add(pcellMap);
+
+							List<LteNeighborhoodInfo> proNrNeighborhoodInfos = proNrDataInfoBean
+									.getLteNeighborhoodInfos();
+							if (proNrNeighborhoodInfos != null && proNrNeighborhoodInfos.size() > 0) {
+								for (LteNeighborhoodInfo proNrNeighborhoodInfo : proNrNeighborhoodInfos) {
+									Map<String, Object> nellMap = new HashMap<>();
+									// 4G
+									nellMap.put("Type", "Ncell");
+									nellMap.put("CellName", "");
+									nellMap.put("EARFCN", proNrNeighborhoodInfo.getLteNeighbirhoodEARFCN());
+									nellMap.put("PCI", proNrNeighborhoodInfo.getLteNeighbirhoodPCI());
+									nellMap.put("RSRP", proNrNeighborhoodInfo.getLteNeighbirhoodRSRP());
+									nellMap.put("RSRQ", proNrNeighborhoodInfo.getLteNeighbirhoodRSRQ());
+									nellMap.put("SINR", "");
+									nellMap.put("RSSI", proNrNeighborhoodInfo.getLteNeighbirhoodRSSI());
+									datas.add(nellMap);
+								}
+							}
+							paramMap.put("nearOrMain4g", datas);
+						}
+						
+					
+						
+						/////
+						
+						// 4G
+						LteDataInfoBean proLteDataInfoBeans1 = fiveLogMain.getLteDataInfoBean();
+						if (proLteDataInfoBeans1 != null) {
+							// 4G
+							fourGhashMap.put("Cell Name", "");
+							if (lteDataInfoBean != null) {
+								fourGhashMap.put("Cell Name", lteDataInfoBean.getLteCellName());
+							}
+							fourGhashMap.put("Band", "");
+							fourGhashMap.put("BandWidth(MHz)", "");
+							fourGhashMap.put("Fequency DL", "");
+							fourGhashMap.put("EARFCN", proLteDataInfoBeans1.getLteEARFCN());
+							fourGhashMap.put("TAC", proLteDataInfoBeans1.getLteEARFCN());
+							fourGhashMap.put("ECI", "");
+							fourGhashMap.put("eNodeB ID", proLteDataInfoBeans1.getLteENB());
+							fourGhashMap.put("CI", proLteDataInfoBeans1.getLteCellID());
+							fourGhashMap.put("PCI", proLteDataInfoBeans1.getLtePCI());
+							fourGhashMap.put("RSRP(dBm)", proLteDataInfoBeans1.getLteRSRP());
+							fourGhashMap.put("SINR(dB)", proLteDataInfoBeans1.getLteSINR());
+							fourGhashMap.put("RSRQ(dB)", proLteDataInfoBeans1.getLteRSRQ());
+							fourGhashMap.put("RSSI(dBm)", proLteDataInfoBeans1.getLteRSSI());
+							fourGhashMap.put("SA/SSP", "");
+							
+							fourGhashMap.put("CQI", "");
+							fourGhashMap.put("RI", "");
+							fourGhashMap.put("PUSCH TxPower", "");
+							fourGhashMap.put("PUCCH TxPower", "");
+							fourGhashMap.put("Grant UL/s", "");
+							fourGhashMap.put("Grant DL/s", "");
+							fourGhashMap.put("PUSCH BLER(%)", "");
+							fourGhashMap.put("PDSCH BLER(%)", "");
+							fourGhashMap.put("PUSCH RB/s", "");
+							fourGhashMap.put("PDSCH RB/s", "");
+							fourGhashMap.put("MCS UL", "");
+							fourGhashMap.put("MCS DL", "");
+							fourGhashMap.put("Mod UL", "");
+							fourGhashMap.put("Mod DL", "");
+							paramMap.put("cellInfo4g", fourGhashMap);
+							
+						}
+						
+						
+						// 5g
+						NrDataInfoBean proNrDataInfoBean1 = fiveLogMain.getNrDataInfoBean();
+						if (proNrDataInfoBean1 != null) {
+							// 5G
+							fiveGhashMap.put("Cell Name", "");
+							if (nrDataInfoBean != null) {
+								fiveGhashMap.put("Cell Name", nrDataInfoBean.getNrCellName());
+							}
+							fiveGhashMap.put("Band", "");
+							fiveGhashMap.put("Band Width(MHz)", "");
+							fiveGhashMap.put("Frequency PointA", "");
+							fiveGhashMap.put("Frequency DL", "");
+							fiveGhashMap.put("GSCN", "");
+							fiveGhashMap.put("SC Space(kHz)", "");
+							fiveGhashMap.put("SS ARFCN", proNrDataInfoBean1.getNrARFCN());
+							fiveGhashMap.put("PCI", proNrDataInfoBean1.getNrPCI());
+							fiveGhashMap.put("SSB Index", "");
+							fiveGhashMap.put("SS RSRP(dBm)", proNrDataInfoBean1.getSsRSRP());
+							fiveGhashMap.put("SS SINR(dB)", proNrDataInfoBean1.getSsSINR());
+							fiveGhashMap.put("SS RSRQ(dB)", proNrDataInfoBean1.getSsRSRQ());
+							fiveGhashMap.put("CQI", "");
+							fiveGhashMap.put("Slot Config(DL/UL)", "");
+							fiveGhashMap.put("RI", "");
+							fiveGhashMap.put("SRS TxPower", "");
+							fiveGhashMap.put("PUSCH TxPower", "");
+							fiveGhashMap.put("PUCCH TxPower", "");
+							fiveGhashMap.put("Grant UL/s", "");
+							fiveGhashMap.put("Grant DL/s", "");
+							fiveGhashMap.put("PUSCH BLER(%)", "");
+							fiveGhashMap.put("PDSCH BLER(%)", "");
+							fiveGhashMap.put("PUSCH RB/s", "");
+							fiveGhashMap.put("PDSCH RB/s", "");
+							fiveGhashMap.put("MCS UL", "");
+							fiveGhashMap.put("MCS DL", "");
+							fiveGhashMap.put("Mod UL", "");
+							fiveGhashMap.put("Mod DL", "");
+							
+							paramMap.put("cellInfo5g", fiveGhashMap);
+						}
+						
+					
+					}
+				}
+			}
+		}
+		
+		return paramMap;
+	}
+	
 	/**
 	 * 
 	 * @Description: 查询速率
@@ -2147,14 +3889,13 @@ public class EsFiveBusssController {
 	 */
 	@ResponseBody
 	@PostMapping(value = "/queryLogRate")
-	public Map<String, Object> queryLogRate(@RequestBody QueryParamData queryParamData) {
+	public Map<String, Object> queryLogRate(@RequestParam("id") String id) {
 
 		Map<String, Object> paramMap = new HashMap<>();
 		paramMap.put("4G", new HashMap<>());
 		paramMap.put("5G", new HashMap<>());
 
 		// log中每个主题内容的id
-		String id = queryParamData.getId();
 		if (StringUtils.isNotBlank(id)) {
 			// 查询这条id对应的主log信息
 			QueryParamData queryParamDataParam = new QueryParamData("logmain5g", "logmain5g");
@@ -2205,7 +3946,7 @@ public class EsFiveBusssController {
 	}
 
 	/**
-	 * 支持5G/4G的工参的拉取方法
+	 * 支持4G/5G的工参的拉取方法
 	 * 
 	 * @Description: 更新sim工参信息
 	 * @author weichengz
@@ -2273,10 +4014,13 @@ public class EsFiveBusssController {
 			paramMap.put("projectLevel", projectLevelFlag);// 3是查询本市 2是查询全省的
 			paramMap.put("provinceName", sysProject.getProProvice());
 			paramMap.put("operator", sysProject.getProjOperator());
-			// paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
-			// "lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm,lte_site_name");
-			paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
-					"nr_city_name,1,nr_btsid,1,nr_lcrid,nr_ci,nr_ci,nr_phycellid,nr_longitude2,nr_latitude2,nr_longitude,nr_latitude,nr_site_tall,nr_azimuth,nr_mechanical_downdip,nr_electronic_downdip,nr_total_downdip,nr_tac,nr_sys,nr_site_type,nr_arfcn,nr_derrick_type,nr_address,nr_scene,nr_grid,nr_firm,nr_site_name");
+			if (("simgc").equals(index)) {
+				paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
+						"lte_city_name,lte_net,lte_enodebid,lte_sector_id,lte_cell,lte_ci,lte_ecgi,lte_phycellid,lte_longitude2,lte_latitude2,lte_longitude,lte_latitude,lte_site_tall,lte_azimuth,lte_mechanical_downdip,lte_electronic_downdip,lte_total_downdip,lte_tac,lte_sys,lte_site_type,lte_earfcn,lte_derrick_type,lte_address,lte_scene,lte_grid,lte_firm,lte_site_name");
+			} else {
+				paramMap.put("fields", // 这个顺序 要和 实体类的顺序一致
+						"nr_city_name,1,nr_btsid,1,nr_lcrid,nr_ci,nr_ci,nr_phycellid,nr_longitude2,nr_latitude2,nr_longitude,nr_latitude,nr_site_tall,nr_azimuth,nr_mechanical_downdip,nr_electronic_downdip,nr_total_downdip,nr_tac,nr_sys,nr_site_type,nr_arfcn,nr_derrick_type,nr_address,nr_scene,nr_grid,nr_firm,nr_site_name");
+			}
 
 			paramMap.put("limit", "" + i * limit + "," + limit); // 不限制就是全部的
 
@@ -2301,16 +4045,30 @@ public class EsFiveBusssController {
 				break;
 			}
 			for (List<String> data : datas) {
-				CommonModel commonModel = CommonModel.changeStrToObj5g(data);
-				GcModel model = new GcModel(commonModel);
-				// 将经纬度处理为WGS84
-				model.dealLngLatBdToWgs84();
-				model.setCityId(sysProject.getId() == null ? "" : sysProject.getId().toString());
-				// 以地市和ci为主键
-				IndexRequest indexRequestOther = new IndexRequest(index, type,
-						model.getLte_city_name() + "_" + model.getLte_ci());
-				indexRequestOther.source(JSONObject.toJSONString(model), XContentType.JSON);
-				request.add(indexRequestOther);
+				try {
+					CommonModel commonModel = null;
+					if (("simgc").equals(index)) {
+						commonModel = CommonModel.changeStrToObj(data);
+					} else {
+						commonModel = CommonModel.changeStrToObj5g(data);
+					}
+					// 处理基站类型 转为indoor outdoor
+					commonModel.dealStationType();
+					// 处理基站类型 转为indoor outdoor
+
+					GcModel model = new GcModel(commonModel);
+					// 将经纬度处理为WGS84
+					model.dealLngLatBdToWgs84();
+					model.setCityId(sysProject.getId() == null ? "" : sysProject.getId().toString());
+					// 以地市和ci为主键
+					IndexRequest indexRequestOther = new IndexRequest(index, type,
+							model.getLte_city_name() + "_" + model.getLte_ci());
+					indexRequestOther.source(JSONObject.toJSONString(model), XContentType.JSON);
+					request.add(indexRequestOther);
+				} catch (Exception e) {
+					continue;
+				}
+
 			}
 
 			/** 分批的添加进去 */
@@ -2323,6 +4081,97 @@ public class EsFiveBusssController {
 			}
 		}
 		/** for循环请求数据结束 **/
+		return new JsonMsgUtil(true, "SIM工参更新成功", "");
+	}
+
+	/**
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2020年6月29日 上午10:36:28
+	 */
+	@ResponseBody
+	@PostMapping(value = "/addSimGc")
+	public JsonMsgUtil addSimGc() throws Exception {
+
+		BulkRequest request = new BulkRequest();
+
+		LoginUser loginUser = UserUtil.getLoginUser();
+		if (loginUser == null) {
+			throw new IllegalArgumentException("当前登陆用户失效");
+		}
+
+		SysProject sysProject = sysProjectService.selectById(loginUser.getProjId());
+
+		DataInputStream in = new DataInputStream(new FileInputStream(new File("D:\\stsaz\\11111.csv")));
+		BufferedReader br = new BufferedReader(new InputStreamReader(in, "GBK"));// 这里如果csv文件编码格式是utf-8,改成utf-8即可
+
+		String line = "";
+		String everyLine = "";
+		int num = 0;
+		try {
+			while ((line = br.readLine()) != null) // 读取到的内容给line变量
+			{
+				if (num > 0) {
+					everyLine = line;
+					if (StringUtils.isNotBlank(everyLine)) {// 不为空的情况下进行处理
+						System.out.println(everyLine);
+						String[] split = everyLine.split(",");
+						GcModel model = new GcModel();
+						// 上海,一号1,,,0,1,329991,3549.81,1,1,32999,121.5733457,31.23189923,2,,216,20,宏站,6265,FDD,3,1,,,
+
+						model.setLte_city_name(split[0]);
+						model.setLte_site_name(split[1]);
+						model.setLte_firm(split[2]);
+						model.setLte_grid(split[3]);
+						model.setLte_azimuth(split[4]);
+						model.setLte_cell(split[5]);
+						model.setLte_ci(split[6]);
+						model.setLte_earfcn(split[7]);
+						model.setLte_ecgi(split[8]);
+						model.setLte_electronic_downdip(split[9]);
+						model.setLte_enodebid(split[10]);
+						model.setLte_longitude2(split[11]);
+						model.setLte_latitude2(split[12]);
+						model.setLte_longitude(split[11]);
+						model.setLte_latitude(split[12]);
+
+						model.setLte_mechanical_downdip(split[13]);
+						model.setLte_net(split[14]);
+						model.setLte_phycellid(split[15]);
+						model.setLte_site_tall(split[16]);
+						model.setLte_site_type("outdoor");
+						model.setLte_tac(split[18]);
+						model.setLte_sys(split[19]);
+						model.setLte_total_downdip(split[20]);
+						model.setLte_sector_id(split[21]);
+						model.setLte_derrick_type("");
+						model.setLte_address("");
+						model.setLte_scene("");
+
+						// 处理空间索引
+						model.dealLocation();
+						// 将经纬度处理为WGS84
+						model.dealLngLatBdToWgs84();
+						model.setCityId(sysProject.getId() == null ? "" : sysProject.getId().toString());
+						// 以地市和ci为主键
+
+						// 以地市和ci为主键
+						IndexRequest indexRequestOther = new IndexRequest("simgc5g", "simgc5g",
+								model.getLte_city_name() + "_" + model.getLte_ci());
+
+						indexRequestOther.source(JSONObject.toJSONString(model), XContentType.JSON);
+						request.add(indexRequestOther);
+					}
+				}
+				num++;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// 批量保存
+		transportClient.bulk(request).get();
 		return new JsonMsgUtil(true, "SIM工参更新成功", "");
 	}
 

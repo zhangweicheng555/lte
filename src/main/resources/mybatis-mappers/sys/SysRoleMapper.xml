@@ -27,15 +27,7 @@
 	</update>
 
 	
-	<select id="queryByProId" resultMap="SysRoleMap">
-		 select distinct sr.* from 
-		 sys_role sr
-		 ,proj_role_relation prr  
-		 where 1=1
-		 and sr.id=prr.role_id
-		 and prr.proj_id=#{projId}
-		 order by sr.sort
-	</select>
+	
 	
 	<select id="findRolePersion" resultType="java.util.Map">
 		select 
@@ -136,6 +128,7 @@
 	</insert>
 	
 	
+	
 	<resultMap type="com.boot.kaizen.model.SysRole" id="roleMap">
 		<id property="id" column="id" />
 		<result property="name" column="name" />
@@ -145,6 +138,17 @@
 		<result property="createTime" column="createTime" />
 		<result property="updateTime" column="updateTime" />
 	</resultMap>
+	
+	<select id="queryByProId" resultMap="SysRoleMap">
+		 select distinct sr.id,sr.name,sr.description,sr.sort,sr.createTime,sr.updateTime
+		 from 
+		 sys_role sr
+		 ,proj_role_relation prr  
+		 where 1=1
+		 and sr.id=prr.role_id
+		 and prr.proj_id=#{projId}
+		 order by sr.sort
+	</select>
 	
 	<resultMap type="com.boot.kaizen.model.SysRole" id="SysRoleMap">
 		<id property="id" column="id" />

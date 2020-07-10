@@ -78,7 +78,7 @@ mybatis-plus:
     logic-not-delete-value: 1
     refresh-mapper: false
   configuration:
-    map-underscore-to-camel-case: true
+    map-underscore-to-camel-case: false
     cache-enabled: false
 
 
@@ -91,8 +91,8 @@ pagehelper:
   
       
 files:
-  path: ${file-path:d:/kaizen/doc}     #所有文件存储的根路径
-#  path: ${file-path:/kaizen/doc}     #所有文件存储的根路径
+#  path: ${file-path:d:/kaizen/doc}     #所有文件存储的根路径
+  path: ${file-path:/kaizen/doc}     #所有文件存储的根路径
   
 
 logging:
@@ -140,6 +140,7 @@ sim:
   url: http://61.132.73.61:8012/SIM/iHandle!getParamSync.action
   gcAllPermission: fresh_all_gc  #此标记代表可拉取全省的工参
   gcCityPermission: fresh_city_gc  #此标记代表可拉取地市的工参  
+  openUpAppFlag: 归档  #此标记代表室外测试、一件测试上传权限匹配不上的时候 默认的地市名称 
 
 
 
@@ -148,3 +149,6 @@ commonval:
   nokiaes: false
   hnes: true
   hn20es: false
+  
+  ihandleUser: Ihandle默认用户  # 用户生成默认的角色名称  针对
+  ihandleUserPermission: open_source_oneLog,open_source_onebutton,open_source_outhometest5g  # 用户默认的权限

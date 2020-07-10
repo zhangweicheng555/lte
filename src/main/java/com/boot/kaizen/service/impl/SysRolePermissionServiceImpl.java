@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.boot.kaizen.dao.SysRolePermissionDao;
+import com.boot.kaizen.model.SysRolePermission;
 import com.boot.kaizen.service.SysRolePermissionService;
 /**
  * 
@@ -30,6 +31,11 @@ public class SysRolePermissionServiceImpl implements SysRolePermissionService {
 	@Override
 	public void deleteByProjIds(Long[] projIds) {
 		rolePermissionDao.deleteByProjIds(projIds);
+	}
+
+	@Override
+	public void batchInsert(List<SysRolePermission> relations) {
+		rolePermissionDao.batchInsert(relations);
 	}
 
 	

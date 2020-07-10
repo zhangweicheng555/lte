@@ -1,5 +1,7 @@
 package com.boot.kaizen.model;
 
+import java.util.Date;
+
 /**
  * 角色实体类设计
  * 
@@ -10,14 +12,26 @@ public class SysRole extends BaseEntity<Long> {
 
 	private static final long serialVersionUID = -3802292814767103648L;
 
-	private String name;
+	private String name;//
 
-	private String description;
+	private String description;//
 
-	private String sort;
+	private String sort;//
 
 	private Long projId;
 
+	
+	
+	
+	public SysRole() {
+		super();
+	}
+	public SysRole(String name, String description, String sort) {
+		super();
+		this.name = name;
+		this.description = description;
+		this.sort = sort;
+	}
 	@Override
 	public Long getProjId() {
 		return projId;

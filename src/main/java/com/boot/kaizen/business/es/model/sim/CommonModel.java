@@ -3,6 +3,8 @@ package com.boot.kaizen.business.es.model.sim;
 import java.io.Serializable;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 从sim里面拉取的字段的实体类
  * 
@@ -14,10 +16,10 @@ public class CommonModel implements Serializable {
 	public static final long serialVersionUID = 1L;
 	
 	public String lte_azimuth;// 方位角      33
-	public String lte_cell;// Cell          4 
+	public String lte_cell;// Cell          4   这个就是cell id
 	public String lte_ci;// CI             
 	public String lte_city_name;// 城市      
-	public String lte_earfcn;// EARFCN      不可检索   6
+	public String lte_earfcn;// EARFCN      不可检索   6   频点
 	public String lte_ecgi;// lte_ecgi      5             
 	public String lte_electronic_downdip;// 电子倾角   不可检索  11
 	public String lte_enodebid;// eNodeBID    3
@@ -31,7 +33,7 @@ public class CommonModel implements Serializable {
 	public String lte_net;// 网络                          1
 	public String lte_phycellid;// PhyCellId 这个就是PCI        8
 	public String lte_site_tall;// 站高            //不可检索     9
-	public String lte_site_type;// 站型           //不可检索
+	public String lte_site_type;// 站型           //可检索
 	public String lte_tac;// TAC              //不可检索     7
 	public String lte_sys;// 制式                       //不可检索
 	public String lte_total_downdip;// 总下倾角     //不可检索    12
@@ -41,7 +43,7 @@ public class CommonModel implements Serializable {
 	public String lte_address;// 详细地址        //不可检索
 	public String lte_scene;// 场景归属        //不可检索
 	
-	public String lte_site_name;// 小区名字20200428添加    2
+	public String lte_site_name;// 小区名字20200428添加    2  数据库本质是基站名
 	
 
 	
@@ -418,6 +420,17 @@ public class CommonModel implements Serializable {
 				array.get(25),//
 				array.get(26));//
 		return model;
+	}
+
+	public void dealStationType() {
+		if (StringUtils.isNotBlank(this.lte_site_type)) {
+			String siteType=this.lte_site_type.toLowerCase();
+			if (("室内").equals(siteType) || ("室分").equals(siteType) ||  ("indoor").equals(siteType) ) {
+				this.lte_site_type="indoor";
+			}else {
+				this.lte_site_type="outdoor";
+			}
+		}
 	}
 
 }

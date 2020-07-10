@@ -13,6 +13,7 @@ public interface GcModelMapper {
 	
     int deleteByPrimaryKey(String lte_ci);
 
+    //
     int insert(GcModel record);
 
     int insertSelective(GcModel record);
@@ -21,5 +22,6 @@ public interface GcModelMapper {
 
     int updateByPrimaryKeySelective(GcModel record);
 
+    //
     int updateByPrimaryKeyWithBLOBs(GcModel record);
 }

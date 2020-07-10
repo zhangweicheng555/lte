@@ -2,6 +2,9 @@ package com.boot.kaizen.service;
 
 import java.util.List;
 
+
+import com.boot.kaizen.model.SysRolePermission;
+
 /**
  * 
  * @author weichengz
@@ -14,6 +17,8 @@ public interface SysRolePermissionService {
 	void deleteByPermissionId(Long id);
 
 	void deleteByProjIds(Long[] projIds);
+	
+	void batchInsert(List<SysRolePermission> relations);
 
 	
 }

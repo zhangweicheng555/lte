@@ -98,13 +98,16 @@ public class LogAnaLyzeController {
 	 */
 	@ResponseBody
 	@PostMapping(value = "/queryAnalyzeData")
-	public JsonMsgUtil queryAnalyzeData(@RequestParam("pid") String pid) {
+	public JsonMsgUtil queryAnalyzeData(@RequestParam("pid") String pid,@RequestParam(value="type",required=false) String type) {
 		
 		Map<String, Object> resultMap=new HashMap<>();//最终返回的结果
 		
+		if (StringUtils.isBlank(type)) {
+			type="0";
+		}
 		//查询图例的配置项问题
 		Integer projId = Integer.valueOf(UserUtil.getLoginUser().getProjId().toString());
-		List<RequestParamConfig> datasConfigs = testConfigService.queryItemAll(null, projId);
+		List<RequestParamConfig> datasConfigs = testConfigService.queryItemAll(null, projId,type);
 		
 		if (datasConfigs ==null || datasConfigs.size()==0) {
 			throw new IllegalArgumentException("该项目下测试配置项不存在");

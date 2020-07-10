@@ -45,7 +45,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.boot.kaizen.business.buss.model.LogAnaLyze;
-import com.boot.kaizen.business.buss.model.OneButtonTestParam;
 import com.boot.kaizen.business.buss.service.ILogAnaLyzeService;
 import com.boot.kaizen.business.buss.service.IOneButtonTestService;
 import com.boot.kaizen.business.buss.service.IOutHomeService;
@@ -563,7 +562,7 @@ public class EsBusssController {
 
 	/**
 	 * 一键测试 app上传添加
-	 */
+	
 	@ResponseBody
 	@PostMapping(value = "/addOneButtonTest")
 	public JsonMsgUtil oneButtonTestAdd(@RequestBody OneButtonTestParam oneButtonTestParam) {
@@ -597,7 +596,7 @@ public class EsBusssController {
 		// oneButtonTestService.insertBatch(datas, 50);
 
 		return new JsonMsgUtil(true, "添加成功", "");
-	}
+	} */
 
 	/**
 	 * 
@@ -1025,8 +1024,8 @@ public class EsBusssController {
 				termMap = new HashMap<>();
 			}
 
-			termMap.put("lte_city_name.keyword", sysProject.getProjCode() + "");// 加地市过滤的条件
-
+			termMap.put("cityId.keyword", sysProject.getProjCode() + "");// 加地市过滤的条件
+			
 			queryParamData.setTermMap(termMap);
 			List<Map<String, Object>> scrollQueryList = Esutil.scrollQuery(queryParamData);
 			return scrollQueryList;
@@ -1329,6 +1328,7 @@ public class EsBusssController {
 			String url = sysProject.getHostAp() + "/SIM/ihandle!getParamSync.action";
 			// String url = "https://218.65.240.119:8443/SIM/ihandle!getParamSync.action";
 			String responseResult = HttpUtil.sendPostRequest(url, param, httpType);
+			
 			ResultModel resultModel = JSONObject.parseObject(responseResult, ResultModel.class);
 			if (("0").equals(resultModel.getFlag())) {// 如果查询失败了 这里不再弹出 而是直接退出
 				// throw new IllegalArgumentException("sim查询失败：" + resultModel.getMsg());
@@ -1341,22 +1341,32 @@ public class EsBusssController {
 				break;
 			}
 			for (List<String> data : datas) {
-				CommonModel commonModel = CommonModel.changeStrToObj(data);
-				GcModel model = new GcModel(commonModel);
-				// 将经纬度处理为WGS84
-				model.dealLngLatBdToWgs84();
-				model.setCityId(sysProject.getId() == null ? "" : sysProject.getId().toString());
-				/*
-				 * IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc",
-				 * sysProject.getId() + "_" + model.getLte_city_name() + "_" +
-				 * model.getLte_ci());
-				 */
+				try {
+					CommonModel commonModel = CommonModel.changeStrToObj(data);
+					
+					//处理基站类型   转为indoor  outdoor
+					commonModel.dealStationType();
+					//处理基站类型   转为indoor  outdoor
+					
+					GcModel model = new GcModel(commonModel);
+					// 将经纬度处理为WGS84
+					model.dealLngLatBdToWgs84();
+					model.setCityId(sysProject.getId() == null ? "" : sysProject.getId().toString());
+					/*
+					 * IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc",
+					 * sysProject.getId() + "_" + model.getLte_city_name() + "_" +
+					 * model.getLte_ci());
+					 */
 
-				// 以地市和ci为主键
-				IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc",
-						model.getLte_city_name() + "_" + model.getLte_ci());
-				indexRequestOther.source(JSONObject.toJSONString(model), XContentType.JSON);
-				request.add(indexRequestOther);
+					// 以地市和ci为主键
+					IndexRequest indexRequestOther = new IndexRequest("simgc", "simgc",
+							model.getLte_city_name() + "_" + model.getLte_ci());
+					indexRequestOther.source(JSONObject.toJSONString(model), XContentType.JSON);
+					request.add(indexRequestOther);
+				} catch (Exception e) {
+					continue;
+				}
+				
 			}
 
 			/** 分批的添加进去 */
@@ -1672,4 +1682,6 @@ public class EsBusssController {
 		return new JsonMsgUtil(true, "删出成功", "");
 	}
 	
+	
+
 }

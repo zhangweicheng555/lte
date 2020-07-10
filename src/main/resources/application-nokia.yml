@@ -80,7 +80,7 @@ mybatis-plus:
     logic-not-delete-value: 1
     refresh-mapper: false
   configuration:
-    map-underscore-to-camel-case: true
+    map-underscore-to-camel-case: false
     cache-enabled: false
 
 

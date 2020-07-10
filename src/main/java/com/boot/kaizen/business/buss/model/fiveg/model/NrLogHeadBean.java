@@ -18,7 +18,48 @@ public class NrLogHeadBean implements Serializable{
     private String operator;//运营商（主卡）
     private String operator_y;//运营商（副卡）
 
-    public int getLogversion() {
+    
+    //20200619新增  针对室外测试上传的时候做的调整
+    private String user;//ihandle用户
+    private String city;//测试log地市
+    
+    
+    
+    
+    
+    public NrLogHeadBean(int logversion, int dualSimSupport, int operatorCompareSupport, int rootSupport, String phone,
+			String operator, String operator_y, String user, String city) {
+		super();
+		this.logversion = logversion;
+		this.dualSimSupport = dualSimSupport;
+		this.operatorCompareSupport = operatorCompareSupport;
+		this.rootSupport = rootSupport;
+		this.phone = phone;
+		this.operator = operator;
+		this.operator_y = operator_y;
+		this.user = user;
+		this.city = city;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	
+
+	public int getLogversion() {
         return logversion;
     }
 

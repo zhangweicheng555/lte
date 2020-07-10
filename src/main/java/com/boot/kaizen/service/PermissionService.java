@@ -1,7 +1,7 @@
 package com.boot.kaizen.service;
 
 import java.util.List;
-
+import java.util.Map;
 import com.boot.kaizen.entity.LoginUser;
 import com.boot.kaizen.entity.ZtreeModel;
 import com.boot.kaizen.model.Permission;
@@ -30,5 +30,7 @@ public interface PermissionService {
 	 * @date 2018年10月28日 上午12:42:01
 	 */
 	List<Permission> queryByUserIdAndProjId(String username, Long projId);
+	
+	List<Permission> selectByCondition(Map<String, Object> map);
 	
 }

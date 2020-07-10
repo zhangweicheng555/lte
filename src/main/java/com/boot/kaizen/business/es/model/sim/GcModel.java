@@ -64,6 +64,24 @@ public class GcModel extends CommonModel implements Serializable {
 		}
 		this.location = paramMap;
 	}
+	
+	public void dealLocation5g() {
+		Map<String, Double> paramMap = new LinkedHashMap<String, Double>();
+		if (StringUtils.isNotBlank(lte_latitude2) && StringUtils.isNotBlank(lte_longitude2)) {
+			// 这个地方将百度经纬度转为WGS84
+			String bd2wgs84 = LngLatUtil.bd2wgs84(Double.valueOf(lte_longitude2.toString()),
+					Double.valueOf(lte_latitude2.toString()));
+			if (bd2wgs84 != null) {
+				String[] split = bd2wgs84.split("_");
+				if (split != null && split.length == 2) {
+					paramMap.put("lat", Double.valueOf(split[1]));
+					paramMap.put("lon", Double.valueOf(split[0]));
+				}
+			}
+			
+		}
+		this.location = paramMap;
+	}
 
 	public void setLocation(Map<String, Double> location) {
 		this.location = location;
@@ -116,5 +134,8 @@ public class GcModel extends CommonModel implements Serializable {
 			}
 		}
 	}
+	
+	
+	
 
 }

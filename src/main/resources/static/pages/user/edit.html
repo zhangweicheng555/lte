@@ -44,27 +44,7 @@
 				</div>
 			</div>
 			
-			<div class="form-group">
-				<label class="col-md-2 control-label">厂商</label>
-				<div class="col-md-10"   style="width: 150px">
-					<select class="form-control input-sm" name="comapny" id="comapny">
-						<option value=''></option>
-						<option value='诺基亚'>诺基亚</option>
-						<option value='华为'>华为</option>
-					</select>
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="col-md-2 control-label">分区归属</label>
-				<div class="col-md-10" id="comapnyBelongDiv">
-					
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="col-md-2 control-label">分公司名称</label>
-				<div class="col-md-10" id="secondConpanyDiv">
-				</div>
-			</div>
+		
 			
 			<div class="form-group">
 				<label class="col-md-2 control-label">生日</label>
@@ -123,6 +103,8 @@
 		
 		 var pers = checkPermission();
 		
+		 var id=getUrlParam("id");
+		 
 		layui.use(['layer','laydate'], function(){
 		    var layer = layui.layer;
 		    var laydate = layui.laydate;
@@ -143,7 +125,7 @@
 				url : '/role/queryMyRoleByProId',
 				dataType: "json",
 				 async:false,
-				data : {"userId":$("#id").val()},
+				data : {"userId":id},
 				success : function(data) {
 					if(data != null && data.length>0){
 						for(var i=0;i<data.length;i++){
@@ -179,7 +161,7 @@
 		    
 		});
 
-		var id=getUrlParam("id");
+		
 		initForm(id);
 		function initForm(id){
 			$.ajax({
@@ -201,46 +183,6 @@
 							$("#sex").val(obj.sex);
 							$("#email").val(obj.email);
 							$("#comapny").val(obj.comapny);
-							
-							
-							var orignData=' <label class="checkbox-inline"><input type="checkbox"  name="comapnyBelong"  value="东区" />东区</label>					    <label class="checkbox-inline"><input type="checkbox"  name="comapnyBelong"  value="南区" />南区</label>					    <label class="checkbox-inline"><input type="checkbox"  name="comapnyBelong"  value="北区" />北区</label>					';
-							var comapnyBelong=obj.comapnyBelong;
-							$("#comapnyBelongDiv").empty();
-							if(comapnyBelong){
-								var html='';
-								var dataArray=['东区','南区','西区','北区'];
-								for(var i=0;i<dataArray.length;i++){
-									var model=dataArray[i];
-									if(comapnyBelong.indexOf(model) != -1){
-										html=html+'<label class="checkbox-inline"><input type="checkbox"  checked="checked" name="comapnyBelong"  value="'+model+'" />'+model+'</label>';
-									}else{
-										html=html+'<label class="checkbox-inline"><input type="checkbox"  name="comapnyBelong"  value="'+model+'" />'+model+'</label>';
-									}
-									
-								}
-								$("#comapnyBelongDiv").append(html);
-							}else{
-								$("#comapnyBelongDiv").append(orignData);
-							}
-							
-							var orignDataC=' <label class="checkbox-inline"><input type="checkbox" name="secondConpany"  value="浦东分公司" />浦东分公司</label><label class="checkbox-inline"><input type="checkbox" name="secondConpany"  value="重大办分公司" />重大办分公司</label> <label class="checkbox-inline">					    <input type="checkbox"  name="secondConpany" value="闵行分公司" />闵行分公司					    </label>					    <label class="checkbox-inline">					       <input type="checkbox"  name="secondConpany"  value="西区分公司" />西区分公司					    </label>					    <label class="checkbox-inline">					       <input type="checkbox"  name="secondConpany"  value="南区分公司" />南区分公司					    </label>					    <label class="checkbox-inline">					       <input type="checkbox" name="secondConpany"  value="宝山分公司" />宝山分公司					    </label>					    <label class="checkbox-inline">					       <input type="checkbox" name="secondConpany"  value="嘉定分公司" />嘉定分公司					    </label>					    <label class="checkbox-inline">					       <input type="checkbox" name="secondConpany"  value="东区分公司" />东区分公司					    </label>					    <label class="checkbox-inline">					       <input type="checkbox" name="secondConpany"  value="北区分公司" />北区分公司					    </label>					    <label class="checkbox-inline">					       <input type="checkbox" name="secondConpany"  value="金山分公司" />金山分公司					    </label>					    <label class="checkbox-inline">					       <input type="checkbox" name="secondConpany"  value="青浦分公司" />青浦分公司					    </label>					    <label class="checkbox-inline">					       <input type="checkbox" name="secondConpany"  value="奉贤分公司" />奉贤分公司					    </label>					    <label class="checkbox-inline">					       <input type="checkbox" name="secondConpany"  value="松江分公司" />松江分公司					    </label>					    <label class="checkbox-inline">					       <input type="checkbox" name="secondConpany"  value="崇明分公司" />崇明分公司					    </label>';
-							var secondConpany=obj.secondConpany;
-							$("#secondConpanyDiv").empty();
-							if(secondConpany){
-								var html='';
-								var dataArray=['闵行分公司','西区分公司','南区分公司','宝山分公司','嘉定分公司','东区分公司','北区分公司','金山分公司','青浦分公司','奉贤分公司','松江分公司','崇明分公司','浦东分公司','重大办分公司'];
-								for(var i=0;i<dataArray.length;i++){
-									var model=dataArray[i];
-									if(secondConpany.indexOf(model) != -1){
-										html=html+'<label class="checkbox-inline"><input type="checkbox"  checked="checked" name="secondConpany"  value="'+model+'" />'+model+'</label>';
-									}else{
-										html=html+'<label class="checkbox-inline"><input type="checkbox"  name="secondConpany"  value="'+model+'" />'+model+'</label>';
-									}
-								}
-								$("#secondConpanyDiv").append(html);
-							}else{
-								$("#secondConpanyDiv").append(orignDataC);
-							}
 						}
 					}else{
 						parent.layer.msg("操作失败");

@@ -13,8 +13,34 @@ public class SignalBean implements Serializable{
     private String mMeaasge;
     private double mLongitude;
     private double mLatitude;
+    
+    
+    private String mid;//此点的id
+    
+    
+    
+    public SignalBean(long mTimestamp, String mSingaType, String mMessageType, String mChannelType, String mMeaasge,
+			double mLongitude, double mLatitude, String mid) {
+		super();
+		this.mTimestamp = mTimestamp;
+		this.mSingaType = mSingaType;
+		this.mMessageType = mMessageType;
+		this.mChannelType = mChannelType;
+		this.mMeaasge = mMeaasge;
+		this.mLongitude = mLongitude;
+		this.mLatitude = mLatitude;
+		this.mid = mid;
+	}
 
-    public long getmTimestamp() {
+	public String getMid() {
+		return mid;
+	}
+
+	public void setMid(String mid) {
+		this.mid = mid;
+	}
+
+	public long getmTimestamp() {
         return mTimestamp;
     }
 

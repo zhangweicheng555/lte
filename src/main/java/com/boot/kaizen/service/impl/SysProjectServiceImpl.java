@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,7 @@ import com.boot.kaizen.util.JsonMsgUtil;
  * @date 2019年5月29日 下午7:10:27
  */
 @Service
-public class SysProjectServiceImpl implements SysProjectService {
+public class SysProjectServiceImpl   implements SysProjectService {
 
 	@Autowired
 	private SysProjectDao projectDao;
@@ -98,7 +97,7 @@ public class SysProjectServiceImpl implements SysProjectService {
 					throw new IllegalArgumentException("该项目下已存在该地市或者SIM地市");
 				}
 				sysProject.setCreateTime(new Date());
-				projectDao.insert(sysProject);
+				projectDao.insertSelf(sysProject);
 			} else {// edit
 				if (sysProjects !=null && sysProjects.size()>1) {
 					throw new IllegalArgumentException("该项目下已存在该地市或者SIM地市");
@@ -187,6 +186,21 @@ public class SysProjectServiceImpl implements SysProjectService {
 	@Override
 	public SysProject selectById(Long id) {
 		return projectDao.selectById(id);
+	}
+
+	@Override
+	public void insertSelf(SysProject sysProject) {
+		projectDao.insertSelf(sysProject);
+	}
+
+	@Override
+	public List<SysProject> findByCondition(Map<String, Object> map) {
+		return projectDao.findByCondition(map);
+	}
+
+	@Override
+	public void update(SysProject sysProject) {
+		projectDao.update(sysProject);
 	}
 
 }

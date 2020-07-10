@@ -63,4 +63,6 @@ public interface RoleService {
 	* @date 2019年3月13日 上午8:50:29
 	 */
 	List<SysRole> find(Map<String, Object> map);
+	
+	void save(SysRole sysRole);
 }

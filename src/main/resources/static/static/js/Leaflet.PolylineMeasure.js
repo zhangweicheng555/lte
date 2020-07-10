@@ -394,7 +394,7 @@
 
             // initialize state
             this._arrPolylines = [];
-            this._measureControl = this._createControl (label, title, classes, this._container, this._toggleMeasure, this);
+            this._measureControl = this._createControl ('测距', title, classes, this._container, this._toggleMeasure, this);
             this._defaultControlBgColor = this._measureControl.style.backgroundColor;
             this._measureControl.setAttribute('id', _measureControlId);
             if (this.options.showClearControl) {
@@ -404,8 +404,8 @@
                 if (label.indexOf('&') != -1) {
                     classes.push(_unicodeClass);
                 }
-                this._clearMeasureControl = this._createControl (label, title, classes, this._container, this._clearAllMeasurements, this);
-                this._clearMeasureControl.classList.add('polyline-measure-clearControl')
+                // this._clearMeasureControl = this._createControl (label, title, classes, this._container, this._clearAllMeasurements, this);
+                // this._clearMeasureControl.classList.add('polyline-measure-clearControl')
             }
             if (this.options.showUnitControl) {
                 if (this.options.unit == "metres") {
@@ -455,6 +455,7 @@
          * @private
          */
         _toggleMeasure: function () {
+          console.log('点我');
             this._measuring = !this._measuring;
             if (this._measuring) {   // if measuring is going to be switched on
                 this._mapdragging = false;
@@ -474,7 +475,8 @@
                 this._map.on ('click', this._mouseClick, this);
                 L.DomEvent.on (document, 'keydown', this._onKeyDown, this);
                 this._resetPathVariables();
-            } else {   // if measuring is going to be switched off
+            } else {// if measuring is going to be switched off
+                this._clearAllMeasurements();
                 this._unblockEvents();
                 this._measureControl.classList.remove ('polyline-measure-controlOnBgColor');
                 this._measureControl.style.backgroundColor = this._defaultControlBgColor;

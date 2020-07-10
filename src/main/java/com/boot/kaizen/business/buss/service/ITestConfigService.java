@@ -11,6 +11,6 @@ import com.boot.kaizen.business.buss.model.TestConfig;
  */
 public interface ITestConfigService extends IService<TestConfig> {
 
-	List<RequestParamConfig> queryItemAll(String item, Integer projId);
+	List<RequestParamConfig> queryItemAll(String item, Integer projId,String type);
 
 }

@@ -1,6 +1,7 @@
 package com.boot.kaizen.dao;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.annotations.Delete;
@@ -49,6 +50,8 @@ public interface PermissionDao {
 	Set<Long> listUserIds(Long permissionId);
 
 	List<Permission> queryByUserIdAndProjId(@Param("username") String username,@Param("projId")  Long projId);
+	
+	List<Permission> selectByCondition(@Param("map") Map<String, Object> map);
 	
 	List<Long> queryChildIdsByParentIds(@Param("id") Long id);
 }

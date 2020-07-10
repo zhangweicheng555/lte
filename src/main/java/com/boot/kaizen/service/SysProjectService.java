@@ -2,9 +2,7 @@ package com.boot.kaizen.service;
 
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ibatis.annotations.Param;
-
 import com.boot.kaizen.model.SysProject;
 import com.boot.kaizen.util.JsonMsgUtil;
 /**
@@ -87,4 +85,28 @@ public interface SysProjectService {
 	 * @return
 	 */
 	List<Map<String, Object>> queryProjects(String username);
+	
+	/**
+	 * 添加
+	* @Description: TODO
+	* @author weichengz
+	* @date 2020年6月15日 上午11:25:30
+	 */
+	void insertSelf(SysProject sysProject);
+	
+	/**
+	 * 列表的条件查询
+	* @Description: TODO
+	* @author weichengz
+	* @date 2020年6月15日 上午11:33:46
+	 */
+	List<SysProject> findByCondition(Map<String, Object> map);
+	/**
+	 * 修改
+	* @Description: TODO
+	* @author weichengz
+	* @date 2020年6月15日 上午11:54:21
+	 */
+	void update(SysProject sysProject);
+	
 }

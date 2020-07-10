@@ -63,6 +63,7 @@ public class QueryParamData implements Serializable {
 	
 	
 
+
 	public String getId() {
 		return id;
 	}
@@ -375,5 +376,7 @@ public class QueryParamData implements Serializable {
 		sortGeoMapModel.put(geoField, ceterPoint);
 		this.sortGeoMap = sortGeoMapModel;
 	}
+
+	
 
 }

@@ -58,7 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 		/** 静态资源不拦截 */
-		http.authorizeRequests().antMatchers("/", "/es/buss/exportOutHomeCsv","/app/**", // /app/**就不会拦截app开头的所有的连接了 因为这个地方是配置静态的拦截器的
+		http.authorizeRequests().antMatchers("/", "/es/buss/exportOutHomeCsv","/buss/app/**","/app/**", // /app/**就不会拦截app开头的所有的连接了 因为这个地方是配置静态的拦截器的
 				"/*.html", //
 				"/css/**", //
 				"/js/**", //

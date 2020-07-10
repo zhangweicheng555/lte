@@ -3,6 +3,9 @@ package com.boot.kaizen.business.buss.model.fiveg;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.boot.kaizen.business.buss.model.fiveg.model.LteDataInfoBean;
 import com.boot.kaizen.business.buss.model.fiveg.model.NrDataInfoBean;
 import com.boot.kaizen.business.buss.model.fiveg.model.NrLogBodyBean;
@@ -62,11 +65,8 @@ public class FiveLogMain implements Serializable {
 	private List<SignalEventBean> signalEventBeans;
 	private List<SignalBean> signalBeans;
 
-	
 	private Long testTimeMill;// 当前时间的时间戳，提供排序使用
-	
-	
-	
+
 	public FiveLogMain(String pid, String id, String logversion, String dualSimSupport, String operatorCompareSupport,
 			String rootSupport, String phone, String operator, String operator_y, String latitude, String longitude,
 			String speed, String height, String testTime, String downLoadSpeed, String upLoadSpeed,
@@ -380,74 +380,128 @@ public class FiveLogMain implements Serializable {
 		super();
 	}
 
+	public String dealNormalEventTypeToString(String normalEventType) {
+		if (StringUtils.isNoneBlank(normalEventType)) {
+			if (("0").equals(normalEventType)) {
+				return "FTPConnectionSuccess";
+			} else if (("1").equals(normalEventType)) {
+				return "DownloadStart";
+			} else if (("2").equals(normalEventType)) {
+				return "DownloadComplete";
+			} else if (("3").equals(normalEventType)) {
+				return "UploadStart";
+			} else if (("4").equals(normalEventType)) {
+				return "UploadComplete";
+			} else if (("5").equals(normalEventType)) {
+				return "PingSuccess";
+			} else if (("6").equals(normalEventType)) {
+				return "HttpSuccess";
+			} else if (("7").equals(normalEventType)) {
+				return "CallInitiate";
+			} else if (("8").equals(normalEventType)) {
+				return "CallStart";
+			} else if (("9").equals(normalEventType)) {
+				return "CallEnd";
+			}
+		}
+		return "";
+	}
+
+	public String dealAbNormalEventTypeToString(String abNormalEventType) {
+		if (StringUtils.isNoneBlank(abNormalEventType)) {
+			if (("0").equals(abNormalEventType)) {
+				return "FTPConnectionFailure";
+			} else if (("1").equals(abNormalEventType)) {
+				return "DownloadFailure";
+			} else if (("2").equals(abNormalEventType)) {
+				return "UploadFailure";
+			} else if (("3").equals(abNormalEventType)) {
+				return "PingFailure";
+			} else if (("4").equals(abNormalEventType)) {
+				return "HttpFailure";
+			} else if (("5").equals(abNormalEventType)) {
+				return "BlockedCall";
+			} else if (("6").equals(abNormalEventType)) {
+				return "DropedCall";
+			}
+		}
+		return "";
+	}
+
 	public FiveLogMain(NrLogBodyBean nrLogBodyBean, NrLogHeadBean nrLogHeadBean) {
 		this.pid = nrLogBodyBean.getPid();
 		this.id = nrLogBodyBean.getId();
-		
-		
+
 		int rootSupport2 = nrLogHeadBean.getRootSupport();
-		this.logversion = nrLogHeadBean.getLogversion()+"";
-		this.dualSimSupport = nrLogHeadBean.getDualSimSupport()+"";
-		this.operatorCompareSupport = nrLogHeadBean.getOperatorCompareSupport()+"";
-		this.rootSupport = rootSupport2+"";
+		this.logversion = nrLogHeadBean.getLogversion() + "";
+		this.dualSimSupport = nrLogHeadBean.getDualSimSupport() + "";
+		this.operatorCompareSupport = nrLogHeadBean.getOperatorCompareSupport() + "";
+		this.rootSupport = rootSupport2 + "";
 		this.phone = nrLogHeadBean.getPhone();
 		this.operator = nrLogHeadBean.getOperator();
 		this.operator_y = nrLogHeadBean.getOperator_y();
-		
-		
+
 		this.latitude = nrLogBodyBean.getLatitude();
 		this.longitude = nrLogBodyBean.getLongitude();
 		this.speed = nrLogBodyBean.getSpeed();
 		this.height = nrLogBodyBean.getHeight();
 		this.testTime = nrLogBodyBean.getTestTime();
-		
-		this.testTimeMill=0L;
+
+		this.testTimeMill = 0L;
 		Date date = MyDateUtil.stringToDate(nrLogBodyBean.getTestTime(), "yyyy-MM-dd HH:mm:ss");
 		if (date != null) {
 			this.testTimeMill = date.getTime();
 		}
-		
+
 		this.downLoadSpeed = nrLogBodyBean.getDownLoadSpeed();
 		this.upLoadSpeed = nrLogBodyBean.getUpLoadSpeed();
-		this.normalEventType = nrLogBodyBean.getNormalEventType()+"";
-		this.abNormalEventType = nrLogBodyBean.getAbNormalEventType()+"";
-		
-		if (0==rootSupport2) {//非root
+
+		this.normalEventType = dealNormalEventTypeToString(nrLogBodyBean.getNormalEventType() + "");
+		this.abNormalEventType = dealAbNormalEventTypeToString(nrLogBodyBean.getAbNormalEventType() + "");
+
+		if (0 == rootSupport2) {// 非root
 			LteDataInfoBean lteDataInfoBean2 = nrLogBodyBean.getLteDataInfoBean();
-			if (lteDataInfoBean2 !=null) {
+			if (lteDataInfoBean2 != null) {
 				this.rsrp = lteDataInfoBean2.getLteRSRP();
 				this.sinr = lteDataInfoBean2.getLteSINR();
 			}
 			NrDataInfoBean nrDataInfoBean2 = nrLogBodyBean.getNrDataInfoBean();
-			if (nrDataInfoBean2 !=null) {
+			if (nrDataInfoBean2 != null) {
 				this.ssrsrp = nrDataInfoBean2.getSsRSRP();
 				this.sssinr = nrDataInfoBean2.getSsSINR();
 			}
-		}else {
+		} else {
 			ProLteDataInfoBean proLteDataInfoBeans2 = nrLogBodyBean.getProLteDataInfoBeans();
-			if (proLteDataInfoBeans2 !=null) {
+			if (proLteDataInfoBeans2 != null) {
 				this.rsrp = proLteDataInfoBeans2.getServingCellPccRsrp();
 				this.sinr = proLteDataInfoBeans2.getServingCellPccSinr();
 			}
-			
-			 ProNrDataInfoBean proNrDataInfoBean2 = nrLogBodyBean.getProNrDataInfoBean();
-			if (proNrDataInfoBean2 !=null) {
+
+			ProNrDataInfoBean proNrDataInfoBean2 = nrLogBodyBean.getProNrDataInfoBean();
+			if (proNrDataInfoBean2 != null) {
 				this.ssrsrp = proNrDataInfoBean2.getSsRSRP();
 				this.sssinr = proNrDataInfoBean2.getSsSINR();
 			}
 		}
-		
-		
+
 		this.nrDataInfoBean = nrLogBodyBean.getNrDataInfoBean();
 		this.lteDataInfoBean = nrLogBodyBean.getLteDataInfoBean();
 		this.proNrDataInfoBean = nrLogBodyBean.getProNrDataInfoBean();
 		this.proLteDataInfoBeans = nrLogBodyBean.getProLteDataInfoBeans();
+
 		this.signalEventBeans = nrLogBodyBean.getSignalEventBeans();
+		if (signalEventBeans != null && signalEventBeans.size() > 0) {
+			for (SignalEventBean signalBean : signalEventBeans) {
+				signalBean.setMid(id);
+			}
+		}
+
 		this.signalBeans = nrLogBodyBean.getSignalBeans();
+		if (signalBeans != null && signalBeans.size() > 0) {
+			for (SignalBean signalBean : signalBeans) {
+				signalBean.setMid(id);
+			}
+		}
 	}
 
-
-
-
-	
 }

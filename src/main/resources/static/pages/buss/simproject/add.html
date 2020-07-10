@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>添加项目管理</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../../layui/css/layui.css">
+</head>
+<body>
+
+	
+	
+	<form class="layui-form"  id="formDemo" style="margin-top: 20px;">
+	
+	  
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">项目</label>
+	    <div class="layui-input-inline" style="width: 200px;">
+	      <input type="text" name="project_name" id="project_name"   required  lay-verify="required"  autocomplete="off" class="layui-input">
+	    </div>
+	    
+	    
+	    <label class="layui-form-label" style="width: 150px;">网络</label>
+	    <div class="layui-input-inline"  style="width: 200px;">
+	      <select name="net_id" id="net_id"  autocomplete="off" lay-verify="required">
+	        <option value="1">LTE</option>
+	        <option value="2">WCDMA</option>
+	        <option value="3">GSM</option>
+	        <option value="4">5G</option>
+	        <option value="5">CDMA</option>
+	      </select>
+	    </div>
+	    
+	  </div>
+	  
+	 
+	  
+	  <div class="layui-form-item">
+	    <label class="layui-form-label" style="width: 150px;">省份</label>
+	    <div class="layui-input-inline" style="width: 200px;">
+	      <input type="text" name="province_name" id="province_name"  required  lay-verify="required"    autocomplete="off" class="layui-input">
+	    </div>
+	    
+	    <label class="layui-form-label" style="width: 150px;">城市</label>
+	    <div class="layui-input-inline" style="width: 200px;">
+	      <input type="text" name="city_name" id="city_name"  required  lay-verify="required"   autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	  
+	  
+	  
+	  
+	  <div class="layui-form-item">
+	      
+	    <label class="layui-form-label" style="width: 150px;">运营商</label>
+	    <div class="layui-input-inline"  style="width: 200px;">
+	      <select name="operators" id="operators"  autocomplete="off" lay-verify="required">
+	        <option value="联通">联通</option>
+	        <option value="电信">电信</option>
+	        <option value="移动">移动</option>
+	      </select>
+	    </div>
+	    
+	    <label class="layui-form-label" style="width: 150px;">项目URL</label>
+	    <div class="layui-input-inline" style="width: 200px;">
+	      <input type="text" name="ihandle_url" id="ihandle_url"  required  value="http://61.132.73.61:8012"   placeholder="http://ip:port or https//ip:port"  autocomplete="off" class="layui-input">
+	    </div>
+	  </div>
+	  
+		<button class="layui-btn" id="formDemoBtn" style="display: none;" lay-submit lay-filter="formDemo">立即提交</button>
+	</form>
+	
+	
+	
+	
+	
+	<script type="text/javascript" src="../../../js/libs/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../../js/jq.js"></script>
+	
+<script>
+
+	var flag=false;
+	
+	var token = localStorage.getItem("token");
+	$("#zwc").val(token);
+	
+	function submitForm(){
+		$("#formDemoBtn").click();
+		return flag;
+	 }
+	
+	
+	
+	layui.use(['layer', 'form','jquery'], function(){
+	  var layer = layui.layer,form = layui.form,$=layui.jquery;
+	//监听提交
+	  form.on('submit(formDemo)', function(data){
+		flag=true;
+	    return false;
+	  });
+	
+	
+	});
+	
+</script> 
+
+</body>
+</html>

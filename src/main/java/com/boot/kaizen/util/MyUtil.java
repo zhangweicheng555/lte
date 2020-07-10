@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -61,13 +62,13 @@ public class MyUtil {
 		}
 		return resultMap;
 	}
-	
-	
+
 	/**
-	 * map去掉空的key   将.keyword传参 去掉
-	* @Description: TODO
-	* @author weichengz
-	* @date 2020年4月10日 上午10:22:44
+	 * map去掉空的key 将.keyword传参 去掉
+	 * 
+	 * @Description: TODO
+	 * @author weichengz
+	 * @date 2020年4月10日 上午10:22:44
 	 */
 	public static Map<String, Object> clearMapEmptyValRemoveKeyword(Map<String, Object> map) {
 		Map<String, Object> resultMap = new HashMap<>();
@@ -136,7 +137,7 @@ public class MyUtil {
 				}
 			}
 		}
-		//between  and
+		// between and
 		Map<String, Object> mapBetween = param.getMapBetween();
 		for (Iterator<Map.Entry<String, Object>> it = mapBetween.entrySet().iterator(); it.hasNext();) {
 			Map.Entry<String, Object> item = it.next();
@@ -147,15 +148,14 @@ public class MyUtil {
 					String val = value.toString().trim();
 					if (StringUtils.isNotBlank(val)) {// 添加查询的条件
 						String[] splitData = val.split("_");
-						if (splitData !=null && splitData.length==2) {
+						if (splitData != null && splitData.length == 2) {
 							qryWrapper.between(key, splitData[0], splitData[1]);
 						}
 					}
 				}
 			}
 		}
-		
-		
+
 		// 不等于判断
 		Map<String, Object> mapNo = param.getMapNo();
 		for (Iterator<Map.Entry<String, Object>> it = mapNo.entrySet().iterator(); it.hasNext();) {
@@ -184,7 +184,7 @@ public class MyUtil {
 				}
 			}
 		}
-		
+
 		// 对范围条件进行处理 仅仅支持LTE GTE 范围只有一个 那么就是大于或者小于查询 范围两个就是范围的查询
 		Map<String, Map<String, Object>> mapRange = param.getMapRange();
 		for (Iterator<Map.Entry<String, Map<String, Object>>> it = mapRange.entrySet().iterator(); it.hasNext();) {
@@ -281,14 +281,14 @@ public class MyUtil {
 	};
 
 	/**
-	 * 将图片填充到excel
-	 * 做列；做行，右列，右行
+	 * 将图片填充到excel 做列；做行，右列，右行
+	 * 
 	 * @Description: TODO
 	 * @author weichengz
 	 * @date 2019年10月29日 下午1:57:55
 	 */
-	public static void picToExcel(HSSFWorkbook workbook, HSSFPatriarch patriarch,String basePath,String dbFileName,int ydbOne,int ydbTwo,int xdbOne,int xdbTwo)
-			throws IOException {
+	public static void picToExcel(HSSFWorkbook workbook, HSSFPatriarch patriarch, String basePath, String dbFileName,
+			int ydbOne, int ydbTwo, int xdbOne, int xdbTwo) throws IOException {
 		if (StringUtils.isNoneBlank(dbFileName)) {
 			File file = new File(basePath + dbFileName);
 			if (file.exists()) {
@@ -431,6 +431,18 @@ public class MyUtil {
 	 */
 	public static String dealEmptyStr(String str, String replaceStrIfEmpty) {
 		return StringUtils.isBlank(str) ? replaceStrIfEmpty : str;
+	}
+
+	/**
+	 * a:分子
+	 * b:分母
+	 * @Description: 两个整数相除求百分数
+	 * @author weichengz
+	 * @date 2020年6月24日 下午3:25:12
+	 */
+	public static String numPercent(Integer a, Integer b) {
+		float num = (float) ((new BigDecimal((float) a / b).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue()) * 100);
+		return num + "%";
 	}
 	
 	

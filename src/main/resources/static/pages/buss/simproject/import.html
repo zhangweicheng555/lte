@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>添加计划表</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../../../layui/css/layui.css">
+
+ <style type="text/css">
+  .html-body-overflow
+  {
+    overflow-x:hidden;
+   /*  overflow-y:hidden; */
+  }
+ </style>
+
+</head>
+
+<body class="html-body-overflow">
+
+	<fieldset class="layui-elem-field layui-field-title">
+	  <legend style="color: red;">批量导入注意事项：</legend>
+	   <div class="layui-field-box" style="margin-left: 20px;margin-right: 20px;">
+	   		<form class="layui-form">
+			  <div class="layui-form-item" style="float: rigth;">
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			    <button id="downBt"  class="layui-btn layui-btn-sm  layui-btn-danger" style="margin-left: 1px;">
+					<i class="layui-icon layui-icon-triangle-r" style="font-size: 30px; color: white-space;"></i>下载模板
+				</button>
+			  </div>
+			  <div class="layui-form-item">
+			     <table class="layui-table">
+				  <colgroup>
+				    <col width="20%">
+				    <col width="70%">
+				    <col>
+				  </colgroup>
+				  <thead>
+				    <tr>
+				      <th style="font-weight: bold;text-align: center;">类型</th>
+				      <th style="font-weight: bold;text-align: center;">注意事项</th>
+				    </tr> 
+				  </thead>
+				  <tbody>
+				    <tr>
+				      <td style="text-align: center;">excel制表简介</td>
+				      <td>exce的格式目前支持xls类型，第一行为标题，<span style="color: red;">标红部分必填写</span>，第二行开始为数据内容，制表尽量规范，内容列加上黑色边框(可右上角下载模板)</td>
+				    </tr>
+				    <tr>
+				      <td style="text-align: center;">其他列</td>
+				      <td>选中单元格-右键-设置单元格格式-数字-文本即可</td>
+				    </tr>
+				  </tbody>
+				</table>
+			  </div>
+		    </form>
+	   </div>
+	</fieldset>
+	
+	<div class="layui-upload" style="margin-left: 20px;margin-right: 20px;">
+	  <button type="button" class="layui-btn layui-btn-normal" id="testList">选择文件</button> 
+	  <label style="color: red;margin-left: 5px;" id="uploadBackMsg"></label>
+	  <div class="layui-upload-list">
+	    <table class="layui-table"  id="upTable">
+	      <thead>
+	        <tr><th>文件名</th>
+	        <th>大小</th>
+	        <th>状态</th>
+	        <th>预览</th>
+	        <th>操作</th>
+	      </tr></thead>
+	      <tbody id="demoList"></tbody>
+	    </table>
+	  </div>
+	  <button type="button" class="layui-btn" id="testListAction">开始上传</button>
+	</div> 
+	
+	<script type="text/javascript" src="../../../../js/libs/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../../../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../../../js/jq.js"></script>
+	<script type="text/javascript" src="../../../js/common.js" charset="UTF-8"></script>
+	
+	
+		
+	
+	<form class="layui-form"  id="formDemo">
+		
+	</form>
+<script>
+
+	
+   var demoListView = $('#demoList');
+	
+   var token = localStorage.getItem("token");
+   
+	layui.use(['layer', 'form','jquery','table','common','upload'], function(){
+	  var layer = layui.layer,form = layui.form,$=layui.jquery;
+	  var table = layui.table;
+	  var common = layui.common;
+	  var upload = layui.upload;
+	  
+	  //下载模板
+	  $("#downBt").click(function(){
+            window.open("/statics/importExcel/fivecheckGcExce.xls");
+		    common.showLoadingTimeDialog(2000);
+      });
+
+
+	  //执行实例
+	  var uploadListIn = upload.render({
+	    elem: '#testList' //绑定元素
+	    ,url: '/buss/sim/project/upload' //上传接口
+	    ,accept: 'file' //允许上传的文件类型  images（图片）、file（所有文件）、video（视频）、audio（音频）
+	    ,auto:false//不允许自动上传
+	    ,bindAction:'#testListAction'  //指定一个上传dom     配合auto:false使用
+	    ,field:'files'//设定文件的字段名字
+	    ,size: 0  //单位为kb  0代表不限制   填写数字
+	    ,multiple:false//允许 多文件上传
+	    ,drag:true//支持拖拽上传
+	    ,before: function(obj){ //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
+	        common.showLoadingDialog();
+	    }
+	    ,data: {//上传时额外传递的参数
+	    	  token: token
+	    }
+	    ,done: function(res){//上传完毕回调  返回的json格式  如果上传后，出现文件下载框（一般为ie下），那么你需要在服务端对response的header设置 Content-Type: text/html
+	    	parent.layer.closeAll('loading'); //关闭loading
+	    	if(res.success){
+	    		location.href = "/pages/buss/simproject/list.html";
+	    		 $("#uploadBackMsg").text("上传成功");
+	    		 parent.layer.msg("上传成功");
+	    	}else{
+	    		$("#uploadBackMsg").text('上传失败：'+res.message);
+	    	}
+	    }
+	    ,allDone: function(obj){ //当文件全部被提交后，才触发  注意多文件上传时候done  每次都执行
+	    }
+	    ,error: function(){
+	      parent.layer.closeAll('loading'); //关闭loading
+	    }
+	    ,choose: function(obj){  //选择文件的回调   可以将文件利用与追加到dom  主要是利用回调显示
+	    	 var num=$("#demoList > tr").length;
+	    	 if(num ==1){
+	    		 $("#uploadBackMsg").text("不允许上传多个文件");
+	    		 return ;
+	    	 }else{
+	    		 $("#uploadBackMsg").text("");
+	    	 }
+	    	 
+	    	 var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+	         //读取本地文件
+	         obj.preview(function(index, file, result){
+	           var fileName=file.name;
+	           var ldot = fileName.lastIndexOf(".");
+	           var type = fileName.substring(ldot + 1);
+	           if('xls' !=type){
+	        	   $("#uploadBackMsg").text("只支持上传xls后缀的excel");
+	        	   return ;
+	           }else{
+	        	   $("#uploadBackMsg").text("");
+	           }
+	        	 
+	           var tr = $(['<tr id="upload-'+ index +'">'
+	             ,'<td>'+ file.name +'</td>'
+	             ,'<td>'+ (file.size/1014).toFixed(1) +'kb</td>'
+	             ,'<td>等待上传</td>'
+	             ,'<td><img src="'+ result +'" alt="'+ file.name +'" class="layui-upload-img"></td>'
+	             ,'<td>'
+	               ,'<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
+	               ,'<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+	             ,'</td>'
+	           ,'</tr>'].join(''));
+	           
+	           //单个重传
+	           tr.find('.demo-reload').on('click', function(){
+	             obj.upload(index, file);
+	           });
+	           
+	           //删除
+	           tr.find('.demo-delete').on('click', function(){
+	             delete files[index]; //删除对应的文件
+	             tr.remove();
+	             uploadListIn.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+	           });
+	           
+	           demoListView.append(tr);
+	         });
+	        
+	  }
+
+	});
+	  
+	  
+	  $(".layui-upload-img").click(function(){
+		  $(this).remove();
+	  });
+	});
+	
+	
+</script> 
+
+</body>
+</html>

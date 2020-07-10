@@ -17,10 +17,10 @@
 						<td>
 							<form class="form-inline" onsubmit="return false">
 								<div class="form-group">
-									地市名称：
-									<input id="projName" name="projName" type="text" class="form-control" > 
-									SIM地市名称：
-									<input id="projCode" name="projCode" type="text" class="form-control" > 
+									项目名称：
+									<input id="projName" name="projName"  autocomplete="off"  type="text" class="form-control" > 
+									SIM地市：
+									<input id="projCode" name="projCode"  autocomplete="off"  type="text" class="form-control" > 
 									
 									<button id="searchBt" class="layui-btn layui-btn-sm  layui-btn-normal">
 										<i class="layui-icon">&#xe615;</i>搜索
@@ -31,6 +31,7 @@
 								</div>
 							</form>
 						</td>
+						
 						<td align="right">
 							<button id="addProjectBtn" class="layui-btn layui-btn-sm  layui-btn-normal"  permission="sys:project:edit">
 								<i class="layui-icon">&#xe608;</i> 添加
@@ -86,7 +87,7 @@
 	    ,cols: [[        
 	      {field:'id', width:30, title: 'ID', sort: true,type:'checkbox'}
 	      ,{title: '序号',width:70,templet: '#indexTpl',align:'center'}
-	      ,{field:'projName',   width:150, title: '地市名称',align:'center'}
+	      ,{field:'projName',   width:150, title: '项目名称',align:'center'}
 	      ,{field:'projCode',   width:150, title: 'SIM地市的名称',align:'center'}
 	      ,{field:'proProvice',   width:150, title: 'SIM地市省份',align:'center'}
 	      
@@ -94,7 +95,7 @@
 	      ,{field:'projSimName',   width:150, title: 'SIM ProjectName名称',align:'center'}
 	      ,{field:'projOperator',   width:150, title: 'SIM项目运营商',align:'center'}
 	      
-	      ,{field:'roleNames',  width:150, title: '项目角色',align:'center'}
+	      ,{field:'roleNames',  minWidth:150, title: '项目角色',align:'center'}
 	      ,{field:'createTime', width:150, title: '创建时间',align:'center'}
 	      ,{title:'操作', toolbar: '#editBtnBar', width:150,align:'center', fixed: 'right'}
 	    ]]
@@ -130,7 +131,7 @@
 	    }
         ,height:'full'
         ,cellMinWidth: 80
-		/* ,size: 'sm'  */
+        ,size: 'sm'  
 	  });
 	  
 	  //监听行工具事件  操作对应
