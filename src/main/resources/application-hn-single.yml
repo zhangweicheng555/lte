@@ -46,7 +46,7 @@ spring:
     sql-migration-prefix: v
     sql-migration-suffixes: .sql
 
- 
+
  
   application:
     name: kaizenLogTemp
@@ -95,7 +95,7 @@ files:
   path: ${file-path:/kaizen/doc}     #所有文件存储的根路径
   
 
-logging:
+logging: 
   config: classpath:logback-admin.xml
   
   
@@ -113,7 +113,6 @@ token:
   expire:
     seconds: 7200
   jwtSecret: (XIAO:)_$^11244^%$_(WEI:)_@@++--(LAO:)_++++_.sds_(SHI:)
-  
   
   
 
@@ -151,4 +150,4 @@ commonval:
   hn20es: false
   
   ihandleUser: Ihandle默认用户  # 用户生成默认的角色名称  针对
-  ihandleUserPermission: open_source_oneLog,open_source_onebutton,open_source_outhometest5g  # 用户默认的权限
+  ihandleUserPermission: open_source_oneLog,open_source_onebutton,open_source_outhometest5g,open_source_4ggongcan,open_source_5ggongcan  # 用户默认的权限

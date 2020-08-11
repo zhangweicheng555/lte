@@ -25,9 +25,48 @@ public class MemoryConfig extends SuperEntity<MemoryConfig> {
 	private Date createTime;// 创建时间
 
 	// 图例模块
+	@JsonIgnore
 	private String showFlag;// 显示 默认是1    1是显示
+	@JsonIgnore
 	private String pointDetail;// 采样点详情 默认是1    1是显示
+	
+	
 	private String itemType;// 阈值类型 默认是RSRP
+	
+	
+	//折线图的记忆模块
+	@JsonIgnore
+	private String minTime;// 默认的分钟数  3
+	@JsonIgnore
+	private String itemTypeOne;// 指标1  默认SSRSRP
+	@JsonIgnore
+	private String itemTypeTwo;// 指标2
+	@JsonIgnore
+	private String rsrpMin;//    //- 140   
+	@JsonIgnore
+	private String rsrpMax;// -40
+	@JsonIgnore
+	private String sinrMin;// -20
+	@JsonIgnore
+	private String sinrMax;// 30
+	@JsonIgnore
+	private String ssRsrpMin;// -140
+	@JsonIgnore
+	private String ssRsrpMax;// -40
+	@JsonIgnore
+	private String ssSinrMin;// -20
+	@JsonIgnore
+	private String ssSinrMax;// 30
+	@JsonIgnore
+	private String ssUlMin;// 0
+	@JsonIgnore
+	private String ssUlMax;// 1200
+	@JsonIgnore
+	private String ssDlMin;// 0
+	@JsonIgnore
+	private String ssDlMax;// 1200
+	
+	
 	
 	
 	//地图模块    stationFlag4g\eventNormalFlag这个默认是0 其余的全是默认1
@@ -45,6 +84,136 @@ public class MemoryConfig extends SuperEntity<MemoryConfig> {
 	
 
 	
+	
+	public MemoryConfig(String projId, String userId, Date createTime, String showFlag, String pointDetail,
+			String itemType, String minTime, String itemTypeOne, String itemTypeTwo, String rsrpMin, String rsrpMax,
+			String sinrMin, String sinrMax, String ssRsrpMin, String ssRsrpMax, String ssSinrMin, String ssSinrMax,
+			String ssUlMin, String ssUlMax, String ssDlMin, String ssDlMax, String stationFlag4g, String stationFlag5g,
+			String indoorFlag, String outdoorFlag, String serviceCellFlag, String neighborhoodFlag,
+			String showPointValFlag, String showPointSizeFlag, String eventAbnormalFlag, String eventNormalFlag) {
+		super();
+		this.projId = projId;
+		this.userId = userId;
+		this.createTime = createTime;
+		this.showFlag = showFlag;
+		this.pointDetail = pointDetail;
+		this.itemType = itemType;
+		this.minTime = minTime;
+		this.itemTypeOne = itemTypeOne;
+		this.itemTypeTwo = itemTypeTwo;
+		this.rsrpMin = rsrpMin;
+		this.rsrpMax = rsrpMax;
+		this.sinrMin = sinrMin;
+		this.sinrMax = sinrMax;
+		this.ssRsrpMin = ssRsrpMin;
+		this.ssRsrpMax = ssRsrpMax;
+		this.ssSinrMin = ssSinrMin;
+		this.ssSinrMax = ssSinrMax;
+		this.ssUlMin = ssUlMin;
+		this.ssUlMax = ssUlMax;
+		this.ssDlMin = ssDlMin;
+		this.ssDlMax = ssDlMax;
+		this.stationFlag4g = stationFlag4g;
+		this.stationFlag5g = stationFlag5g;
+		this.indoorFlag = indoorFlag;
+		this.outdoorFlag = outdoorFlag;
+		this.serviceCellFlag = serviceCellFlag;
+		this.neighborhoodFlag = neighborhoodFlag;
+		this.showPointValFlag = showPointValFlag;
+		this.showPointSizeFlag = showPointSizeFlag;
+		this.eventAbnormalFlag = eventAbnormalFlag;
+		this.eventNormalFlag = eventNormalFlag;
+	}
+	public String getMinTime() {
+		return minTime;
+	}
+	public void setMinTime(String minTime) {
+		this.minTime = minTime;
+	}
+	public String getItemTypeOne() {
+		return itemTypeOne;
+	}
+	public void setItemTypeOne(String itemTypeOne) {
+		this.itemTypeOne = itemTypeOne;
+	}
+	public String getItemTypeTwo() {
+		return itemTypeTwo;
+	}
+	public void setItemTypeTwo(String itemTypeTwo) {
+		this.itemTypeTwo = itemTypeTwo;
+	}
+	public String getRsrpMin() {
+		return rsrpMin;
+	}
+	public void setRsrpMin(String rsrpMin) {
+		this.rsrpMin = rsrpMin;
+	}
+	public String getRsrpMax() {
+		return rsrpMax;
+	}
+	public void setRsrpMax(String rsrpMax) {
+		this.rsrpMax = rsrpMax;
+	}
+	public String getSinrMin() {
+		return sinrMin;
+	}
+	public void setSinrMin(String sinrMin) {
+		this.sinrMin = sinrMin;
+	}
+	public String getSinrMax() {
+		return sinrMax;
+	}
+	public void setSinrMax(String sinrMax) {
+		this.sinrMax = sinrMax;
+	}
+	public String getSsRsrpMin() {
+		return ssRsrpMin;
+	}
+	public void setSsRsrpMin(String ssRsrpMin) {
+		this.ssRsrpMin = ssRsrpMin;
+	}
+	public String getSsRsrpMax() {
+		return ssRsrpMax;
+	}
+	public void setSsRsrpMax(String ssRsrpMax) {
+		this.ssRsrpMax = ssRsrpMax;
+	}
+	public String getSsSinrMin() {
+		return ssSinrMin;
+	}
+	public void setSsSinrMin(String ssSinrMin) {
+		this.ssSinrMin = ssSinrMin;
+	}
+	public String getSsSinrMax() {
+		return ssSinrMax;
+	}
+	public void setSsSinrMax(String ssSinrMax) {
+		this.ssSinrMax = ssSinrMax;
+	}
+	public String getSsUlMin() {
+		return ssUlMin;
+	}
+	public void setSsUlMin(String ssUlMin) {
+		this.ssUlMin = ssUlMin;
+	}
+	public String getSsUlMax() {
+		return ssUlMax;
+	}
+	public void setSsUlMax(String ssUlMax) {
+		this.ssUlMax = ssUlMax;
+	}
+	public String getSsDlMin() {
+		return ssDlMin;
+	}
+	public void setSsDlMin(String ssDlMin) {
+		this.ssDlMin = ssDlMin;
+	}
+	public String getSsDlMax() {
+		return ssDlMax;
+	}
+	public void setSsDlMax(String ssDlMax) {
+		this.ssDlMax = ssDlMax;
+	}
 	public MemoryConfig(String projId, String userId, Date createTime, String showFlag, String pointDetail,
 			String itemType, String stationFlag4g, String stationFlag5g, String indoorFlag, String outdoorFlag,
 			String serviceCellFlag, String neighborhoodFlag, String showPointValFlag, String showPointSizeFlag,

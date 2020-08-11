@@ -18,9 +18,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.boot.kaizen.business.buss.entity.ItemModelEntity;
 import com.boot.kaizen.business.buss.entity.RequestParamConfigEntity;
 import com.boot.kaizen.business.buss.model.ItemModel;
+import com.boot.kaizen.business.buss.model.MemoryConfig;
 import com.boot.kaizen.business.buss.model.RequestParamConfig;
 import com.boot.kaizen.business.buss.model.TestConfig;
 import com.boot.kaizen.business.buss.service.ILogAnaLyzeService;
+import com.boot.kaizen.business.buss.service.IMemoryConfigService;
 import com.boot.kaizen.business.buss.service.ITestConfigService;
 import com.boot.kaizen.entity.RequestParamEntity;
 import com.boot.kaizen.util.JsonMsgUtil;
@@ -43,6 +45,8 @@ public class TestConfigController {
 	
 	@Autowired
 	private ITestConfigService testConfigService;
+	@Autowired
+	private IMemoryConfigService memoryConfigService;
 	@Autowired
 	private ILogAnaLyzeService logAnaLyzeService;
 	
@@ -85,6 +89,32 @@ public class TestConfigController {
 					if (data != null) {
 						testConfigService.insertOrUpdate(data);
 					}
+					
+					
+					//保存记忆模块
+					Map<String, Object> paramMapMem = new HashMap<>();
+					paramMapMem.put("projId", projId+"");
+					paramMapMem.put("userId", userId+"");
+					List<MemoryConfig> memoryConfigs = memoryConfigService.selectByMap(paramMapMem);
+					MemoryConfig memoryConfig=null;
+					if (memoryConfigs !=null && memoryConfigs.size()>0) {
+						memoryConfig=memoryConfigs.get(0);
+					}else {
+						memoryConfig=new MemoryConfig();
+						memoryConfig.setCreateTime(new Date());
+						memoryConfig.setProjId(projId+"");
+						memoryConfig.setUserId(userId+"");
+					}
+					if (memoryConfig !=null) {
+						String item = requestParamConfig.getItem();
+						String pointDetail=requestParamConfig.getPointDetail()==null?"1":requestParamConfig.getPointDetail();
+						String showFlag=requestParamConfig.getShowFlag()==null?"1":requestParamConfig.getShowFlag();
+						memoryConfig.setPointDetail(pointDetail);
+						memoryConfig.setShowFlag(showFlag);
+						memoryConfig.setItemType(item);
+						memoryConfigService.insertOrUpdate(memoryConfig);
+					}
+					
 				} else {
 					return new JsonMsgUtil(false, "编辑失败:请求体接收参数为空", "");
 				}
@@ -128,6 +158,32 @@ public class TestConfigController {
 		}
 		
 		
+		//查询记忆模块的而数据
+		//保存记忆模块
+		Map<String, Object> paramMapMem = new HashMap<>();
+		paramMapMem.put("projId", projId);
+		paramMapMem.put("userId", userId+"");
+		List<MemoryConfig> memoryConfigs = memoryConfigService.selectByMap(paramMapMem);
+		String showFlag="1";
+		String pointDetail="1";
+		String itemType="RSRP";//以上设置默认的值
+		
+		if (memoryConfigs !=null && memoryConfigs.size()>0) {
+			MemoryConfig memoryConfig=memoryConfigs.get(0);
+			String showFlag2 = memoryConfig.getShowFlag();
+			String pointDetail2 = memoryConfig.getPointDetail();
+			String itemType2 = memoryConfig.getItemType();
+			if (StringUtils.isNotBlank(showFlag2)) {
+				showFlag=showFlag2;
+			}
+			if (StringUtils.isNotBlank(pointDetail2)) {
+				pointDetail=pointDetail2;
+			}
+			if (StringUtils.isNotBlank(itemType2)) {
+				itemType=itemType2;
+			}
+		}
+		
 		
 		List<RequestParamConfigEntity> requestParamConfigEntities=new ArrayList<>();
 		//这是无限指标的  统计rsrp  sinr在图里范围内的数量
@@ -145,6 +201,9 @@ public class TestConfigController {
 					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount,itemModel.getColorVal(),MyUtil.numPercent(selectCount, allNum)));
 				}
 				model.setContent(itemModelEntities);
+				model.setItemType(itemType);
+				model.setPointDetail(pointDetail);
+				model.setShowFlag(showFlag);
 				requestParamConfigEntities.add(model);
 			}
 			if (("SSRSRP").equals(item2)) {
@@ -157,6 +216,9 @@ public class TestConfigController {
 					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount,itemModel.getColorVal(),MyUtil.numPercent(selectCount, allNum)));
 				}
 				model.setContent(itemModelEntities);
+				model.setItemType(itemType);
+				model.setPointDetail(pointDetail);
+				model.setShowFlag(showFlag);
 				requestParamConfigEntities.add(model);
 			}
 			if (("SINR").equals(item2)) {
@@ -169,6 +231,9 @@ public class TestConfigController {
 					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount,itemModel.getColorVal(),MyUtil.numPercent(selectCount, allNum)));
 				}
 				model.setContent(itemModelEntities);
+				model.setItemType(itemType);
+				model.setPointDetail(pointDetail);
+				model.setShowFlag(showFlag);
 				requestParamConfigEntities.add(model);
 			}
 			if (("SSSINR").equals(item2)) {
@@ -181,6 +246,9 @@ public class TestConfigController {
 					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount,itemModel.getColorVal(),MyUtil.numPercent(selectCount, allNum)));
 				}
 				model.setContent(itemModelEntities);
+				model.setItemType(itemType);
+				model.setPointDetail(pointDetail);
+				model.setShowFlag(showFlag);
 				requestParamConfigEntities.add(model);
 			}
 			
@@ -194,6 +262,9 @@ public class TestConfigController {
 					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount,itemModel.getColorVal(),MyUtil.numPercent(selectCount, allNum)));
 				}
 				model.setContent(itemModelEntities);
+				model.setItemType(itemType);
+				model.setPointDetail(pointDetail);
+				model.setShowFlag(showFlag);
 				requestParamConfigEntities.add(model);
 			}
 			if (("DL").equals(item2)) {
@@ -206,6 +277,9 @@ public class TestConfigController {
 					itemModelEntities.add(new ItemModelEntity(itemModel.getMinVal(), itemModel.getMaxVal(), selectCount,itemModel.getColorVal(),MyUtil.numPercent(selectCount, allNum)));
 				}
 				model.setContent(itemModelEntities);
+				model.setItemType(itemType);
+				model.setPointDetail(pointDetail);
+				model.setShowFlag(showFlag);
 				requestParamConfigEntities.add(model);
 			}
 		}
@@ -213,8 +287,6 @@ public class TestConfigController {
 	}
 	
 	
-	
-
 	
 
 }

@@ -29,13 +29,13 @@ public class MmeoryConfigController {
 
 	/**
 	 * 
-	 * @Description: 编辑
+	 * @Description: 折线编辑
 	 * @author weichengz
 	 * @date 2020年1月14日 下午4:59:02
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/edit", method = RequestMethod.POST)
-	public JsonMsgUtil edit(MemoryConfig memoryConfig) throws JsonProcessingException {
+	@RequestMapping(value = "/editLine", method = RequestMethod.POST)
+	public JsonMsgUtil editLine(MemoryConfig memoryConfig) throws JsonProcessingException {
 		Integer projId = Integer.valueOf(UserUtil.getLoginUser().getProjId().toString());
 		Long userId = UserUtil.getLoginUser().getId();
 
@@ -61,6 +61,34 @@ public class MmeoryConfigController {
 		return new JsonMsgUtil(true, "编辑成功", "");
 
 	}
+	@ResponseBody
+	@RequestMapping(value = "/edit", method = RequestMethod.POST)
+	public JsonMsgUtil edit(MemoryConfig memoryConfig) throws JsonProcessingException {
+		Integer projId = Integer.valueOf(UserUtil.getLoginUser().getProjId().toString());
+		Long userId = UserUtil.getLoginUser().getId();
+		
+		if (memoryConfig != null) {
+			Map<String, Object> paramMap = new HashMap<>();
+			paramMap.put("projId", projId+"");
+			paramMap.put("userId", userId+"");
+			List<MemoryConfig> memoryConfigs = memoryConfigService.selectByMap(paramMap);
+			
+			MemoryConfig data = null;
+			if (memoryConfigs != null && memoryConfigs.size() > 0) {
+				data = memoryConfigs.get(0);
+				memoryConfig.setId(data.getId());
+			} else {
+				memoryConfig.setCreateTime(new Date());
+				memoryConfig.setProjId(projId+"");
+				memoryConfig.setUserId(userId+"");
+			}
+			memoryConfigService.insertOrUpdate(memoryConfig);
+		} else {
+			return new JsonMsgUtil(false, "编辑失败:请求体接收参数为空", "");
+		}
+		return new JsonMsgUtil(true, "编辑成功", "");
+		
+	}
 
 	/**
 	 * 
@@ -85,6 +113,59 @@ public class MmeoryConfigController {
 			memoryConfig=new MemoryConfig(projId+"", userId+"", new Date(), "1", "1", "0", "1", "1", "1", "1", "1", "1", "3", "1","0");
 		}
 		return new JsonMsgUtil(true, "查询成功", memoryConfig);
+	}
+	/**
+	 * 
+	 * @Description: 折现记忆查询
+	 * @author weichengz
+	 * @date 2020年1月14日 下午4:59:17
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/queryLine", method = RequestMethod.POST)
+	public JsonMsgUtil queryLine() {
+		Integer projId = Integer.valueOf(UserUtil.getLoginUser().getProjId().toString());
+		Long userId = UserUtil.getLoginUser().getId();
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("projId", projId+"");
+		paramMap.put("userId", userId+"");
+		
+		HashMap<String, Object> hashMap=new HashMap<>();
+		List<MemoryConfig> memoryConfigs = memoryConfigService.selectByMap(paramMap);
+		if (memoryConfigs !=null && memoryConfigs.size()>0) {
+			MemoryConfig memoryConfig=memoryConfigs.get(0);
+			hashMap.put("minTime", memoryConfig.getMinTime());
+			hashMap.put("itemTypeOne", memoryConfig.getItemTypeOne());
+			hashMap.put("itemTypeTwo", memoryConfig.getItemTypeTwo());
+			hashMap.put("rsrpMin", memoryConfig.getRsrpMin());
+			hashMap.put("rsrpMax", memoryConfig.getRsrpMax());
+			hashMap.put("sinrMin", memoryConfig.getSinrMin());
+			hashMap.put("sinrMax", memoryConfig.getSinrMax());
+			hashMap.put("ssRsrpMin", memoryConfig.getSsRsrpMin());
+			hashMap.put("ssRsrpMax", memoryConfig.getSsRsrpMax());
+			hashMap.put("ssSinrMin", memoryConfig.getSsSinrMin());
+			hashMap.put("ssSinrMax", memoryConfig.getSsSinrMax());
+			hashMap.put("ssUlMin", memoryConfig.getSsUlMin());
+			hashMap.put("ssUlMax", memoryConfig.getSsUlMax());
+			hashMap.put("ssDlMin", memoryConfig.getSsDlMin());
+			hashMap.put("ssDlMax", memoryConfig.getSsDlMax());
+		}else {//默认
+			hashMap.put("minTime","3");
+			hashMap.put("itemTypeOne", "SSRSRP");
+			hashMap.put("itemTypeTwo", "");
+			hashMap.put("rsrpMin", "-140");
+			hashMap.put("rsrpMax", "-40");
+			hashMap.put("sinrMin", "-20");
+			hashMap.put("sinrMax","30");
+			hashMap.put("ssRsrpMin", "-140");
+			hashMap.put("ssRsrpMax","-40");
+			hashMap.put("ssSinrMin", "-20");
+			hashMap.put("ssSinrMax","30");
+			hashMap.put("ssUlMin", "0");
+			hashMap.put("ssUlMax", "1200");
+			hashMap.put("ssDlMin", "0");
+			hashMap.put("ssDlMax", "1200");
+		}
+		return new JsonMsgUtil(true, "查询成功", hashMap);
 	}
 
 }

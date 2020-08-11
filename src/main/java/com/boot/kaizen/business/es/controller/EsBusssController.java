@@ -235,7 +235,7 @@ public class EsBusssController {
 							queryParamData2.dealGeoDiatanceBuss(ceterPoint, 10000D, "location");
 
 							for (MLteNeighborhoodInfo mLteNeighborhoodInfo : mLteNeighborhoodInfos) {
-								String mLteNeighborhoodPCI = mLteNeighborhoodInfo.getMLteNeighborhoodPCI();
+								String mLteNeighborhoodPCI = mLteNeighborhoodInfo.getmLteNeighborhoodPCI();
 								if (StringUtils.isNotBlank(mLteNeighborhoodPCI)) {
 									// 处理该地市的查询条件
 									Map<String, Object> termMap = queryParamData2.getTermMap();
@@ -319,6 +319,7 @@ public class EsBusssController {
 			bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file),"UTF-8"));
 			String str = null;// 文件里面一行记录
 			while ((str = bufferedReader.readLine()) != null) {
+				
 				SignalDataBean signalDataBean = JSONObject.parseObject(str, SignalDataBean.class);
 				// 先将百度经纬度转为wgs84
 				signalDataBean.dealLngLatBdToWgs84();
@@ -409,8 +410,8 @@ public class EsBusssController {
 							MLteNeighborhoodInfo model = getmLteNeighborhoodInfos.get(i);
 							if (i <= 5) {
 								objects[num] = MyUtil.nullToEmpty(model.getmLteNeighborhoodEarfcn());
-								objects[num + 1] = MyUtil.nullToEmpty(model.getMLteNeighborhoodPCI());
-								objects[num + 2] = MyUtil.nullToEmpty(model.getMLteNeighborhoodRsrq());
+								objects[num + 1] = MyUtil.nullToEmpty(model.getmLteNeighborhoodPCI());
+								objects[num + 2] = MyUtil.nullToEmpty(model.getmLteNeighborhoodRsrq());
 								objects[num + 3] = MyUtil.nullToEmpty(model.getmLteNeighborhoodRSRPOrSINR());
 								num = num + 4;
 							}
@@ -1173,8 +1174,8 @@ public class EsBusssController {
 				// 根据经纬度 查询本log对应的pci
 				QueryParamData qpdModel = new QueryParamData("logmain", "logmain");
 				Map<String, Object> resultMap = new HashMap<>();
-				resultMap.put("latitude", Double.valueOf(pointArray[1]));
-				resultMap.put("longitude", Double.valueOf(pointArray[0]));
+				resultMap.put("latitude.keyword", Double.valueOf(pointArray[1]));
+				resultMap.put("longitude.keyword", Double.valueOf(pointArray[0]));
 				qpdModel.setTermMap(resultMap);
 				List<Map<String, Object>> queryList = Esutil.queryList(qpdModel);
 				if (queryList != null && queryList.size() > 0) {
@@ -1190,7 +1191,7 @@ public class EsBusssController {
 							List<Map<String, Object>> resultDataMap = new ArrayList<>();
 							if (getmLteNeighborhoodInfos != null && getmLteNeighborhoodInfos.size() > 0) {
 								for (MLteNeighborhoodInfo mLteNeighborhoodInfo : getmLteNeighborhoodInfos) {
-									String mLteNeighborhoodPCI = mLteNeighborhoodInfo.getMLteNeighborhoodPCI();
+									String mLteNeighborhoodPCI = mLteNeighborhoodInfo.getmLteNeighborhoodPCI();
 									if (StringUtils.isNotBlank(mLteNeighborhoodPCI)) {
 										// 处理该地市的查询条件
 										Map<String, Object> termMap = queryParamData.getTermMap();

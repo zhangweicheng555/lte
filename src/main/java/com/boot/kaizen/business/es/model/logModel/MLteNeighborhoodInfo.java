@@ -10,39 +10,55 @@ public class MLteNeighborhoodInfo {
 
 	/// *移动国家码*/ private String mLteNeighborhoodMCC = "-";
 	/// *移动网络码*/ private String MLteNeighborhoodMNC = "-";
-	/* 小区识别码 */ private String MLteNeighborhoodCI = "-";
-	/* RSRQ */private String MLteNeighborhoodRsrq = "-";
-	/* 物理小区标识 */ private String MLteNeighborhoodPCI = "-";
+	/* 小区识别码 */ private String mLteNeighborhoodCI = "-";
+	/* RSRQ */private String mLteNeighborhoodRsrq = "-";
+	/* 物理小区标识 */ private String mLteNeighborhoodPCI = "-";
 	/* 中心频点 */public String mLteNeighborhoodEarfcn = "-";
-	/* 跟踪区域码 */ private String MLteNeighborhoodTAC = "-";
+	/* 跟踪区域码 */ private String mLteNeighborhoodTAC = "-";
 	/* Band */private String mBand = "-";
 	/* 信号强度/信噪比 */private String mLteNeighborhoodRSRPOrSINR = "-";
 	/* 信号强度级别 */private int mRsrpLevel = -1;
 
 	private String siteName;
 
-	public String getSiteName() {
-		return siteName;
+	public String getmLteNeighborhoodCI() {
+		return mLteNeighborhoodCI;
 	}
 
-	public void setSiteName(String siteName) {
-		this.siteName = siteName;
+	public void setmLteNeighborhoodCI(String mLteNeighborhoodCI) {
+		this.mLteNeighborhoodCI = mLteNeighborhoodCI;
 	}
 
-	public int getmRsrpLevel() {
-		return mRsrpLevel;
+	public String getmLteNeighborhoodRsrq() {
+		return mLteNeighborhoodRsrq;
 	}
 
-	public void setmRsrpLevel(int mRsrpLevel) {
-		this.mRsrpLevel = mRsrpLevel;
+	public void setmLteNeighborhoodRsrq(String mLteNeighborhoodRsrq) {
+		this.mLteNeighborhoodRsrq = mLteNeighborhoodRsrq;
 	}
 
-	public String getMLteNeighborhoodRsrq() {
-		return MLteNeighborhoodRsrq;
+	public String getmLteNeighborhoodPCI() {
+		return mLteNeighborhoodPCI;
 	}
 
-	public void setMLteNeighborhoodRsrq(String MLteNeighborhoodRsrq) {
-		this.MLteNeighborhoodRsrq = MLteNeighborhoodRsrq;
+	public void setmLteNeighborhoodPCI(String mLteNeighborhoodPCI) {
+		this.mLteNeighborhoodPCI = mLteNeighborhoodPCI;
+	}
+
+	public String getmLteNeighborhoodEarfcn() {
+		return mLteNeighborhoodEarfcn;
+	}
+
+	public void setmLteNeighborhoodEarfcn(String mLteNeighborhoodEarfcn) {
+		this.mLteNeighborhoodEarfcn = mLteNeighborhoodEarfcn;
+	}
+
+	public String getmLteNeighborhoodTAC() {
+		return mLteNeighborhoodTAC;
+	}
+
+	public void setmLteNeighborhoodTAC(String mLteNeighborhoodTAC) {
+		this.mLteNeighborhoodTAC = mLteNeighborhoodTAC;
 	}
 
 	public String getmBand() {
@@ -61,39 +77,41 @@ public class MLteNeighborhoodInfo {
 		this.mLteNeighborhoodRSRPOrSINR = mLteNeighborhoodRSRPOrSINR;
 	}
 
-	public String getMLteNeighborhoodCI() {
-		return MLteNeighborhoodCI;
+	public int getmRsrpLevel() {
+		return mRsrpLevel;
 	}
 
-	public void setMLteNeighborhoodCI(String MLteNeighborhoodCI) {
-		this.MLteNeighborhoodCI = MLteNeighborhoodCI;
+	public void setmRsrpLevel(int mRsrpLevel) {
+		this.mRsrpLevel = mRsrpLevel;
 	}
 
-	public String getMLteNeighborhoodPCI() {
-		return MLteNeighborhoodPCI;
+	public String getSiteName() {
+		return siteName;
 	}
 
-	public void setMLteNeighborhoodPCI(String MLteNeighborhoodPCI) {
-		this.MLteNeighborhoodPCI = MLteNeighborhoodPCI;
+	public void setSiteName(String siteName) {
+		this.siteName = siteName;
 	}
 
-	public String getmLteNeighborhoodEarfcn() {
-		return mLteNeighborhoodEarfcn;
-	}
-
-	public void setmLteNeighborhoodEarfcn(String mLteNeighborhoodEarfcn) {
+	public MLteNeighborhoodInfo(String mLteNeighborhoodCI, String mLteNeighborhoodRsrq, String mLteNeighborhoodPCI,
+			String mLteNeighborhoodEarfcn, String mLteNeighborhoodTAC, String mBand, String mLteNeighborhoodRSRPOrSINR,
+			int mRsrpLevel, String siteName) {
+		super();
+		this.mLteNeighborhoodCI = mLteNeighborhoodCI;
+		this.mLteNeighborhoodRsrq = mLteNeighborhoodRsrq;
+		this.mLteNeighborhoodPCI = mLteNeighborhoodPCI;
 		this.mLteNeighborhoodEarfcn = mLteNeighborhoodEarfcn;
-	}
-
-	public String getMLteNeighborhoodTAC() {
-		return MLteNeighborhoodTAC;
-	}
-
-	public void setMLteNeighborhoodTAC(String MLteNeighborhoodTAC) {
-		this.MLteNeighborhoodTAC = MLteNeighborhoodTAC;
+		this.mLteNeighborhoodTAC = mLteNeighborhoodTAC;
+		this.mBand = mBand;
+		this.mLteNeighborhoodRSRPOrSINR = mLteNeighborhoodRSRPOrSINR;
+		this.mRsrpLevel = mRsrpLevel;
+		this.siteName = siteName;
 	}
 
 	public MLteNeighborhoodInfo() {
+		super();
 	}
+
+	
 
 }

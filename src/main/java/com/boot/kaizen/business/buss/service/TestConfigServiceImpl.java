@@ -1,9 +1,12 @@
 package com.boot.kaizen.business.buss.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -22,21 +25,23 @@ import com.boot.kaizen.business.buss.model.TestConfig;
 @Service
 public class TestConfigServiceImpl extends ServiceImpl<TestConfigMapper, TestConfig> implements ITestConfigService {
 
+	public static final List<String> ITEM_LIST = Arrays.asList("RSRP", "SINR", "SSRSRP", "SSSINR", "UL", "DL");
+
 	@Override
-	public List<RequestParamConfig> queryItemAll(String item, Integer projId,String type) {
+	public List<RequestParamConfig> queryItemAll(String item, Integer projId, String type) {
 		List<RequestParamConfig> datas = new ArrayList<>();
 
 		Map<String, Object> paramMap = new HashMap<>();
-		paramMap.put("projId", projId+"");
-		
+		paramMap.put("projId", projId + "");
+
 		if (StringUtils.isNotBlank(item)) {
 			paramMap.put("item", item);
 		}
-		
+
 		if (StringUtils.isBlank(type)) {
-			type="0";
+			type = "0";
 		}
-		
+
 		paramMap.put("configType", type);
 
 		List<TestConfig> testConfigs = this.selectByMap(paramMap);
@@ -45,8 +50,11 @@ public class TestConfigServiceImpl extends ServiceImpl<TestConfigMapper, TestCon
 			testConfigs = this.selectByMap(paramMap);
 		}
 
+		Set<String> itemSets = new HashSet<>();
+
 		if (testConfigs != null && testConfigs.size() > 0) {
 			for (TestConfig testConfig : testConfigs) {
+				itemSets.add(testConfig.getItem());
 				String jsonStr = testConfig.getJsonStr();
 				RequestParamConfig requestParamConfig = JSONObject.parseObject(jsonStr, RequestParamConfig.class);
 				if (requestParamConfig != null) {
@@ -54,6 +62,26 @@ public class TestConfigServiceImpl extends ServiceImpl<TestConfigMapper, TestCon
 				}
 			}
 		}
+		if (StringUtils.isNotBlank(item)) {
+			for (String itemKey : ITEM_LIST) {
+				if (!itemSets.contains(itemKey)) {
+					paramMap.put("item", itemKey);
+					paramMap.put("projId", "1111111");
+					List<TestConfig> testConfigModel = this.selectByMap(paramMap);
+					if (testConfigModel != null && testConfigModel.size() > 0) {
+						for (TestConfig testConfig : testConfigModel) {
+							String jsonStr = testConfig.getJsonStr();
+							RequestParamConfig requestParamConfig = JSONObject.parseObject(jsonStr,
+									RequestParamConfig.class);
+							if (requestParamConfig != null) {
+								datas.add(requestParamConfig);
+							}
+						}
+					}
+				}
+			}
+		}
+
 		return datas;
 	}
 

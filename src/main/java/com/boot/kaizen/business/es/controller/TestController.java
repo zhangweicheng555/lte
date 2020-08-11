@@ -72,11 +72,7 @@ public class TestController {
 
 				.startObject("location").field("type", "geo_point").endObject()//
 
-				.startObject("lte_address").field("type", "text")//
-				/*
-				 * .startObject("fields")// .startObject("keyword")// .field("type",
-				 * "keyword")// .field("ignore_above", 256)// .endObject().endObject()//
-				 */ .endObject()//
+				.startObject("lte_address").field("type", "text").endObject()//
 
 				.startObject("lte_azimuth").field("type", "text")//
 				.startObject("fields")//
@@ -205,11 +201,7 @@ public class TestController {
 
 				.startObject("lte_scene").field("type", "text").endObject()//
 
-				.startObject("lte_sector_id").field("type", "text")//
-				/*
-				 * .startObject("fields")// .startObject("keyword")// .field("type",
-				 * "keyword")// .field("ignore_above", 256)// .endObject().endObject()//
-				 */ .endObject()//
+				.startObject("lte_sector_id").field("type", "text").endObject()//
 
 				.startObject("lte_site_tall").field("type", "text").endObject()//
 
@@ -745,7 +737,7 @@ public class TestController {
 				.startObject("height").field("type", "text").endObject()//
 				.startObject("testTime").field("type", "text").endObject()//
 
-				.startObject("testTime").field("type", "long").endObject()//
+				.startObject("testTimeMill").field("type", "long").endObject()//
 
 				.startObject("downLoadSpeed").field("type", "text").endObject()//
 				.startObject("upLoadSpeed").field("type", "text").endObject()//
@@ -889,7 +881,7 @@ public class TestController {
 				// 这个是复杂属性结束
 
 				// 这个是复杂属性开始
-				.startObject("proLteDataInfoBeans")//
+				.startObject("proLteDataInfoBean")//
 				.startObject("properties")//
 
 				.startObject("servingCellPccMcc").field("type", "text").endObject()//
@@ -1078,10 +1070,13 @@ public class TestController {
 				.startObject("lte_derrick_type").field("type", "text").endObject()//
 
 				.startObject("lte_earfcn").field("type", "text")//
-				/*
-				 * .startObject("fields")// .startObject("keyword")// .field("type",
-				 * "keyword")// .field("ignore_above", 256)// .endObject().endObject()//
-				 */ .endObject()//
+			    .startObject("fields")// 
+			    .startObject("keyword")// 
+			    .field("type","keyword")// 
+			    .field("ignore_above", 256)// 
+			    .endObject()
+			    .endObject()//
+			    .endObject()//
 
 				.startObject("lte_ecgi").field("type", "text")//
 				.startObject("fields")//
@@ -1239,7 +1234,7 @@ public class TestController {
 	}
 
 	// 索引列表
-	public static final List<String> INDEX_LIST = Arrays.asList("simgc", "logmain", "logmessage", "logmain5g", "test");
+	public static final List<String> INDEX_LIST = Arrays.asList("simgc", "logmain", "logmessage", "logmain5g");
 
 	/**
 	 * 获取mapping信息

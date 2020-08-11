@@ -60,7 +60,7 @@ public class FiveLogMain implements Serializable {
 	private NrDataInfoBean nrDataInfoBean;
 	private LteDataInfoBean lteDataInfoBean;
 	private ProNrDataInfoBean proNrDataInfoBean;
-	private ProLteDataInfoBean proLteDataInfoBeans;
+	private ProLteDataInfoBean proLteDataInfoBean;
 
 	private List<SignalEventBean> signalEventBeans;
 	private List<SignalBean> signalBeans;
@@ -100,18 +100,177 @@ public class FiveLogMain implements Serializable {
 		this.nrDataInfoBean = nrDataInfoBean;
 		this.lteDataInfoBean = lteDataInfoBean;
 		this.proNrDataInfoBean = proNrDataInfoBean;
-		this.proLteDataInfoBeans = proLteDataInfoBeans;
+		this.proLteDataInfoBean = proLteDataInfoBeans;
 		this.signalEventBeans = signalEventBeans;
 		this.signalBeans = signalBeans;
 		this.testTimeMill = testTimeMill;
 	}
 
-	public Long getTestTimeMill() {
-		return testTimeMill;
+	public FiveLogMain(String pid, String id, String logversion, String dualSimSupport, String operatorCompareSupport,
+			String rootSupport, String phone, String operator, String operator_y, String latitude, String longitude,
+			String speed, String height, String testTime, String downLoadSpeed, String upLoadSpeed,
+			String normalEventType, String abNormalEventType, String rsrp, String sinr, String ssrsrp, String sssinr,
+			NrDataInfoBean nrDataInfoBean, LteDataInfoBean lteDataInfoBean, ProNrDataInfoBean proNrDataInfoBean,
+			ProLteDataInfoBean proLteDataInfoBeans, List<SignalEventBean> signalEventBeans,
+			List<SignalBean> signalBeans) {
+		super();
+		this.pid = pid;
+		this.id = id;
+		this.logversion = logversion;
+		this.dualSimSupport = dualSimSupport;
+		this.operatorCompareSupport = operatorCompareSupport;
+		this.rootSupport = rootSupport;
+		this.phone = phone;
+		this.operator = operator;
+		this.operator_y = operator_y;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.speed = speed;
+		this.height = height;
+		this.testTime = testTime;
+		this.downLoadSpeed = downLoadSpeed;
+		this.upLoadSpeed = upLoadSpeed;
+		this.normalEventType = normalEventType;
+		this.abNormalEventType = abNormalEventType;
+		this.rsrp = rsrp;
+		this.sinr = sinr;
+		this.ssrsrp = ssrsrp;
+		this.sssinr = sssinr;
+		this.nrDataInfoBean = nrDataInfoBean;
+		this.lteDataInfoBean = lteDataInfoBean;
+		this.proNrDataInfoBean = proNrDataInfoBean;
+		this.proLteDataInfoBean = proLteDataInfoBeans;
+		this.signalEventBeans = signalEventBeans;
+		this.signalBeans = signalBeans;
 	}
 
-	public void setTestTimeMill(Long testTimeMill) {
-		this.testTimeMill = testTimeMill;
+	public FiveLogMain() {
+		super();
+	}
+
+	public String dealNormalEventTypeToString(String normalEventType) {
+		if (StringUtils.isNoneBlank(normalEventType)) {
+			if (("0").equals(normalEventType)) {
+				return "FTPConnectionSuccess";
+			} else if (("1").equals(normalEventType)) {
+				return "DownloadStart";
+			} else if (("2").equals(normalEventType)) {
+				return "DownloadComplete";
+			} else if (("3").equals(normalEventType)) {
+				return "UploadStart";
+			} else if (("4").equals(normalEventType)) {
+				return "UploadComplete";
+			} else if (("5").equals(normalEventType)) {
+				return "PingSuccess";
+			} else if (("6").equals(normalEventType)) {
+				return "HttpSuccess";
+			} else if (("7").equals(normalEventType)) {
+				return "CallInitiate";
+			} else if (("8").equals(normalEventType)) {
+				return "CallStart";
+			} else if (("9").equals(normalEventType)) {
+				return "CallEnd";
+			}
+		}
+		return "";
+	}
+
+	public String dealAbNormalEventTypeToString(String abNormalEventType) {
+		if (StringUtils.isNoneBlank(abNormalEventType)) {
+			if (("0").equals(abNormalEventType)) {
+				return "FTPConnectionFailure";
+			} else if (("1").equals(abNormalEventType)) {
+				return "DownloadFailure";
+			} else if (("2").equals(abNormalEventType)) {
+				return "UploadFailure";
+			} else if (("3").equals(abNormalEventType)) {
+				return "PingFailure";
+			} else if (("4").equals(abNormalEventType)) {
+				return "HttpFailure";
+			} else if (("5").equals(abNormalEventType)) {
+				return "BlockedCall";
+			} else if (("6").equals(abNormalEventType)) {
+				return "DropedCall";
+			}
+		}
+		return "";
+	}
+
+	public FiveLogMain(NrLogBodyBean nrLogBodyBean, NrLogHeadBean nrLogHeadBean) {
+		this.pid = nrLogBodyBean.getPid();
+		this.id = nrLogBodyBean.getId();
+
+		int rootSupport2 = nrLogHeadBean.getRootSupport();
+		this.logversion = nrLogHeadBean.getLogversion() + "";
+		this.dualSimSupport = nrLogHeadBean.getDualSimSupport() + "";
+		this.operatorCompareSupport = nrLogHeadBean.getOperatorCompareSupport() + "";
+		this.rootSupport = rootSupport2 + "";
+		this.phone = nrLogHeadBean.getPhone();
+		this.operator = nrLogHeadBean.getOperator();
+		this.operator_y = nrLogHeadBean.getOperator_y();
+
+		this.latitude = nrLogBodyBean.getLatitude();
+		this.longitude = nrLogBodyBean.getLongitude();
+		this.speed = nrLogBodyBean.getSpeed();
+		this.height = nrLogBodyBean.getHeight();
+		
+		this.testTime = nrLogBodyBean.getTestTime();
+		
+		this.testTimeMill = 0L;
+		Date date = MyDateUtil.stringToDate(nrLogBodyBean.getTestTime(), "yyyy-MM-dd HH:mm:ss");
+		if (date != null) {
+			this.testTimeMill = date.getTime();
+		}
+
+		this.downLoadSpeed = nrLogBodyBean.getDownLoadSpeed();
+		this.upLoadSpeed = nrLogBodyBean.getUpLoadSpeed();
+
+		this.normalEventType = dealNormalEventTypeToString(nrLogBodyBean.getNormalEventType() + "");
+		this.abNormalEventType = dealAbNormalEventTypeToString(nrLogBodyBean.getAbNormalEventType() + "");
+
+		if (0 == rootSupport2) {// 非root
+			LteDataInfoBean lteDataInfoBean2 = nrLogBodyBean.getLteDataInfoBean();
+			if (lteDataInfoBean2 != null) {
+				this.rsrp = lteDataInfoBean2.getLteRSRP();
+				this.sinr = lteDataInfoBean2.getLteSINR();
+			}
+			NrDataInfoBean nrDataInfoBean2 = nrLogBodyBean.getNrDataInfoBean();
+			if (nrDataInfoBean2 != null) {
+				this.ssrsrp = nrDataInfoBean2.getSsRSRP();
+				this.sssinr = nrDataInfoBean2.getSsSINR();
+			}
+		} else {
+			ProLteDataInfoBean proLteDataInfoBeans2 = nrLogBodyBean.getProLteDataInfoBean();
+			if (proLteDataInfoBeans2 != null) {
+				this.rsrp = proLteDataInfoBeans2.getServingCellPccRsrp();
+				this.sinr = proLteDataInfoBeans2.getServingCellPccSinr();
+			}
+
+			ProNrDataInfoBean proNrDataInfoBean2 = nrLogBodyBean.getProNrDataInfoBean();
+			if (proNrDataInfoBean2 != null) {
+				this.ssrsrp = proNrDataInfoBean2.getSsRSRP();
+				this.sssinr = proNrDataInfoBean2.getSsSINR();
+			}
+		}
+
+		this.nrDataInfoBean = nrLogBodyBean.getNrDataInfoBean();
+		this.lteDataInfoBean = nrLogBodyBean.getLteDataInfoBean();
+		this.proNrDataInfoBean = nrLogBodyBean.getProNrDataInfoBean();
+		this.proLteDataInfoBean = nrLogBodyBean.getProLteDataInfoBean();
+
+		this.signalEventBeans = nrLogBodyBean.getSignalEventBeans();
+		if (signalEventBeans != null && signalEventBeans.size() > 0) {
+			for (SignalEventBean signalBean : signalEventBeans) {
+				signalBean.setMid(id);
+			}
+		}
+
+		this.signalBeans = nrLogBodyBean.getSignalBeans();
+		if (signalBeans != null && signalBeans.size() > 0) {
+			for (SignalBean signalBean : signalBeans) {
+				signalBean.setMid(id);
+			}
+		}
 	}
 
 	public String getPid() {
@@ -314,12 +473,12 @@ public class FiveLogMain implements Serializable {
 		this.proNrDataInfoBean = proNrDataInfoBean;
 	}
 
-	public ProLteDataInfoBean getProLteDataInfoBeans() {
-		return proLteDataInfoBeans;
+	public ProLteDataInfoBean getProLteDataInfoBean() {
+		return proLteDataInfoBean;
 	}
 
-	public void setProLteDataInfoBeans(ProLteDataInfoBean proLteDataInfoBeans) {
-		this.proLteDataInfoBeans = proLteDataInfoBeans;
+	public void setProLteDataInfoBean(ProLteDataInfoBean proLteDataInfoBean) {
+		this.proLteDataInfoBean = proLteDataInfoBean;
 	}
 
 	public List<SignalEventBean> getSignalEventBeans() {
@@ -338,170 +497,12 @@ public class FiveLogMain implements Serializable {
 		this.signalBeans = signalBeans;
 	}
 
-	public FiveLogMain(String pid, String id, String logversion, String dualSimSupport, String operatorCompareSupport,
-			String rootSupport, String phone, String operator, String operator_y, String latitude, String longitude,
-			String speed, String height, String testTime, String downLoadSpeed, String upLoadSpeed,
-			String normalEventType, String abNormalEventType, String rsrp, String sinr, String ssrsrp, String sssinr,
-			NrDataInfoBean nrDataInfoBean, LteDataInfoBean lteDataInfoBean, ProNrDataInfoBean proNrDataInfoBean,
-			ProLteDataInfoBean proLteDataInfoBeans, List<SignalEventBean> signalEventBeans,
-			List<SignalBean> signalBeans) {
-		super();
-		this.pid = pid;
-		this.id = id;
-		this.logversion = logversion;
-		this.dualSimSupport = dualSimSupport;
-		this.operatorCompareSupport = operatorCompareSupport;
-		this.rootSupport = rootSupport;
-		this.phone = phone;
-		this.operator = operator;
-		this.operator_y = operator_y;
-		this.latitude = latitude;
-		this.longitude = longitude;
-		this.speed = speed;
-		this.height = height;
-		this.testTime = testTime;
-		this.downLoadSpeed = downLoadSpeed;
-		this.upLoadSpeed = upLoadSpeed;
-		this.normalEventType = normalEventType;
-		this.abNormalEventType = abNormalEventType;
-		this.rsrp = rsrp;
-		this.sinr = sinr;
-		this.ssrsrp = ssrsrp;
-		this.sssinr = sssinr;
-		this.nrDataInfoBean = nrDataInfoBean;
-		this.lteDataInfoBean = lteDataInfoBean;
-		this.proNrDataInfoBean = proNrDataInfoBean;
-		this.proLteDataInfoBeans = proLteDataInfoBeans;
-		this.signalEventBeans = signalEventBeans;
-		this.signalBeans = signalBeans;
+	public Long getTestTimeMill() {
+		return testTimeMill;
 	}
 
-	public FiveLogMain() {
-		super();
-	}
-
-	public String dealNormalEventTypeToString(String normalEventType) {
-		if (StringUtils.isNoneBlank(normalEventType)) {
-			if (("0").equals(normalEventType)) {
-				return "FTPConnectionSuccess";
-			} else if (("1").equals(normalEventType)) {
-				return "DownloadStart";
-			} else if (("2").equals(normalEventType)) {
-				return "DownloadComplete";
-			} else if (("3").equals(normalEventType)) {
-				return "UploadStart";
-			} else if (("4").equals(normalEventType)) {
-				return "UploadComplete";
-			} else if (("5").equals(normalEventType)) {
-				return "PingSuccess";
-			} else if (("6").equals(normalEventType)) {
-				return "HttpSuccess";
-			} else if (("7").equals(normalEventType)) {
-				return "CallInitiate";
-			} else if (("8").equals(normalEventType)) {
-				return "CallStart";
-			} else if (("9").equals(normalEventType)) {
-				return "CallEnd";
-			}
-		}
-		return "";
-	}
-
-	public String dealAbNormalEventTypeToString(String abNormalEventType) {
-		if (StringUtils.isNoneBlank(abNormalEventType)) {
-			if (("0").equals(abNormalEventType)) {
-				return "FTPConnectionFailure";
-			} else if (("1").equals(abNormalEventType)) {
-				return "DownloadFailure";
-			} else if (("2").equals(abNormalEventType)) {
-				return "UploadFailure";
-			} else if (("3").equals(abNormalEventType)) {
-				return "PingFailure";
-			} else if (("4").equals(abNormalEventType)) {
-				return "HttpFailure";
-			} else if (("5").equals(abNormalEventType)) {
-				return "BlockedCall";
-			} else if (("6").equals(abNormalEventType)) {
-				return "DropedCall";
-			}
-		}
-		return "";
-	}
-
-	public FiveLogMain(NrLogBodyBean nrLogBodyBean, NrLogHeadBean nrLogHeadBean) {
-		this.pid = nrLogBodyBean.getPid();
-		this.id = nrLogBodyBean.getId();
-
-		int rootSupport2 = nrLogHeadBean.getRootSupport();
-		this.logversion = nrLogHeadBean.getLogversion() + "";
-		this.dualSimSupport = nrLogHeadBean.getDualSimSupport() + "";
-		this.operatorCompareSupport = nrLogHeadBean.getOperatorCompareSupport() + "";
-		this.rootSupport = rootSupport2 + "";
-		this.phone = nrLogHeadBean.getPhone();
-		this.operator = nrLogHeadBean.getOperator();
-		this.operator_y = nrLogHeadBean.getOperator_y();
-
-		this.latitude = nrLogBodyBean.getLatitude();
-		this.longitude = nrLogBodyBean.getLongitude();
-		this.speed = nrLogBodyBean.getSpeed();
-		this.height = nrLogBodyBean.getHeight();
-		this.testTime = nrLogBodyBean.getTestTime();
-
-		this.testTimeMill = 0L;
-		Date date = MyDateUtil.stringToDate(nrLogBodyBean.getTestTime(), "yyyy-MM-dd HH:mm:ss");
-		if (date != null) {
-			this.testTimeMill = date.getTime();
-		}
-
-		this.downLoadSpeed = nrLogBodyBean.getDownLoadSpeed();
-		this.upLoadSpeed = nrLogBodyBean.getUpLoadSpeed();
-
-		this.normalEventType = dealNormalEventTypeToString(nrLogBodyBean.getNormalEventType() + "");
-		this.abNormalEventType = dealAbNormalEventTypeToString(nrLogBodyBean.getAbNormalEventType() + "");
-
-		if (0 == rootSupport2) {// 非root
-			LteDataInfoBean lteDataInfoBean2 = nrLogBodyBean.getLteDataInfoBean();
-			if (lteDataInfoBean2 != null) {
-				this.rsrp = lteDataInfoBean2.getLteRSRP();
-				this.sinr = lteDataInfoBean2.getLteSINR();
-			}
-			NrDataInfoBean nrDataInfoBean2 = nrLogBodyBean.getNrDataInfoBean();
-			if (nrDataInfoBean2 != null) {
-				this.ssrsrp = nrDataInfoBean2.getSsRSRP();
-				this.sssinr = nrDataInfoBean2.getSsSINR();
-			}
-		} else {
-			ProLteDataInfoBean proLteDataInfoBeans2 = nrLogBodyBean.getProLteDataInfoBeans();
-			if (proLteDataInfoBeans2 != null) {
-				this.rsrp = proLteDataInfoBeans2.getServingCellPccRsrp();
-				this.sinr = proLteDataInfoBeans2.getServingCellPccSinr();
-			}
-
-			ProNrDataInfoBean proNrDataInfoBean2 = nrLogBodyBean.getProNrDataInfoBean();
-			if (proNrDataInfoBean2 != null) {
-				this.ssrsrp = proNrDataInfoBean2.getSsRSRP();
-				this.sssinr = proNrDataInfoBean2.getSsSINR();
-			}
-		}
-
-		this.nrDataInfoBean = nrLogBodyBean.getNrDataInfoBean();
-		this.lteDataInfoBean = nrLogBodyBean.getLteDataInfoBean();
-		this.proNrDataInfoBean = nrLogBodyBean.getProNrDataInfoBean();
-		this.proLteDataInfoBeans = nrLogBodyBean.getProLteDataInfoBeans();
-
-		this.signalEventBeans = nrLogBodyBean.getSignalEventBeans();
-		if (signalEventBeans != null && signalEventBeans.size() > 0) {
-			for (SignalEventBean signalBean : signalEventBeans) {
-				signalBean.setMid(id);
-			}
-		}
-
-		this.signalBeans = nrLogBodyBean.getSignalBeans();
-		if (signalBeans != null && signalBeans.size() > 0) {
-			for (SignalBean signalBean : signalBeans) {
-				signalBean.setMid(id);
-			}
-		}
+	public void setTestTimeMill(Long testTimeMill) {
+		this.testTimeMill = testTimeMill;
 	}
 
 }

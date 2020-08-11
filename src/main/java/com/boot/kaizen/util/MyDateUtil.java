@@ -46,8 +46,10 @@ public class MyDateUtil {
 		}
 		return null;
 	}
-
 	
+
+
+
 
 	/**
 	 * 将日期格式化为指定的字符串格式
@@ -524,6 +526,7 @@ public class MyDateUtil {
 
 	/**
 	 * 根据起始 终止时间 分割时间范围 注意这个时间的格式是yyyy-MM-dd HH-mm
+	 * 以分钟为单位
 	 */
 	public static List<String> getDateListStr(String beginDateStr, String endDateStr, int minute)
 			throws ParseException {
@@ -541,7 +544,33 @@ public class MyDateUtil {
 		}
 		return list;
 	}
+	
+	/**
+	 * 以秒为单位
+	* @Description: TODO
+	* @author weichengz
+	* @date 2020年7月14日 下午3:54:54
+	 */
+	public static List<String> getDateListStrMill(String beginDateStr, String endDateStr, int second)
+			throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date beginDate = sdf.parse(beginDateStr);
+		Date endDate = sdf.parse(endDateStr);
+		
+		List<String> list = new ArrayList<String>();
+		list.add(sdf.format(beginDate));
+		for (int i = 0; i < 2000000000; i++) {
+			beginDate = new Date(beginDate.getTime() + 1 * 1000);
+			if (beginDate.compareTo(endDate) > 0) {
+				break;
+			}
+			list.add(sdf.format(beginDate));
+		}
+		return list;
+	}
 
+	
+	
 	/**
 	 * 传入 yyyy-MM-dd HH:mm:ss
 	 * 

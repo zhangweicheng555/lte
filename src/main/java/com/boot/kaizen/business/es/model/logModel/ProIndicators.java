@@ -83,12 +83,6 @@ public class ProIndicators {
 	private String throughputPccAppDl;
 	
 	
-	
-	
-	
-	
-	
-	
 	private String throughputSccPhyDl;
 
 	private String modulationPcc16qam;

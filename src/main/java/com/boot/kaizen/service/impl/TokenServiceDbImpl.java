@@ -22,7 +22,6 @@ import com.boot.kaizen.entity.Token;
 import com.boot.kaizen.entity.TokenModel;
 import com.boot.kaizen.service.TokenService;
 import com.boot.kaizen.util.JsonMsgUtil;
-
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -100,6 +99,12 @@ public class TokenServiceDbImpl implements TokenService {
 		model.setUpdateTime(new Date());
 		model.setExpireTime(new Date(loginUser.getExpireTime()));
 		model.setVal(JSONObject.toJSONString(loginUser));
+		/*try {
+			System.out.println(new ObjectMapper().writeValueAsString(loginUser));
+			model.setVal(new ObjectMapper().writeValueAsString(loginUser));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}*/
 
 		tokenDao.update(model);
 	}

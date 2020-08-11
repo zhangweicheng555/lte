@@ -15,35 +15,37 @@ public class CommonModel implements Serializable {
 
 	public static final long serialVersionUID = 1L;
 	
+	public String lte_address;// 详细地址        //不可检索
 	public String lte_azimuth;// 方位角      33
+	public String lte_site_name;// 小区名字20200428添加    2  数据库本质是基站名
 	public String lte_cell;// Cell          4   这个就是cell id
 	public String lte_ci;// CI             
 	public String lte_city_name;// 城市      
-	public String lte_earfcn;// EARFCN      不可检索   6   频点
+	public String lte_derrick_type;// 抱杆类型    //不可检索
+	public String lte_earfcn;// EARFCN      6   频点
 	public String lte_ecgi;// lte_ecgi      5             
+	
 	public String lte_electronic_downdip;// 电子倾角   不可检索  11
 	public String lte_enodebid;// eNodeBID    3
 	public String lte_firm;// 厂商   
 	public String lte_grid;// 网格归属       
-	public String lte_longitude2;// 经度 百度的   
-	public String lte_latitude2;// 纬度 百度的    
 	public String lte_longitude;             //不可检索    22
 	public String lte_latitude;              //不可检索    33
+	public String lte_longitude2;// 经度 百度的   
+	public String lte_latitude2;// 纬度 百度的    
 	public String lte_mechanical_downdip;// 机械下倾角    //不可检索  10
 	public String lte_net;// 网络                          1
 	public String lte_phycellid;// PhyCellId 这个就是PCI        8
-	public String lte_site_tall;// 站高            //不可检索     9
+	public String lte_sector_id;// Sector ID    //不可检索
+	public String lte_scene;// 场景归属        //不可检索
 	public String lte_site_type;// 站型           //可检索
+	public String lte_site_tall;// 站高            //不可检索     9
+	
 	public String lte_tac;// TAC              //不可检索     7
 	public String lte_sys;// 制式                       //不可检索
 	public String lte_total_downdip;// 总下倾角     //不可检索    12
 	
-	public String lte_sector_id;// Sector ID    //不可检索
-	public String lte_derrick_type;// 抱杆类型    //不可检索
-	public String lte_address;// 详细地址        //不可检索
-	public String lte_scene;// 场景归属        //不可检索
 	
-	public String lte_site_name;// 小区名字20200428添加    2  数据库本质是基站名
 	
 
 	

@@ -19,8 +19,30 @@ public class RequestParamConfigEntity implements Serializable {
 	//20200628  图例模块记忆功能
 	private String showFlag="1";// 显示 默认是0 1是显示
 	private String pointDetail="1";// 采样点详情 默认是0 1是显示
+	private String itemType="RSRP";// 默认的阈值类型
 	
 	
+	public RequestParamConfigEntity(String item, List<ItemModelEntity> content, String showFlag, String pointDetail,
+			String itemType) {
+		super();
+		this.item = item;
+		this.content = content;
+		this.showFlag = showFlag;
+		this.pointDetail = pointDetail;
+		this.itemType = itemType;
+	}
+
+
+	public String getItemType() {
+		return itemType;
+	}
+
+
+	public void setItemType(String itemType) {
+		this.itemType = itemType;
+	}
+
+
 	public String getShowFlag() {
 		return showFlag;
 	}

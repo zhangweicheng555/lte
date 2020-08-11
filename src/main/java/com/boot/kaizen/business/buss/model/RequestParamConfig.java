@@ -15,15 +15,64 @@ public class RequestParamConfig implements Serializable {
 
 	private String item; // RSRP 、SINR、DL、UL 、SSRSRP、SSSINR这个是固定的
 	private String type; // 阈值配置的类型 0：4g的配置 1：5g的配置
+
+	private String showFlag ;// 显示 默认是1 1是显示
+	private String pointDetail ;// 采样点详情 默认是1 1是显示
+	private String itemType ;// 阈值最后的类型
+	
+	
 	private List<ItemModel> content;
-	
-	
-	
-	
 
 	
 	
+	
+	public RequestParamConfig(String item, String type, String showFlag, String pointDetail, String itemType,
+			List<ItemModel> content) {
+		super();
+		this.item = item;
+		this.type = type;
+		this.showFlag = showFlag;
+		this.pointDetail = pointDetail;
+		this.itemType = itemType;
+		this.content = content;
+	}
 
+
+	public String getItemType() {
+		return itemType;
+	}
+
+
+	public void setItemType(String itemType) {
+		this.itemType = itemType;
+	}
+
+
+	public RequestParamConfig(String item, String type, String showFlag, String pointDetail, List<ItemModel> content) {
+		super();
+		this.item = item;
+		this.type = type;
+		this.showFlag = showFlag;
+		this.pointDetail = pointDetail;
+		this.content = content;
+	}
+	
+
+	public String getShowFlag() {
+		return showFlag;
+	}
+
+	public void setShowFlag(String showFlag) {
+		this.showFlag = showFlag;
+	}
+
+	public String getPointDetail() {
+		return pointDetail;
+	}
+
+	public void setPointDetail(String pointDetail) {
+		this.pointDetail = pointDetail;
+	}
 
 	public RequestParamConfig(String item, String type, List<ItemModel> content) {
 		super();
@@ -74,6 +123,4 @@ public class RequestParamConfig implements Serializable {
 		}
 	}
 
-	
-	
 }

@@ -45,11 +45,13 @@ import com.boot.kaizen.business.buss.model.fiveg.model.NrLogBodyBean;
 import com.boot.kaizen.business.buss.model.fiveg.model.NrLogHeadBean;
 import com.boot.kaizen.business.buss.model.fiveg.model.ProLteDataInfoBean;
 import com.boot.kaizen.business.buss.model.fiveg.model.SignalBean;
+import com.boot.kaizen.business.buss.service.ILogAnaLyzeService;
 import com.boot.kaizen.business.buss.service.IOneButtonTestService;
 import com.boot.kaizen.business.buss.service.IOutHomeService;
 import com.boot.kaizen.business.buss.service.ISimProjectService;
 import com.boot.kaizen.business.es.model.OneButtonTest;
 import com.boot.kaizen.business.es.model.OutHomeLogModel;
+import com.boot.kaizen.business.es.model.logModel.SignalDataBean;
 import com.boot.kaizen.model.Permission;
 import com.boot.kaizen.model.SysProject;
 import com.boot.kaizen.model.SysProjectRoleRelation;
@@ -86,16 +88,20 @@ public class AppOpenController {
 	@Autowired
 	private IOutHomeService outHomeService;
 	@Autowired
+	private ILogAnaLyzeService logAnaLyzeService;
+	@Autowired
 	private SysRolePermissionService sysRolePermissionService;
 
-	private static List<String> CITYS = Arrays.asList("联通", "电信", "移动","中国联通", "中国电信", "中国移动");
+	private static List<String> CITYS = Arrays.asList("联通", "电信", "移动", "中国联通", "中国电信", "中国移动");
 
+	private static final double DEFAAULT_NUM = -99999;// 统计分析的默认值
+	
 	@Autowired
 	private TransportClient transportClient;
 
 	@Value("${files.path}")
 	private String filesCommonPath;
-	
+
 	@Value("${sim.openUpAppFlag}")
 	private String openUpAppFlag;
 
@@ -132,18 +138,17 @@ public class AppOpenController {
 	public JsonMsgUtil uploadOutHomeLog(@RequestParam(value = "file", required = false) MultipartFile[] files)
 			throws UnsupportedEncodingException, IOException, InterruptedException, ExecutionException {
 
-		
 		if (files == null || files.length == 0) {
 			throw new IllegalArgumentException("未上传室外测试的LOG");
 		}
 
 		for (MultipartFile file : files) {
-			
+
 			String user = null;
 			String city = null;
 			String operators = null;
 			SysProject sysProject = null;
-			
+
 			if (file != null && StringUtils.isNoneBlank(file.getOriginalFilename()) && !file.isEmpty()) {
 
 				String outHomeTestId = MyUtil.getUuid();// 室外测试列表的id 后续所有的操作 都会以这个为索引主键
@@ -160,117 +165,242 @@ public class AppOpenController {
 				LogFoot logFoot = null;
 				List<LogAnaLyze> logAnaLyzes = new ArrayList<>();// 存储Log分析信息
 
+				String logType = "0";// log的格式 0代表4g的 1代表5g的 20200720
+				SignalDataBean signalDataBean = null;// 为了处理最后的几位部分准备的
+
 				while ((str = bufferedReader.readLine()) != null) {
-					String id = MyUtil.getUuid();// 每个mainLog的主键
-					if (num == 0) {// 第一行的处理方式
-						nrLogHeadBean = JSONObject.parseObject(str, NrLogHeadBean.class);
-						// 校验头部的信息 不正确直接抛异常
-						checkHeaderInfo(nrLogHeadBean);
-						num++;
 
-						user = nrLogHeadBean.getUser();
-						city = nrLogHeadBean.getCity();
-						operators = nrLogHeadBean.getOperator();
-						if (StringUtils.isBlank(user)) {
-							throw new IllegalArgumentException("Ihandle用户账号为空");
+					if (num == 0) {// 20200720
+						if (str.contains("mSignaBean") || str.contains("mSignaEventBean") || str.contains("longitude")
+								|| str.contains("latitude") || str.contains("doorDataInfoBeans")
+								|| str.contains("doorDataInfoViceBeans")) {
+							logType = "0";
+						} else {
+							logType = "1";// 5g
 						}
-						if (StringUtils.isBlank(city)) {
-							throw new IllegalArgumentException("未传入地市名称");
-						}
-						city = city.trim().replace("市", "");// 后端做地市的市去掉处理
+					}
 
-						if (StringUtils.isBlank(operators)) {
-							throw new IllegalArgumentException("未传入运营商名称");
-						}
+					if (("1").equals(logType)) {
+						String id = MyUtil.getUuid();// 每个mainLog的主键
+						if (num == 0) {// 第一行的处理方式
+							nrLogHeadBean = JSONObject.parseObject(str, NrLogHeadBean.class);
+							// 校验头部的信息 不正确直接抛异常
+							checkHeaderInfo(nrLogHeadBean);
+							num++;
 
-						if(operators.contains("电信")) {
-							operators="电信";
-						}else if (operators.contains("联通")) {
-							operators="联通";
-						}else if (operators.contains("移动")) {
-							operators="移动";
-						}else {
-							throw new IllegalArgumentException("运营商错误：【联通、电信、移动、中国联通、中国电信、中国移动 其一】");
-						}
-						
-						
-
-						// 处理权限开始
-						// 根据地市运营商查询SIM项目
-						SimProject simProject=null;
-						Map<String, Object> paramMap = new HashMap<>();
-						paramMap.put("city_name", city);
-						paramMap.put("operators", operators);
-						List<SimProject> selectByMap = simProjectService.selectByMap(paramMap);
-						if (selectByMap != null && selectByMap.size() > 0) {
-							simProject = selectByMap.get(0);
-							// 上传Log开始
-						} else {// zzzzzzz
-							city=openUpAppFlag;
-							paramMap.put("city_name", openUpAppFlag);//写死临时的目录
-							List<SimProject> simProjects = simProjectService.selectByMap(paramMap);
-							if (simProjects != null && simProjects.size() > 0) {
-								simProject = simProjects.get(0);
+							user = nrLogHeadBean.getUser();
+							city = nrLogHeadBean.getCity();
+							operators = nrLogHeadBean.getOperator();
+							if (StringUtils.isBlank(user)) {
+								throw new IllegalArgumentException("Ihandle用户账号为空");
 							}
-						}
-						if (simProject != null) {
-							// 查询项目的编号
-							String project_name = simProject.getProject_name();
-							paramMap.clear();
-							paramMap.put("projName", project_name);
-							List<SysProject> sysProjects = sysProjectService.findByCondition(paramMap);
-							if (sysProjects == null || sysProjects.size() == 0) {
-								throw new IllegalArgumentException("【" + city + "、" + operators + "】对应的云后台项目不存在");
+							if (StringUtils.isBlank(city)) {
+								throw new IllegalArgumentException("未传入地市名称");
 							}
-							sysProject = sysProjects.get(0);
-						}else {
-							throw new IllegalArgumentException("归档项目匹配失败");
-						}
-						// 处理权限结束
+							city = city.trim().replace("市", "");// 后端做地市的市去掉处理
 
-					} else {
-						// 如果最后一行
-						if (str.contains("httpzbBean") || str.contains("pingzbBean") || str.contains("ftpzbBean")
-								|| str.contains("nrwxzbBean") || str.contains("ltewxzbBean")
-								|| str.contains("yyzbBean")) {
-							// 存储文件
-							String fileStorePath = FileUtil.upFileNew(file, filesCommonPath, "outhomelog");
-							logFoot = JSONObject.parseObject(str, LogFoot.class);
-							// 处理最后一条记录的 就是 室外测试 列表
-							handleOutHomeTest(logFoot, request, beginTime,
-									FileUtil.getFilenameByOriginal(file.getOriginalFilename()), fileStorePath,
-									sysProject.getId() + "", nrLogHeadBean, endTime, outHomeTestId);
-							// 处理统计分析记录
-							finalAnalyzeLogData(logAnaLyzes, logFoot, outHomeTestId);
-						} else {// 其他行
-							nrLogBodyBean = JSONObject.parseObject(str, NrLogBodyBean.class);
-							if (nrLogBodyBean != null) {
-								// 记录时间
-								if (num == 1) {
-									beginTime = nrLogBodyBean.getTestTime();
-									num++;
+							if (StringUtils.isBlank(operators)) {
+								throw new IllegalArgumentException("未传入运营商名称");
+							}
+
+							if (operators.contains("电信")) {
+								operators = "电信";
+							} else if (operators.contains("联通")) {
+								operators = "联通";
+							} else if (operators.contains("移动")) {
+								operators = "移动";
+							} else {
+								throw new IllegalArgumentException("运营商错误：【联通、电信、移动、中国联通、中国电信、中国移动 其一】");
+							}
+
+							// 处理权限开始
+							// 根据地市运营商查询SIM项目
+							SimProject simProject = null;
+							Map<String, Object> paramMap = new HashMap<>();
+							paramMap.put("city_name", city);
+							paramMap.put("operators", operators);
+							List<SimProject> selectByMap = simProjectService.selectByMap(paramMap);
+							if (selectByMap != null && selectByMap.size() > 0) {
+								simProject = selectByMap.get(0);
+							} else {// zzzzzzz
+								city = openUpAppFlag;
+								paramMap.put("city_name", openUpAppFlag);// 写死临时的目录
+								List<SimProject> simProjects = simProjectService.selectByMap(paramMap);
+								if (simProjects != null && simProjects.size() > 0) {
+									simProject = simProjects.get(0);
 								}
-								endTime = nrLogBodyBean.getTestTime();
-								// 先将百度经纬度转为wgs84
-								nrLogBodyBean.dealLngLatBdToWgs84();
-								nrLogBodyBean.setPid(outHomeTestId);// 室外测试的主键id
-								nrLogBodyBean.setId(id);/** 赋值 注意这个很重要 一定要先赋值 */
-								// 信令 大字段信息表得 存储
-								handleMsgInfoField(nrLogBodyBean, request);
-								// 主表信息转移
-								IndexRequest indexRequestMain = new IndexRequest("logmain5g", "logmain5g", id);
-								FiveLogMain mainLogModel = new FiveLogMain(nrLogBodyBean, nrLogHeadBean);
-								indexRequestMain.source(JSONObject.toJSONString(mainLogModel), XContentType.JSON);
-								request.add(indexRequestMain);
-								// 添加日志分析信息
-								addLogAnalyzeInfo(logAnaLyzes, nrLogBodyBean, nrLogHeadBean);
 							}
+							if (simProject != null) {
+								// 查询项目的编号
+								String project_name = simProject.getProject_name();
+								paramMap.clear();
+								paramMap.put("projName", project_name);
+								List<SysProject> sysProjects = sysProjectService.findByCondition(paramMap);
+								if (sysProjects == null || sysProjects.size() == 0) {
+									throw new IllegalArgumentException("【" + city + "、" + operators + "】对应的云后台项目不存在");
+								}
+								sysProject = sysProjects.get(0);
+							} else {
+								throw new IllegalArgumentException("归档项目匹配失败");
+							}
+							// 处理权限结束
+
+						} else {
+							// 如果最后一行
+							if (str.contains("httpzbBean") || str.contains("pingzbBean") || str.contains("ftpzbBean")
+									|| str.contains("nrwxzbBean") || str.contains("ltewxzbBean")
+									|| str.contains("yyzbBean")) {
+								// 存储文件
+								String fileStorePath = FileUtil.upFileNew(file, filesCommonPath, "outhomelog");
+								logFoot = JSONObject.parseObject(str, LogFoot.class);
+								// 处理最后一条记录的 就是 室外测试 列表
+								handleOutHomeTest(logFoot, request, beginTime,
+										FileUtil.getFilenameByOriginal(file.getOriginalFilename()), fileStorePath,
+										sysProject.getId() + "", nrLogHeadBean, endTime, outHomeTestId);
+								// 处理统计分析记录
+								finalAnalyzeLogData(logAnaLyzes, logFoot, outHomeTestId);
+							} else {// 其他行
+								nrLogBodyBean = JSONObject.parseObject(str, NrLogBodyBean.class);
+								if (nrLogBodyBean != null) {
+									// 记录时间
+									if (num == 1) {
+										beginTime = nrLogBodyBean.dealLongTimeToStr(nrLogBodyBean.getTestTime());
+										num++;
+									}
+									endTime = nrLogBodyBean.dealLongTimeToStr(nrLogBodyBean.getTestTime());
+									nrLogBodyBean.setTestTime(endTime);//重新设置时间为 yyyy-MM-dd HH:mm:ss的格式
+									
+									
+									// 先将百度经纬度转为wgs84
+									//nrLogBodyBean.dealLngLatBdToWgs84();
+									nrLogBodyBean.setPid(outHomeTestId);// 室外测试的主键id
+									nrLogBodyBean.setId(id);/** 赋值 注意这个很重要 一定要先赋值 */
+									// 信令 大字段信息表得 存储
+									handleMsgInfoField(nrLogBodyBean, request);
+									// 主表信息转移
+									IndexRequest indexRequestMain = new IndexRequest("logmain5g", "logmain5g", id);
+									FiveLogMain mainLogModel = new FiveLogMain(nrLogBodyBean, nrLogHeadBean);
+									indexRequestMain.source(JSONObject.toJSONString(mainLogModel), XContentType.JSON);
+									request.add(indexRequestMain);
+									// 添加日志分析信息
+									addLogAnalyzeInfo(logAnaLyzes, nrLogBodyBean, nrLogHeadBean,mainLogModel);
+								}
+							}
+						}
+					} else {// 4g得处理方式
+						String id = MyUtil.getUuid();// 每个mainLog的主键
+						signalDataBean = JSONObject.parseObject(str, SignalDataBean.class);
+						if (num == 0) {// 第一行的处理方式
+							nrLogHeadBean = signalDataBean.toNrLogHeadBean();
+							;
+							// 校验头部的信息 不正确直接抛异常
+							checkHeaderInfo(nrLogHeadBean);
+							num++;
+
+							user = nrLogHeadBean.getUser();
+							city = nrLogHeadBean.getCity();
+							operators = nrLogHeadBean.getOperator();
+							if (StringUtils.isBlank(user)) {
+								throw new IllegalArgumentException("Ihandle用户账号为空");
+							}
+							if (StringUtils.isBlank(city)) {
+								throw new IllegalArgumentException("未传入地市名称");
+							}
+							city = city.trim().replace("市", "");// 后端做地市的市去掉处理
+
+							if (StringUtils.isBlank(operators)) {
+								throw new IllegalArgumentException("未传入运营商名称");
+							}
+
+							if (operators.contains("电信")) {
+								operators = "电信";
+							} else if (operators.contains("联通")) {
+								operators = "联通";
+							} else if (operators.contains("移动")) {
+								operators = "移动";
+							} else {
+								throw new IllegalArgumentException("运营商错误：【联通、电信、移动、中国联通、中国电信、中国移动 其一】");
+							}
+
+							// 处理权限开始
+							// 根据地市运营商查询SIM项目
+							SimProject simProject = null;
+							Map<String, Object> paramMap = new HashMap<>();
+							paramMap.put("city_name", city);
+							paramMap.put("operators", operators);
+							List<SimProject> selectByMap = simProjectService.selectByMap(paramMap);
+							if (selectByMap != null && selectByMap.size() > 0) {
+								simProject = selectByMap.get(0);
+							} else {// zzzzzzz
+								city = openUpAppFlag;
+								paramMap.put("city_name", openUpAppFlag);// 写死临时的目录
+								List<SimProject> simProjects = simProjectService.selectByMap(paramMap);
+								if (simProjects != null && simProjects.size() > 0) {
+									simProject = simProjects.get(0);
+								}
+							}
+							if (simProject != null) {
+								// 查询项目的编号
+								String project_name = simProject.getProject_name();
+								paramMap.clear();
+								paramMap.put("projName", project_name);
+								List<SysProject> sysProjects = sysProjectService.findByCondition(paramMap);
+								if (sysProjects == null || sysProjects.size() == 0) {
+									throw new IllegalArgumentException("【" + city + "、" + operators + "】对应的云后台项目不存在");
+								}
+								sysProject = sysProjects.get(0);
+							} else {
+								throw new IllegalArgumentException("归档项目匹配失败");
+							}
+							// 处理权限结束
+
+						}
+						nrLogBodyBean = signalDataBean.toNrLogBodyBean();
+						if (nrLogBodyBean != null) {
+							// 记录时间
+							if (num == 1) {
+								beginTime = nrLogBodyBean.dealLongTimeToStr(nrLogBodyBean.getTestTime());
+								num++;
+							}
+							endTime = nrLogBodyBean.dealLongTimeToStr(nrLogBodyBean.getTestTime());
+							// 先将百度经纬度转为wgs84
+							//nrLogBodyBean.dealLngLatBdToWgs84();
+							nrLogBodyBean.setPid(outHomeTestId);// 室外测试的主键id
+							nrLogBodyBean.setTestTime(endTime);
+							nrLogBodyBean.setId(id);/** 赋值 注意这个很重要 一定要先赋值 */
+							// 信令 大字段信息表得 存储
+							handleMsgInfoField(nrLogBodyBean, request);
+							// 主表信息转移
+							IndexRequest indexRequestMain = new IndexRequest("logmain5g", "logmain5g", id);
+							FiveLogMain mainLogModel = new FiveLogMain(nrLogBodyBean, nrLogHeadBean);
+							indexRequestMain.source(JSONObject.toJSONString(mainLogModel), XContentType.JSON);
+							request.add(indexRequestMain);
+							// 添加日志分析信息
+							addLogAnalyzeInfo(logAnaLyzes, nrLogBodyBean, nrLogHeadBean,mainLogModel);
 						}
 					}
 				}
+
+				if (("0").equals(logType)) {// 针对4g得log最后处理统计分析模块
+					// 存储文件
+					String fileStorePath = FileUtil.upFileNew(file, filesCommonPath, "outhomelog");
+					if (signalDataBean != null) {
+						logFoot = signalDataBean.ToLogFoot();
+						// 处理最后一条记录的 就是 室外测试 列表
+						handleOutHomeTest(logFoot, request, beginTime,
+								FileUtil.getFilenameByOriginal(file.getOriginalFilename()), fileStorePath,
+								sysProject.getId() + "", nrLogHeadBean, endTime, outHomeTestId);
+						// 处理统计分析记录
+						finalAnalyzeLogData(logAnaLyzes, logFoot, outHomeTestId);
+					}
+				}
+
 				/** 分批的添加进去 */
 				transportClient.bulk(request).get();
 
+				// 批量保存logAnaLyzes
+				logAnaLyzeService.insertBatch(logAnaLyzes, 500);
+				
 				if (bufferedReader != null) {
 					bufferedReader.close();
 				}
@@ -320,7 +450,6 @@ public class AppOpenController {
 		return new JsonMsgUtil(true, "添加成功", "");
 	}
 
-
 	private Double formatStringToDouble(String sinr) {
 		if (StringUtils.isNotBlank(sinr)) {
 			try {
@@ -344,15 +473,20 @@ public class AppOpenController {
 	 * @date 2020年5月21日 下午4:10:55
 	 */
 	private void addLogAnalyzeInfo(List<LogAnaLyze> logAnaLyzes, NrLogBodyBean nrLogBodyBean,
-			NrLogHeadBean nrLogHeadBean) {
+			NrLogHeadBean nrLogHeadBean, FiveLogMain mainLogModel) {
 		LogAnaLyze model = new LogAnaLyze();
 		model.setDownLoadSpeed(formatStringToDouble(nrLogBodyBean.getDownLoadSpeed()));
 		model.setUpLoadSpeed(formatStringToDouble(nrLogBodyBean.getUpLoadSpeed()));
 		model.setPid(nrLogBodyBean.getPid());
 		int rootSupport = nrLogHeadBean.getRootSupport();
 		model.setCreateTime(new Date());
-		model.setSinr(0D);
-		model.setRsrp(0D);
+		model.setSinr(DEFAAULT_NUM);// 先设置为默认的值
+		model.setRsrp(DEFAAULT_NUM);// 先设置为默认的值
+
+		model.setSsrsrp(formatStringToDouble(mainLogModel.getSsrsrp()));// 设置ssrsrp sssinr的值
+		model.setSssinr(formatStringToDouble(mainLogModel.getSssinr()));
+
+		
 		if (0 == rootSupport) {// 非root
 			LteDataInfoBean lteDataInfoBean = nrLogBodyBean.getLteDataInfoBean();
 			if (lteDataInfoBean != null) {
@@ -360,7 +494,7 @@ public class AppOpenController {
 				model.setRsrp(formatStringToDouble(lteDataInfoBean.getLteRSRP()));
 			}
 		} else {// root的
-			ProLteDataInfoBean proLteDataInfoBeans = nrLogBodyBean.getProLteDataInfoBeans();
+			ProLteDataInfoBean proLteDataInfoBeans = nrLogBodyBean.getProLteDataInfoBean();
 			if (proLteDataInfoBeans != null) {
 				model.setSinr(formatStringToDouble(proLteDataInfoBeans.getServingCellPccSinr()));
 				model.setRsrp(formatStringToDouble(proLteDataInfoBeans.getServingCellPccRsrp()));
@@ -450,6 +584,10 @@ public class AppOpenController {
 		outHomeLogModel.setCityId(cityId);
 		outHomeLogModel.setId(outHomeTestId);
 
+		outHomeLogModel.setCity(nrLogHeadBean.getCity());
+		outHomeLogModel.setTestPerson(nrLogHeadBean.getUser());
+		outHomeLogModel.setPhoneType(nrLogHeadBean.getPhone());
+		
 		int logversion = nrLogHeadBean.getLogversion();
 		if (1 == logversion) {// NR5G NSA
 			outHomeLogModel.setNetWorkType("NR5G NSA");
@@ -572,7 +710,7 @@ public class AppOpenController {
 				if (date != null) {
 					oneButtonTest.setTestTimeQuery(date.getTime());
 				}
-				oneButtonTest.dealLngLatBdToWgs84();
+				//oneButtonTest.dealLngLatBdToWgs84();
 				oneButtonTestService.insert(oneButtonTest);
 			}
 			// 在上传没有问题的情况下 查询用户 如果用户不存在就创建默认账号和权限 存在不做处理

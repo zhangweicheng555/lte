@@ -342,5 +342,4 @@ public class EsController {
 		return "success";
 	}
 
-
 }

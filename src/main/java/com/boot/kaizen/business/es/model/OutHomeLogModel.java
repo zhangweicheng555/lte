@@ -1,9 +1,7 @@
 package com.boot.kaizen.business.es.model;
 
 import java.util.Date;
-
 import org.apache.commons.lang3.StringUtils;
-
 import com.baomidou.mybatisplus.annotations.TableName;
 import com.boot.kaizen.business.buss.model.fiveg.FootLtewxzbBean;
 import com.boot.kaizen.business.buss.model.fiveg.LogFoot;
