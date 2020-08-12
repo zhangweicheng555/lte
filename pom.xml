@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.boot</groupId>
 	<artifactId>kaizenLog</artifactId>
-	<version>0.1.0.RELEASE</version>
+	<version>1.0.0.RELEASE</version>
 	<description>Ihand日志分析系统</description>
 
 	<parent>
@@ -320,6 +320,17 @@
 
 
 	<build>
+	
+		<!-- 在pom文件中增加（使用maven渲染yml）   用于解决yml读取pom文件的配置 -->
+		<resources>
+	       <resource>
+	          <directory>src/main/resources</directory>
+	          <filtering>true</filtering>
+	       </resource>
+        </resources>
+        
+        
+        
 		<finalName>kaizenLog</finalName>
 		<plugins>
 			<plugin>

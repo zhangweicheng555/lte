@@ -153,3 +153,9 @@ logsystem:
 sim:
   key: zcto8k3i*a2c6
   url: http://61.132.73.61:8012/SIM/iHandle!getParamSync.action
+  
+  
+  
+#定义项目说明信息 
+project: 
+  version: '@project.version@'

@@ -151,3 +151,10 @@ commonval:
   
   ihandleUser: Ihandle默认用户  # 用户生成默认的角色名称  针对
   ihandleUserPermission: open_source_oneLog,open_source_onebutton,open_source_outhometest5g,open_source_4ggongcan,open_source_5ggongcan  # 用户默认的权限
+
+  
+  
+  
+#定义项目说明信息 
+project: 
+  version: '@project.version@'

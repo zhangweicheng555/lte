@@ -22,25 +22,17 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.alibaba.fastjson.JSONObject;
 import com.boot.kaizen.business.es.model.QueryParamData;
-import com.boot.kaizen.business.es.model.sim.CommonModel;
-import com.boot.kaizen.business.es.model.sim.GcModel;
-import com.boot.kaizen.business.es.model.sim.ResultModel;
 import com.boot.kaizen.business.es.service.Esutil;
-import com.boot.kaizen.entity.LoginUser;
-import com.boot.kaizen.model.SysProject;
-import com.boot.kaizen.util.AEStest;
 import com.boot.kaizen.util.FileUtil;
-import com.boot.kaizen.util.HttpUtil;
 import com.boot.kaizen.util.JsonMsgUtil;
-import com.boot.kaizen.util.UserUtil;
 
 @Controller
 @RequestMapping("/app")
@@ -49,6 +41,9 @@ public class TestController {
 	@Autowired
 	private TransportClient transportClient;
 
+	@Value("${project.version}")
+	private String version;
+	
 	/**
 	 * 创建映射
 	 * 
@@ -1347,6 +1342,13 @@ public class TestController {
 		Esutil.deleteBatchByCondition(queryParamData);
 		/** for循环请求数据结束 **/
 		return new JsonMsgUtil(true, "添加测试数据成功", "");
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/version")
+	public JsonMsgUtil version() throws Exception {
+	
+		return new JsonMsgUtil(true, "添加测试数据成功", version);
 	}
 
 	@ResponseBody
