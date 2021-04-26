@@ -26,7 +26,7 @@
 		<java-jwt.version>3.3.0</java-jwt.version>
 		<commons-fileupload.version>1.4</commons-fileupload.version>
 		<activiti.version>5.22.0</activiti.version>
-		<commons-io.version>2.5</commons-io.version>
+		<commons-io.version>2.7</commons-io.version>
 		<!-- test编译不运行的方式 解决 websocket冲突的人问题 -->
 		<skipTests>true</skipTests>
 
